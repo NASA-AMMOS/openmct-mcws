@@ -1,0 +1,41 @@
+[
+    {
+        "name": "EXAMPLE A",
+        "host": "localhost",
+        "prefix": null,
+        "mcwsRootUrl": null,
+        "channelDictionaryUrl": "http://localhost:8080/test_data/ChannelDictionary.json",
+        "channelEnumerationDictionaryUrl": "http://localhost:8080/test_data/ChannelEnumerationDictionary.json",
+        "channelHistoricalUrl": null,
+        "channelMinMaxUrl": null,
+        "channelLADUrl": null,
+        "channelStreamUrl": null,
+        "sessionUrl": "http://localhost:8080/test_data/Session.json",
+        "sessionLADUrl": "http://localhost:8080/test_data/SessionLAD.json",
+        "eventRecordDictionaryUrl": null,
+        "evrHistoricalUrl": null,
+        "evrStreamUrl": null,
+        "dataProductUrl": null,
+        "dataProductContentUrl": null,
+        "dataProductStreamUrl": null,
+        "packetUrl": null,
+        "packetContentUrl": null,
+        "packetSummaryEventStreamUrl": null,
+        "commandEventUrl": null,
+        "commandEventStreamUrl": null
+    },
+    {
+        "name": "EXAMPLE B",
+        "channelDictionaryUrl": "http://localhost:8080/test_data/ChannelDictionary.json",
+        "sessionLADUrl": "http://localhost:8080/test_data/EmptySessionLAD.json"
+    },
+    {
+        "name": "EXAMPLE C",
+        "channelDictionaryUrl": "http://localhost:8080/test_data/ChannelDictionary.json",
+        "sessionLADUrl": "http://localhost:8080/test_data/SingleSessionLAD.json"
+    },
+    {
+        "name": "EXAMPLE C",
+        "headerChannels": "H-0001,H-0002,H-0003"
+    }
+]

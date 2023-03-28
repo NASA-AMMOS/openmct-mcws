@@ -1,0 +1,56 @@
+<div ng-controller="ActiveSessionSelectorController"
+     class="l-venue-section l-active-session-selector"
+     ng-class="{
+         loading: loading
+     }">
+     <div ng-show="!topics" class="blank">
+         No topics currently available
+     </div>
+    <div ng-show="topics.length" class="l-topics-selector">
+        <div class="label">Please select a topic or session:</div>
+        <div class="l-topics-tree-wrapper selector-list">
+            <ul class="c-tree l-topics-tree">
+                <li ng-repeat="topic in topics" class="c-tree__item-h">
+                    <div class="c-tree__item"
+                          ng-class="{
+                              'is-selected': isSelected(topic.model)
+                          }">
+                        <span class="c-disclosure-triangle c-tree__item__view-control"
+                              ng-click="topic.expanded = !topic.expanded"
+                              ng-class="{
+                                  'c-disclosure-triangle--expanded': topic.expanded,
+                                  'is-enabled': topic.model.sessions.length
+                              }">
+                        </span>
+                        <div class="c-object-label c-tree__item__label"
+                             ng-click="selectSession(topic.model)">
+                            <span class="c-tree__item__type-icon c-object-label__type-icon icon-topic"></span>
+                            <div class='c-tree__item__name c-object-label__name'>
+                                {{ topic.model.topic }}
+                            </div>
+
+                        </div>
+                    </div>
+                    <span class="c-tree__item__subtree" ng-show="topic.expanded">
+                        <ul class="c-tree">
+                            <li ng-repeat="session in topic.model.sessions" class="c-tree__item-h">
+                                <span class="c-tree__item"
+                                      ng-class="{
+                                          'is-selected': isSelected(session)
+                                      }"
+                                      ng-click="selectSession(session)">
+                                    <div class="c-object-label c-tree__item__label">
+                                        <span class="c-tree__item__type-icon c-object-label__type-icon icon-session"></span>
+                                        <div class='c-tree__item__name c-object-label__name'>
+                                            {{ session.number }} {{ session.name }} on {{ session.host }}
+                                        </div>
+                                    </div>
+                                </span>
+                            </li>
+                        </ul>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

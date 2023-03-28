@@ -1,0 +1,311 @@
+@import "constants";
+
+/************************************** SESSION SELECTORS */
+.c-session-selector {
+    display: flex;
+    flex-direction: column;
+    padding-right: 0 !important;
+
+    > * + * {
+        margin-top: $interiorMarginLg;
+    }
+
+    &__sessions {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+
+        > * + * {
+            margin-top: $interiorMargin;
+        }
+
+        &__hint { flex: 0 0 auto; }
+
+        &__table-w {
+            flex: 1 1 auto;
+            height: 0; // Chrome 73 overflow bug fix
+            overflow: auto;
+
+            table {
+                thead input {
+                    size: 1em;
+                    width: 100%;
+                }
+
+                tbody {
+                    tr {
+                        cursor: pointer;
+
+                        &.is-selected td {
+                            background: #2dc7fc;
+                            color: #fff;
+                        }
+                    }
+
+                    td {
+                        white-space: nowrap;
+                    }
+                }
+            }
+        }
+    }
+
+    &__selected-session {
+        flex: 0 0 auto;
+    }
+}
+
+/************************************** CAM LOGIN DIALOG */
+.c-login-overlay {
+    //iframe element
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 1000;
+}
+
+/************************************** VENUE DIALOG */
+.l-venue-selection {
+    display: flex;
+    flex-direction: column;
+}
+
+.l-venue-selection mct-include {
+    display: contents !important;
+}
+
+/******************************************************* VENUES */
+.l-venue-selection {
+    &__tabs {
+        margin: 10px 0;
+    }
+
+    &__tab {
+        $p: 30px;
+        flex: 0 0 auto;
+        padding-left: $p;
+        padding-right: $p;
+        text-transform: uppercase;
+    }
+}
+
+.l-active-venue-selector {
+    display: flex;
+    flex: 0 0 auto;
+    flex-flow: row wrap;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.c-venue-button {
+    /* Based on c-button */
+    flex: 0 0 auto;
+    margin: 0 5px 5px 0;
+    padding: 10px 30px;
+}
+
+/******************************************************* SESSIONS */
+.l-selected-session {
+    flex: 0 0 auto;
+    overflow: auto;
+}
+
+.l-selected-session .label {
+    margin-bottom: 10px;
+}
+
+.l-selected-session td {
+    background: #2dc7fc;
+    color: #fff;
+}
+
+/************************************** ACTIVE SESSION SELECTOR */
+.l-active-session-selector,
+.l-topics-selector {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+.l-topics-selector .label {
+    flex: 0 0 auto;
+}
+
+.l-topics-tree-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    margin-top: 5px;
+}
+
+.l-topics-tree.c-tree {
+    .c-tree {
+        // Nested sub-trees are leaf nodes; give some extra indent
+        margin-left: 35px;
+    }
+}
+
+/******************************************************* FRAME ACCOUNTABILITY */
+.c-tree.c-frame-accountability {
+    .c-object-label {
+        flex: 0 1 auto;
+        > * + * {
+            margin-left: $interiorMargin;
+        }
+
+        &__name {
+            border-radius: 3px;
+            display: inline-block;
+            padding: 2px $interiorMargin; // Pad for application of background color when VCID is unexpected
+            width: auto;
+
+            &[class*='s-status-warning'] { font-style: italic; }
+        }
+
+        .c-click-icon {
+            padding: 0;
+        }
+    }
+    .c-tree__item__bad-frames-button {
+        background: none !important;
+    }
+}
+
+/************************************* LEGACY MCT-TABLE, VISTA-LEGACY-TABLE */
+mct-table {
+    .mct-sizing-table {
+        z-index: -1;
+        visibility: hidden;
+        position: absolute !important;
+
+        //Add some padding to allow for decorations such as limits indicator
+        td {
+            padding-right: 15px;
+            padding-left: 10px;
+            white-space: nowrap;
+        }
+    }
+
+    .mct-table {
+        tr {
+            display: flex; // flex-flow defaults to row nowrap (which is what we want) so no need to define
+            align-items: stretch;
+        }
+
+        td, th {
+            box-sizing: border-box;
+            display: block;
+            flex: 1 0 auto;
+            white-space: nowrap;
+        }
+
+        thead {
+            display: block;
+        }
+
+        tbody {
+            tr {
+                height: 18px; // Needed when a row has empty values in its cells
+                position: absolute;
+            }
+
+            td {
+                overflow: hidden;
+            }
+        }
+    }
+
+    .l-control-bar {
+        margin-bottom: 3px;
+    }
+}
+
+.mct-table-scroll-forcer {
+    // Force horz scroll when needed; width set via JS
+    font-size: 0;
+    height: 1px; // Height 0 won't force scroll properly
+    position: relative;
+}
+
+.tabular-holder {
+    overflow: hidden;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    width: auto;
+    height: auto;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+
+    > * {
+        position: relative;
+        flex: 0 0 auto;
+    }
+
+    &.l-sticky-headers .l-tabular-body {
+        flex: 1 1 99%;
+        overflow-x: auto;
+    }
+}
+
+.vscroll--persist {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    min-height: 0;
+    height: 100%
+}
+
+.vista-legacy-table {
+    .sizing-table {
+        min-width: 100%;
+        z-index: -1;
+        visibility: hidden;
+        position: absolute;
+
+        //Add some padding to allow for decorations such as limits indicator
+        td {
+            padding-right: 15px;
+            padding-left: 10px;
+            white-space: nowrap;
+        }
+    }
+    .mct-table {
+        table-layout: fixed;
+        thead {
+            display: block;
+            tr {
+                display: block;
+                white-space: nowrap;
+                th {
+                    display: inline-block;
+                    box-sizing: border-box;
+                }
+            }
+        }
+        tbody {
+            tr {
+                position: absolute;
+                white-space: nowrap;
+                display: block;
+            }
+            td {
+                white-space: nowrap;
+                overflow: hidden;
+                box-sizing: border-box;
+                display: inline-block;
+            }
+        }
+    }
+}
+.c-about .l-content.l-vista-build-info {
+    padding-top: 220px;
+}
+.c-about .l-splash.s-splash {
+    height: 220px;
+}
+
+
