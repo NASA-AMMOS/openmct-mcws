@@ -367,7 +367,7 @@ class SessionService {
         ) {
             const format = this.openmct.telemetry.getFormatter('utc.day-of-year');
             const start = format.parse(model.start_time);
-            const end = format.parse(model.end_time);
+            let end = format.parse(model.end_time);
             
             if (start === end) {
                 end = format.endOfDay(end);
