@@ -1,0 +1,15 @@
+<div ng-controller="ActiveVenueSelectorController"
+     class="l-venue-section l-active-venue-selector"
+     ng-class="{
+         loading: isLoading
+     }"
+    >
+    <mct-include ng-repeat="venue in venues"
+        parameters="{
+            venue: venue,
+            isSelected: isSelected,
+            selectVenue: selectVenue
+        }"
+        key="'vista.venue'">
+    </mct-include>
+</div>

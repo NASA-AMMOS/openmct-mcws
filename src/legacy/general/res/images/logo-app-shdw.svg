@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 477 150">
+  <defs>
+    <style>
+      .a {
+        filter: url(#a);
+      }
+
+      .b {
+        fill: #009447;
+      }
+
+      .c {
+        fill: #7f7f7f;
+      }
+    </style>
+    <filter id="a" x="-15" y="-15" width="150" height="130" name="AI_Shadow_Custom">
+      <feGaussianBlur result="blur" stdDeviation="6" in="SourceAlpha"/>
+      <feOffset result="offsetBlurredAlpha" dy="3" in="blur"/>
+      <feMerge>
+        <feMergeNode in="offsetBlurredAlpha"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <title>logo-app-shdw</title>
+  <g class="a">
+    <path class="b" d="M74.6,91.4,104.8,15h28.7l-48,120H63L15,15H43.6Z"/>
+    <path class="b" d="M402.1,58.6,371.9,135H343.2l48-120h22.5l48,120H433Z"/>
+    <path class="c" d="M141.2,15h26.3V135H141.2Z"/>
+    <path class="c" d="M329.3,38.2V135H303V38.2H268.9V15h94.5V38.2Z"/>
+    <path class="c" d="M242.5,135H181.6V111.9h59.6V100.3a7.4,7.4,0,0,0-2.8-4.5L194.2,73.9c-9.1-4.5-15.7-15.1-15.7-25.2V36.9A21.9,21.9,0,0,1,200.4,15h57.7V38.1H201.7V48.7a7.3,7.3,0,0,0,2.7,4.5l44.3,21.9c9,4.4,15.6,15,15.6,25.2v12.8A21.9,21.9,0,0,1,242.5,135Z"/>
+  </g>
+</svg>

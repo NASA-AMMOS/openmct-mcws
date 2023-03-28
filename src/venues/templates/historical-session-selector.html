@@ -1,0 +1,48 @@
+<div ng-controller="HistoricalSessionSelectorController"
+    class="c-session-selector__sessions">
+    <div class="c-session-selector__sessions__hint">
+        Select a session to use for all historical queries.
+        <span ng-show="sessions.length >= 100">Showing first 100 results, use filters to narrow results</span>
+    </div>
+    <div class="c-session-selector__sessions__table-w">
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>User</th>
+                    <th>Host</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Downlink Stream Id</th>
+                </tr>
+                <tr>
+                    <th><input type="text" ng-model="filter.number"/></th>
+                    <th><input type="text" ng-model="filter.user"/></th>
+                    <th><input type="text" ng-model="filter.host"/></th>
+                    <th><input type="text" ng-model="filter.name"/></th>
+                    <th><input type="text" ng-model="filter.description"/></th>
+                    <th><input type="text" ng-model="filter.start_time"/></th>
+                    <th><input type="text" ng-model="filter.end_time"/></th>
+                    <th><input type="text" ng-model="filter.downlink_stream_id"/></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="session in sessions"
+                    ng-class="{ 'is-selected':  isSelected(session) }"
+                    ng-click="select(session)"
+                    >
+                    <td>{{session.number}}</td>
+                    <td>{{session.user}}</td>
+                    <td>{{session.host}}</td>
+                    <td>{{session.name}}</td>
+                    <td>{{session.description}}</td>
+                    <td>{{session.start_time}}</td>
+                    <td>{{session.end_time}}</td>
+                    <td>{{session.downlink_stream_id}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

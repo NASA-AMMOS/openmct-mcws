@@ -1,0 +1,73 @@
+<li class="c-tree__item-h">
+    <div class="c-tree__item"
+        @click="toggleExpand"
+    >
+        <span class="c-disclosure-triangle"
+            :class="{
+                'c-disclosure-triangle--expanded' : expanded,
+                'is-enabled' : true
+            }">
+        </span>
+        <a class="c-tree__item__label c-object-label">
+            <div class="c-tree__item__type-icon c-object-label__type-icon"
+                :class="iconClass"
+                :style="{'color': flagColor}">
+            </div>
+            <div  :style="{background: unknownVCID ? 'orange' : ''}" class="c-tree__item__name c-object-label__name">{{ title }}</div>
+            <button
+                v-if="showBadFramesLink"
+                title="View Bad Frames for this VCID"
+                class="c-tree__item__bad-frames-button c-click-icon icon-tabular"
+                @click.prevent.stop="emitShowBadFrames"
+            >
+            </button>
+        </a>
+    </div>
+
+    <ul v-if="expanded" class="c-tree">
+        <template v-for="(child, index) in lazyLoadedChildren">
+            <frame-accountability-node
+                v-if="child.type === 'frameEvent'"
+                :key="child.event_time + '-' + index"
+                :title="child.event_time + ': ' + child.message_type"
+                :iconClass="'icon-flag'"
+                :flagColor="FLAG_COLORS[child.message_type]"
+                :children="[]"
+                :finalChild="child"
+            ></frame-accountability-node>
+
+            <frame-accountability-node
+                v-if="child.type === 'commandEvent'"
+                :key="child.event_time + '-' + index"
+                :title="child.event_time + ': ' + child.status"
+                :iconClass="'icon-command'"
+                :flagColor="FLAG_COLORS[child.status]"
+                :children="[]"
+                :finalChild="child"
+            ></frame-accountability-node>
+        </template>
+
+        <template v-if="finalChild">
+            <li v-if="finalChild.type === 'frameEvent'">
+                <a class="c-tree__item__label c-object-label">
+                    <div class="c-tree__item__name c-object-label__name" style="white-space: normal">{{ finalChild.summary }}</div>
+                </a>
+            </li>
+
+            <li v-if="finalChild.type === 'commandEvent'">
+                <a class="c-tree__item__label c-object-label">
+                    <div class="c-tree__item__name c-object-label__name" style="white-space: normal">{{ finalChild.command_string }}</div>
+                </a>
+            </li>
+        </template>
+
+        <li class="c-tree__item-h">
+            <button
+                v-show="numHiddenChildren && !finalChild"
+                class="c-button icon-arrow-down labeled"
+                @click="loadMore">
+                <span class="c-button__label">{{numHiddenChildren + ' More Frame Events'}}</span>
+            </button>
+        </li>
+    </ul>
+</li>

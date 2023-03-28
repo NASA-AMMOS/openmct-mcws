@@ -1,0 +1,9 @@
+<div class="c-properties" v-if="isEditing">
+    <div class="c-properties__header">Cell Format</div>
+    <ul class="c-properties__section">
+        <li class="c-properties__row">
+            <div class="c-properties__label" title="Printf formatting for the selected cell"><label for="cellPrintfFormat">Format</label></div>
+            <div class="c-properties__value"><input id="cellPrintfFormat" type="text" @change="formatCell" :value="cellFormat"></div>
+        </li>
+    </ul>
+</div>
