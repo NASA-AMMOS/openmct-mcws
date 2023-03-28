@@ -1,0 +1,39 @@
+*.scssc
+*.zip
+*.gzip
+*.tgz
+*.DS_Store
+
+*.sass-cache
+*COMPILE.css
+
+# Intellij project configuration files
+*.idea
+*.iml
+
+# External dependencies
+
+# Build output
+target
+
+# Mac OS X Finder
+.DS_Store
+
+# Closed source libraries
+closed-lib
+
+# Node dependencies
+node_modules
+bower_components/
+
+# Protractor logs
+protractor/logs
+
+# npm-debug log
+npm-debug.log
+
+test_data/
+
+# auto-env files for those that use them.
+.env
+dist
