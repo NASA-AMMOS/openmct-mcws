@@ -1,0 +1,93 @@
+<mct-container key="overlay">
+    <span ng-controller="VenueDialogController"
+        class="u-contents">
+        <div class="c-overlay__top-bar">
+            <div class="c-overlay__dialog-title">Connect to a Data Source</div>
+            <div class="c-overlay__dialog-hint">
+                Select an active venue or a previous session to continue.
+            </div>
+        </div>
+        <div class="c-overlay__contents-main c-venue-selector">
+            <div class="abs l-venue-selection">
+                 <ul class="l-venue-selection__tabs c-tabs">
+                     <li class="l-venue-selection__tab c-tab"
+                         ng-class="{ 'is-current': isActiveVenueSelect }"
+                         ng-click="isActiveVenueSelect = true">
+                         Active Venues
+                     </li>
+                     <li class="l-venue-selection__tab c-tab"
+                         ng-class="{ 'is-current': !isActiveVenueSelect }"
+                         ng-click="isActiveVenueSelect = false">
+                         Previous Sessions
+                     </li>
+                 </ul>
+
+                <mct-include ng-if="isActiveVenueSelect"
+                    parameters="{
+                        selectVenue: selectVenue,
+                        isSelected: isSelectedVenue
+                    }"
+                    key="'vista.venue-selector'">
+                </mct-include>
+
+                <mct-include ng-if="isActiveVenueSelect && selectedVenue"
+                    parameters="{
+                        venue: selectedVenue,
+                        selectSession: selectSession,
+                        isSelected: isSelectedSession
+                    }"
+                    key="'vista.active-session-selector'">
+                </mct-include>
+
+                <mct-include ng-if="!isActiveVenueSelect && urlsForHistoricalSessions"
+                    parameters="{
+                        selectSession: selectSession,
+                        urls: urlsForHistoricalSessions
+                    }"
+                    key="'vista.historical-session-selector'">
+                </mct-include>
+
+                <div ng-if="!isActiveVenueSelect && selectedSession"
+                     class="l-selected-session">
+                    <div class="label">Selected Session:</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>User</th>
+                                <th>Host</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Downlink Stream Id</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="is-selected">
+                                <td>{{selectedSession.number}}</td>
+                                <td>{{selectedSession.user}}</td>
+                                <td>{{selectedSession.host}}</td>
+                                <td>{{selectedSession.name}}</td>
+                                <td>{{selectedSession.description}}</td>
+                                <td>{{selectedSession.start_time}}</td>
+                                <td>{{selectedSession.end_time}}</td>
+                                <td>{{selectedSession.downlink_stream_id}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+        <div class="c-overlay__button-bar">
+            <button class="c-button c-button--major"
+               ng-click="submit()"
+               ng-class="{
+                   disabled: !canSubmit()
+               }">
+               Connect
+            </button>
+        </div>
+    </span>
+</mct-container>

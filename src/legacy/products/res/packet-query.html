@@ -1,0 +1,17 @@
+<div ng-controller="PacketQueryController">
+    <mct-form name="queryForm"
+              structure="queryStructure"
+              ng-model="queryModel">
+    </mct-form>
+    <div>
+        <a class='c-button c-button--major'
+            ng-href="{{queryUrl}}"
+            ng-class="(canSubmit && queryForm.$valid) ? '' : 'disabled'"
+            download="">
+            Run Query
+        </a>
+    </div>
+    <span ng-show="!canSubmit">
+        {{validationMessage}}
+    </span>
+</div>

@@ -1,0 +1,38 @@
+
+<div class="c-tree__wrapper c-table-wrapper">
+    <div v-if="!vcids.length">
+            No data to show. Once data starts flowing this view will update. 
+    </div>
+
+    <div v-else 
+        class="c-table-control-bar">
+        <button class="c-button icon-download labeled"
+                @click="exportAsText">
+            <span class="c-button__label">Download As Text</span>
+        </button>
+    </div>
+    <div class="c-table c-telemetry-table">
+        <ul class="c-tree c-frame-accountability">
+            <frame-accountability-node
+                v-for="vcid in vcids"
+                :key="vcid"
+                :vcid="vcid"
+                :title="'VC ' + vcid + ' Events'"
+                :iconClass="'icon-flag'"
+                :flagColor="FLAG_COLORS[lastChild(vcid).message_type || lastChild(vcid).status]"
+                :children="events[vcid]"
+                :showBadFramesLink="hasBadFrames(vcid)"
+                :unknownVCID="unexpectedVcids[vcid]"
+                @show-bad-frames="showBadFrames"
+            >
+            </frame-accountability-node>
+        </ul>
+    </div>
+    <frame-accountability-bad-frames
+        v-if="vcid"
+        :vcid="vcid"
+        :values="frameEventValueMetadatas"
+        :badFrames="badFrames"
+        @destroy:badframes="hideBadFrames"
+    />
+</div>

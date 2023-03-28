@@ -1,0 +1,11 @@
+<div ng-controller="VenueController"
+     class="c-venue-button c-button"
+     ng-disabled="!isActive"
+     ng-class="{
+        loading: isLoading,
+        'is-selected': isSelected(venue),
+        'is-active': isActive
+     }"
+     ng-click="selectVenue(venue)">
+    <span class="c-venue-button__label">{{ name }}</span>
+</div>
