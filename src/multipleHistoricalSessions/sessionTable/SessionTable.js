@@ -92,7 +92,7 @@ export default class SessionTable extends TelemetryTable {
             return row;
         });
 
-        this.tableRows.addRows(rows, 'filter');
+        this.tableRows.clearRowsFromTableAndFilter(rows);
     }
 
     clearAndUpdateData(data) {
