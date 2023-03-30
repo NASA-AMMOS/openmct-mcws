@@ -32,7 +32,7 @@
     "moment": "2.29.4",
     "node-bourbon": "^4.2.3",
     "openmct": "github:nasa/openmct#omm-release/5.0",
-    "openmct-legacy-support": "github:akhenry/openmct-legacy-support#remove-persistence",
+    "openmct-legacy-support": "github:akhenry/openmct-legacy-support#omm-release/5.0",
     "printj": "^1.2.1",
     "raw-loader": "^0.5.1",
     "resolve-url-loader": "5.0.0",
