@@ -123,6 +123,6 @@ export default class DictionaryViewTable extends TelemetryTable {
             return row;
         });
 
-        this.tableRows.addRows(rows, 'filter');
+        this.tableRows.clearRowsFromTableAndFilter(rows);
     }
 }

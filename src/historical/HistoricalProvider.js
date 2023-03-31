@@ -457,7 +457,7 @@ define([
     ) {
         let formatter;
 
-        options = JSON.parse(JSON.stringify(options));
+        options = { ...options };
 
         const provider = PROVIDERS.filter(function (p) {
             return p.supportsRequest(domainObject, options);

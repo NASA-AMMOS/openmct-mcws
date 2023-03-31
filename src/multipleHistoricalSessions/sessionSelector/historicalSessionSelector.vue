@@ -167,6 +167,9 @@ export default {
             isLoading: true
         }
     },
+    beforeDestroy() {
+        this.table.destroy();
+    },
     methods: {
         getUniq(key, array) {
             let entries = array.map(session => session[key]);

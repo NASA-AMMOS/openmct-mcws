@@ -51,7 +51,7 @@
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
-    "start": "npx webpack serve --config ./.webpack/webpack.dev.js", 
+    "start": "npx webpack serve --config ./.webpack/webpack.dev.js",
     "build:prod": "webpack --config ./.webpack/webpack.prod.js",
     "build:dev": "webpack --config ./.webpack/webpack.dev.js",
     "build:watch": "webpack --config ./.webpack/webpack.dev.js --watch",
