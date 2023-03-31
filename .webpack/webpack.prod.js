@@ -17,5 +17,5 @@ module.exports =  merge(common, {
             "vue": path.join(__dirname, '..', 'node_modules/vue/dist/vue.min.js'),
         }
     },
-    devtool: 'source-map'
+    devtool: 'eval-source-map'
 });
