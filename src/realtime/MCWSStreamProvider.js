@@ -193,7 +193,7 @@ define([
 
     MCWSStreamProvider.prototype.subscribe = function (domainObject, callback, options) {
         if (options) {
-            options = JSON.parse(JSON.stringify(options));
+            options = { ...options };
             if (options.filters) {
                 options.filters = this.removeFiltersIfAllSelected(domainObject, options.filters);
             }    
