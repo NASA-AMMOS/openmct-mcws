@@ -17,13 +17,13 @@ class DatasetCollection {
     }
 
     async getReferencedDatasets() {
-        await this.#collectDatasetsFromTree(this.#domainObject);
+        this.#collectDatasetsFromTree(this.#domainObject);
 
         await dynamicPromiseAll(this.#visitedPromises);
 
         const datasetsPromises = Array.from(this.#datasets)
             .map(datasetKeyString => {
-                this.#openmct.objects.get(datasetKeyString)
+                return this.#openmct.objects.get(datasetKeyString)
                     .then(object => {
                         return {
                             identifier: object.identifier,
@@ -59,9 +59,11 @@ class DatasetCollection {
             this.#datasets.add(datasetId);
         } else {
             const compositionCollection = this.#openmct.composition.get(node);
-            const composition = await compositionCollection.load();
 
-            composition.forEach(this.#collectDatasetsFromTree);
+            if (compositionCollection !== undefined) {
+                const composition = await compositionCollection.load();
+                composition.forEach(this.#collectDatasetsFromTree.bind(this));
+            }
         }
 
         visited();
@@ -78,7 +80,14 @@ class DatasetCollection {
     }
 
     #getReferencedDatasetId(domainObject) {
-        return domainObject.location;
+        const location = domainObject.location;
+        const locationParts = location.split(':');
+        const datasetNamespace = locationParts[locationParts.length - 2];
+        const datasetKey = locationParts[locationParts.length - 1];
+
+        const datasetKeyString = `${datasetNamespace}:${datasetKey}`;
+
+        return datasetKeyString;
     }
 
     #getId(domainObject) {
