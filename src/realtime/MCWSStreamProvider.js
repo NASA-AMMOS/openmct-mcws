@@ -70,7 +70,6 @@ define([
     };
 
     MCWSStreamProvider.prototype.onmessage = function (message) {
-        console.log('message', message);
         var data = message.data;
         var url = data.url;
         var key = data.key;
@@ -87,7 +86,6 @@ define([
 
         //Communicate websocket timeout and errors to users
         if (data.onclose && data.code === 1006) {
-            console.log('onclose', data);
             let dialog = this.openmct.overlays.dialog({
                 iconClass: "alert",
                 message: 'Real-time data connection lost - data may not be displayed as expected. Please reload page to reconnect.',
@@ -194,7 +192,6 @@ define([
     };
 
     MCWSStreamProvider.prototype.subscribe = function (domainObject, callback, options) {
-        console.log('subscribe', arguments);
         if (options) {
             options = { ...options };
             if (options.filters) {
