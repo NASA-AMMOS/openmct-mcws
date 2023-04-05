@@ -30,7 +30,7 @@
                     class="c-form__row"
                 >
                     <span class="req-indicator req"></span>
-                    <label>{{ referencedDataset.name }}</label>
+                    <label>{{ getDatasetName(referencedDataset) }}</label>
                     <select
                         v-model="mapping[makeKeyString(referencedDataset)]"
                         @change="onChange"
@@ -91,8 +91,8 @@ export default {
         },
         datasetOptions() {
             return this.datasets.map(dataset => {
-                const keyString = this.openmct.objects.makeKeyString(dataset.identifier);
-                const name = dataset.name || keyString;
+                const keyString = this.makeKeyString(dataset);
+                const name = this.getDatasetName(dataset);
 
                 return {
                     name: name,
@@ -127,14 +127,20 @@ export default {
         },
         buildMapping() {
             this.referencedDatasets?.forEach(referencedDataset => {
-                const referencedDatasetKeyString = this.openmct.objects.makeKeyString(referencedDataset.identifier);
-                const datasetKeyString = this.openmct.objects.makeKeyString(this.datasets[0].identifier);
+                const referencedDatasetKeyString = this.makeKeyString(referencedDataset);
+                const datasetKeyString = this.makeKeyString(this.datasets[0]);
 
                 this.$set(this.mapping, referencedDatasetKeyString, datasetKeyString);
             });
         },
         makeKeyString(domainObject) {
             return this.openmct.objects.makeKeyString(domainObject.identifier);
+        },
+        getDatasetName(dataset) {
+            const keyString = this.makeKeyString(dataset);
+            const name = dataset.name || keyString;
+
+            return name;
         },
         onChange(event) {
             this.validate();
