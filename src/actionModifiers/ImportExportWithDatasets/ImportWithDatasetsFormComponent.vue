@@ -91,9 +91,12 @@ export default {
         },
         datasetOptions() {
             return this.datasets.map(dataset => {
+                const keyString = this.openmct.objects.makeKeyString(dataset.identifier);
+                const name = dataset.name || keyString;
+
                 return {
-                    name: dataset.name,
-                    value: this.openmct.objects.makeKeyString(dataset.identifier)
+                    name: name,
+                    value: keyString
                 };
             });
         }
