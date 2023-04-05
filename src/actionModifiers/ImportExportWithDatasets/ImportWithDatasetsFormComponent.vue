@@ -8,7 +8,12 @@
         <div
             v-if="!hasReferencedDatasets"
         >
-            {{ noReferencedDatasetsText }}
+            {{ noDatasetMappingRequiredText }}
+        </div>
+        <div
+            v-else-if="hasOneToOneMapping"
+        >
+            {{ noDatasetMappingRequiredText }}
         </div>
         <div
             v-else-if="hasReferencedDatasets && !hasDatasets"
@@ -74,7 +79,7 @@ export default {
         }
     },
     computed: {
-        noReferencedDatasetsText() {
+        noDatasetMappingRequiredText() {
             return 'All set. The import does not need dataset mapping.';
         },
         noDatasetsText() {
@@ -99,7 +104,11 @@ export default {
                     value: keyString
                 };
             });
-        }
+        },
+        hasOneToOneMapping() {
+            return this.datasets?.length === 1
+                && this.referencedDatasets?.length === 1;
+        },
     },
     data() {
         return {
