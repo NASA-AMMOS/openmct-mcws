@@ -168,8 +168,8 @@ function importWithDatasetsModifier(openmct) {
         const referencedDatasets = new Set();
 
         Object.values(openmct)
-            .forEach(object => object?.composition
-                .forEach(identifier => {
+            .forEach(object => object.composition
+                ?.forEach(identifier => {
                     if (referencesDataset(identifier)) {
                         const datasetIdentifier = getDatasetIdentifier(identifier);
                         referencedDatasets.add({ identifier: datasetIdentifier });
