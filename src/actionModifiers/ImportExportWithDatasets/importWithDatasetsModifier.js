@@ -1,4 +1,3 @@
-import { CONSTANTS } from './constants';
 import ImportWithDatasetsFormComponent from './ImportWithDatasetsFormComponent.vue';
 import Vue from 'vue';
 import DatasetCache from 'services/dataset/DatasetCache';
@@ -99,11 +98,12 @@ function importWithDatasetsModifier(openmct) {
         }
 
         if (success) {
-            try {
-                const datasetCache = DatasetCache();
+            const datasetCache = DatasetCache();
 
-                datasets = await datasetCache.getDomainObjects();
-                referencedDatasets = await getReferencedDatasets(json);
+            datasets = await datasetCache.getDomainObjects();
+
+            try {
+                referencedDatasets = getReferencedDatasets(json);
 
                 component.updateData(referencedDatasets, datasets);
             } catch(error) {
@@ -164,9 +164,35 @@ function importWithDatasetsModifier(openmct) {
     }
 
     function getReferencedDatasets(json) {
-        const referencedDatasets = json[CONSTANTS.DATASETS_IDENTIFIER];
+        const openmct = json.openmct;
+        const referencedDatasets = new Set();
 
-        return referencedDatasets;
+        Object.values(openmct)
+            .forEach(object => object.composition
+                ?.forEach(identifier => {
+                    if (referencesDataset(identifier)) {
+                        const datasetIdentifier = getDatasetIdentifier(identifier);
+                        referencedDatasets.add({ identifier: datasetIdentifier });
+                    }
+                }));
+
+        return Array.from(referencedDatasets);
+    }
+
+    function referencesDataset(identifier) {
+        return identifier.namespace === 'vista';
+    }
+
+    function getDatasetIdentifier(identifier) {
+        const parts = identifier.key.split(':');
+        const namespace = parts[parts.length - 2];
+        const key = parts[parts.length - 1];
+        const datasetIdentifier = {
+            namespace,
+            key
+        };
+
+        return datasetIdentifier;
     }
 }
 
