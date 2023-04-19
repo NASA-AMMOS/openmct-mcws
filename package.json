@@ -32,7 +32,7 @@
     "moment": "2.29.4",
     "node-bourbon": "^4.2.3",
     "openmct": "nasa/openmct#omm-5-w-maps",
-    "openmct-legacy-support": "akhenry/openmct-legacy-support#omm-5-w-maps",
+    "openmct-legacy-support": "akhenry/openmct-legacy-support#block-persistence",
     "printj": "^1.2.1",
     "raw-loader": "^0.5.1",
     "resolve-url-loader": "5.0.0",
