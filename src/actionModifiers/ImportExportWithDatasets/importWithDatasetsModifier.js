@@ -1,7 +1,7 @@
 import ImportWithDatasetsFormComponent from './ImportWithDatasetsFormComponent.vue';
 import Vue from 'vue';
 import DatasetCache from 'services/dataset/DatasetCache';
-
+import Types from 'types/types';
 
 function importWithDatasetsModifier(openmct) {
     openmct.forms.addNewFormControl('import-with-datasets-controller', getImportWithDatasetsFormController(openmct));
@@ -169,10 +169,12 @@ function importWithDatasetsModifier(openmct) {
 
         Object.values(openmct)
             .forEach(object => object.composition
-                ?.forEach(identifier => {
+                ?.forEach( identifier => {
                     if (referencesDataset(identifier)) {
-                        const datasetIdentifier = getDatasetIdentifier(identifier);
-                        referencedDatasets.add({ identifier: datasetIdentifier });
+                        const matchingType = Types.typeForIdentifier(identifier);
+                        const data = matchingType.data(identifier);
+
+                        referencedDatasets.add({ identifier: data.datasetIdentifier });
                     }
                 }));
 
