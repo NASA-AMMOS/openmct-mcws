@@ -174,10 +174,8 @@ function importWithDatasetsModifier(openmct) {
                         const matchingType = Types.typeForIdentifier(identifier);
                         const data = matchingType.data(identifier);
                         const datasetIdentifier = data.datasetIdentifier;
-                        const isAdded = referencedDatasetsFromImport.some(dataset => {
-                            return dataset.identifier.key === datasetIdentifier.key
-                                && dataset.identifier.namespace === datasetIdentifier.namespace
-                        });
+                        const isAdded = referencedDatasetsFromImport
+                            .some(dataset => openmct.objects.areIdsEqual(dataset.identifier, datasetIdentifier));
 
                         if (!isAdded) {
                             referencedDatasetsFromImport.push({ identifier: datasetIdentifier });
