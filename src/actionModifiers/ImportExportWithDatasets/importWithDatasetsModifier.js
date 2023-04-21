@@ -103,7 +103,7 @@ function importWithDatasetsModifier(openmct) {
             datasets = await datasetCache.getDomainObjects();
 
             try {
-                referencedDatasets = getReferencedDatasets(json);
+                referencedDatasets = getReferencedDatasetsFromImport(json);
 
                 component.updateData(referencedDatasets, datasets);
             } catch(error) {
@@ -163,38 +163,29 @@ function importWithDatasetsModifier(openmct) {
         component = undefined;
     }
 
-    function getReferencedDatasets(json) {
+    function getReferencedDatasetsFromImport(json) {
         const openmct = json.openmct;
-        const referencedDatasets = new Set();
+        const referencedDatasetsFromImport = [];
 
         Object.values(openmct)
             .forEach(object => object.composition
                 ?.forEach( identifier => {
-                    if (referencesDataset(identifier)) {
+                    if (Types.hasTypeForIdentifier(identifier)) {
                         const matchingType = Types.typeForIdentifier(identifier);
                         const data = matchingType.data(identifier);
+                        const datasetIdentifier = data.datasetIdentifier;
+                        const isAdded = referencedDatasetsFromImport.some(dataset => {
+                            return dataset.identifier.key === datasetIdentifier.key
+                                && dataset.identifier.namespace === datasetIdentifier.namespace
+                        });
 
-                        referencedDatasets.add({ identifier: data.datasetIdentifier });
+                        if (!isAdded) {
+                            referencedDatasetsFromImport.push({ identifier: datasetIdentifier });
+                        }
                     }
                 }));
 
-        return Array.from(referencedDatasets);
-    }
-
-    function referencesDataset(identifier) {
-        return identifier.namespace === 'vista';
-    }
-
-    function getDatasetIdentifier(identifier) {
-        const parts = identifier.key.split(':');
-        const namespace = parts[parts.length - 2];
-        const key = parts[parts.length - 1];
-        const datasetIdentifier = {
-            namespace,
-            key
-        };
-
-        return datasetIdentifier;
+        return referencedDatasetsFromImport;
     }
 }
 
