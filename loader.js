@@ -99,7 +99,8 @@ define([
             openmct.install(openmct.plugins.LocalStorage());
             openmct.install(openmct.plugins.MyItems());
         } else {
-            openmct.install(await MCWSPersistenceProviderPlugin.default(config.namespaces));
+            const MCWSPersistenceProvider = await MCWSPersistenceProviderPlugin.default(config.namespaces);
+            openmct.install(MCWSPersistenceProvider);
         }
 
         [
