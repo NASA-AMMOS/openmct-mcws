@@ -40,7 +40,7 @@ define([
     MCWSPersistenceProviderPlugin
 ) {
 
-    async function loader(config) {
+    function loader(config) {
         openmct.setAssetPath(config.assetPath);
 
         openmct.install(LegacySupport.default());
@@ -99,8 +99,10 @@ define([
             openmct.install(openmct.plugins.LocalStorage());
             openmct.install(openmct.plugins.MyItems());
         } else {
-            const MCWSPersistenceProvider = await MCWSPersistenceProviderPlugin.default(config.namespaces);
-            openmct.install(MCWSPersistenceProvider);
+            const mcwsPersistenceProvider =  MCWSPersistenceProviderPlugin.default(config.namespaces);
+            openmct.install(async (_openmct) => {
+                await mcwsPersistenceProvider(_openmct);
+            });
         }
 
         [
