@@ -41,6 +41,10 @@ define([
 ) {
 
     function loader(config) {
+        let persistenceLoaded;
+        const persistenceLoadedPromise = new Promise(resolve => {
+            persistenceLoaded = resolve;
+        });
         openmct.setAssetPath(config.assetPath);
 
         openmct.install(LegacySupport.default());
@@ -98,10 +102,12 @@ define([
         if (config.useDeveloperStorage) {
             openmct.install(openmct.plugins.LocalStorage());
             openmct.install(openmct.plugins.MyItems());
+            persistenceLoaded();
         } else {
             const mcwsPersistenceProvider =  MCWSPersistenceProviderPlugin.default(config.namespaces);
             openmct.install(async (_openmct) => {
                 await mcwsPersistenceProvider(_openmct);
+                persistenceLoaded();
             });
         }
 
@@ -121,8 +127,10 @@ define([
             aboutHtml: insertBuildInfo(AboutTemplate),
         });
 
-        openmct.start();
-        window.openmct = openmct;
+        persistenceLoaded.then(() => {
+            openmct.start();
+            window.openmct = openmct;
+        });
     }
 
     /**
