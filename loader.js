@@ -127,7 +127,7 @@ define([
             aboutHtml: insertBuildInfo(AboutTemplate),
         });
 
-        persistenceLoaded.then(() => {
+        persistenceLoadedPromise.then(() => {
             openmct.start();
             window.openmct = openmct;
         });
