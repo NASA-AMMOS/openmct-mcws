@@ -145,8 +145,8 @@ define([
                             } else {
                                 return {
                                     type: 'vista.channel.alarms',
-                                    location: identifier.key,
-                                    identifier: identifier,
+                                    location: openmct.objects.makeKeyString(datasetIdentifier),
+                                    identifier,
                                     name: prefix + 'Channel Alarms'
                                 };
                             }
