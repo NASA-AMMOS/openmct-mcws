@@ -1,0 +1,22 @@
+[
+    {
+        "record_type": "evr_dictionary",
+        "evr_id": "1",
+        "evr_name": "TEST_CBM_EVR_BKGD_DONE",
+        "level": "ACTIVITY_HI",
+        "module": "TEST_CBM",
+        "ops_cat": "",
+        "nargs": "5",
+        "format": "Established background state for mode %d with bkgd row %d, x-band id %d, uhf id %d, eha row %d"
+    },
+    {
+        "record_type": "evr_dictionary",
+        "evr_id": "2",
+        "evr_name": "TEST_CBM_EVR_BKGD_START",
+        "level": "ACTIVITY_LO",
+        "module": "TEST_CBM",
+        "ops_cat": "",
+        "nargs": "5",
+        "format": "Start background state for mode %d with bkgd row %d, x-band id %d, uhf id %d, eha row %d"
+    }
+]
