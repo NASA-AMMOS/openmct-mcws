@@ -23,8 +23,8 @@ define(
 
             addOrUpdateRow(row) {
                 if (this.isLADRow(row)) {
-                    this.removeExistingByKeystring(row.objectKeyString);
-                    this.addRows([row]);
+                    this.removeRowsByObject(row.objectKeyString);
+                    super.addRows([row], 'add');
                 }
             }
 
@@ -38,7 +38,7 @@ define(
                 return !isStaleData;
             }
 
-            addOne(item) {
+            addOne (item) {
                 if (item.isDummyRow) {
                     this.ladMap.set(item.objectKeyString, this.rows.length);
                     this.rows.push(item);
@@ -57,37 +57,9 @@ define(
                 return false;
             }
 
-            addRows(rows) {
-                let rowsToAdd = this.filterRows(rows);
-
-                rowsToAdd.forEach(this.addOne.bind(this));
-
-                // we emit filter no matter what to trigger
-                // an update of visible rows
-                if (rowsToAdd.length > 0) {
-                    this.emit('add', rowsToAdd);
-                }
-            }
-
             removeAllRowsForObject(objectKeyString) {
                 super.removeAllRowsForObject(objectKeyString);
                 this.rebuildLadMap();
-            }
-
-            removeExistingByKeystring(keyString) {
-                let removed = [];
-
-                this.rows.forEach((row) => {
-                    if (row.objectKeyString === keyString) {
-                        removed.push(row);
-
-                        return false;
-                    } else {
-                        return true;
-                    }
-                });
-
-                this.emit('remove', removed);
             }
 
             rebuildLadMap() {
@@ -97,7 +69,7 @@ define(
                 });
             }
 
-            reorder(reorderPlan) {
+            reorder (reorderPlan) {
                 let oldRows = this.rows.slice();
                 reorderPlan.forEach(reorderEvent => {
                     let item = oldRows[reorderEvent.oldIndex];

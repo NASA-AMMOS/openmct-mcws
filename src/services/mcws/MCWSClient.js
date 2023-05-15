@@ -52,23 +52,9 @@ class MCWSClient {
                 isJsonResponse = true;
             }
 
-            const urlObject = new URL(url);
-            const urlParam = decodeURIComponent(urlObject.searchParams.get('url'));
+            const params = new URLSearchParams(options.params);
 
-            // if it's a proxy request, need to dedupe possible output=json params
-            if (urlParam) {
-                const urlParamUrl = new URL(urlParam);
-                const outputParam = urlParamUrl.searchParams.get('output');
-
-                if (isJsonResponse && outputParam === 'json') {
-                    delete options.params.output;
-                }
-            }
-
-            if (Object.keys(options.params).length > 0) {
-                url += `?${new URLSearchParams(options.params)}`;
-            }
-
+            url += `?${params}`;
             delete options.params;
         }
         
