@@ -1,0 +1,30 @@
+[
+    {
+        "channel_id": "CPU-0001",
+        "channel_name": "CPU_UTIL",
+        "data_type": "FLOAT",
+        "something": "whatever",
+        "dn_units": "percentage",
+        "dn_to_eu": "OFF",
+        "eu_units": "none",
+        "channel_format": "F32"
+    },
+    {
+      "channel_id": "ENG-0001",
+      "channel_name": "main_engine_turn_on",
+      "data_type": "ENUM",
+      "dn_units": "none",
+      "dn_to_eu": "OFF",
+      "eu_units": "none",
+      "channel_format": "I8"
+    },
+    {
+      "channel_id": "ENG-0002",
+      "channel_name": "someone_set_us_up",
+      "data_type": "ENUM",
+      "dn_units": "none",
+      "dn_to_eu": "OFF",
+      "eu_units": "none",
+      "channel_format": "I8"
+    }
+]
