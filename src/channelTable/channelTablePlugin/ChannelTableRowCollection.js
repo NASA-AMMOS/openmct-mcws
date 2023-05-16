@@ -48,9 +48,7 @@ define(
 
                 if (this.isNewerThanLAD(item)) {
                     let rowIndex = this.ladMap.get(item.objectKeyString);
-                    let itemToReplace = this.rows[rowIndex];
                     this.rows[rowIndex] = item;
-                    this.emit('remove', [itemToReplace]);
                     this.emit('add', [item]);
                     return true;
                 }
