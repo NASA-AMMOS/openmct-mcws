@@ -35,14 +35,11 @@ define([
             this.tableRows = new ChannelTableRowCollection(this.openmct);
 
             let sortOptions = this.configuration.getConfiguration().sortOptions;
-
-            //If no persisted sort order, default to sorting by time system, ascending.
-            sortOptions = sortOptions || {
-                key: this.openmct.time.timeSystem().key,
-                direction: 'asc'
-            };
     
-            this.tableRows.sortBy(sortOptions);
+            if (sortOptions) {
+                this.tableRows.sortBy(sortOptions);
+            }
+
             this.tableRows.on('resetRowsFromAllData', this.resetRowsFromAllData);
         }
 
