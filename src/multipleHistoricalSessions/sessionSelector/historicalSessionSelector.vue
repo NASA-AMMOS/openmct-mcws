@@ -256,6 +256,8 @@ export default {
             this.closeOverlay();
         },
         closeOverlay() {
+            Object.keys(this.table.tableRows.columnFilters)
+                .forEach(filter => this.table.tableRows.setColumnFilter(filter, ''));
             if (this.overlay) {
                 this.overlay.dismiss();
                 delete this.overlay;
