@@ -132,7 +132,7 @@
         "type": "someSessionType",
         "description": "Testing session for datas",
         "user": "vista_test",
-        "host": "testbed1",
+        "host": "testbed2",
         "downlink_connection_type": "",
         "uplink_connection_type": "",
         "start_time": "2016-01-01T12:14:33",
