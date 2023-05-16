@@ -78,8 +78,7 @@ export default class MIO {
     }
 
     async getMetadata() {
-        const response = await this.request(this.metadataUrl, 'GET', { output: 'json' });
-        const metadataResponse = await response.json();
+        const metadataResponse = await this.request(this.metadataUrl, 'GET', { output: 'json' });
                 
         return {
             get(subject, predicate) {
