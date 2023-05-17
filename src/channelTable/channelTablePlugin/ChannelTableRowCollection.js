@@ -23,7 +23,6 @@ define(
 
             addOrUpdateRow(row) {
                 if (this.isLADRow(row)) {
-                    this.removeExistingByKeystring(row.objectKeyString);
                     this.addRows([row]);
                 }
             }
@@ -49,6 +48,7 @@ define(
                 if (this.isNewerThanLAD(item)) {
                     let rowIndex = this.ladMap.get(item.objectKeyString);
                     this.rows[rowIndex] = item;
+                    this.removeExistingByKeystring(item.objectKeyString);
                     this.emit('add', [item]);
                     return true;
                 }
@@ -58,9 +58,8 @@ define(
             addRows(rows) {
                 let rowsToAdd = this.filterRows(rows);
 
-                rowsToAdd.forEach(this.addOne.bind(this));
-
                 if (rowsToAdd.length > 0) {
+                    rowsToAdd.forEach(this.addOne.bind(this));
                     this.emit('add', rowsToAdd);
                 }
             }
