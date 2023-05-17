@@ -95,6 +95,11 @@ export default class SessionTable extends TelemetryTable {
         this.tableRows.clearRowsFromTableAndFilter(rows);
     }
 
+    clearColumnFilters() {
+        Object.keys(this.tableRows.columnFilters)
+        .forEach(filter => this.tableRows.setColumnFilter(filter, ''));
+    }
+
     clearAndUpdateData(data) {
         this.data = data;
         this.clearData();

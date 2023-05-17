@@ -32,8 +32,6 @@ protractor/logs
 # npm-debug log
 npm-debug.log
 
-test_data/
-
 # auto-env files for those that use them.
 .env
 dist
