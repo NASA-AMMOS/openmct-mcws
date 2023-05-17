@@ -69,37 +69,52 @@ define([
         FrameEventFilter: FrameEventFilterType
     };
 
-    types.typeForIdentifier = function (identifier) {
-        var matchingType = _.values(types).filter(function (t) {
-            return t instanceof VISTAType && t.test(identifier)
-        })[0];
+    types.hasTypeForIdentifier = (identifier) => {
+        const matchingType = getTypeForIdentifier(identifier);
+
+        return Boolean(matchingType);
+    };
+
+    types.typeForIdentifier = (identifier) => {
+        const matchingType = getTypeForIdentifier(identifier);
 
         if (!matchingType) {
             throw new Error('Unknown VISTA type for id ' + identifier.key);
         }
+
         return matchingType;
     };
 
-    types.hasTypeForKey = function (key) {
-        var matchingType = _.values(types).filter(function (t) {
-            return t instanceof VISTAType && t.key === key;
-        })[0];
+    types.hasTypeForKey = (key) => {
+        const matchingType = getTypeForKey(key);
 
-        return !!matchingType;
+        return Boolean(matchingType);
     };
 
-    types.typeForKey = function (key) {
-        var matchingType = _.values(types).filter(function (t) {
-            return t instanceof VISTAType && t.key === key;
-        })[0];
+    types.typeForKey = (key) => {
+        const matchingType = getTypeForKey(key);
 
         if (!matchingType) {
             throw new Error('Unknown VISTA type for key ' + key);
         }
+
         return matchingType;
     };
 
-    return types;
+    function getTypeForIdentifier(identifier) {
+        const matchingType = _.values(types)
+            .filter(type => type instanceof VISTAType && type.test(identifier))[0];
 
+        return matchingType;
+    }
+
+    function getTypeForKey(key) {
+        const matchingType = _.values(types)
+            .filter(type => type instanceof VISTAType && type.key === key)[0];
+
+        return matchingType;
+    }
+
+    return types;
 });
 

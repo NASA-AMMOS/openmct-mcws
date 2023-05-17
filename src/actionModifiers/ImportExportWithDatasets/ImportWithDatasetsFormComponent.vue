@@ -8,7 +8,12 @@
         <div
             v-if="!hasReferencedDatasets"
         >
-            {{ noReferencedDatasetsText }}
+            {{ noDatasetMappingRequiredText }}
+        </div>
+        <div
+            v-else-if="hasOneToOneMapping"
+        >
+            {{ noDatasetMappingRequiredText }}
         </div>
         <div
             v-else-if="hasReferencedDatasets && !hasDatasets"
@@ -30,7 +35,7 @@
                     class="c-form__row"
                 >
                     <span class="req-indicator req"></span>
-                    <label>{{ referencedDataset.name }}</label>
+                    <label>{{ getDatasetName(referencedDataset) }}</label>
                     <select
                         v-model="mapping[makeKeyString(referencedDataset)]"
                         @change="onChange"
@@ -74,7 +79,7 @@ export default {
         }
     },
     computed: {
-        noReferencedDatasetsText() {
+        noDatasetMappingRequiredText() {
             return 'All set. The import does not need dataset mapping.';
         },
         noDatasetsText() {
@@ -91,12 +96,19 @@ export default {
         },
         datasetOptions() {
             return this.datasets.map(dataset => {
+                const keyString = this.makeKeyString(dataset);
+                const name = this.getDatasetName(dataset);
+
                 return {
-                    name: dataset.name,
-                    value: this.openmct.objects.makeKeyString(dataset.identifier)
+                    name: name,
+                    value: keyString
                 };
             });
-        }
+        },
+        hasOneToOneMapping() {
+            return this.datasets?.length === 1
+                && this.referencedDatasets?.length === 1;
+        },
     },
     data() {
         return {
@@ -124,14 +136,20 @@ export default {
         },
         buildMapping() {
             this.referencedDatasets?.forEach(referencedDataset => {
-                const referencedDatasetKeyString = this.openmct.objects.makeKeyString(referencedDataset.identifier);
-                const datasetKeyString = this.openmct.objects.makeKeyString(this.datasets[0].identifier);
+                const referencedDatasetKeyString = this.makeKeyString(referencedDataset);
+                const datasetKeyString = this.makeKeyString(this.datasets[0]);
 
                 this.$set(this.mapping, referencedDatasetKeyString, datasetKeyString);
             });
         },
         makeKeyString(domainObject) {
             return this.openmct.objects.makeKeyString(domainObject.identifier);
+        },
+        getDatasetName(dataset) {
+            const keyString = this.makeKeyString(dataset);
+            const name = dataset.name || keyString;
+
+            return name;
         },
         onChange(event) {
             this.validate();

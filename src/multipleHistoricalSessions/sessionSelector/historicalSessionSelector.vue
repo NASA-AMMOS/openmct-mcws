@@ -256,6 +256,7 @@ export default {
             this.closeOverlay();
         },
         closeOverlay() {
+            this.table.clearColumnFilters();
             if (this.overlay) {
                 this.overlay.dismiss();
                 delete this.overlay;

@@ -1,8 +1,7 @@
-import { CONSTANTS } from './constants';
 import ImportWithDatasetsFormComponent from './ImportWithDatasetsFormComponent.vue';
 import Vue from 'vue';
 import DatasetCache from 'services/dataset/DatasetCache';
-
+import Types from 'types/types';
 
 function importWithDatasetsModifier(openmct) {
     openmct.forms.addNewFormControl('import-with-datasets-controller', getImportWithDatasetsFormController(openmct));
@@ -99,11 +98,12 @@ function importWithDatasetsModifier(openmct) {
         }
 
         if (success) {
-            try {
-                const datasetCache = DatasetCache();
+            const datasetCache = DatasetCache();
 
-                datasets = await datasetCache.getDomainObjects();
-                referencedDatasets = await getReferencedDatasets(json);
+            datasets = await datasetCache.getDomainObjects();
+
+            try {
+                referencedDatasets = getReferencedDatasetsFromImport(json);
 
                 component.updateData(referencedDatasets, datasets);
             } catch(error) {
@@ -163,10 +163,27 @@ function importWithDatasetsModifier(openmct) {
         component = undefined;
     }
 
-    function getReferencedDatasets(json) {
-        const referencedDatasets = json[CONSTANTS.DATASETS_IDENTIFIER];
+    function getReferencedDatasetsFromImport(json) {
+        const openmct = json.openmct;
+        const referencedDatasetsFromImport = [];
 
-        return referencedDatasets;
+        Object.values(openmct)
+            .forEach(object => object.composition
+                ?.forEach( identifier => {
+                    if (Types.hasTypeForIdentifier(identifier)) {
+                        const matchingType = Types.typeForIdentifier(identifier);
+                        const data = matchingType.data(identifier);
+                        const datasetIdentifier = data.datasetIdentifier;
+                        const isAdded = referencedDatasetsFromImport
+                            .some(dataset => openmct.objects.areIdsEqual(dataset.identifier, datasetIdentifier));
+
+                        if (!isAdded) {
+                            referencedDatasetsFromImport.push({ identifier: datasetIdentifier });
+                        }
+                    }
+                }));
+
+        return referencedDatasetsFromImport;
     }
 }
 

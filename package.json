@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws",
-  "version": "5.0.0-alpha",
+  "version": "5.0-b3",
   "description": "Open MCT for MCWS",
   "devDependencies": {
     "axios": "^0.21.2",
@@ -61,7 +61,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.jpl.nasa.gov/MissionControl/vista.git"
+    "url": "https://github.com/NASA-AMMOS/openmct-mcws"
   },
   "engines": {
     "node": ">=14.19.1"

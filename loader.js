@@ -41,6 +41,10 @@ define([
 ) {
 
     function loader(config) {
+        let persistenceLoaded;
+        const persistenceLoadedPromise = new Promise(resolve => {
+            persistenceLoaded = resolve;
+        });
         openmct.setAssetPath(config.assetPath);
 
         openmct.install(LegacySupport.default());
@@ -98,8 +102,13 @@ define([
         if (config.useDeveloperStorage) {
             openmct.install(openmct.plugins.LocalStorage());
             openmct.install(openmct.plugins.MyItems());
+            persistenceLoaded();
         } else {
-            openmct.install(MCWSPersistenceProviderPlugin.default(config.namespaces));
+            const mcwsPersistenceProvider =  MCWSPersistenceProviderPlugin.default(config.namespaces);
+            openmct.install(async (_openmct) => {
+                await mcwsPersistenceProvider(_openmct);
+                persistenceLoaded();
+            });
         }
 
         [
@@ -118,8 +127,14 @@ define([
             aboutHtml: insertBuildInfo(AboutTemplate),
         });
 
-        openmct.start();
-        window.openmct = openmct;
+        // do not show telemetry if it falls out of bounds
+        // even if there is no new telemetry
+        openmct.telemetry.greedyLAD(false);
+
+        persistenceLoadedPromise.then(() => {
+            openmct.start();
+            window.openmct = openmct;
+        });
     }
 
     /**
