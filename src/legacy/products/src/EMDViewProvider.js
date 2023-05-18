@@ -26,12 +26,13 @@ define([
         divElement.className = "abs loading";
         el.appendChild(divElement);
 
-        mcws.opaqueFile(row.emd_preview).read().then(function (response) {
-            var preElement = $document[0].createElement('pre');
-            var codeElement = $document[0].createElement('code');
+        mcws.opaqueFile(row.emd_preview).read().then(async function (response) {
+            const preElement = $document[0].createElement('pre');
+            const codeElement = $document[0].createElement('code');
+            const text = await response.text();
             preElement.appendChild(codeElement);
             divElement.className = "abs scroll";
-            codeElement.textContent = response.text();
+            codeElement.textContent = text;
             divElement.appendChild(preElement);
         }, function (response) {
             let reason = 'Unknown Error';
