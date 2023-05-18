@@ -31,7 +31,7 @@ define([
             var codeElement = $document[0].createElement('code');
             preElement.appendChild(codeElement);
             divElement.className = "abs scroll";
-            codeElement.textContent = response;
+            codeElement.textContent = response.text();
             divElement.appendChild(preElement);
         }, function (response) {
             let reason = 'Unknown Error';
