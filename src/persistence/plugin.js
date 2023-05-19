@@ -1,4 +1,5 @@
 import { createIdentifierFromNamespaceDefinition, createNamespace } from './utils';
+import existingNamespaceUpdateInterceptor from './existingNamespaceUpdateInterceptor';
 import MCWSPersistenceProvider from './MCWSPersistenceProvider';
 
 export default function MCWSPersistenceProviderPlugin(configNamespaces) {
@@ -10,6 +11,9 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         openmct.objects.addRoot(() => rootsPromise);
 
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, configNamespaces.map(createNamespace));
+
+        // add an interceptor to update older persistence namespaces
+        existingNamespaceUpdateInterceptor(openmct);
 
         // install the provider for each persistence space,
         // key is the namespace in the response for persistence namespaces
