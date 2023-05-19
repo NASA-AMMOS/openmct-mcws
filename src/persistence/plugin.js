@@ -29,7 +29,9 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         const ROOT_IDENTIFIERS = rootNamespaces.map(createIdentifierFromNamespaceDefinition);
 
         // "turn off" the interceptor
-        checkNamespace.update = false;
+        rootsPromise.then(() => {
+            checkNamespace.update = false;
+        });
 
         rootsResolve(ROOT_IDENTIFIERS);
     };
