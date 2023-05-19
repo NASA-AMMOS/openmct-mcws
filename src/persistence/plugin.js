@@ -9,11 +9,11 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
             rootsResolve = resolve;
         });
         openmct.objects.addRoot(() => rootsPromise);
-
-        const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, configNamespaces.map(createNamespace));
+        const namespaces = configNamespaces.map(createNamespace);
+        const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
 
         // add an interceptor to update older user persistence namespaces
-        const usersNamespace = configNamespaces.find((namespace) => namespace.containsNamespaces);
+        const usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
         existingNamespaceUpdateInterceptor(openmct, usersNamespace);
 
         // install the provider for each persistence space,
