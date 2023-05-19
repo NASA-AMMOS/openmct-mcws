@@ -13,8 +13,9 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
 
         // add an interceptor to update older user persistence namespaces
+        let checkNamespaceUpdate = true;
         const usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
-        existingNamespaceUpdateInterceptor(openmct, usersNamespace);
+        existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkNamespaceUpdate);
 
         // install the provider for each persistence space,
         // key is the namespace in the response for persistence namespaces
@@ -24,6 +25,9 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         // add the roots
         const rootNamespaces = await mcwsPersistenceProvider.getRootNamespaces();
         const ROOT_IDENTIFIERS = rootNamespaces.map(createIdentifierFromNamespaceDefinition);
+
+        // "turn off" the interceptor
+        checkNamespaceUpdate = false;
 
         rootsResolve(ROOT_IDENTIFIERS);
     };
