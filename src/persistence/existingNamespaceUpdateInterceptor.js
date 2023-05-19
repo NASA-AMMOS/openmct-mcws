@@ -1,20 +1,14 @@
-export default function existingNamespaceUpdateInterceptor(openmct) {
+export default function existingNamespaceUpdateInterceptor(openmct, usersNamespace) {
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
             return true;
         },
         invoke: (identifier, object) => {
-            console.log(identifier, object);
-            // if (object === undefined) {
-            //     const keyString = openmct.objects.makeKeyString(identifier);
-            //     openmct.notifications.error(`Failed to retrieve object ${keyString}`, { minimized: true });
-
-            //     return {
-            //         identifier,
-            //         type: 'unknown',
-            //         name: 'Missing: ' + keyString
-            //     };
-            // }
+            if (object.location === usersNamespace.key) {
+                object.location = usersNamespace.id;
+                openmct.objects.mutate(object, 'location', usersNamespace.id);
+                console.log(identifier, object);
+            }
 
             return object;
         }
