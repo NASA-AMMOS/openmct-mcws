@@ -1,8 +1,8 @@
 export default function existingNamespaceUpdateInterceptor(openmct, usersNamespace, shouldCheck) {
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
-            console.log('check?', shouldCheck);
-            return shouldCheck;
+            console.log('check?', shouldCheck.update);
+            return shouldCheck.update;
         },
         invoke: (identifier, object) => {
             if (object.location === usersNamespace.key) {
