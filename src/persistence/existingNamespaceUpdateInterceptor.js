@@ -9,12 +9,12 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
             if (object.location === usersNamespace.key) {
                 object.location = usersNamespace.id;
                 openmct.objects.mutate(object, 'location', usersNamespace.id);
+            }
 
-                // don't check ever again, just don't
-                if (!turnedOff) {
-                    localStorage.setItem('r5.0_old_namespaces_checked', 'true');
-                    turnedOff = true;
-                }
+            // turn off if we've checked the user folder
+            if (!turnedOff && (object.location === usersNamespace.key || object.location === usersNamespace.id)) {
+                localStorage.setItem('r5.0_old_namespaces_checked', 'true');
+                turnedOff = true;
             }
 
             return object;
