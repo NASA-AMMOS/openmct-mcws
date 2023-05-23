@@ -12,8 +12,8 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         const namespaces = configNamespaces.map(createNamespace);
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
 
-        const checkOldNamespaces = localStorage.getItem('r5.0_old_namespaces_checked') === null;
         const usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
+        const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
         existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
 
         // install the provider for each persistence space,

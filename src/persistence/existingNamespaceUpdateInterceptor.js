@@ -1,5 +1,5 @@
 export default function existingNamespaceUpdateInterceptor(openmct, usersNamespace, shouldCheck) {
-    let turnedOff = false;
+    let loggedNamespaceCheck = false;
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
@@ -12,9 +12,9 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
             }
 
             // turn off if we've checked the user folder
-            if (!turnedOff && (object.location === usersNamespace.key || object.location === usersNamespace.id)) {
-                localStorage.setItem('r5.0_old_namespaces_checked', 'true');
-                turnedOff = true;
+            if (!loggedNamespaceCheck && (object.location === usersNamespace.key || object.location === usersNamespace.id)) {
+                localStorage.setItem(`r5.0_old_namespace_checked:${usersNamespace.key}`, 'true');
+                loggedNamespaceCheck = true;
             }
 
             return object;
