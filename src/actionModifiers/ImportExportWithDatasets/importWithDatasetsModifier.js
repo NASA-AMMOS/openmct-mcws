@@ -177,7 +177,7 @@ function importWithDatasetsModifier(openmct) {
                         const isAdded = referencedDatasetsFromImport
                             .some(dataset => openmct.objects.areIdsEqual(dataset.identifier, datasetIdentifier));
 
-                        if (!isAdded) {
+                        if (isAdded) {
                             referencedDatasetsFromImport.push({ identifier: datasetIdentifier });
                         }
                     }
