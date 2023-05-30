@@ -51,7 +51,6 @@ export default class FrameWatchTable extends TelemetryTable {
             let telemetryRows = this.createRows(datum, columnMap, keyString, limitEvaluator);
 
             this.updateHeader(datum);
-            this.tableRows.clear();
 
             if (this.paused) {
                 this.delayedActions.push(this.tableRows.addRows.bind(this, telemetryRows, 'add'));
