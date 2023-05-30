@@ -41,14 +41,14 @@ define([
                             el: element
                         });
                     },
+                    priority: function () {
+                        return openmct.priority.HIGH;
+                    },
                     destroy: function () {
                         component.$destroy();
                         component = undefined;
                     }
                 }
-            },
-            priority: function () {
-                return 1;
             }
         }
     }
