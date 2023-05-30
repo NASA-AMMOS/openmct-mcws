@@ -28,16 +28,16 @@ export default function FrameWatchViewPlugin() {
 
         openmct.objectViews.addProvider(new FrameWatchViewProvider(
             openmct,
-            'vista.encodingWatchViewProvider',
-            'Encoding Watch View',
-            ENCODING_WATCH_TYPE
+            'vista.frameWatchViewProvider',
+            'Frame Watch View',
+            FRAME_WATCH_TYPE
         ));
 
         openmct.objectViews.addProvider(new FrameWatchViewProvider(
             openmct,
-            'vista.frameWatchViewProvider',
-            'Frame Watch View',
-            FRAME_WATCH_TYPE
+            'vista.encodingWatchViewProvider',
+            'Encoding Watch View',
+            ENCODING_WATCH_TYPE
         ));
 
         openmct.inspectorViews.addProvider(new FrameWatchConfigurationViewProvider(
