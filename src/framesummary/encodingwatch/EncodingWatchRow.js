@@ -1,5 +1,6 @@
 import FrameWatchRow from '../FrameWatchRow';
 import DatasetCache from 'services/dataset/DatasetCache';
+import Types from '../../types/types';
 
 export default class EncodingWatchRow extends FrameWatchRow {
     constructor(datum, columns, objectKeyString, limitEvaluator, rowId, frameEventType) {
@@ -10,12 +11,11 @@ export default class EncodingWatchRow extends FrameWatchRow {
     }
 
     getContextualDomainObject(openmct, objectKeyString) {
-        const objectKeyStringArray = objectKeyString.split(":");
-        const datasetIdentifier = {
-            namespace: objectKeyStringArray[objectKeyStringArray.length - 2],
-            key: objectKeyStringArray[objectKeyStringArray.length - 1]
-        }
-        
+        const identifier = openmct.objects.parseKeyString(objectKeyString);
+        const matchingType = Types.typeForIdentifier(identifier);
+        const data = matchingType.data(identifier);
+        const datasetIdentifier = data.datasetIdentifier;
+
         return this.datasetCache.get(datasetIdentifier).then(dataset => {
             const badFrameEventFilterObjectKey = this.frameEventType.makeFilterIdentifier(dataset.identifier, 'BadTelemetryFrame');
 
