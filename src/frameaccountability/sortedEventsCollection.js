@@ -21,6 +21,5 @@ export default class SortedEventsCollection extends TableRowCollection {
         );
 
         return sortedRows;
-        return rows;
     }
 }
