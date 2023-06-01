@@ -6,7 +6,7 @@ export default class EncodingWatchRow extends FrameWatchRow {
     constructor(datum, columns, objectKeyString, limitEvaluator, rowId, frameEventType) {
         super(datum, columns, objectKeyString, limitEvaluator, rowId);
 
-        this.datasetCache = DatasetCache();
+        
         this.frameEventType = frameEventType;
     }
 
@@ -16,7 +16,7 @@ export default class EncodingWatchRow extends FrameWatchRow {
         const data = matchingType.data(identifier);
         const datasetIdentifier = data.datasetIdentifier;
 
-        return this.datasetCache.get(datasetIdentifier).then(dataset => {
+        return DatasetCache().get(datasetIdentifier).then(dataset => {
             const badFrameEventFilterObjectKey = this.frameEventType.makeFilterIdentifier(dataset.identifier, 'BadTelemetryFrame');
 
             return openmct.objects.get(badFrameEventFilterObjectKey);
