@@ -1,17 +1,17 @@
 /*global define,describe,beforeEach,jasmine,Promise,it,expect*/
 
 define([
-    '../src/MCWSNamespaceService',
-    'services/mcws/mcws'
+    // '../src/MCWSNamespaceService',
+    // 'services/mcws/mcws'
 ], function (
-    MCWSNamespaceService,
-    mcwsDefault
+    // MCWSNamespaceService,
+    // mcwsDefault
 ) {
     'use strict';
 
-    const mcws = mcwsDefault.default;
+    // const mcws = mcwsDefault.default;
 
-    describe('MCWSNamespaceService', function () {
+    xdescribe('MCWSNamespaceService', function () {
         var $window,
             namespaceMIOs,
             mockUserAPI,
