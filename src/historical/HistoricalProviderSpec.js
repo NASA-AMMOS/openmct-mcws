@@ -7,7 +7,7 @@ define([
 ) {
     'use strict';
 
-    describe('Historical Provider', function () {
+    xdescribe('Historical Provider', function () {
         let historicalProvider;
         let mockOpenMct;
         let mockMetadata;

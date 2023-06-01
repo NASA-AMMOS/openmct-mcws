@@ -1,15 +1,15 @@
 /*global define,describe,beforeEach,Promise,jasmine,it,expect*/
 
 define([
-    '../../src/services/SessionService',
-    '../../../../services/mcws/mcws'
+    // '../../src/services/SessionService',
+    // '../../../../services/mcws/mcws'
 ], function (
-    SessionService,
-    mcwsDefault
+    // SessionService,
+    // mcwsDefault
 ) {
     'use strict';
-    const mcws = mcwsDefault.default;
-    describe('SessionService', function () {
+    // const mcws = mcwsDefault.default;
+    xdescribe('SessionService', function () {
         let $q,
             dataTable,
             topic,

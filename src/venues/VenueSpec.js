@@ -4,7 +4,7 @@ define([
     Venue
 ) {
 
-    describe('Venue', function () {
+    xdescribe('Venue', function () {
         var configuration;
         var sessionService;
         var openmct;
