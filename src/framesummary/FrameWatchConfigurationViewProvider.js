@@ -3,7 +3,7 @@ import FrameWatchTableConfiguration from './FrameWatchTableConfiguration';
 import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
 
 export default class FrameWatchConfigurationViewProvider {
-    constructor(key, name, type) {
+    constructor(openmct, key, name, type) {
         this.key = key;
         this.name = name;
         this.type = type;
@@ -35,6 +35,9 @@ export default class FrameWatchConfigurationViewProvider {
                     template: '<table-configuration></table-configuration>',
                     el: element
                 });
+            },
+            priority: function () {
+                return openmct.priority.HIGH + 1;
             },
             destroy: function () {
                 component.$destroy();

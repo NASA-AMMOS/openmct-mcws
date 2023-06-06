@@ -164,10 +164,10 @@ function importWithDatasetsModifier(openmct) {
     }
 
     function getReferencedDatasetsFromImport(json) {
-        const openmct = json.openmct;
+        const objects = json.openmct;
         const referencedDatasetsFromImport = [];
 
-        Object.values(openmct)
+        Object.values(objects)
             .forEach(object => object.composition
                 ?.forEach( identifier => {
                     if (Types.hasTypeForIdentifier(identifier)) {
