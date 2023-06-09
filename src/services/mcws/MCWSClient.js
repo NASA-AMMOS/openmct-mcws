@@ -44,19 +44,25 @@ class MCWSClient {
     
     async baseRequest(url, options) {
         let response;
+        let optionsParams;
+        let params;
         this.pending++;
         let isJsonResponse = false;
+
+        const urlParams = new URLSearchParams(url);
 
         if (options?.params) {
             if (options.params?.output === 'json') {
                 isJsonResponse = true;
             }
 
-            const params = new URLSearchParams(options.params);
-
-            url += `?${params}`;
+            optionsParams = new URLSearchParams(options.params);
             delete options.params;
         }
+
+        params = optionsParams || new URLSearchParams();
+        urlParams.forEach(urlParam => params.append(urlParam));
+        url = `${url.split('?')[0]}?${params}`;
         
         try {
             response = await fetch(url, options);
