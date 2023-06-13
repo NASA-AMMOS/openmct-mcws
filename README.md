@@ -4,9 +4,10 @@ Open Mission Control Techologies for Mission Control Web Services (Open MCT for 
 ## Configuration
 Various configurations and customizations are available by editing `config.js`. Descriptions of each configuration reside with the configuration in the file.
 
-### Required configurations
-1. `camUrl` and `mcwsUrl` are required to work with MCWS and CAM.
-2. In the `namespaces` configuration, `url`, the path to the MCWS persistence spaces, are required.
+### AMMOS configurations
+1. `camUrl`: The url to the CAM server, if CAM is to be used for authentication.
+2. `mcwsUrl`: The url to the MCWS server.
+3. In the `namespaces` configuration, `url`, the path to the MCWS persistence spaces, are required.
 
 ## Development
 
