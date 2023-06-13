@@ -54,6 +54,8 @@ class MCWSClient {
 
             const params = new URLSearchParams(options.params);
 
+            // append options params to url
+            // dataset urls may already contain user specified params
             url = url.includes('?')
                 ? `${url}&${params}`
                 : `${url}?${params}`;
