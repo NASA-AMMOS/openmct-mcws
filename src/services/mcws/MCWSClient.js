@@ -44,8 +44,8 @@ class MCWSClient {
     
     async baseRequest(url, options) {
         let response;
-        this.pending++;
         let isJsonResponse = false;
+        this.pending++;
 
         if (options?.params) {
             if (options.params?.output === 'json') {
@@ -54,10 +54,15 @@ class MCWSClient {
 
             const params = new URLSearchParams(options.params);
 
-            url += `?${params}`;
+            // append options params to url
+            // dataset urls may already contain user specified params
+            url = url.includes('?')
+                ? `${url}&${params}`
+                : `${url}?${params}`;
+
             delete options.params;
         }
-        
+
         try {
             response = await fetch(url, options);
         } catch(error) {
