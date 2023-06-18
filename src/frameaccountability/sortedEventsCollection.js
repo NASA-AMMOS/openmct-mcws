@@ -9,7 +9,17 @@ export default class SortedEventsCollection extends TableRowCollection {
             direction: 'asc'
         };
     }
+
     getValueForSortColumn(row) {
         return row[this.sortOptions.key];
+    }
+
+    sortCollection(rows) {
+        const sortedRows = _.orderBy(
+            rows,
+            row => this.getValueForSortColumn(row), this.sortOptions.direction
+        );
+
+        return sortedRows;
     }
 }

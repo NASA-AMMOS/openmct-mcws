@@ -1,24 +1,25 @@
 import TableRowCollection from 'openmct.tables.collections.TableRowCollection';
 
 export default class FrameWatchRowCollection extends TableRowCollection {
-    constructor(openmct) {
-        super(openmct);
+    addRows(rows) {
+        let rowsToAdd = this.filterRows(rows);
+        let newRowsToAdd = [];
+        
+        rowsToAdd.forEach(rowToAdd => {
+            const matchIndex = this.rows.find(row => row.rowId === rowToAdd.rowId)
 
-        this.createRowMapEntries = this.createRowMapEntries.bind(this);
-        this.removeRowMapEntries = this.removeRowMapEntries.bind(this);
-        this.rowMap = {};
-
-        this.on('remove', this.removeRowMapEntries);
-        this.on('add', this.createRowMapEntries);
-    }
-
-    createRowMapEntries(row) {
-        this.rowMap[row.rowId] = row;
-    }
-
-    removeRowMapEntries(rows) {
-        rows.forEach((row) => {
-            delete this.rowMap[row.rowId];
+            if (matchIndex !== undefined) {
+                this.emit('remove', [this.rows[matchIndex]]);
+                this.rows[matchIndex] = rowToAdd;
+                this.emit('add', [this.rows[matchIndex]]);
+            } else {
+                newRowsToAdd.push(rowToAdd);
+            }
         });
+
+        if (newRowsToAdd.length > 0) {
+            this.sortAndMergeRows(newRowsToAdd);
+            this.emit('add', newRowsToAdd);
+        }
     }
 }

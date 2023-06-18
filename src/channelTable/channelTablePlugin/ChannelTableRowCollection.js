@@ -23,8 +23,7 @@ define(
 
             addOrUpdateRow(row) {
                 if (this.isLADRow(row)) {
-                    this.removeRowsByObject(row.objectKeyString);
-                    super.addRows([row], 'add');
+                    this.addRows([row]);
                 }
             }
 
@@ -38,7 +37,7 @@ define(
                 return !isStaleData;
             }
 
-            addOne (item) {
+            addOne(item) {
                 if (item.isDummyRow) {
                     this.ladMap.set(item.objectKeyString, this.rows.length);
                     this.rows.push(item);
@@ -48,18 +47,42 @@ define(
 
                 if (this.isNewerThanLAD(item)) {
                     let rowIndex = this.ladMap.get(item.objectKeyString);
-                    let itemToReplace = this.rows[rowIndex];
                     this.rows[rowIndex] = item;
-                    this.emit('remove', [itemToReplace]);
+                    this.removeExistingByKeystring(item.objectKeyString);
                     this.emit('add', [item]);
                     return true;
                 }
                 return false;
             }
 
+            addRows(rows) {
+                let rowsToAdd = this.filterRows(rows);
+
+                if (rowsToAdd.length > 0) {
+                    rowsToAdd.forEach(this.addOne.bind(this));
+                    this.emit('add', rowsToAdd);
+                }
+            }
+
             removeAllRowsForObject(objectKeyString) {
                 super.removeAllRowsForObject(objectKeyString);
                 this.rebuildLadMap();
+            }
+
+            removeExistingByKeystring(keyString) {
+                let removed = [];
+
+                this.rows.forEach((row) => {
+                    if (row.objectKeyString === keyString) {
+                        removed.push(row);
+
+                        return false;
+                    } else {
+                        return true;
+                    }
+                });
+
+                this.emit('remove', removed);
             }
 
             rebuildLadMap() {
@@ -69,7 +92,7 @@ define(
                 });
             }
 
-            reorder (reorderPlan) {
+            reorder(reorderPlan) {
                 let oldRows = this.rows.slice();
                 reorderPlan.forEach(reorderEvent => {
                     let item = oldRows[reorderEvent.oldIndex];

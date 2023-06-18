@@ -127,6 +127,10 @@ define([
             aboutHtml: insertBuildInfo(AboutTemplate),
         });
 
+        // do not show telemetry if it falls out of bounds
+        // even if there is no new telemetry
+        openmct.telemetry.greedyLAD(false);
+
         persistenceLoadedPromise.then(() => {
             openmct.start();
             window.openmct = openmct;
