@@ -195,7 +195,7 @@ export default {
 
             this.initializeQueryModel();
 
-            this.openmct.forms.showForm(formStructure, options)
+            this.openmct.forms.showCustomForm(formStructure, options)
                 .then(this.resolveFormPromise.bind(this));
 
             this.runQueryButton = this.formElement.querySelector('.c-button.c-button--major');

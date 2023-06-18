@@ -1,0 +1,30 @@
+[
+    {
+        "channel_id": "ENG-0002",
+        "channel_type": "ENUM",
+        "channel_format": "I8",
+        "enum_value": "0",
+        "enum_string": "UNINITIALIZED"
+    },
+    {
+        "channel_id": "ENG-0002",
+        "channel_type": "ENUM",
+        "channel_format": "I8",
+        "enum_value": "1",
+        "enum_string": "RECV_ONLY_STATE"
+    },
+    {
+        "channel_id": "ENG-0002",
+        "channel_type": "ENUM",
+        "channel_format": "I8",
+        "enum_value": "2",
+        "enum_string": "ACTIVE_WINDOW"
+    },
+    {
+        "channel_id": "ENG-0002",
+        "channel_type": "ENUM",
+        "channel_format": "I8",
+        "enum_value": "3",
+        "enum_string": "CONTINGENCY_STATE"
+    }
+]

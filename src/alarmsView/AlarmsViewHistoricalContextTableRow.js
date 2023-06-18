@@ -6,7 +6,6 @@ export default class AlarmsViewHistoricalContextTableRow extends TelemetryTableR
         super(datum, columns, objectKeyString, limitEvaluator);
 
         this.channelType = channelType;
-        this.datasetCache = DatasetCache();
     }
 
     getContextualDomainObject(openmct, objectKeyString) {
@@ -16,7 +15,7 @@ export default class AlarmsViewHistoricalContextTableRow extends TelemetryTableR
             key: objectKeyStringArray[objectKeyStringArray.length - 1]
         }
         
-        return this.datasetCache.get(datasetIdentifier).then(dataset => {
+        return DatasetCache().get(datasetIdentifier).then(dataset => {
             const objectKeyString = 'vista:' + this.channelType.makeId(dataset.identifier, this.datum.channel_id);
 
             return openmct.objects.get(objectKeyString);
