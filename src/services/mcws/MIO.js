@@ -14,13 +14,14 @@ import mcwsClient from './MCWSClient';
  * @param url the url for this MIO.
  */
 export default class MIO {
-    constructor(url = '') {
+    constructor(url = '', abortSignal) {
         if (url.endsWith('/')) {
             url = url.slice(0, -1);
         }
 
         this.url = url;
         this.metadataUrl = `${url}/`;
+        this.abortSignal = abortSignal;
 
         const pathParts = url.split('/');
         this.name = pathParts[pathParts.length - 1];
@@ -72,6 +73,10 @@ export default class MIO {
 
         if (body) {
             options.body = JSON.stringify(body);
+        }
+
+        if (this.abortSignal) {
+            options.signal = this.abortSignal;
         }
 
         return mcwsClient.request(options);

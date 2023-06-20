@@ -91,7 +91,7 @@ export default class MCWSPersistenceProvider {
             return createModelFromNamespaceDefinition('system', containerNamespace, containedNamespaceIdentifiers);
         }
 
-        const persistenceNamespace = await this.#getNamespace(namespace);
+        const persistenceNamespace = await this.#getNamespace(namespace, abortSignal);
 
         try {
             let result = await persistenceNamespace.opaqueFile(key).read();
@@ -146,13 +146,13 @@ export default class MCWSPersistenceProvider {
         return domainObject;
     }
 
-    async #getNamespace(persistenceSpace) {
+    async #getNamespace(persistenceSpace, abortSignal) {
         const persistenceNamespaces = await this.getPersistenceNamespaces();
         const persistenceNamespace = persistenceNamespaces.find((namespace) => {
             return namespace.key === persistenceSpace;
         })
         
-        return mcws.namespace(persistenceNamespace.url);
+        return mcws.namespace(persistenceNamespace.url, abortSignal);
     }
 
     /**
