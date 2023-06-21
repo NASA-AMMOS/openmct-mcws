@@ -20,7 +20,7 @@ class OpaqueFileMIO extends MIO {
     constructor(url, abortSignal) {
         super(url);
 
-        this.
+        this.abortSignal = abortSignal;
         this.type = 'opaque_file';
     }
 
