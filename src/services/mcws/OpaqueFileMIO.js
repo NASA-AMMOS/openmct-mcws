@@ -18,8 +18,9 @@ import MIO from './MIO';
 
 class OpaqueFileMIO extends MIO {
     constructor(url, abortSignal) {
-        super(url, abortSignal);
+        super(url);
 
+        this.
         this.type = 'opaque_file';
     }
 

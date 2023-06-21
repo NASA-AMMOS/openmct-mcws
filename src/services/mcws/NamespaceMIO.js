@@ -15,8 +15,9 @@ import DataTableMIO from './DataTableMIO';
  */
 class NamespaceMIO extends MIO {
     constructor(url, abortSignal) {
-        super(url, abortSignal);
+        super(url);
 
+        this.abortSignal = abortSignal;
         this.type = 'namespace';
     }
 
@@ -45,8 +46,8 @@ class NamespaceMIO extends MIO {
      * @param {string} name the name of the MIO
      * @returns {OpaqueFileMIO} a handle to the opaque file
      */
-    opaqueFile(name, abortSignal) {
-        return new OpaqueFileMIO(`${this.url}/${name}`, abortSignal);
+    opaqueFile(name) {
+        return new OpaqueFileMIO(`${this.url}/${name}`, this.abortSignal);
     }
 
     /**
@@ -63,8 +64,8 @@ class NamespaceMIO extends MIO {
     * @param {string} namespace the namespace to utilize
     * @returns {NamespaceMIO} a handle to that namespace
     */
-    namespace(name, abortSignal) {
-        return new NamespaceMIO(`${this.url}/${name}`, abortSignal);
+    namespace(name) {
+        return new NamespaceMIO(`${this.url}/${name}`, this.abortSignal);
     }
 
     /**
@@ -78,8 +79,8 @@ class NamespaceMIO extends MIO {
     * @param {string} datatable the datatable to utilize
     * @returns {DataTableMIO} a handle to that datatable
     */
-    dataTable(name, abortSignal) {
-        return new DataTableMIO(`${this.url}/${name}`, abortSignal);
+    dataTable(name) {
+        return new DataTableMIO(`${this.url}/${name}`, this.abortSignal);
     }
 
     /**

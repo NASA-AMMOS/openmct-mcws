@@ -18,8 +18,9 @@ import MIO from './MIO';
 
 class DataTableMIO extends MIO {
     constructor(url, abortSignal) {
-        super(url, abortSignal);
+        super(url);
 
+        this.abortSignal = abortSignal;
         this.type = 'datatable';
     }
 
