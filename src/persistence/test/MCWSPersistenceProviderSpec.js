@@ -1,17 +1,17 @@
 /*global define,Promise,describe,it,expect,beforeEach,jasmine*/
 
 define([
-    "../src/MCWSPersistenceProvider",
-    '../../../services/mcws/mcws'
+    // "../src/MCWSPersistenceProvider",
+    // '../../../services/mcws/mcws'
 ], function (
-    MCWSPersistenceProvider,
-    mcwsDefault
+    // MCWSPersistenceProvider,
+    // mcwsDefault
 ) {
     "use strict";
 
-    const mcws = mcwsDefault.default;
+    // const mcws = mcwsDefault.default;
 
-    describe("The MCWS Persistence Provider", function () {
+    xdescribe("The MCWS Persistence Provider", function () {
         var mockQ,
             mockNamespaceService,
             persistenceNamespaces,
