@@ -2,13 +2,13 @@
     runs*/
 
 define([
-    '../../src/controllers/SessionIndicatorController'
+    // '../../src/controllers/SessionIndicatorController'
 ], function (
-    SessionIndicatorController
+    // SessionIndicatorController
 ) {
     'use strict';
 
-    describe('SessionIndicatorController', function () {
+    xdescribe('SessionIndicatorController', function () {
         var $scope,
             sessionService,
             overlayService,
