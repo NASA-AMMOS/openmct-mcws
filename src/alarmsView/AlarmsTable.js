@@ -49,7 +49,20 @@ export default class AlarmsTable extends TelemetryTable {
     }
 
     createTableRowCollections() {
-        this.tableRows = new AlarmsViewRowCollection(this.openmct);
+        this.tableRows = new AlarmsViewRowCollection();
+
+        //Fetch any persisted default sort
+        let sortOptions = this.configuration.getConfiguration().sortOptions;
+
+        //If no persisted sort order, default to sorting by time system, ascending.
+        sortOptions = sortOptions || {
+            key: this.openmct.time.timeSystem().key,
+            direction: 'asc'
+        };
+
+        this.tableRows.sortBy(sortOptions);
+        this.tableRows.on('resetRowsFromAllData', this.resetRowsFromAllData);
+        
 
         this.autoClearTimeoutObserver = this.openmct.objects.observe(this.domainObject, 
             'configuration.autoClearTimeout', this.tableRows.setAutoClearTimeout);

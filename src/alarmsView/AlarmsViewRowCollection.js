@@ -1,12 +1,10 @@
 import TableRowCollection from 'openmct.tables.collections.TableRowCollection';
 
 export default class AlarmsViewRowCollection extends TableRowCollection {
-    constructor (openmct) {
+    constructor () {
         super();
 
         this.ladMap = new Map();
-
-        this.sortBy(openmct.time.timeSystem());
 
         this.setAutoClearTimeout = this.setAutoClearTimeout.bind(this);
     }
