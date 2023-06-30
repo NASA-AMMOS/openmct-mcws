@@ -14,7 +14,7 @@ export default class AlarmsViewRowCollection extends TableRowCollection {
             clearTimeout(this.autoClearTimeoutHandle);
         } else {
             this.autoClearTimeoutMS = timeout * 60 * 1000;
-            this.setNextAutoClearTimeout();    
+            this.setNextAutoClearTimeout();
         }
     }
 
