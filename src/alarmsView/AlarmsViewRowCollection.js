@@ -4,8 +4,6 @@ export default class AlarmsViewRowCollection extends TableRowCollection {
     constructor () {
         super();
 
-        this.ladMap = new Map();
-
         this.setAutoClearTimeout = this.setAutoClearTimeout.bind(this);
     }
 
@@ -19,22 +17,29 @@ export default class AlarmsViewRowCollection extends TableRowCollection {
     }
 
     clearOutOfAlarmRows(timeout = 0){
-        let now = Date.now();
+        const removedRows = [];
+        const now = Date.now();
 
-        let rowsToDelete = Object.values(this.rows)
-            .filter(row => {
-                let outAlarmERT = this.getRowValue(row, 'out_alarm_ert');
-                if (outAlarmERT !== undefined && outAlarmERT !== '') {
-                    let timeSinceOutAlarm = now - outAlarmERT;
-                    return timeSinceOutAlarm >= timeout;
-                }
+        this.rows = this.rows.filter(row => {
+            const outAlarmERT = this.getRowValue(row, 'out_alarm_ert');
+
+            if (outAlarmERT === undefined || outAlarmERT === '') {
+                return true;
+            }
+            
+            const timeSinceOutAlarm = now - outAlarmERT;
+            if (timeSinceOutAlarm >= timeout) {
+                removedRows.push(row);
+
                 return false;
-            });
-        rowsToDelete.forEach(row => {
-            let rowId = this.getRowId(row);
-            this.ladMap.delete(rowId);
-        })
-        this.remove(rowsToDelete);
+            }
+
+            return true;
+        });
+
+        if (removedRows.length) {
+            this.emit('remove', removedRows);
+        }
     }
 
     setNextAutoClearTimeout() {
@@ -71,61 +76,43 @@ export default class AlarmsViewRowCollection extends TableRowCollection {
         return `${row.datum.channel_id}#${row.datum.session_id}`;
     }
 
-    addOne (row) {
-        let rowId = this.getRowId(row);
+    addRows(rows) {
+        let rowsToAdd = this.filterRows(rows);
+        let newRowsToAdd = [];
+        
+        rowsToAdd.forEach(rowToAdd => {
+            const matchIndex = this.rows
+                .findIndex(row => row.getRowId() === rowToAdd.getRowId());
 
-        if (this.isNewerThanLAD(rowId, row)) {
-            let ladRow = this.ladMap.get(rowId);
-            if (ladRow) {
-                //Currently table does not support row updates, so for now remove and re-add.
-                this.remove([ladRow]);
-
-            }
-            this.ladMap.set(rowId, row);
-            return super.addOne(row);
-        }
-        return false;
-    }
-
-    addRows(rows, type = 'add') {
-        const rowsToRemove = [];
-        const rowsToAdd = [];
-
-        rows.forEach(row => {
-            const rowId = this.getRowId(row);
-
-            if (this.isNewerThanLAD(rowId, row)) {
-                const ladRow = this.ladMap.get(rowId);
-
-                if (ladRow) {
-                    rowsToRemove.push(ladRow);
-                    rowsToAdd.push(row);
+            if (matchIndex === -1) {
+                newRowsToAdd.push(rowToAdd);
+            } else {
+                const ladRow = this.rows[matchIndex];
+                if (this.isNewerThanLAD(rowToAdd, ladRow)) {
+                    this.emit('remove', ladRow);
+                    this.rows[matchIndex] = rowToAdd;
+                    this.emit('add', [rowToAdd]);
                 }
-
-                this.ladMap.set(rowId, row);
             }
         });
 
-        if (rowsToRemove.length > 0) {
-            this.removeRows(rowsToRemove);
+        if (newRowsToAdd.length > 0) {
+            this.sortAndMergeRows(newRowsToAdd);
+            this.emit('add', newRowsToAdd);
+        }
+    }
+
+    isNewerThanLAD(row, ladRow) {
+        if (ladRow === undefined) {
+            return true;
         }
 
-        if (rowsToAdd.length > 0) {
-            super.addRows(rowsToAdd, type);
-        }
+        return row.datum[this.sortOptions.key] > ladRow.datum[this.sortOptions.key];
     }
 
     removeRows(rows) {
         this.rows = this.rows.filter(row => rows.indexOf(row) === -1);
 
         this.emit('remove', rows);
-    }
-
-    isNewerThanLAD(rowId, row) {
-        let latestRow = this.ladMap.get(rowId);
-        let newerThanLatest = (latestRow && 
-            row.datum[this.sortOptions.key] > latestRow.datum[this.sortOptions.key]);
-
-        return !this.ladMap.has(rowId) || newerThanLatest;
     }
 };
