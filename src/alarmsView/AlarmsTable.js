@@ -2,15 +2,8 @@ import _ from 'lodash';
 import TelemetryTable from 'openmct.tables.TelemetryTable';
 import AlarmsViewRowCollection from './AlarmsViewRowCollection';
 import AlarmsViewHistoricalContextTableRow from './AlarmsViewHistoricalContextTableRow';
-import Types from 'types/types';
-
 
 export default class AlarmsTable extends TelemetryTable {
-    constructor(domainObject, openmct){
-        super(domainObject, openmct);
-
-        this.channelType = Types.typeForKey('vista.channel');
-    }
     initialize() {
         if (this.domainObject.type === 'vista.alarmMessageStream') {
             this.addTelemetryObject(this.domainObject);
@@ -29,7 +22,7 @@ export default class AlarmsTable extends TelemetryTable {
             }
 
             let telemetryRows = telemetry.map(datum => {
-                return new AlarmsViewHistoricalContextTableRow(datum, columnMap, keyString, limitEvaluator, this.channelType)
+                return new AlarmsViewHistoricalContextTableRow(datum, columnMap, keyString, limitEvaluator)
             });
 
             if (this.paused) {
@@ -45,11 +38,24 @@ export default class AlarmsTable extends TelemetryTable {
     }
 
     processRealtimeDatum(datum, columnMap, keyString, limitEvaluator) {
-        this.tableRows.add(new AlarmsViewHistoricalContextTableRow(datum, columnMap, keyString, limitEvaluator, this.channelType));
+        this.tableRows.add(new AlarmsViewHistoricalContextTableRow(datum, columnMap, keyString, limitEvaluator));
     }
 
     createTableRowCollections() {
-        this.tableRows = new AlarmsViewRowCollection(this.openmct);
+        this.tableRows = new AlarmsViewRowCollection();
+
+        //Fetch any persisted default sort
+        let sortOptions = this.configuration.getConfiguration().sortOptions;
+
+        //If no persisted sort order, default to sorting by time system, ascending.
+        sortOptions = sortOptions || {
+            key: this.openmct.time.timeSystem().key,
+            direction: 'asc'
+        };
+
+        this.tableRows.sortBy(sortOptions);
+        this.tableRows.on('resetRowsFromAllData', this.resetRowsFromAllData);
+        
 
         this.autoClearTimeoutObserver = this.openmct.objects.observe(this.domainObject, 
             'configuration.autoClearTimeout', this.tableRows.setAutoClearTimeout);
