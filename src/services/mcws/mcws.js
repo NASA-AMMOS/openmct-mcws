@@ -12,16 +12,16 @@ class MCWS {
         client.configure(config);
     }
 
-    namespace(name, abortSignal) {
-        return new NamespaceMIO(name, abortSignal);
+    namespace(name, options) {
+        return new NamespaceMIO(name, options);
     }
 
-    dataTable(name, abortSignal) {
-        return new DataTableMIO(name, abortSignal);
+    dataTable(name, options) {
+        return new DataTableMIO(name, options);
     }
 
-    opaqueFile(name, abortSignal) {
-        return new OpaqueFileMIO(name, abortSignal);
+    opaqueFile(name, options) {
+        return new OpaqueFileMIO(name, options);
     }
 }
 

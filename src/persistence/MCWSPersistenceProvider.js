@@ -79,6 +79,7 @@ export default class MCWSPersistenceProvider {
      */
     async get(identifier, abortSignal) {
         const { key, namespace } = identifier;
+        const options = {};
         
         // check if it is a namespace that has subnamespaces, if so, we return this item dynamically
         if (identifier.key === 'container') {
@@ -91,7 +92,11 @@ export default class MCWSPersistenceProvider {
             return createModelFromNamespaceDefinition('system', containerNamespace, containedNamespaceIdentifiers);
         }
 
-        const persistenceNamespace = await this.#getNamespace(namespace, abortSignal);
+        if (abortSignal) {
+            options.signal = abortSignal;
+        }
+
+        const persistenceNamespace = await this.#getNamespace(namespace, options);
 
         try {
             let result = await persistenceNamespace.opaqueFile(key).read();

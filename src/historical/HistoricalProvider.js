@@ -51,7 +51,7 @@ define([
                 requestURL = ladURL;
             }
 
-            mcws.dataTable(requestURL, options.signal)
+            mcws.dataTable(requestURL, { signal: options.signal })
                 .read(params)
                 .then(function (res) {
                     const valuesByChannelId = _.groupBy(res, 'channel_id');
@@ -101,7 +101,7 @@ define([
             params.filter.channel_id__in = _.map(requests, 'domainObject.telemetry.channel_id');
             setSortFilter(params);
 
-            mcws.dataTable(requests[0].domainObject.telemetry.channelMinMaxUrl, options.signal)
+            mcws.dataTable(requests[0].domainObject.telemetry.channelMinMaxUrl, { signal: options.signal })
                 .read(params)
                 .then(function (res) {
                     const valuesByChannelId = _.groupBy(res, 'channel_id');
@@ -167,7 +167,7 @@ define([
 
             setSortFilter(params);
 
-            return mcws.dataTable(url, options.signal)
+            return mcws.dataTable(url, { signal: options.signal })
                 .read(params);
         }
     }, {
@@ -180,7 +180,7 @@ define([
             setMaxResults(domainObject, options, params);
             setSortFilter(params);
 
-            const promise = mcws.dataTable(domainObject.telemetry.dataProductUrl, options.signal)
+            const promise = mcws.dataTable(domainObject.telemetry.dataProductUrl, { signal: options.signal })
                 .read(params);
 
             if (domainObject.type === 'vista.dataProducts') {
@@ -229,7 +229,7 @@ define([
                     domainObject.telemetry.alarmLevel.toUpperCase();
             }
 
-            const dataTable = mcws.dataTable(domainObject.telemetry.channelHistoricalUrl, options.signal);
+            const dataTable = mcws.dataTable(domainObject.telemetry.channelHistoricalUrl, { signal: options.signal });
 
             return Promise.all([
                 dataTable.read(dnQueryParams),
@@ -258,7 +258,7 @@ define([
             delete params.filter[options.domain + '__gte'];
             delete params.filter[options.domain + '__lte'];
 
-            return mcws.dataTable(domainObject.telemetry.commandEventUrl, options.signal)
+            return mcws.dataTable(domainObject.telemetry.commandEventUrl, { signal: options.signal })
                 .read(params)
                 .then(function (res) {
                     return res;
@@ -279,7 +279,7 @@ define([
             setMaxResults(domainObject, options, params);
             setSortFilter(params);
 
-            return mcws.dataTable(domainObject.telemetry.channelHistoricalUrl, options.signal)
+            return mcws.dataTable(domainObject.telemetry.channelHistoricalUrl, { signal: options.signal })
                 .read(params);
         }
     }];
@@ -301,7 +301,7 @@ define([
             params.filter.channel_id__in = _.map(requests, 'domainObject.telemetry.channel_id');
             setSortFilter(params);
 
-            mcws.dataTable(requests[0].domainObject.telemetry.channelHistoricalUrl, options.signal)
+            mcws.dataTable(requests[0].domainObject.telemetry.channelHistoricalUrl, { signal: options.signal })
                 .read(params)
                 .then(function (res) {
                     const valuesByChannelId = _.groupBy(res, 'channel_id');
@@ -323,7 +323,7 @@ define([
             setSortFilter(params);
             setMaxResults(domainObject, options, params);
 
-            return mcws.dataTable(domainObject.telemetry.channelHistoricalUrl, options.signal)
+            return mcws.dataTable(domainObject.telemetry.channelHistoricalUrl, { signal: options.signal })
                 .read(params);
         }
     };
