@@ -74,8 +74,8 @@ export default class MIO {
             options.body = JSON.stringify(body);
         }
 
-        if (this.abortSignal) {
-            options.signal = this.abortSignal;
+        if (this.options?.signal) {
+            options.signal = this.options.signal;
         }
 
         return mcwsClient.request(options);
