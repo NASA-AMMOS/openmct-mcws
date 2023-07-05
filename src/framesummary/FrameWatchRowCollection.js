@@ -6,9 +6,9 @@ export default class FrameWatchRowCollection extends TableRowCollection {
         let newRowsToAdd = [];
         
         rowsToAdd.forEach(rowToAdd => {
-            const matchIndex = this.rows.find(row => row.rowId === rowToAdd.rowId)
+            const matchIndex = this.rows.findIndex(row => row.rowId === rowToAdd.rowId)
 
-            if (matchIndex !== undefined) {
+            if (matchIndex > -1) {
                 this.emit('remove', [this.rows[matchIndex]]);
                 this.rows[matchIndex] = rowToAdd;
                 this.emit('add', [this.rows[matchIndex]]);
