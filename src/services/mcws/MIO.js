@@ -78,7 +78,13 @@ export default class MIO {
             options.signal = this.options.signal;
         }
 
-        return mcwsClient.request(options);
+        return mcwsClient.request(options)
+            .catch(error => {
+                // suppress abort errors
+                if (error.name !== 'AbortError') {
+                    throw error;
+                }
+            });
     }
 
     async getMetadata() {
