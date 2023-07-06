@@ -62,7 +62,8 @@ define([
             'table',
             'vista.chanTableGroup',
             'vista.commandEventsView',
-            'vista.messagesView'
+            'vista.messagesView',
+            'vista.evrView'
         ]));
         openmct.install(openmct.plugins.ObjectMigration());
         openmct.install(openmct.plugins.DisplayLayout({
