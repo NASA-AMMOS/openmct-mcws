@@ -31,7 +31,7 @@
     "mini-css-extract-plugin": "2.6.0",
     "moment": "2.29.4",
     "node-bourbon": "^4.2.3",
-    "openmct": "nasa/openmct#omm-r5.1.0-rc1",
+    "openmct": "nasa/openmct#omm-r5.1.0-rc2",
     "openmct-legacy-support": "akhenry/openmct-legacy-support#omm-r5.1.0-rc1",
     "printj": "^1.2.1",
     "raw-loader": "^0.5.1",
