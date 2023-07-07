@@ -151,13 +151,13 @@ export default class MCWSPersistenceProvider {
         return domainObject;
     }
 
-    async #getNamespace(persistenceSpace, abortSignal) {
+    async #getNamespace(persistenceSpace, options) {
         const persistenceNamespaces = await this.getPersistenceNamespaces();
         const persistenceNamespace = persistenceNamespaces.find((namespace) => {
             return namespace.key === persistenceSpace;
         })
         
-        return mcws.namespace(persistenceNamespace.url, abortSignal);
+        return mcws.namespace(persistenceNamespace.url, options);
     }
 
     /**
