@@ -74,7 +74,17 @@ export default class MIO {
             options.body = JSON.stringify(body);
         }
 
-        return mcwsClient.request(options);
+        if (this.options?.signal) {
+            options.signal = this.options.signal;
+        }
+
+        return mcwsClient.request(options)
+            .catch(error => {
+                // suppress abort errors
+                if (error.name !== 'AbortError') {
+                    throw error;
+                }
+            });
     }
 
     async getMetadata() {
