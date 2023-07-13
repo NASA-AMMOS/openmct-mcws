@@ -298,6 +298,7 @@ define([
         batchRequest: function (batch) {
             const requests = _.values(batch.requestsById);
             const params = requests[0].params;
+            const options = requests[0].options;
 
             params.select = '(dn,eu,channel_id,ert,scet,sclk,lst,record_type,dn_alarm_state,eu_alarm_state,module,realtime,dss_id)'
             params.filter.channel_id__in = _.map(requests, 'domainObject.telemetry.channel_id');
