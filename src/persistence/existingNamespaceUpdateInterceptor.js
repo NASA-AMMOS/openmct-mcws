@@ -9,6 +9,21 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
             if (object.location === usersNamespace.key) {
                 object.location = usersNamespace.id;
                 openmct.objects.mutate(object, 'location', usersNamespace.id);
+
+                if (object.composition?.length) {
+                    object.composition.map((keystring) => {
+                        if (typeof keystring === 'string') {
+                            const parts = keystring.split(':', 2);
+
+                            return {
+                                namespace: parts[0],
+                                key: parts[1]
+                            }
+                        }
+
+                        return keystring;
+                    });
+                }
             }
 
             // turn off if we've checked the user folder
