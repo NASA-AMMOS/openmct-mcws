@@ -11,8 +11,12 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
                 openmct.objects.mutate(object, 'location', usersNamespace.id);
 
                 if (object.composition?.length) {
-                    object.composition.map((keystring) => {
+                    let updatedComposition = false;
+
+                    object.composition = object.composition.map((keystring) => {
                         if (typeof keystring === 'string') {
+                            updatedComposition = true;
+
                             const parts = keystring.split(':', 2);
 
                             return {
@@ -23,6 +27,10 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
 
                         return keystring;
                     });
+
+                    if (updatedComposition) {
+                        openmct.objects.mutate(object, 'composition', object.composition);
+                    }
                 }
             }
 
