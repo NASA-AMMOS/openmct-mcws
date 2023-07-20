@@ -9,7 +9,6 @@ export function createModelFromNamespaceDefinition(userId, namespaceDefinition, 
     const model = {
         identifier: createIdentifierFromNamespaceDefinition(namespaceDefinition),
         name: namespaceDefinition.name,
-        creatable: false,
         createdBy: userId,
         created: Date.now(),
         persisted: Date.now(),
