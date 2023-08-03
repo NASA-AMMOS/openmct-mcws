@@ -14,9 +14,10 @@ import DataTableMIO from './DataTableMIO';
  * @augments MIO
  */
 class NamespaceMIO extends MIO {
-    constructor(url) {
+    constructor(url, options) {
         super(url);
 
+        this.options = options;
         this.type = 'namespace';
     }
 
@@ -46,7 +47,7 @@ class NamespaceMIO extends MIO {
      * @returns {OpaqueFileMIO} a handle to the opaque file
      */
     opaqueFile(name) {
-        return new OpaqueFileMIO(`${this.url}/${name}`);
+        return new OpaqueFileMIO(`${this.url}/${name}`, this.options);
     }
 
     /**
@@ -64,7 +65,7 @@ class NamespaceMIO extends MIO {
     * @returns {NamespaceMIO} a handle to that namespace
     */
     namespace(name) {
-        return new NamespaceMIO(`${this.url}/${name}`);
+        return new NamespaceMIO(`${this.url}/${name}`, this.options);
     }
 
     /**
@@ -79,7 +80,7 @@ class NamespaceMIO extends MIO {
     * @returns {DataTableMIO} a handle to that datatable
     */
     dataTable(name) {
-        return new DataTableMIO(`${this.url}/${name}`);
+        return new DataTableMIO(`${this.url}/${name}`, this.options);
     }
 
     /**

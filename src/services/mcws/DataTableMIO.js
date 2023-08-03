@@ -17,9 +17,10 @@ import MIO from './MIO';
  */
 
 class DataTableMIO extends MIO {
-    constructor(url) {
+    constructor(url, options) {
         super(url);
 
+        this.options = options;
         this.type = 'datatable';
     }
 
