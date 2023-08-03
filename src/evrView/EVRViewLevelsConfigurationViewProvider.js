@@ -4,7 +4,7 @@ import Vue from 'vue';
 export default function EVRViewLevelsConfigurationViewProvider(options) {
     return {
         key: 'vista.evrView-configuration',
-        name: 'EVR View Level Color Configuration',
+        name: 'Level Color',
         canView: function (selection) {
             if (selection.length === 0) {
                 return false;
