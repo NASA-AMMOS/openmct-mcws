@@ -14,7 +14,7 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
 
         const usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
 
-        // user namespases are not required
+        // user namespaces are not required
         if (usersNamespace) {
             const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
             existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
