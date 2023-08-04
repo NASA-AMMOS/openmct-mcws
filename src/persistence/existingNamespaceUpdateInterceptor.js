@@ -20,12 +20,7 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
                     if (typeof keystring === 'string') {
                         updatedComposition = true;
 
-                        const parts = keystring.split(':', 2);
-
-                        return {
-                            namespace: parts[0],
-                            key: parts[1]
-                        }
+                        return openmct.objects.parseKeyString(keystring);
                     }
 
                     return keystring;
