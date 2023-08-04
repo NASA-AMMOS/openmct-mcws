@@ -6,9 +6,29 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
             return shouldCheck;
         },
         invoke: (identifier, object) => {
+            // check for old user namespace style
             if (object.location === usersNamespace.key) {
                 object.location = usersNamespace.id;
                 openmct.objects.mutate(object, 'location', usersNamespace.id);
+            }
+
+            // check for old composition style
+            if (object.composition?.length) {
+                let updatedComposition = false;
+
+                object.composition = object.composition.map((keystring) => {
+                    if (typeof keystring === 'string') {
+                        updatedComposition = true;
+
+                        return openmct.objects.parseKeyString(keystring);
+                    }
+
+                    return keystring;
+                });
+
+                if (updatedComposition) {
+                    openmct.objects.mutate(object, 'composition', object.composition);
+                }
             }
 
             // turn off if we've checked the user folder
