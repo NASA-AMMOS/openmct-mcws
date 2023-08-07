@@ -435,6 +435,57 @@
         },
 
         /**
+         * Enable global filters for ALL telemetry requests that support the filter
+         * 
+         * How to use:
+         * The global filters will be available from the Global Filters indicator
+        */
+        globalFilters: [
+          /*
+          {
+            name: 'VCID',
+            key: 'vcid',
+            filters: [
+              {
+                comparator: 'equals',
+                singleSelectionThreshold: true,
+                possibleValues: [
+                  {
+                    name: 'A Side',
+                    value: ''
+                  },
+                  {
+                    name: 'B Side',
+                    value: ''
+                  }
+                ]
+              }
+            ]
+          },
+          */
+          {
+            name: 'Realtime',
+            key: 'realtime',
+            filters: [
+              {
+                comparator: 'equals',
+                singleSelectionThreshold: true,
+                possibleValues: [
+                  {
+                    name: 'Realtime',
+                    value: true
+                  },
+                  {
+                    name: 'Recorded',
+                    value: false
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+
+        /**
          * Developer Settings-- do not modify these unless you know what
          * they do!
          */
