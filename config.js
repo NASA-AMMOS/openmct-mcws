@@ -445,43 +445,40 @@
           {
             name: 'VCID',
             key: 'vcid',
-            filters: [
-              {
-                comparator: 'equals',
-                singleSelectionThreshold: true,
-                possibleValues: [
-                  {
-                    name: 'A Side',
-                    value: ''
-                  },
-                  {
-                    name: 'B Side',
-                    value: ''
-                  }
-                ]
-              }
-            ]
+            icon: 'icon-flag',
+            filter: {
+              comparator: 'equals',
+              singleSelectionThreshold: true,
+              possibleValues: [
+                {
+                  label: 'A Side',
+                  value: '1,2,3'
+                },
+                {
+                  label: 'B Side',
+                  value: '4,5,6'
+                }
+              ]
+            }
           },
           */
           {
             name: 'Realtime',
             key: 'realtime',
-            filters: [
-              {
-                comparator: 'equals',
-                singleSelectionThreshold: true,
-                possibleValues: [
-                  {
-                    name: 'Realtime',
-                    value: true
-                  },
-                  {
-                    name: 'Recorded',
-                    value: false
-                  }
-                ]
-              }
-            ]
+            filter: {
+              comparator: 'equals',
+              singleSelectionThreshold: true,
+              possibleValues: [
+                {
+                  label: 'Realtime',
+                  value: true
+                },
+                {
+                  label: 'Recorded',
+                  value: false
+                }
+              ]
+            }
           }
         ],
 
