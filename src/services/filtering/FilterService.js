@@ -1,4 +1,5 @@
 import EventEmitter from 'EventEmitter';
+import FilterURLHandler from './FilterUrlHandler';
 import isEqual from 'lodash/isequal';
 import pickBy from 'lodash/pickby';
 import isEmpty from 'lodash/isempty';
@@ -11,7 +12,15 @@ class FilterService extends EventEmitter {
     this.filtersConfig = config;
 
     this.filters = {};
+    this.initialize();
+  }
+
+  initialize() {
     this.initializeFilters();
+
+    this.openmct.on('start', () => {
+      new FilterURLHandler(this, this.openmct);
+    });
   }
 
   initializeFilters() {
@@ -19,11 +28,14 @@ class FilterService extends EventEmitter {
   }
 
   hasActiveFilters() {
-    return Boolean(this.getActiveFilters());
+    const activeFilters = this.getActiveFilters();
+    const activeFiltersCount = Object.keys(activeFilters).length;
+
+    return Boolean(activeFiltersCount);
   }
 
-  getFilters() {
-    return this.filtersConfig;
+  getAvailableFilters() {
+    return Object.keys(this.filters);
   }
 
   isActive(filter) {
@@ -40,18 +52,20 @@ class FilterService extends EventEmitter {
 
     if (isChangedFilters) {
       Object.assign(this.filters, updatedFilters);
-      console.log(this.filters);
+
       this.emit('update', this.filters);
     }
+  }
+
+  updateFiltersFromParams(params) {
+    const updatedFilters = {};
+
+    this.updateFilters(updatedFilters);
   }
 
   clearFilters() {
     this.initializeFilters();
     this.emit('clear');
-  }
-
-  getValueForParam(key) {
-    return `(${this.filters[key].join(',')})`;
   }
 }
 

@@ -71,11 +71,11 @@ export default {
   },
   methods: {
     clearFilter(key) {
-      this.updatedFilters[key] = undefined;
+      this.updatedFilters[key] = {};
     },
     updateSingleSelection(key, comparator, value) {
       if (!this.updatedFilters[key]) {
-        this.updatedFilters[key] = {};
+        this.clearFilter(key);
       }
 
       this.updatedFilters[key][comparator] = value;

@@ -9,11 +9,21 @@
     >
       <span class="c-indicator__label">
         <span v-if="hasActiveFilters">
+          Filtering by 
+          <span v-if="hasMultipleActiveFilters">
+            {{ `(` }}
+          </span>
           <span
-            v-for="activeFilter in activeFilters"
-            :key="activeFilter.key"
+            v-for="(activeFilter, key, index) in activeFilters"
+            :key="key"
           >
-            {{ activeFilter.name }}
+            <span v-if="hasMultipleActiveFilters && index !== 0">
+              {{ `/` }}
+            </span>
+            {{ getFilterName(key) }}
+          </span>
+          <span v-if="hasMultipleActiveFilters">
+            {{ `)` }}
           </span>
           <button @click="openFilterSelector()">Change</button>
           <button @click="clearFilters()">Clear</button>
@@ -71,7 +81,10 @@ export default {
       return this.filters?.length;
     },
     hasActiveFilters() {
-      return this.activeFilters?.length;
+      return Object.keys(this.activeFilters)?.length;
+    },
+    hasMultipleActiveFilters() {
+      return Object.keys(this.activeFilters)?.length > 1;
     }
   },
   methods: {
@@ -83,7 +96,11 @@ export default {
     },
     updateActiveFilters() {
       this.activeFilters = this.filterService.getActiveFilters();
-      console.log(this.activeFilters);
+    },
+    getFilterName(key) {
+      const match = this.filters.find(filter => filter.key === key);
+
+      return match.name;
     },
     openFilterSelector() {
       this.showFilterSelector = true;
