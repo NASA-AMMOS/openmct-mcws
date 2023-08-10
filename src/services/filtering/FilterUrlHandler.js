@@ -12,14 +12,6 @@ export default class FilterURLHandler {
       openmct.router.on('change:params', this.updateFiltersFromURL);
 
       this.filterService.on('update', this.updateURLFromFilters);
-      // sessionService.listen(
-      //     this.updateURLFromRealtimeSession.bind(this)
-      // );
-      // sessionService.listenForHistoricalChange(
-      //     this.updateURLFromHistoricalSession.bind(this)
-      // );
-
-      // this.didSessionParamsChange = this.didSessionParamsChange.bind(this);
   }
 
   getParams () {
