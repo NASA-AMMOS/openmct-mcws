@@ -1,0 +1,109 @@
+<template>
+  <div class="u-contents">
+    <div class="c-overlay__top-bar">
+      <div class="c-overlay__dialog-title">Apply Global Filters</div>
+    </div>
+    <div class="c-overlay__dialog-hint">
+      <span>Apply Global Filters to all views. Will force re-query. Persisted filters on objects will override global filters.</span>
+    </div>
+
+    <FilterField
+      v-for="filter in filters"
+      :key="filter.key"
+      :filter-key="filter.key"
+      :filter-name="filter.name"
+      :filter="filter.filter"
+      :persisted-filter="updatedFilters[filter.key]"
+      @clear-filter="clearFilter"
+      @filter-single-selected="updateSingleSelection"
+    />
+
+    <div class="c-overlay__button-bar">
+      <button
+        :class="{ disabled: !hasFiltersChanged }"
+        class="c-button c-button--major"
+        @click="updateFilters()"
+      >
+        Update Filters
+      </button>
+      <button @click="cancel()" class="c-button">
+        Cancel
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+import FilterField from './FilterField.vue';
+
+export default {
+  inject: [
+    'openmct',
+    'filters'
+  ],
+  props: {
+    activeFilters: {
+      type: Object,
+      required: true
+    }
+  },
+  components: {
+    FilterField
+  },
+  watch: {
+    updatedFilters: {
+      handler() {
+        console.log('TODO: detect if changes to disable update button');
+      },
+      deep: true
+    }
+  },
+  data() {
+    return {
+      updatedFilters: {},
+      hasFiltersChanged: true
+    };
+  },
+  mounted() {
+    this.updatedFilters = this.activeFilters;
+
+    this.openOverlay();
+  },
+  methods: {
+    clearFilter(key) {
+      this.updatedFilters[key] = undefined;
+    },
+    updateSingleSelection(key, comparator, value) {
+      if (!this.updatedFilters[key]) {
+        this.updatedFilters[key] = {};
+      }
+
+      this.updatedFilters[key][comparator] = value;
+    },
+    updateFilters() {
+      this.$emit('update-filters', this.updatedFilters);
+
+      this.closeOverlay();
+    },
+    cancel() {
+      this.closeOverlay();
+    },
+    openOverlay() {
+      this.overlay = this.openmct.overlays.overlay({
+        element: this.$el,
+        size: 'large',
+        dismissable: true,
+        onDestroy: () => {
+          this.$emit('close-filter-selector');
+        }
+      });
+    },
+    closeOverlay() {
+      if (this.overlay) {
+        this.overlay.dismiss();
+        delete this.overlay;
+      }
+    }
+  }
+}
+</script>

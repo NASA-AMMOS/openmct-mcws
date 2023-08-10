@@ -1,13 +1,26 @@
-import VirtualChannelGlobalFilterPlugin from './virtualChannelGlobalFilter/plugin';
+import Vue from 'vue';
+import GlobalFilterIndicator from './GlobalFilterIndicator.vue';
 
 export default function plugin(config) {
-  const {
-    virtualChannelGroups
-  } = config;
-
   return function install(openmct) {
-    if (virtualChannelGroups) {
-      openmct.install(new VirtualChannelGlobalFilterPlugin(virtualChannelGroups));
-    }
+    const indicator = {
+      element: document.createElement('div'),
+      priority: openmct.priority.DEFAULT
+    };
+
+    openmct.indicators.add(indicator);
+    openmct.on('start', () => {
+      let component = new Vue({
+        el: indicator.element,
+        provide: {
+          openmct,
+          filters: config
+        },
+        components: {
+          GlobalFilterIndicator
+        },
+        template: '<GlobalFilterIndicator />'
+      });
+    });
   };
 }
