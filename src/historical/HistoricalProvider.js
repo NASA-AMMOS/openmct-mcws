@@ -1,6 +1,7 @@
 define([
     'services/mcws/mcws',
     'services/session/SessionService',
+    'services/filtering/FilterService',
     '../types/types',
     '../formats/UTCDayOfYearFormat',
     'lodash',
@@ -8,6 +9,7 @@ define([
 ], function (
     mcwsDefault,
     sessionServiceDefault,
+    filterServiceDefault,
     types,
     UTCDayOfYearFormat,
     _,
@@ -542,6 +544,18 @@ define([
                 }
             });
         }
+
+        const filterService = filterServiceDefault.default();
+        const globalFilters = filterService.getActiveFilters();
+
+        Object.entries(globalFilters).forEach(([key, filter]) => {
+          const domainObjectFiltersKeys = Object.keys(params.filter);
+          if (domainObjectFiltersKeys.includes(key)) {
+            this.openmct.notifications.alert(`A view filter is overriding a global filter for '${key}'`);
+          } else {
+            params.filter[key] = filter['equals'];
+          }
+        })
 
         if (provider.batchId) {
             return this.doQueuedRequest(domainObject, options, params, provider);
