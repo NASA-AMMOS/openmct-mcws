@@ -1,5 +1,5 @@
 <template>
-  <div class="c-inspect-properties__section c-filter-settings">
+<li class="c-inspect-properties__row c-filter-settings__setting">
     <div class="c-inspect-properties__label label">
       {{ name }} =
     </div>
@@ -10,7 +10,7 @@
             name="setSelectionThreshold"
             @change="updateFilterValueFromDropdown($event, filter.comparator, $event.target.value)"
           >
-            <option key="NONE" value="NONE" selected="isSelected(filter.comparator, option.value)">
+            <option key="NONE" value="NONE">
               None
             </option>
             <option
@@ -24,7 +24,7 @@
           </select>
         </template>
       </div>
-  </div>
+</li>
 </template>
 
 <script>

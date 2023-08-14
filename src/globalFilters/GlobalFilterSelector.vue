@@ -7,17 +7,20 @@
       <span>Apply Global Filters to all views. Will force re-query. Persisted filters on objects will override global filters.</span>
     </div>
 
-    <FilterField
-      v-for="filter in filters"
-      :key="filter.key"
-      :filter-key="filter.key"
-      :filter-name="filter.name"
-      :filter="filter.filter"
-      :persisted-filter="updatedFilters[filter.key]"
-      @clear-filter="clearFilter"
-      @filter-single-selected="updateSingleSelection"
-    />
-
+    <ul class="c-inspect-properties">
+      <div class="c-inspect-properties__section c-filter-settings">
+        <FilterField
+          v-for="filter in filters"
+          :key="filter.key"
+          :filter-key="filter.key"
+          :filter-name="filter.name"
+          :filter="filter.filter"
+          :persisted-filter="updatedFilters[filter.key]"
+          @clear-filter="clearFilter"
+          @filter-single-selected="updateSingleSelection"
+        />
+      </div>
+    </ul>
     <div class="c-overlay__button-bar">
       <button
         :class="{ disabled: !hasFiltersChanged }"
@@ -91,7 +94,7 @@ export default {
     openOverlay() {
       this.overlay = this.openmct.overlays.overlay({
         element: this.$el,
-        size: 'large',
+        size: 'small',
         dismissable: true,
         onDestroy: () => {
           this.$emit('close-filter-selector');
