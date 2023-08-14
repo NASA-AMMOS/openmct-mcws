@@ -86,8 +86,12 @@ class FilterService extends EventEmitter {
 let filterServiceInstance = null;
 
 export default function(openmct, config) {
-    if (!filterServiceInstance) {
-        filterServiceInstance = new FilterService(openmct, config);
+    if (filterServiceInstance) {
+      return filterServiceInstance;
+    }
+
+    if (config) {
+      filterServiceInstance = new FilterService(openmct, config);
     }
 
     return filterServiceInstance;

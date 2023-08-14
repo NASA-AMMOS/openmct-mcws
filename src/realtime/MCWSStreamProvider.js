@@ -135,14 +135,17 @@ define([
         this.sessions.listen(updateTopic);
 
         // global filters
-        const updateGlobalFilters = function (filters) {
-            const serializedFilters = this.serializeFilters(filters);
-            this.notifyWorker('globalFilters', serializedFilters);
-        }.bind(this);
+        if (this.filterService) {
+          const updateGlobalFilters = function (filters) {
+              const serializedFilters = this.serializeFilters(filters);
+              this.notifyWorker('globalFilters', serializedFilters);
+          }.bind(this);
+  
+          updateGlobalFilters(this.filterService.getActiveFilters());
+  
+          this.filterService.on('update', updateGlobalFilters);
 
-        updateGlobalFilters(this.filterService.getActiveFilters());
-
-        this.filterService.on('update', updateGlobalFilters);
+        }
 
         return worker;
     };
