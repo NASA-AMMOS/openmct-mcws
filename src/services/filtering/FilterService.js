@@ -6,6 +6,7 @@ import isEmpty from 'lodash/isempty';
 
 class FilterService extends EventEmitter {
   constructor(openmct, config) {
+    // TODO realtime update on filter
     super();
 
     this.openmct = openmct;

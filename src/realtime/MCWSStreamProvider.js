@@ -4,12 +4,14 @@ define([
     '../lib/extend',
     'lodash',
     './MCWSStreamWorker',
-    'services/session/SessionService'
+    'services/session/SessionService',
+    'services/filtering/FilterService'
 ], function (
     extend,
     _,
     runMCWSStreamWorker,
-    sessionServiceDefault
+    sessionServiceDefault,
+    filterServiceDefault
 ) {
     'use strict';
 
@@ -37,6 +39,7 @@ define([
         };
 
         this.sessions = sessionServiceDefault.default();
+        this.filterService = filterServiceDefault.default();
 
         this.subscriptions = {};
         this.requests = {};
@@ -199,16 +202,17 @@ define([
             }    
         }
 
-        var active = true,
-            message = {
-                url: this.getUrl(domainObject),
-                key: this.getKey(domainObject),
-                property: this.getProperty(domainObject),
-                mcwsVersion: domainObject.telemetry.mcwsVersion,
-                extraFilterTerms: options &&
-                    options.filters &&
-                    this.serializeFilters(options.filters)
-            };
+        let active = true;
+        const message = {
+            url: this.getUrl(domainObject),
+            key: this.getKey(domainObject),
+            property: this.getProperty(domainObject),
+            mcwsVersion: domainObject.telemetry.mcwsVersion,
+            extraFilterTerms: options &&
+                options.filters &&
+                this.serializeFilters(options.filters),
+            globalFilters: this.getGlobalFilters()
+        };
 
         function unsubscribe() {
             if (!active) {
@@ -311,6 +315,10 @@ define([
     MCWSStreamProvider.prototype.getProperty = function (domainObject) {
         throw new Error("getProperty not implemented.");
     };
+
+    MCWSStreamProvider.prototype.getGlobalFilters = function () {
+        return this.filterService.getActiveFilters();
+    }
 
     return MCWSStreamProvider;
 });

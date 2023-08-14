@@ -9,9 +9,9 @@ export default class FilterURLHandler {
       this.openmct = openmct;
       this.params = {};
 
-      openmct.router.on('change:params', this.updateFiltersFromURL);
+      openmct.router.on('change:params', this.updateFiltersFromURL.bind(this));
 
-      this.filterService.on('update', this.updateURLFromFilters);
+      this.filterService.on('update', this.updateURLFromFilters.bind(this));
   }
 
   getParams () {
