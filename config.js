@@ -440,6 +440,8 @@
          * How to use:
          * The global filters will be available from the Global Filters indicator
         */
+
+        /*
         globalFilters: [
           {
             name: 'VCID',
@@ -479,6 +481,7 @@
             }
           }
         ],
+        */
 
         /**
          * Developer Settings-- do not modify these unless you know what
