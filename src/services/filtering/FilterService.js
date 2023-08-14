@@ -11,20 +11,19 @@ class FilterService extends EventEmitter {
     this.openmct = openmct;
     this.filtersConfig = config;
 
-    this.filters = {};
-    this.initialize();
-  }
-
-  initialize() {
-    this.initializeFilters();
+    this.filters = this.getClearedFilters(this.filtersConfig);
 
     this.openmct.on('start', () => {
       new FilterURLHandler(this, this.openmct);
     });
   }
 
-  initializeFilters() {
-    this.filtersConfig.forEach(config => this.filters[config.key] = {});
+  getClearedFilters(filterConfig) {
+    const filters = {};
+
+    filterConfig.forEach(config => filters[config.key] = {});
+
+    return filters;
   }
 
   hasActiveFilters() {
@@ -54,7 +53,20 @@ class FilterService extends EventEmitter {
       Object.assign(this.filters, updatedFilters);
 
       this.emit('update', this.filters);
+
+      this.hasActiveFilters()
+        ? this.openmct.notifications.info('Global filters enabled.')
+        : this.openmct.notifications.info('Global filters cleared.');
+
+      this.handleFilterChange();
     }
+  }
+
+  // clear plots and tables before requery
+  // and then force a requery
+  handleFilterChange() {
+    this.openmct.objectViews.emit('clearData');
+    this.openmct.time.bounds(this.openmct.time.bounds());
   }
 
   updateFiltersFromParams(params) {
@@ -64,8 +76,9 @@ class FilterService extends EventEmitter {
   }
 
   clearFilters() {
-    this.initializeFilters();
-    this.emit('clear');
+    const clearedFilters = this.getClearedFilters(this.filtersConfig);
+    
+    this.updateFilters(clearedFilters);
   }
 }
 

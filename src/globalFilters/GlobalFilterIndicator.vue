@@ -71,9 +71,6 @@ export default {
     this.filterService = filterService(this.openmct, this.filters);
     this.filterService.on('update', this.updateActiveFilters);
 
-    this.filterService.on('update', this.updateActiveFilters);
-    this.filterService.on('clear', this.updateActiveFilters);
-
     this.updateActiveFilters();
   },
   computed: {
