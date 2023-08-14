@@ -25,12 +25,13 @@
      * @constructor
      * @private
      */
-    function MCWSConnection(url, property, topic, extraFilterTerms) {
+    function MCWSConnection(url, property, topic, extraFilterTerms, globalFilters) {
         this.url = url;
         this.topic = topic;
         this.subscribers = {};
         this.property = property;
         this.extraFilterTerms = extraFilterTerms;
+        this.globalFilters = globalFilters;
     }
 
     /**
@@ -86,6 +87,16 @@
             }, this);
         }
 
+        if (this.globalFilters) {
+          Object.entries(this.globalFilters).forEach(([key, value]) => {
+            if (filter[key]) {
+              console.warn(`Global filter not applied for existing persisted filter for ${key}.`);
+            } else {
+              filter[key] = value;
+            }
+          });
+        }
+
         return 'filter=(' + Object.keys(filter).filter(function (key) {
             return !!filter[key];
         }).map(function (key) {
@@ -112,6 +123,11 @@
      */
     MCWSConnection.prototype.setTopic = function (topic) {
         this.topic = topic;
+        this.scheduleReconnect();
+    };
+
+    MCWSConnection.prototype.setGlobalFilters = function (filters) {
+        this.globalFilters = filters;
         this.scheduleReconnect();
     };
 
@@ -208,6 +224,7 @@
             delete this.connections[url];
         }.bind(this));
         delete this.activeTopic;
+        delete this.globalFilters;
     };
 
     /**
@@ -215,18 +232,19 @@
      * @param {MCWSStreamSubscription} subscription the subscription to obtain
      */
     MCWSStreamWorker.prototype.subscribe = function (subscription) {
-        var url = subscription.url,
-            key = subscription.key,
-            property = subscription.property,
-            extraFilterTerms = subscription.extraFilterTerms,
-            cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
+        const url = subscription.url;
+        const key = subscription.key;
+        const property = subscription.property;
+        const extraFilterTerms = subscription.extraFilterTerms;
+        const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
         if (!this.connections[cacheKey]) {
             this.connections[cacheKey] = new MCWSConnection(
                 url,
                 property,
                 this.activeTopic,
-                extraFilterTerms
+                extraFilterTerms,
+                this.globalFilters
             );
         }
 
@@ -271,6 +289,17 @@
             this.connections[cacheKey].setTopic(topic);
         }.bind(this));
     };
+
+    /**
+     * Change the global filters.
+     * @param {Object} filters metadata about the filters
+     */
+    MCWSStreamWorker.prototype.globalFilters = function (filters) {
+      this.activeGlobalFilters = filters;
+      Object.keys(this.connections).forEach(function (cacheKey) {
+          this.connections[cacheKey].setGlobalFilters(filters);
+      }.bind(this));
+  };
 
     worker = new MCWSStreamWorker();
     self.onmessage = function (messageEvent) {

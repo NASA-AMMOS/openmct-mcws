@@ -125,6 +125,7 @@ define([
             return worker;
         }
 
+        // topic
         const updateTopic = function (newValue) {
             this.notifyWorker('topic', newValue);
         }.bind(this);
@@ -132,6 +133,16 @@ define([
         updateTopic(this.sessions.getActiveTopicOrSession());
 
         this.sessions.listen(updateTopic);
+
+        // global filters
+        const updateGlobalFilters = function (filters) {
+            const serializedFilters = this.serializeFilters(filters);
+            this.notifyWorker('globalFilters', serializedFilters);
+        }.bind(this);
+
+        updateGlobalFilters(this.filterService.getActiveFilters());
+
+        this.filterService.on('update', updateGlobalFilters);
 
         return worker;
     };
@@ -210,8 +221,7 @@ define([
             mcwsVersion: domainObject.telemetry.mcwsVersion,
             extraFilterTerms: options &&
                 options.filters &&
-                this.serializeFilters(options.filters),
-            globalFilters: this.getGlobalFilters()
+                this.serializeFilters(options.filters)
         };
 
         function unsubscribe() {
@@ -270,6 +280,9 @@ define([
                             let equalsFilters;
                             if (filtersForAttribute[comparator] instanceof Array){
                                 equalsFilters = `${filtersForAttribute[comparator].join(',')}`;
+                            } else if (filtersForAttribute[comparator].match(/\([^)]+\)/)) {
+                              // TODO hacky since we are using predefined array strings like '(1,2,3)' for global filters
+                                equalsFilters = `${filtersForAttribute[comparator].substring(1, filtersForAttribute[comparator].length - 1)}`
                             } else {
                                 equalsFilters = `${filtersForAttribute[comparator]}`;
                             }
