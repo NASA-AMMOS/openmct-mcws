@@ -28,7 +28,8 @@ define([
     './packetQuery/plugin',
     './mcwsIndicator/plugin',
     './multipleHistoricalSessions/plugin',
-    './realtimeSessions/plugin'
+    './realtimeSessions/plugin',
+    './globalFilters/plugin'
 ], function (
     DatasetCache,
     SessionService,
@@ -59,7 +60,8 @@ define([
     PacketQueryPlugin,
     MCWSIndicatorPlugin,
     MultipleHistoricalSessions,
-    RealtimeSessions
+    RealtimeSessions,
+    GlobalFilters
 ) {
 
     function AMMOSPlugins(options) {
@@ -124,6 +126,9 @@ define([
             openmct.install(openmct.plugins.DefaultRootName('VISTA'));
             openmct.install(ActionModifiersPlugin.default());
             openmct.install(new PacketQueryPlugin.default());
+            if (options.globalFilters) {
+              openmct.install(new GlobalFilters.default(options.globalFilters));
+            }
         };
     }
 
