@@ -329,9 +329,5 @@ define([
         throw new Error("getProperty not implemented.");
     };
 
-    MCWSStreamProvider.prototype.getGlobalFilters = function () {
-        return this.filterService.getActiveFilters();
-    }
-
     return MCWSStreamProvider;
 });

@@ -224,7 +224,7 @@
             delete this.connections[url];
         }.bind(this));
         delete this.activeTopic;
-        delete this.globalFilters;
+        delete this.activeGlobalFilters;
     };
 
     /**
@@ -244,7 +244,7 @@
                 property,
                 this.activeTopic,
                 extraFilterTerms,
-                this.globalFilters
+                this.activeGlobalFilters
             );
         }
 
