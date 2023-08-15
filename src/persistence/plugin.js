@@ -13,8 +13,12 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
 
         const usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
-        const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
-        existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
+
+        // user namespaces are not required
+        if (usersNamespace) {
+            const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
+            existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
+        }
 
         // install the provider for each persistence space,
         // key is the namespace in the response for persistence namespaces

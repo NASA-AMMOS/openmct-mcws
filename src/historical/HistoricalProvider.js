@@ -1,6 +1,7 @@
 define([
     'services/mcws/mcws',
     'services/session/SessionService',
+    'services/filtering/FilterService',
     '../types/types',
     '../formats/UTCDayOfYearFormat',
     'lodash',
@@ -8,6 +9,7 @@ define([
 ], function (
     mcwsDefault,
     sessionServiceDefault,
+    filterServiceDefault,
     types,
     UTCDayOfYearFormat,
     _,
@@ -298,6 +300,7 @@ define([
         batchRequest: function (batch) {
             const requests = _.values(batch.requestsById);
             const params = requests[0].params;
+            const options = requests[0].options;
 
             params.select = '(dn,eu,channel_id,ert,scet,sclk,lst,record_type,dn_alarm_state,eu_alarm_state,module,realtime,dss_id)'
             params.filter.channel_id__in = _.map(requests, 'domainObject.telemetry.channel_id');
@@ -540,6 +543,21 @@ define([
                     params.filter[attributeKey] = filterValue;
                 }
             });
+        }
+
+        const filterService = filterServiceDefault.default();
+
+        if (filterService) {
+          const globalFilters = filterService.getActiveFilters();
+  
+          Object.entries(globalFilters).forEach(([key, filter]) => {
+            const domainObjectFiltersKeys = Object.keys(params.filter);
+            if (domainObjectFiltersKeys.includes(key)) {
+              this.openmct.notifications.alert(`A view filter is overriding a global filter for '${key}'`);
+            } else {
+              params.filter[key] = filter['equals'];
+            }
+          });
         }
 
         if (provider.batchId) {
