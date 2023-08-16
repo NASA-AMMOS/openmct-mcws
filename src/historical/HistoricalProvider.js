@@ -555,7 +555,13 @@ define([
             if (domainObjectFiltersKeys.includes(key)) {
               this.openmct.notifications.alert(`A view filter is overriding a global filter for '${key}'`);
             } else {
-              params.filter[key] = filter['equals'];
+              let filterValue = filter['equals'];
+
+              if (typeof filterValue === 'string' && filterValue.includes(',')) {
+                  filterValue = `(${filterValue})`;
+              }
+
+              params.filter[key] = filterValue;
             }
           });
         }
