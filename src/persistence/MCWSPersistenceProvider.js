@@ -80,17 +80,6 @@ export default class MCWSPersistenceProvider {
     async get(identifier, abortSignal) {
         const { key, namespace } = identifier;
         const options = {};
-        
-        // check if it is a namespace that has subnamespaces, if so, we return this item dynamically
-        if (identifier.key === 'container') {
-            const SKIP_IDENTIFIER = false;
-            const persistenceNamespaces = await this.getPersistenceNamespaces();
-            const containerNamespace = persistenceNamespaces.find((namespace) => namespace.key === identifier.namespace);
-            const containedNamespaces = await this.getContainedNamespaces(containerNamespace);
-            const containedNamespaceIdentifiers = containedNamespaces.map(createIdentifierFromNamespaceDefinition);
-
-            return createModelFromNamespaceDefinition('system', containerNamespace, containedNamespaceIdentifiers);
-        }
 
         if (abortSignal) {
             options.signal = abortSignal;
@@ -335,10 +324,8 @@ export default class MCWSPersistenceProvider {
                 try {
                     await namespace.create();
 
-                    if (!namespaceDefinition.id.endsWith('container')) {
-                        const model = createModelFromNamespaceDefinition(userId, namespaceDefinition);
-                        await this.create(model);
-                    }
+                    const model = createModelFromNamespaceDefinition(userId, namespaceDefinition);
+                    await this.create(model);
 
                     return namespaceDefinition;
                 } catch (createError) {
