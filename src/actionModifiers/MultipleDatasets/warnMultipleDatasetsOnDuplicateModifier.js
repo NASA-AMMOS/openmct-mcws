@@ -1,6 +1,6 @@
 import DatasetCache from 'services/dataset/DatasetCache';
 
-export default function warnMultipleDatasetsModifier(openmct) {
+export default function warnMultipleDatasetsOnDuplicateModifier(openmct) {
   const duplicateAction = openmct.actions._allActions['duplicate'];
 
   if (duplicateAction) {
