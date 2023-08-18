@@ -202,12 +202,17 @@ export default class MCWSPersistenceProvider {
         // need to check for any legacy empty user folders
         if (containedNamespaces.length) {
             containedNamespaces.forEach(async namespaceDefinition => {
-                const identifier = createIdentifierFromNamespaceDefinition(namespaceDefinition);
-                const userRoot = await this.get(identifier);
-                
-                if (!userRoot) {
-                    const model = createModelFromNamespaceDefinition(user.id, namespaceDefinition);
-                    await this.create(model);
+                if (localStorage.getItem(`r5.0_empty_namespace_checked:${namespaceDefinition.key}`) === null) {
+                    // only one check
+                    localStorage.setItem(`r5.0_empty_namespace_checked:${namespaceDefinition.key}`, 'true');
+
+                    const identifier = createIdentifierFromNamespaceDefinition(namespaceDefinition);
+                    const userRoot = await this.get(identifier);
+                    
+                    if (!userRoot) {
+                        const model = createModelFromNamespaceDefinition(user.id, namespaceDefinition);
+                        await this.create(model);
+                    }
                 }
             });
         }
