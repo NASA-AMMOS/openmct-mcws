@@ -1,7 +1,7 @@
 <template>
   <div class="h-indicator">
     <div
-      class="c-indicator icon-flag"
+      class="c-indicator icon-filter"
       :class="{
         's-status-on': hasActiveFilters,
         's-status-available': hasFilters

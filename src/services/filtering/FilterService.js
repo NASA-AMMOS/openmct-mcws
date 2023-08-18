@@ -6,23 +6,22 @@ import isEmpty from 'lodash/isempty';
 
 class FilterService extends EventEmitter {
   constructor(openmct, config) {
-    // TODO realtime update on filter
     super();
 
     this.openmct = openmct;
     this.filtersConfig = config;
 
-    this.filters = this.getClearedFilters(this.filtersConfig);
+    this.filters = this.getAvailableFilters();
 
     this.openmct.on('start', () => {
       new FilterURLHandler(this, this.openmct);
     });
   }
 
-  getClearedFilters(filterConfig) {
+  getAvailableFilters() {
     const filters = {};
 
-    filterConfig.forEach(config => filters[config.key] = {});
+    this.filtersConfig.forEach(config => filters[config.key] = {});
 
     return filters;
   }
@@ -32,10 +31,6 @@ class FilterService extends EventEmitter {
     const activeFiltersCount = Object.keys(activeFilters).length;
 
     return Boolean(activeFiltersCount);
-  }
-
-  getAvailableFilters() {
-    return Object.keys(this.filters);
   }
 
   isActive(filter) {
@@ -77,7 +72,7 @@ class FilterService extends EventEmitter {
   }
 
   clearFilters() {
-    const clearedFilters = this.getClearedFilters(this.filtersConfig);
+    const clearedFilters = this.getAvailableFilters();
     
     this.updateFilters(clearedFilters);
   }
