@@ -203,8 +203,12 @@ export default class MCWSPersistenceProvider {
         if (containedNamespaces.length) {
             containedNamespaces.forEach(async namespaceDefinition => {
                 const identifier = createIdentifierFromNamespaceDefinition(namespaceDefinition);
-                const userFolder = await this.get(identifier);
-                console.log('user folder', userFolder);
+                const userRoot = await this.get(identifier);
+                
+                if (!userRoot) {
+                    const model = createModelFromNamespaceDefinition(user.id, namespaceDefinition);
+                    await this.create(model);
+                }
             });
         }
 
