@@ -201,11 +201,11 @@ export default class MCWSPersistenceProvider {
 
         // need to check for any legacy empty user folders
         if (containedNamespaces.length) {
-            containedNamespaces.forEach(namespaceDefinition => {
+            containedNamespaces.forEach(async namespaceDefinition => {
                 const identifier = createIdentifierFromNamespaceDefinition(namespaceDefinition);
 
                 try {
-                    this.get(identifier);
+                    await this.get(identifier);
                 } catch (error) {
                     console.log('error', error);
                 }
