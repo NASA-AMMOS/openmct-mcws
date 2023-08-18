@@ -199,6 +199,19 @@ export default class MCWSPersistenceProvider {
         const userNamespace = this.interpolateUsername(namespaceTemplate, user.id);
         const existingUserNamespace = containedNamespaces.find(namespace => namespace.url === userNamespace.url);
 
+        // need to check for any legacy empty user folders
+        if (containedNamespaces.length) {
+            containedNamespaces.forEach(namespaceDefinition => {
+                const identifier = createIdentifierFromNamespaceDefinition(namespaceDefinition);
+
+                try {
+                    this.get(identifier);
+                } catch (error) {
+                    console.log('error', error);
+                }
+            });
+        }
+
         if (existingUserNamespace) {
             containedNamespaces.splice(containedNamespaces.indexOf(existingUserNamespace), 1);
             containedNamespaces.unshift(userNamespace);
