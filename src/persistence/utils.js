@@ -1,6 +1,6 @@
 export function createIdentifierFromNamespaceDefinition(namespaceDefinition) {
     return {
-        key: namespaceDefinition.containsNamespaces ? 'container' : 'root',
+        key: namespaceDefinition.containsNamespaces ? '' : 'root',
         namespace: namespaceDefinition.key
     };
 }
@@ -23,7 +23,7 @@ export function createModelFromNamespaceDefinition(userId, namespaceDefinition, 
 export function createNamespace(namespace) {
     if (namespace.userNamespace) {
         return {
-            id: namespace.key + '-users:container',
+            id: namespace.key + '-users',
             key: namespace.key + '-users',
             name: namespace?.name || namespace.key.toUpperCase() + ' Users',
             url: namespace.url,

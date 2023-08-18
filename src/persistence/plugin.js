@@ -29,7 +29,7 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
             if (!namespace.containsNamespaces) {
                 openmct.objects.addProvider(namespace.key, mcwsPersistenceProvider);
             } else {
-                openmct.objects.addProvider('container', mcwsUserPersistenceProvider);
+                openmct.objects.addProvider(namespace.key, mcwsUserPersistenceProvider);
             }
         });
 
