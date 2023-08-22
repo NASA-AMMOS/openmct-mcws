@@ -1,13 +1,20 @@
 import preventImportIntoDatasetModifier from './preventImportIntoDatasetModifier';
 import importWithDatasetsModifier from './ImportExportWithDatasets/importWithDatasetsModifier';
+import warnMultipleDatasetsOnDuplicateModifier from './MultipleDatasets/warnMultipleDatasetsOnDuplicateModifier';
+import warnMultipleDatasetsOnImportModifier from './MultipleDatasets/warnMultipleDatasetsOnImportModifier';
 
-function ImportExportWithDatasetsPlugin() {
+/**
+ * DEPENDENCY: These modifiers have a dependency on Open MCT action internals.
+ */
+function ActionModifiersPlugin() {
     return function install(openmct) {
         openmct.on('start', () => {
             preventImportIntoDatasetModifier(openmct);
             importWithDatasetsModifier(openmct);
+            warnMultipleDatasetsOnDuplicateModifier(openmct);
+            warnMultipleDatasetsOnImportModifier(openmct);
         });
     }
 }
 
-export default ImportExportWithDatasetsPlugin;
+export default ActionModifiersPlugin;

@@ -4,12 +4,14 @@ define([
     '../lib/extend',
     'lodash',
     './MCWSStreamWorker',
-    'services/session/SessionService'
+    'services/session/SessionService',
+    'services/filtering/FilterService'
 ], function (
     extend,
     _,
     runMCWSStreamWorker,
-    sessionServiceDefault
+    sessionServiceDefault,
+    filterServiceDefault
 ) {
     'use strict';
 
@@ -37,6 +39,7 @@ define([
         };
 
         this.sessions = sessionServiceDefault.default();
+        this.filterService = filterServiceDefault.default();
 
         this.subscriptions = {};
         this.requests = {};
@@ -122,6 +125,7 @@ define([
             return worker;
         }
 
+        // topic
         const updateTopic = function (newValue) {
             this.notifyWorker('topic', newValue);
         }.bind(this);
@@ -129,6 +133,19 @@ define([
         updateTopic(this.sessions.getActiveTopicOrSession());
 
         this.sessions.listen(updateTopic);
+
+        // global filters
+        if (this.filterService) {
+          const updateGlobalFilters = function (filters) {
+              const serializedFilters = this.serializeFilters(filters);
+              this.notifyWorker('globalFilters', serializedFilters);
+          }.bind(this);
+  
+          updateGlobalFilters(this.filterService.getActiveFilters());
+  
+          this.filterService.on('update', updateGlobalFilters);
+
+        }
 
         return worker;
     };
@@ -199,16 +216,16 @@ define([
             }    
         }
 
-        var active = true,
-            message = {
-                url: this.getUrl(domainObject),
-                key: this.getKey(domainObject),
-                property: this.getProperty(domainObject),
-                mcwsVersion: domainObject.telemetry.mcwsVersion,
-                extraFilterTerms: options &&
-                    options.filters &&
-                    this.serializeFilters(options.filters)
-            };
+        let active = true;
+        const message = {
+            url: this.getUrl(domainObject),
+            key: this.getKey(domainObject),
+            property: this.getProperty(domainObject),
+            mcwsVersion: domainObject.telemetry.mcwsVersion,
+            extraFilterTerms: options &&
+                options.filters &&
+                this.serializeFilters(options.filters)
+        };
 
         function unsubscribe() {
             if (!active) {

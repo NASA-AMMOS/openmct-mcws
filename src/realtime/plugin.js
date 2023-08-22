@@ -1,4 +1,5 @@
 define([
+    'services/filtering/FilterService',
     './MCWSChannelStreamProvider',
     './MCWSEVRStreamProvider',
     './MCWSEVRLevelStreamProvider',
@@ -10,6 +11,7 @@ define([
     './MCWSFrameEventStreamProvider',
     './MCWSAlarmMessageStreamProvider',
 ], function (
+    filterServiceDefault,
     MCWSChannelStreamProvider,
     MCWSEVRStreamProvider,
     MCWSEVRLevelStreamProvider,
@@ -24,8 +26,7 @@ define([
 
     function RealtimeTelemetryPlugin(vistaTime, options) {
         return function install(openmct) {
-            // console.log('GOT LAD CLOCKS!', options.ladClocks);
-            // TODO: implement realtime telemetry plugin.
+            filterServiceDefault.default(openmct, options.globalFilters);
 
             openmct.telemetry.addProvider(new MCWSChannelStreamProvider(openmct, vistaTime));
             openmct.telemetry.addProvider(new MCWSEVRStreamProvider(openmct, vistaTime));
