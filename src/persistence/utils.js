@@ -11,7 +11,6 @@ export function createModelFromNamespaceDefinition(userId, namespaceDefinition, 
         name: namespaceDefinition.name,
         createdBy: userId,
         created: Date.now(),
-        persisted: Date.now(),
         type: 'folder',
         composition,
         location: namespaceDefinition.location || 'ROOT'
