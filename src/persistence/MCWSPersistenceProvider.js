@@ -1,5 +1,9 @@
 import mcws from '../services/mcws/mcws';
-import { createModelFromNamespaceDefinition, createIdentifierFromNamespaceDefinition, interpolateUsername } from './utils';
+import {
+  createModelFromNamespaceDefinition,
+  createIdentifierFromNamespaceDefinition,
+  interpolateUsername
+} from './utils';
 
 const USERNAME_FROM_PATH_REGEX = new RegExp('.*/(.*?)$');
 
