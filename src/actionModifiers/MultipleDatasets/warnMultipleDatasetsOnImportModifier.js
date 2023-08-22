@@ -10,6 +10,9 @@ export default function warnMultipleDatasetsOnImportModifier(openmct) {
     importAsJSONAction.onSave = async (object, changes) => {
       const datasetCache = DatasetCache();
       const datasets = await datasetCache.getDomainObjects();
+      const selectFile = changes.selectFile;
+      const stringifiedObjectTree = selectFile.body;
+      const isImportingDataset = stringifiedObjectTree.includes('vista.dataset');
 
       const confirmMultipleDatasets = () => {
         const dialog = openmct.overlays.dialog({
@@ -33,7 +36,7 @@ export default function warnMultipleDatasetsOnImportModifier(openmct) {
         });
       };
 
-      if (datasets.length) {
+      if (datasets.length && isImportingDataset) {
         confirmMultipleDatasets();
       } else {
         originalOnSaveFunction(object, changes);
