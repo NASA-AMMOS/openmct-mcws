@@ -1,4 +1,7 @@
-import { createModelFromNamespaceDefinition, interpolateUsername } from './utils';
+import {
+  createModelFromNamespaceDefinition,
+  interpolateUsername
+} from './utils';
 
 export default function missingUserFolderInterceptor(openmct, usersNamespace) {
     const userTemplate = usersNamespace.childTemplate.key.split('$')[0];
