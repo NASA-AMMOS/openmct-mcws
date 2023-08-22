@@ -1,5 +1,5 @@
 import mcws from '../services/mcws/mcws';
-import { createModelFromNamespaceDefinition, createIdentifierFromNamespaceDefinition } from './utils';
+import { createModelFromNamespaceDefinition, createIdentifierFromNamespaceDefinition, interpolateUsername } from './utils';
 
 const USERNAME_FROM_PATH_REGEX = new RegExp('.*/(.*?)$');
 
@@ -196,26 +196,8 @@ export default class MCWSPersistenceProvider {
 
         const user = await this.openmct.user.getCurrentUser();
         const containedNamespaces = await this.getNamespacesFromMCWS(namespaceDefinition);
-        const userNamespace = this.interpolateUsername(namespaceTemplate, user.id);
+        const userNamespace = interpolateUsername(namespaceTemplate, user.id);
         const existingUserNamespace = containedNamespaces.find(namespace => namespace.url === userNamespace.url);
-
-        // need to check for any legacy empty user folders
-        if (containedNamespaces.length) {
-            containedNamespaces.forEach(async namespaceDefinition => {
-                if (localStorage.getItem(`r5.0_empty_namespace_checked:${namespaceDefinition.key}`) === null) {
-                    // only one check
-                    localStorage.setItem(`r5.0_empty_namespace_checked:${namespaceDefinition.key}`, 'true');
-
-                    const identifier = createIdentifierFromNamespaceDefinition(namespaceDefinition);
-                    const userRoot = await this.get(identifier);
-                    
-                    if (!userRoot) {
-                        const model = createModelFromNamespaceDefinition(user.id, namespaceDefinition);
-                        await this.create(model);
-                    }
-                }
-            });
-        }
 
         if (existingUserNamespace) {
             containedNamespaces.splice(containedNamespaces.indexOf(existingUserNamespace), 1);
@@ -277,7 +259,7 @@ export default class MCWSPersistenceProvider {
         const templateObject = namespaceDefinition.childTemplate;
         const userNamespaces = namespaces.map((namespace) => {
             const username = USERNAME_FROM_PATH_REGEX.exec(namespace.subject)[1]
-            const userNamespaceDefinition = this.interpolateUsername(templateObject, username);
+            const userNamespaceDefinition = interpolateUsername(templateObject, username);
 
             userNamespaceDefinition.location = namespaceDefinition.id;
 
@@ -286,25 +268,6 @@ export default class MCWSPersistenceProvider {
 
         return userNamespaces;
     };
-
-    /**
-     * Interpolate a username with all values in a supplied object, replacing
-     * '${USER}' with the supplied username.
-     *
-     * @private
-     * @param {NamespaceTemplate} templateObject namespace template object.
-     * @param {string} username a username.
-     * @returns {NamespaceDefinition} a namespace definition object.
-     */
-    interpolateUsername(templateObject, username) {
-        const namespaceDefinition = {};
-
-        Object.keys(templateObject).forEach(key => {
-            namespaceDefinition[key] = templateObject[key].replace('${USER}', username);
-        });
-        
-        return namespaceDefinition;
-    }
 
     /**
      * Filters a list of namespaces, returning only the namespaces that are

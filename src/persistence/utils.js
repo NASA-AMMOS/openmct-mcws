@@ -44,3 +44,22 @@ export function createNamespace(namespace) {
         };
     }
 }
+
+/**
+ * Interpolate a username with all values in a supplied object, replacing
+ * '${USER}' with the supplied username.
+ *
+ * @private
+ * @param {NamespaceTemplate} templateObject namespace template object.
+ * @param {string} username a username.
+ * @returns {NamespaceDefinition} a namespace definition object.
+ */
+export function interpolateUsername(templateObject, username) {
+    const namespaceDefinition = {};
+
+    Object.keys(templateObject).forEach(key => {
+        namespaceDefinition[key] = templateObject[key].replace('${USER}', username);
+    });
+    
+    return namespaceDefinition;
+}
