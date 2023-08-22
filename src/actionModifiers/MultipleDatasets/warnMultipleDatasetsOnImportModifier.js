@@ -1,21 +1,17 @@
 import DatasetCache from 'services/dataset/DatasetCache';
 import { MULTIPLE_DATASET_WARNING } from './constants';
 
-export default function warnMultipleDatasetsOnDuplicateModifier(openmct) {
-  const duplicateAction = openmct.actions._allActions['duplicate'];
+export default function warnMultipleDatasetsOnImportModifier(openmct) {
+  const importAsJSONAction = openmct.actions._allActions['import.JSON'];
 
-  if (duplicateAction) {
-    const originalOnSaveFunction = duplicateAction.onSave.bind(duplicateAction);
+  if (importAsJSONAction) {
+    const originalOnSaveFunction = importAsJSONAction.onSave.bind(importAsJSONAction);
 
-    duplicateAction.onSave = async (object, parent, changes) => {
+    importAsJSONAction.onSave = async (object, changes) => {
       const datasetCache = DatasetCache();
       const datasets = await datasetCache.getDomainObjects();
 
-      const isDuplicatingDataset = datasets.some(dataset => openmct.objects.areIdsEqual(
-        dataset.identifier, object.identifier)
-      );
-
-      const confirmDuplicateDataset = () => {
+      const confirmMultipleDatasets = () => {
         const dialog = openmct.overlays.dialog({
           iconClass: 'alert',
           message: MULTIPLE_DATASET_WARNING,
@@ -24,7 +20,7 @@ export default function warnMultipleDatasetsOnDuplicateModifier(openmct) {
               label: 'OK',
               callback: () => {
                 dialog.dismiss();
-                originalOnSaveFunction(object, parent, changes);
+                originalOnSaveFunction(object, changes);
               }
             },
             {
@@ -37,10 +33,10 @@ export default function warnMultipleDatasetsOnDuplicateModifier(openmct) {
         });
       };
 
-      if (isDuplicatingDataset) {
-        confirmDuplicateDataset();
+      if (datasets.length) {
+        confirmMultipleDatasets();
       } else {
-        originalOnSaveFunction(object, parent, changes);
+        originalOnSaveFunction(object, changes);
       }
     };
   }
