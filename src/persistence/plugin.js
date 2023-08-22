@@ -11,9 +11,9 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         });
         openmct.objects.addRoot(() => rootsPromise);
         const namespaces = configNamespaces.map(createNamespace);
+        const usersNamespace = structuredClone(namespaces.find((namespace) => namespace.containsNamespaces));
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
 
-        const usersNamespace = structuredClone(namespaces.find((namespace) => namespace.containsNamespaces));
         const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
         existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
         missingUserFolderInterceptor(openmct, usersNamespace);
