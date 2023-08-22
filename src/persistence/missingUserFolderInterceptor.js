@@ -10,9 +10,13 @@ export default function missingUserFolderInterceptor(openmct, usersNamespace) {
         },
         invoke: (identifier, object) => {
             const userId = identifier.key.match(pattern)[1];
-            const model = createModelFromNamespaceDefinition(userId, namespaceDefinition);
+            const userNamespaceDefinition = interpolateUsername(usersNamespace.childTemplate, userId);
+            userNamespaceDefinition.location = userNamespaceDefinition.id;
+            const model = createModelFromNamespaceDefinition(userId, userNamespaceDefinition);
             
-            return object;
+            openmct.objects.save(model);
+            
+            return model;
         }
     });
 }
