@@ -7,11 +7,11 @@ export default function missingUserFolderInterceptor(openmct, usersNamespace) {
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
             console.log('usersNamespace', usersNamespace);
-            console.log(identifier, !domainObject && userKeyCheck.test(identifier.key));
-            return !domainObject && userKeyCheck.test(identifier.key);
+            console.log(identifier, !domainObject && userKeyCheck.test(identifier.namespace));
+            return !domainObject && userKeyCheck.test(identifier.namespace);
         },
         invoke: (identifier, object) => {
-            const userId = identifier.key.match(pattern)[1];
+            const userId = identifier.namespace.match(pattern)[1];
             const userNamespaceDefinition = interpolateUsername(usersNamespace.childTemplate, userId);
             userNamespaceDefinition.location = userNamespaceDefinition.id;
             const model = createModelFromNamespaceDefinition(userId, userNamespaceDefinition);
