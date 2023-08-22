@@ -322,7 +322,7 @@ export default class MCWSPersistenceProvider {
 
                     if (!namespaceDefinition.id.endsWith('container')) {
                         const model = createModelFromNamespaceDefinition(userId, namespaceDefinition);
-                        await this.create(model);
+                        await this.openmct.objects.save(model);
                     }
 
                     return namespaceDefinition;
