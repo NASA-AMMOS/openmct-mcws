@@ -2,7 +2,7 @@ import { createModelFromNamespaceDefinition, interpolateUsername } from './utils
 
 export default function missingUserFolderInterceptor(openmct, usersNamespace) {
     const userTemplate = usersNamespace.childTemplate.key.split('$')[0];
-    const userKeyCheck = new RegExp(`^${userTemplate}[^:]+$`);
+    const userKeyCheck = new RegExp(`^${userTemplate}([^:]+)$`);
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
