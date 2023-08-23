@@ -5,7 +5,7 @@ export function createIdentifierFromNamespaceDefinition(namespaceDefinition) {
     };
 }
 
-export function createModelFromNamespaceDefinition(userId, namespaceDefinition, composition = [], persistenceTime) {
+export function createModelFromNamespaceDefinition(userId, namespaceDefinition, composition = []) {
     const model = {
         identifier: createIdentifierFromNamespaceDefinition(namespaceDefinition),
         name: namespaceDefinition.name,

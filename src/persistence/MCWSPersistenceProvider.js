@@ -322,7 +322,6 @@ export default class MCWSPersistenceProvider {
                     await namespace.create();
 
                     if (!namespaceDefinition.id.endsWith('container')) {
-                        const INCLUDE_PERSISTENCE_TIME = true;
                         const model = createModelFromNamespaceDefinitionWithPersisted(userId, namespaceDefinition, []);
                         await this.create(model);
                     }
