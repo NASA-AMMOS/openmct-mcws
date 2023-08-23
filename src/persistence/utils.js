@@ -5,7 +5,7 @@ export function createIdentifierFromNamespaceDefinition(namespaceDefinition) {
     };
 }
 
-export function createModelFromNamespaceDefinition(userId, namespaceDefinition, composition = []) {
+export function createModelFromNamespaceDefinition(userId, namespaceDefinition, composition = [], persistenceTime) {
     const model = {
         identifier: createIdentifierFromNamespaceDefinition(namespaceDefinition),
         name: namespaceDefinition.name,
@@ -15,6 +15,18 @@ export function createModelFromNamespaceDefinition(userId, namespaceDefinition, 
         composition,
         location: namespaceDefinition.location || 'ROOT'
     };
+
+    if (persistenceTime) {
+        model.persisted = Date.now();
+    }
+
+    return model;
+}
+
+export function createModelFromNamespaceDefinitionWithPersisted(userId, namespaceDefinition, composition = []) {
+    const model = createModelFromNamespaceDefinition(...arguments);
+
+    model.persisted = Date.now();
 
     return model;
 }

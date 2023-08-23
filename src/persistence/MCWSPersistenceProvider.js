@@ -2,6 +2,7 @@ import mcws from '../services/mcws/mcws';
 import {
   createModelFromNamespaceDefinition,
   createIdentifierFromNamespaceDefinition,
+  createModelFromNamespaceDefinitionWithPersisted,
   interpolateUsername
 } from './utils';
 
@@ -93,7 +94,7 @@ export default class MCWSPersistenceProvider {
             const containedNamespaces = await this.getContainedNamespaces(containerNamespace);
             const containedNamespaceIdentifiers = containedNamespaces.map(createIdentifierFromNamespaceDefinition);
 
-            return createModelFromNamespaceDefinition('system', containerNamespace, containedNamespaceIdentifiers);
+            return createModelFromNamespaceDefinitionWithPersisted('system', containerNamespace, containedNamespaceIdentifiers);
         }
 
         if (abortSignal) {
@@ -321,8 +322,9 @@ export default class MCWSPersistenceProvider {
                     await namespace.create();
 
                     if (!namespaceDefinition.id.endsWith('container')) {
-                        const model = createModelFromNamespaceDefinition(userId, namespaceDefinition);
-                        await this.openmct.objects.save(model);
+                        const INCLUDE_PERSISTENCE_TIME = true;
+                        const model = createModelFromNamespaceDefinitionWithPersisted(userId, namespaceDefinition, []);
+                        await this.create(model);
                     }
 
                     return namespaceDefinition;
