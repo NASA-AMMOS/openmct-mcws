@@ -1,6 +1,7 @@
 import { createIdentifierFromNamespaceDefinition, createNamespace } from './utils';
 import existingNamespaceUpdateInterceptor from './existingNamespaceUpdateInterceptor';
 import MCWSPersistenceProvider from './MCWSPersistenceProvider';
+import missingUserFolderInterceptor from './missingUserFolderInterceptor';
 
 export default function MCWSPersistenceProviderPlugin(configNamespaces) {
     return async function install(openmct) {
@@ -10,14 +11,15 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         });
         openmct.objects.addRoot(() => rootsPromise);
         const namespaces = configNamespaces.map(createNamespace);
+        let usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
+        usersNamespace = structuredClone(usersNamespace);
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
-
-        const usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
 
         // user namespaces are not required
         if (usersNamespace) {
-            const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
-            existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
+          const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
+          existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
+          missingUserFolderInterceptor(openmct, usersNamespace);  
         }
 
         // install the provider for each persistence space,

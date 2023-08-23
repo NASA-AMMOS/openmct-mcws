@@ -1,5 +1,10 @@
 import mcws from '../services/mcws/mcws';
-import { createModelFromNamespaceDefinition, createIdentifierFromNamespaceDefinition } from './utils';
+import {
+  createModelFromNamespaceDefinition,
+  createIdentifierFromNamespaceDefinition,
+  createModelFromNamespaceDefinitionWithPersisted,
+  interpolateUsername
+} from './utils';
 
 const USERNAME_FROM_PATH_REGEX = new RegExp('.*/(.*?)$');
 
@@ -89,7 +94,7 @@ export default class MCWSPersistenceProvider {
             const containedNamespaces = await this.getContainedNamespaces(containerNamespace);
             const containedNamespaceIdentifiers = containedNamespaces.map(createIdentifierFromNamespaceDefinition);
 
-            return createModelFromNamespaceDefinition('system', containerNamespace, containedNamespaceIdentifiers);
+            return createModelFromNamespaceDefinitionWithPersisted('system', containerNamespace, containedNamespaceIdentifiers);
         }
 
         if (abortSignal) {
@@ -196,7 +201,7 @@ export default class MCWSPersistenceProvider {
 
         const user = await this.openmct.user.getCurrentUser();
         const containedNamespaces = await this.getNamespacesFromMCWS(namespaceDefinition);
-        const userNamespace = this.interpolateUsername(namespaceTemplate, user.id);
+        const userNamespace = interpolateUsername(namespaceTemplate, user.id);
         const existingUserNamespace = containedNamespaces.find(namespace => namespace.url === userNamespace.url);
 
         if (existingUserNamespace) {
@@ -259,7 +264,7 @@ export default class MCWSPersistenceProvider {
         const templateObject = namespaceDefinition.childTemplate;
         const userNamespaces = namespaces.map((namespace) => {
             const username = USERNAME_FROM_PATH_REGEX.exec(namespace.subject)[1]
-            const userNamespaceDefinition = this.interpolateUsername(templateObject, username);
+            const userNamespaceDefinition = interpolateUsername(templateObject, username);
 
             userNamespaceDefinition.location = namespaceDefinition.id;
 
@@ -268,25 +273,6 @@ export default class MCWSPersistenceProvider {
 
         return userNamespaces;
     };
-
-    /**
-     * Interpolate a username with all values in a supplied object, replacing
-     * '${USER}' with the supplied username.
-     *
-     * @private
-     * @param {NamespaceTemplate} templateObject namespace template object.
-     * @param {string} username a username.
-     * @returns {NamespaceDefinition} a namespace definition object.
-     */
-    interpolateUsername(templateObject, username) {
-        const namespaceDefinition = {};
-
-        Object.keys(templateObject).forEach(key => {
-            namespaceDefinition[key] = templateObject[key].replace('${USER}', username);
-        });
-        
-        return namespaceDefinition;
-    }
 
     /**
      * Filters a list of namespaces, returning only the namespaces that are
@@ -336,7 +322,7 @@ export default class MCWSPersistenceProvider {
                     await namespace.create();
 
                     if (!namespaceDefinition.id.endsWith('container')) {
-                        const model = createModelFromNamespaceDefinition(userId, namespaceDefinition);
+                        const model = createModelFromNamespaceDefinitionWithPersisted(userId, namespaceDefinition, []);
                         await this.create(model);
                     }
 

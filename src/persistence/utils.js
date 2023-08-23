@@ -11,11 +11,18 @@ export function createModelFromNamespaceDefinition(userId, namespaceDefinition, 
         name: namespaceDefinition.name,
         createdBy: userId,
         created: Date.now(),
-        persisted: Date.now(),
         type: 'folder',
         composition,
         location: namespaceDefinition.location || 'ROOT'
     };
+
+    return model;
+}
+
+export function createModelFromNamespaceDefinitionWithPersisted(userId, namespaceDefinition, composition = []) {
+    const model = createModelFromNamespaceDefinition(userId, namespaceDefinition, composition = []);
+
+    model.persisted = Date.now();
 
     return model;
 }
@@ -43,4 +50,23 @@ export function createNamespace(namespace) {
             url: namespace.url
         };
     }
+}
+
+/**
+ * Interpolate a username with all values in a supplied object, replacing
+ * '${USER}' with the supplied username.
+ *
+ * @private
+ * @param {NamespaceTemplate} templateObject namespace template object.
+ * @param {string} username a username.
+ * @returns {NamespaceDefinition} a namespace definition object.
+ */
+export function interpolateUsername(templateObject, username) {
+    const namespaceDefinition = {};
+
+    Object.keys(templateObject).forEach(key => {
+        namespaceDefinition[key] = templateObject[key].replace('${USER}', username);
+    });
+    
+    return namespaceDefinition;
 }
