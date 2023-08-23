@@ -16,14 +16,10 @@ export function createModelFromNamespaceDefinition(userId, namespaceDefinition, 
         location: namespaceDefinition.location || 'ROOT'
     };
 
-    if (persistenceTime) {
-        model.persisted = Date.now();
-    }
-
     return model;
 }
 
-export function createModelFromNamespaceDefinitionWithPersisted(userId, namespaceDefinition, composition = []) {
+export function createModelFromNamespaceDefinitionWithPersisted() {
     const model = createModelFromNamespaceDefinition(...arguments);
 
     model.persisted = Date.now();
