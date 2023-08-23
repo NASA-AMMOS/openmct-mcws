@@ -19,8 +19,8 @@ export function createModelFromNamespaceDefinition(userId, namespaceDefinition, 
     return model;
 }
 
-export function createModelFromNamespaceDefinitionWithPersisted() {
-    const model = createModelFromNamespaceDefinition(...arguments);
+export function createModelFromNamespaceDefinitionWithPersisted(userId, namespaceDefinition, composition = []) {
+    const model = createModelFromNamespaceDefinition(userId, namespaceDefinition, composition = []);
 
     model.persisted = Date.now();
 
