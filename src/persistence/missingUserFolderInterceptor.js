@@ -1,4 +1,5 @@
 import {
+  createIdentifierFromNamespaceDefinition,
   createModelFromNamespaceDefinition,
   interpolateUsername
 } from './utils';
