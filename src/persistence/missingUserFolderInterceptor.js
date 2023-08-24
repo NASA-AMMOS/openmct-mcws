@@ -4,8 +4,8 @@ import {
   interpolateUsername
 } from './utils';
 
-export default function missingUserFolderInterceptor(openmct, usersNamespace, containedNamespaces) {
-    const containedIds = containedNamespaces.map(createIdentifierFromNamespaceDefinition);
+export default async function missingUserFolderInterceptor(openmct, usersNamespace, containedNamespaces) {
+    const containedIds = await containedNamespaces.map(createIdentifierFromNamespaceDefinition);
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
