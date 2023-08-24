@@ -3,16 +3,16 @@ import {
   interpolateUsername
 } from './utils';
 
-export default function missingUserFolderInterceptor(openmct, usersNamespace) {
-    const userTemplate = usersNamespace.childTemplate.key.split('$')[0];
-    const userKeyCheck = new RegExp(`^${userTemplate}([^:]+)$`);
+export default function missingUserFolderInterceptor(openmct, usersNamespace, containedNamespaces) {
+    const containedIds = containedNamespaces.map(createIdentifierFromNamespaceDefinition);
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
-            return !domainObject && userKeyCheck.test(identifier.namespace);
+            return containedIds.find(id => openmct.objects.arIdsEqual(id, identifier));
         },
         invoke: (identifier, object) => {
-            const userId = identifier.namespace.match(userKeyCheck)[1];
+            const namspaceParts = identifier.namespace.split('-');
+            const userId = namspaceParts[namspaceParts.length - 1];
             const userNamespaceDefinition = interpolateUsername(usersNamespace.childTemplate, userId);
             userNamespaceDefinition.location = usersNamespace.id;
             const model = createModelFromNamespaceDefinition(userId, userNamespaceDefinition);

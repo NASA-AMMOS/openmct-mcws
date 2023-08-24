@@ -14,12 +14,13 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         let usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
         usersNamespace = structuredClone(usersNamespace);
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
+        const containedNamespaces = mcwsPersistenceProvider.getContainedNamespaces(usersNamespace);
 
         // user namespaces are not required
         if (usersNamespace) {
           const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
           existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
-          missingUserFolderInterceptor(openmct, usersNamespace);  
+          missingUserFolderInterceptor(openmct, usersNamespace, containedNamespaces);
         }
 
         // install the provider for each persistence space,
