@@ -14,7 +14,6 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         let usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
         usersNamespace = structuredClone(usersNamespace);
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
-        const containedNamespaces = await mcwsPersistenceProvider.getContainedNamespaces(usersNamespace);
 
         // install the provider for each persistence space,
         // key is the namespace in the response for persistence namespaces
