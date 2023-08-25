@@ -92,8 +92,10 @@ export default class MCWSPersistenceProvider {
             const persistenceNamespaces = await this.getPersistenceNamespaces();
             const containerNamespace = persistenceNamespaces.find((namespace) => namespace.key === identifier.namespace);
             const containedNamespaces = await this.getContainedNamespaces(containerNamespace);
+            console.log(containedNamespaces);
             const containedNamespaceIdentifiers = containedNamespaces.map(createIdentifierFromNamespaceDefinition);
-
+            console.log(containedNamespaceIdentifiers);
+            console.log(createModelFromNamespaceDefinitionWithPersisted('system', containerNamespace, containedNamespaceIdentifiers));
             return createModelFromNamespaceDefinitionWithPersisted('system', containerNamespace, containedNamespaceIdentifiers);
         }
 
