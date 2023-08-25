@@ -215,7 +215,7 @@ export default class MCWSPersistenceProvider {
 
         containedNamespaces.unshift(userNamespace);
         
-        await this.createIfMissing(userNamespace, user.id, );
+        await this.createIfMissing(userNamespace, user.id);
 
         return containedNamespaces;
     }
