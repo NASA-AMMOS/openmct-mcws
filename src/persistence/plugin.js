@@ -25,13 +25,13 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         const rootNamespaces = await mcwsPersistenceProvider.getRootNamespaces();
         const ROOT_IDENTIFIERS = rootNamespaces.map(createIdentifierFromNamespaceDefinition);
 
-        rootsResolve(ROOT_IDENTIFIERS);
-
         // user namespaces are not required
         if (usersNamespace) {
             const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
             existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
-            missingUserFolderInterceptor(openmct, usersNamespace, containedNamespaces);
+            missingUserFolderInterceptor(openmct, usersNamespace, ROOT_IDENTIFIERS);
         }
+
+        rootsResolve(ROOT_IDENTIFIERS);
     };
 }
