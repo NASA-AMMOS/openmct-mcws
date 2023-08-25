@@ -9,7 +9,7 @@ export default async function missingUserFolderInterceptor(openmct, usersNamespa
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
-            return containedIds.find(id => openmct.objects.arIdsEqual(id, identifier));
+            return containedIds.find(id => openmct.objects.areIdsEqual(id, identifier));
         },
         invoke: (identifier, object) => {
             const namspaceParts = identifier.namespace.split('-');
