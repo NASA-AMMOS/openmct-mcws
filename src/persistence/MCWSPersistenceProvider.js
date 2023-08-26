@@ -62,7 +62,7 @@ export default class MCWSPersistenceProvider {
         const { key, namespace } = domainObject.identifier;
         const persistenceNamespace = await this.#getNamespace(namespace);
         const model = this.#toPersistableModel(domainObject);
-
+        console.log('create', domainObject);
         try {
             await persistenceNamespace.opaqueFile(key).create(model);
 
@@ -85,17 +85,17 @@ export default class MCWSPersistenceProvider {
     async get(identifier, abortSignal) {
         const { key, namespace } = identifier;
         const options = {};
-        
+        console.log('mcws get', identifier);
         // check if it is a namespace that has subnamespaces, if so, we return this item dynamically
         if (identifier.key === 'container') {
             const SKIP_IDENTIFIER = false;
             const persistenceNamespaces = await this.getPersistenceNamespaces();
             const containerNamespace = persistenceNamespaces.find((namespace) => namespace.key === identifier.namespace);
             const containedNamespaces = await this.getContainedNamespaces(containerNamespace);
-            console.log(containedNamespaces);
+            console.log('contained namespaces', containedNamespaces);
             const containedNamespaceIdentifiers = containedNamespaces.map(createIdentifierFromNamespaceDefinition);
-            console.log(containedNamespaceIdentifiers);
-            console.log(createModelFromNamespaceDefinitionWithPersisted('system', containerNamespace, containedNamespaceIdentifiers));
+            console.log('contained namespace identifiers', containedNamespaceIdentifiers);
+            console.log('model created for user', createModelFromNamespaceDefinitionWithPersisted('system', containerNamespace, containedNamespaceIdentifiers));
             return createModelFromNamespaceDefinitionWithPersisted('system', containerNamespace, containedNamespaceIdentifiers);
         }
 
@@ -130,7 +130,7 @@ export default class MCWSPersistenceProvider {
         const { key, namespace } = domainObject.identifier;
         const persistenceNamespace = await this.#getNamespace(namespace);
         const model = this.#toPersistableModel(domainObject);
-
+        console.log('update', domainObject);
         try {
             const result = await persistenceNamespace.opaqueFile(key).replace(model);
 
