@@ -6,6 +6,7 @@ import {
 export default async function missingUserFolderInterceptor(openmct, usersNamespace, ROOT_IDENTIFIERS) {
     const userTemplate = usersNamespace.childTemplate.key.split('$')[0];
     const userKeyCheck = new RegExp(`^${userTemplate}([^:]+)$`);
+
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
             // is missing, is not a root, matches a user namespace format
