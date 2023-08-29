@@ -6,7 +6,6 @@ export function createIdentifierFromNamespaceDefinition(namespaceDefinition) {
 }
 
 export function createModelFromNamespaceDefinition(userId, namespaceDefinition, composition = []) {
-    console.log('composition', composition);
     const model = {
         identifier: createIdentifierFromNamespaceDefinition(namespaceDefinition),
         name: namespaceDefinition.name,
