@@ -9,7 +9,6 @@ export default async function missingUserFolderInterceptor(openmct, usersNamespa
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
-            // is missing, is not a root, matches a user namespace format
             const isMissing = !domainObject;
             const isNotRoot = !ROOT_IDENTIFIERS.find(rootId => openmct.objects.areIdsEqual(rootId, identifier));
             const isUserFolderIdentifier = userKeyCheck.test(identifier.namespace);
