@@ -9,12 +9,13 @@
         :size="model.size"
         @input="updateText()"
       />
+      
     </span>
   </span>
 </template>
 
 <script>
-import { throttle } from 'lodash';
+import { throttle, debounce } from 'lodash';
 
 export default {
   props: {
@@ -27,6 +28,24 @@ export default {
       default: ''
     }
   },
+  watch: {
+    testUrl() {
+      this.checkUrl();
+    }
+  },
+  computed: {
+    testUrl() {
+      if (field.startsWith('ws')) {
+        return field.replace('ws', 'http');
+      } else if (field.startsWith('//')) {
+        return `${window.location.protocol}${field}`;
+      } else if (field.startsWith('/')) {
+        return `${window.openmctMCWSConfig.mcwsUrl}${field}`;
+      } else {
+        return field;
+      }
+    }
+  },
   data() {
     return {
       field: this.model.value
@@ -34,6 +53,11 @@ export default {
   },
   mounted() {
     this.updateText = throttle(this.updateText.bind(this), 500);
+    this.checkUrl = debounce(
+      this.checkUrl.bind(this),
+      800,
+      { trailing: true }
+    );
   },
   methods: {
     updateText() {
