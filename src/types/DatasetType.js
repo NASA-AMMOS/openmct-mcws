@@ -65,7 +65,7 @@ define([
             {
                 name: "Channel Stream URL",
                 key: "channelStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -108,7 +108,7 @@ define([
             {
                 name: "EVR Stream URL",
                 key: "evrStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -126,7 +126,7 @@ define([
             {
                 name: "Data Product Stream URL",
                 key: "dataProductStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -144,7 +144,7 @@ define([
             {
                 name: "Packet Summary Event Stream URL",
                 key: "packetSummaryEventStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -156,31 +156,31 @@ define([
             {
                 name: "Command Event Stream URL",
                 key: "commandEventStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Message Stream URL",
                 key: "messageStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Frame Summary Stream URL",
                 key: "frameSummaryStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Frame Event Stream URL",
                 key: "frameEventStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Alarm Message Stream URL",
                 key: "alarmMessageStreamUrl",
-                control: "urlfield",
+                control: "textfield",
                 cssClass: "l-input-lg"
             }
         ]
