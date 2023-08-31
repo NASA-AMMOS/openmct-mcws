@@ -85,7 +85,7 @@ export default class MCWSPersistenceProvider {
     async get(identifier, abortSignal) {
         const { key, namespace } = identifier;
         const options = {};
-        
+
         // check if it is a namespace that has subnamespaces, if so, we return this item dynamically
         if (identifier.key === 'container') {
             const SKIP_IDENTIFIER = false;
@@ -213,7 +213,7 @@ export default class MCWSPersistenceProvider {
 
         containedNamespaces.unshift(userNamespace);
         
-        await this.createIfMissing(userNamespace, user.id, );
+        await this.createIfMissing(userNamespace, user.id);
 
         return containedNamespaces;
     }

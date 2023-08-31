@@ -15,13 +15,6 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         usersNamespace = structuredClone(usersNamespace);
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
 
-        // user namespaces are not required
-        if (usersNamespace) {
-          const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
-          existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
-          missingUserFolderInterceptor(openmct, usersNamespace);  
-        }
-
         // install the provider for each persistence space,
         // key is the namespace in the response for persistence namespaces
         const persistenceNamespaces = await mcwsPersistenceProvider.getPersistenceNamespaces();
@@ -30,6 +23,13 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         // add the roots
         const rootNamespaces = await mcwsPersistenceProvider.getRootNamespaces();
         const ROOT_IDENTIFIERS = rootNamespaces.map(createIdentifierFromNamespaceDefinition);
+
+        // user namespaces are not required
+        if (usersNamespace) {
+            const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
+            existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
+            missingUserFolderInterceptor(openmct, usersNamespace, ROOT_IDENTIFIERS);
+        }
 
         rootsResolve(ROOT_IDENTIFIERS);
     };
