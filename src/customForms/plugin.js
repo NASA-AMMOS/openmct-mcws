@@ -1,4 +1,4 @@
-import UrlFieldFormController from "./UrlFieldFormController";
+import UrlFieldFormController from "./UrlField/UrlFieldFormController";
 
 export default function CustomFormsPlugin() {
   return function install(openmct) {

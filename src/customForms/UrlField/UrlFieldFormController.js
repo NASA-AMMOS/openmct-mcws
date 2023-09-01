@@ -1,4 +1,4 @@
-import UrlField from './components/UrlField.vue'
+import UrlField from './UrlField.vue'
 import Vue from 'vue';
 
 export default function UrlFieldFormController(openmct) {

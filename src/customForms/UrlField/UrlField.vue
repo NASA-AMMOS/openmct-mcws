@@ -1,6 +1,13 @@
 <template>
-  <span class="form-control shell">
-    <span class="field control" :class="model.cssClass">
+  <span
+    style="display: flex;flex-direction: row;"
+    class="form-control shell"
+  >
+    <span
+      class="field control"
+      style="display: flex;flex: 1 1 auto;"
+      :class="model.cssClass"
+    >
       <input
         :id="`form-${model.key}`"
         v-model="field"
@@ -11,12 +18,12 @@
       />
     </span>
     <span
-      style="opacity: 0.7;font-size: 1em;font-style: italic;padding: 5px;display: inline-block;"
+      style="display: flex;flex: 0 1 auto;opacity: 0.7;font-size: 1em;padding: 5px;color: #FF8A0D;"
       class="icon-alert-triangle hint"
+      alt="Unable to connect"
+      title="Unable to connect"
       v-if="warn"
-    >
-      This url may be broken, check again or proceed with caution.
-    </span>
+    ></span>
   </span>
 </template>
 
