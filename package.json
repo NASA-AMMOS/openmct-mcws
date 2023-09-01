@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws",
-  "version": "5.1.0-rc3",
+  "version": "5.1.0-rc4",
   "description": "Open MCT for MCWS",
   "devDependencies": {
     "axios": "^0.21.2",
