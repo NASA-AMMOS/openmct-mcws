@@ -23,6 +23,7 @@ define([
     './messageStreamProcessor/plugin',
     './evrView/plugin',
     './customFormatter/plugin',
+    './customForms/plugin',
     './actionModifiers/plugin',
     './realtimeIndicator/plugin',
     './packetQuery/plugin',
@@ -55,6 +56,7 @@ define([
     MessageStreamProcessor,
     EVRViewPlugin,
     CustomFormatterPlugin,
+    CustomFormsPlugin,
     ActionModifiersPlugin,
     RealtimeIndicatorPlugin,
     PacketQueryPlugin,
@@ -122,6 +124,8 @@ define([
             if (options.customFormatters.length) {
                 openmct.install(CustomFormatterPlugin.default(options.customFormatters));
             }
+
+            openmct.install(CustomFormsPlugin.default());
 
             openmct.install(openmct.plugins.DefaultRootName('VISTA'));
             openmct.install(ActionModifiersPlugin.default());
