@@ -90,9 +90,7 @@ export default {
       }
 
       try {
-        const response = await fetch(this.testUrl, {
-          method: 'HEAD'
-        });
+        const response = await fetch(this.testUrl);
 
         if (response.status === 404) {
           throw new Error(response.status);
