@@ -92,7 +92,11 @@ export default {
       try {
         const response = await fetch(this.testUrl);
 
-        if (response.status === 404) {
+        if (
+          response.status === 403
+          || response.status === 404
+          || response.status >= 500
+        ) {
           throw new Error(response.status);
         }
 
