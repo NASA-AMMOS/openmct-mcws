@@ -94,14 +94,14 @@ export default {
           method: 'HEAD'
         });
 
-        if (response.ok) {
-          this.warn = false;
-        } else {
-          this.warn = true;
+        if (response.status === 404) {
+          throw new Error(response.status);
         }
+
+        this.warn = false;
       } catch (error) {
-        this.warn = true;
-        console.warn(error.message);
+          this.warn = true;
+          console.warn(error.message);
       }
     }
   }
