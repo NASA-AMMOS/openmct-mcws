@@ -102,8 +102,8 @@ export default {
 
         this.warn = false;
       } catch (error) {
-          this.warn = true;
-          console.warn(error.message);
+        this.warn = true;
+        console.warn(error.message);
       }
     }
   }
