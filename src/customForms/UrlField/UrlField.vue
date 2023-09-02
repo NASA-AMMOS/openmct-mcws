@@ -90,15 +90,17 @@ export default {
       }
 
       try {
-        const response = await fetch(this.testUrl, {
-          method: 'HEAD'
-        });
+        const response = await fetch(this.testUrl);
 
-        if (response.ok) {
-          this.warn = false;
-        } else {
-          this.warn = true;
+        if (
+          response.status === 403
+          || response.status === 404
+          || response.status >= 500
+        ) {
+          throw new Error(response.status);
         }
+
+        this.warn = false;
       } catch (error) {
         this.warn = true;
         console.warn(error.message);
