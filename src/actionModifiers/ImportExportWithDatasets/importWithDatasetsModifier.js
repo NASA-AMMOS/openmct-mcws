@@ -21,7 +21,8 @@ function importWithDatasetsModifier(openmct) {
             const datasetMapping = changesWithDatasetMapping.mapping;
 
             Object.entries(datasetMapping).forEach(([referencedDataset, dataset]) => {
-                stringifiedObjectTree = stringifiedObjectTree.replace(referencedDataset, dataset);
+                let regex = new RegExp(referencedDataset, 'g');
+                stringifiedObjectTree = stringifiedObjectTree.replace(regex, dataset);
             });
 
             changesWithDatasetMapping.selectFile.body = stringifiedObjectTree;
