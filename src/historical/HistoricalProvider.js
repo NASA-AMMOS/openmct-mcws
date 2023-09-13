@@ -575,7 +575,7 @@ define([
         }
         return provider.request(domainObject, options, params)
             .catch(async (errorResponse) => {
-                const responseBody = await response.text();
+                const responseBody = await errorResponse.text();
                 const match = responseBody.match(/does not contain the specified parameter column: (\w+)/);
 
                 if (match && filterService.hasActiveFilters()) {
