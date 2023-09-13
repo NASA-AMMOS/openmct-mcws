@@ -569,7 +569,14 @@ define([
         if (provider.batchId) {
             return this.doQueuedRequest(domainObject, options, params, provider);
         }
-        return provider.request(domainObject, options, params);
+        return provider.request(domainObject, options, params)
+            .catch((errorResponse) => {
+                if (errorResponse.status === 400 && filterService.hasActiveFilters()) {
+                    this.openmct.notifications.alert(`Issue processing request for ${domainObject.name}. If using global filters, please adjust or remove them and try again.`);
+                } else {
+                    throw errorResponse;
+                }
+            });
     };
 
     HistoricalProvider.prototype.removeFiltersIfAllSelected = function(domainObject, filters) {
