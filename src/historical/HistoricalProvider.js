@@ -266,7 +266,11 @@ define([
                 .read(params)
                 .then(function (res) {
                     return res;
-                }, function () {
+                }, function (errorResponse) {
+                    if (errorResponse.status === 400) {
+                        throw errorResponse
+                    }
+
                     return []; // TODO: better handling due to error.
                 });
         },
@@ -570,9 +574,12 @@ define([
             return this.doQueuedRequest(domainObject, options, params, provider);
         }
         return provider.request(domainObject, options, params)
-            .catch((errorResponse) => {
-                if (errorResponse.status === 400 && filterService.hasActiveFilters()) {
-                    this.openmct.notifications.alert(`Issue processing request for ${domainObject.name}. If using global filters, please adjust or remove them and try again.`);
+            .catch(async (errorResponse) => {
+                const responseBody = await response.text();
+                const match = responseBody.match(/does not contain the specified parameter column: (\w+)/);
+
+                if (match && filterService.hasActiveFilters()) {
+                    this.openmct.notifications.alert(`Error with ${domainObject.name}: Unsupported filter "${match[1]}". If set, please remove the global filter and retry.`);
                 } else {
                     throw errorResponse;
                 }
