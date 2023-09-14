@@ -579,7 +579,7 @@ define([
                 const match = responseBody.match(/does not contain the specified parameter column: (\w+)/);
 
                 if (match && filterService.hasActiveFilters()) {
-                    this.openmct.notifications.alert(`Error with ${domainObject.name}: Unsupported filter "${match[1]}". If set, please remove the global filter and retry.`);
+                    this.openmct.notifications.error(`Error requesting telemetry data for ${domainObject.name}: Unsupported filter "${match[1]}". If set, please remove the global filter and retry.`);
                 } else {
                     throw errorResponse;
                 }
