@@ -266,7 +266,11 @@ define([
                 .read(params)
                 .then(function (res) {
                     return res;
-                }, function () {
+                }, function (errorResponse) {
+                    if (errorResponse.status === 400) {
+                        throw errorResponse
+                    }
+
                     return []; // TODO: better handling due to error.
                 });
         },
@@ -569,7 +573,17 @@ define([
         if (provider.batchId) {
             return this.doQueuedRequest(domainObject, options, params, provider);
         }
-        return provider.request(domainObject, options, params);
+        return provider.request(domainObject, options, params)
+            .catch(async (errorResponse) => {
+                const responseBody = await errorResponse.text();
+                const match = responseBody.match(/does not contain the specified parameter column: (\w+)/);
+
+                if (match && filterService.hasActiveFilters()) {
+                    this.openmct.notifications.error(`Error requesting telemetry data for ${domainObject.name}: Unsupported filter "${match[1]}". If set, please remove the global filter and retry.`);
+                } else {
+                    throw errorResponse;
+                }
+            });
     };
 
     HistoricalProvider.prototype.removeFiltersIfAllSelected = function(domainObject, filters) {
