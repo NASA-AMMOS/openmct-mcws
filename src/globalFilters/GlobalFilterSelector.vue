@@ -68,7 +68,7 @@ export default {
     };
   },
   mounted() {
-    this.updatedFilters = this.activeFilters;
+    this.updatedFilters = structuredClone(this.activeFilters);
 
     this.openOverlay();
   },

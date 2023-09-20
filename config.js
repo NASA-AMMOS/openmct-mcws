@@ -440,7 +440,6 @@
          * How to use:
          * The global filters will be available from the Global Filters indicator
         */
-
         /*
         globalFilters: [
           {
@@ -453,11 +452,11 @@
               possibleValues: [
                 {
                   label: 'A Side',
-                  value: '(1,2,3)'
+                  value: '1,2,3'
                 },
                 {
                   label: 'B Side',
-                  value: '(4,5,6)'
+                  value: '4,5,6'
                 }
               ]
             }
@@ -482,7 +481,6 @@
           }
         ],
         */
-
         /**
          * Developer Settings-- do not modify these unless you know what
          * they do!

@@ -9,16 +9,18 @@ export default class FilterURLHandler {
       this.openmct = openmct;
       this.params = {};
 
-      openmct.router.on('change:params', this.updateFiltersFromURL.bind(this));
-
       this.filterService.on('update', this.updateURLFromFilters.bind(this));
+      openmct.router.on('change:params', this.updateFiltersFromURL.bind(this));
+      
+      this.updateFiltersFromURL();
   }
 
   getParams () {
     const params = {};
     const availableFilters = this.filterService.getAvailableFilters();
+    const availableFiltersKeys = Object.keys(availableFilters);
 
-    availableFilters.forEach(key => {
+    availableFiltersKeys.forEach(key => {
       const value = this.openmct.router.getSearchParam(`${GLOBAL_FILTER_PARAM_PREFIX}${key}`);
 
       if (value) {
@@ -36,11 +38,23 @@ export default class FilterURLHandler {
         return;
     }
 
-    this.filterService.updateFiltersFromParams(params);
+    const filters = this.paramsToFilters(params);
+
+    this.filterService.updateFilters(filters);
 
     this.params = params;
     this.updateAfterNavigation();
   };
+
+  paramsToFilters(params) {
+    const filters = {};
+
+    Object.entries(params).forEach(([key, value]) => {
+      filters[key] = { equals: value };
+    });
+
+    return filters;
+  }
   
   updateAfterNavigation() {
       const params = this.getParams();
@@ -67,10 +81,11 @@ export default class FilterURLHandler {
   }
 
   updateURLFromFilters(filters) {
-    const availableFilters = this.filterService.getAvailableFilters();
     const activeFilters = filters;
+    const availableFilters = this.filterService.getAvailableFilters();
+    const availableFiltersKeys = Object.keys(availableFilters);
 
-    availableFilters.forEach(filterKey => {
+    availableFiltersKeys.forEach(filterKey => {
       const paramKey = `${GLOBAL_FILTER_PARAM_PREFIX}${filterKey}`;
       const filter = activeFilters[filterKey];
 

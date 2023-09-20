@@ -29,37 +29,37 @@ define([
             {
                 name: "MCWS Root URL",
                 key: "mcwsRootUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Channel Dictionary URL",
                 key: "channelDictionaryUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Channel Enumeration Dictionary URL",
                 key: "channelEnumerationDictionaryUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Channel Historical URL",
                 key: "channelHistoricalUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Channel MinMax URL",
                 key: "channelMinMaxUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Channel LAD URL",
                 key: "channelLADUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -78,31 +78,31 @@ define([
             {
                 name: "Session URL",
                 key: "sessionUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Session LAD URL",
                 key: "sessionLADUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Event Record Dictionary URL",
                 key: "eventRecordDictionaryUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "EVR Historical URL",
                 key: "evrHistoricalUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "EVR LAD URL",
                 key: "evrLADUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -114,13 +114,13 @@ define([
             {
                 name: "Data Product URL",
                 key: "dataProductUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Data Product Content URL",
                 key: "dataProductContentUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -132,13 +132,13 @@ define([
             {
                 name: "Packet URL",
                 key: "packetUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
                 name: "Packet Content URL",
                 key: "packetContentUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {
@@ -150,7 +150,7 @@ define([
             {
                 name: "Command Event Historical URL",
                 key: "commandEventUrl",
-                control: "textfield",
+                control: "urlfield",
                 cssClass: "l-input-lg"
             },
             {

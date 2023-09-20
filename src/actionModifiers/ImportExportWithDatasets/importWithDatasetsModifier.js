@@ -16,15 +16,18 @@ function importWithDatasetsModifier(openmct) {
         const originalOnSaveFunction = importAsJSONAction.onSave.bind(importAsJSONAction);
 
         importAsJSONAction.onSave = (object, changes) => {
-            const selectFile = changes.selectFile;
-            const stringifiedObjectTree = selectFile.body;
-            const datasetMapping = changes.mapping;
+            let changesWithDatasetMapping = changes;
+            let stringifiedObjectTree = changesWithDatasetMapping.selectFile.body;
+            const datasetMapping = changesWithDatasetMapping.mapping;
 
             Object.entries(datasetMapping).forEach(([referencedDataset, dataset]) => {
-                stringifiedObjectTree.replace(referencedDataset, dataset);
+                let regex = new RegExp(referencedDataset, 'g');
+                stringifiedObjectTree = stringifiedObjectTree.replace(regex, dataset);
             });
 
-            return originalOnSaveFunction(object, changes);
+            changesWithDatasetMapping.selectFile.body = stringifiedObjectTree;
+
+            return originalOnSaveFunction(object, changesWithDatasetMapping);
         };
 
         importAsJSONAction._showForm = showFormWithDatasetMapping.bind(importAsJSONAction);

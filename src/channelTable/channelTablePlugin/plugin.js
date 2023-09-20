@@ -12,6 +12,10 @@ export default function install() {
             creatable: true,
             initialize(domainObject) {
                 domainObject.composition = [];
+                domainObject.configuration = {
+                  columnWidths: {},
+                  hiddenColumns: {}
+                };
             }
         });
         

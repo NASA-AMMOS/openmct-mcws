@@ -283,9 +283,6 @@ define([
                             let equalsFilters;
                             if (filtersForAttribute[comparator] instanceof Array){
                                 equalsFilters = `${filtersForAttribute[comparator].join(',')}`;
-                            } else if (filtersForAttribute[comparator].match(/\([^)]+\)/)) {
-                              // TODO hacky since we are using predefined array strings like '(1,2,3)' for global filters
-                                equalsFilters = `${filtersForAttribute[comparator].substring(1, filtersForAttribute[comparator].length - 1)}`
                             } else {
                                 equalsFilters = `${filtersForAttribute[comparator]}`;
                             }
