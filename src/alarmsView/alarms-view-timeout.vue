@@ -11,9 +11,13 @@
                         type="number"
                         v-if="isEditing"
                         v-model="autoClearTimeout"
+                        id="autoClearTimeout"
                         @input="setAutoClearTimeout"
                     >
-                    <span v-else>{{ autoClearTimeout }}</span>
+                    <span
+                      v-else
+                      id="autoClearTimeout"
+                    >{{ autoClearTimeout }}</span>
                 </div>
             </li>
         </ul>
