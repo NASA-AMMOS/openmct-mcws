@@ -11,7 +11,7 @@ define([
     function ChannelTableFormatViewProvider(openmct) {
         return {
             key: 'channel-list-format',
-            name: 'Channel List Format Configuration',
+            name: 'Format',
             canView: function (selection) {
                 let selectionPath = selection[0];
                 if (selectionPath && selectionPath.length > 1) {
