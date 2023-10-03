@@ -29,7 +29,7 @@ export default function CommandEventsViewPlugin() {
         openmct.inspectorViews.addProvider(
             new VistaTableConfigurationProvider(
                 'vista.command-events-view-configuration',
-                'Command Events View Configuration',
+                'Config',
                 'vista.commandEventsView'
             )
         );
