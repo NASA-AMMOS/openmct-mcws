@@ -26,7 +26,7 @@ export default function EVRViewPlugin(options) {
         openmct.inspectorViews.addProvider(
             new VistaTableConfigurationProvider(
                 'vista.evr-view-configuration', 
-                'EVR View Configuration',
+                'Config',
                 'vista.evrView'
             )
         );
