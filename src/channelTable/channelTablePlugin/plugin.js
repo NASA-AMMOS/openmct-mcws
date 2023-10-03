@@ -24,7 +24,7 @@ export default function install() {
         openmct.inspectorViews.addProvider(
             new VistaTableConfigurationProvider(
                 'vista.channel-list-configuration',
-                `${CHANNEL_TABLE_NAME} Configuration`,
+                'Config',
                 CHANNEL_TABLE_KEY
             )
         );
