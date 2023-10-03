@@ -27,7 +27,7 @@ export default function AlarmsViewPlugin() {
         });
         openmct.inspectorViews.addProvider({
             key: 'vista.alarmsView-configuration',
-            name: 'Timeout',
+            name: 'Autoclear',
             canView: function (selection) {
                 if (selection.length === 0) {
                     return false;
