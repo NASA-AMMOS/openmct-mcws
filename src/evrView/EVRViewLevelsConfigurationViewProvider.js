@@ -42,14 +42,14 @@ export default function EVRViewLevelsConfigurationViewProvider(options) {
                         `,
                     });
                 },
+                priority: function () {
+                    return openmct.priority.HIGH;
+                },
                 destroy: function () {
                     component.$destroy();
                     component = undefined;
                 }
             }
-        },
-        priority: function () {
-            return 1;
         }
     };
 }
