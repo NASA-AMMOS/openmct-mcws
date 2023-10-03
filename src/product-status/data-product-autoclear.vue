@@ -1,12 +1,28 @@
 <template>
-    <div class="c-properties" v-if="isEditing">
-        <div class="c-properties__header">Auto-clear Completed Products</div>
-        <ul class="c-properties__section">
-            <li class="c-properties__row">
-                <div class="c-properties__label" title="Automatically remove completed data products after a number of minutes. If left blank, completed products will not be removed from the view.">
-                    <label>Clear after minutes</label>
+    <div class="c-inspect-properties">
+        <div class="c-inspect-properties__header">Auto-clear Completed Products</div>
+        <ul class="c-inspect-properties__section">
+            <li class="c-inspect-properties__row">
+                <div
+                    class="c-inspect-properties__label"
+                    title="Automatically remove completed data products after a number of minutes. If left blank, completed products will not be removed from the view."
+                >
+                    <label for="autoClearTimeout">Auto-clear (mins)</label>
                 </div>
-                <div class="c-properties__value"><input class="c-input--sm c-input-number--no-spinners" type="number" ref="autoClearTimeout" v-model="autoClearTimeout" @change="setAutoClearTimeout"></div>
+                <div class="c-inspect-properties__value">
+                    <input
+                        v-if="isEditing"
+                        class="c-input--sm c-input-number--no-spinners"
+                        type="number" 
+                        id="autoClearTimeout"
+                        v-model="autoClearTimeout"
+                        @change="setAutoClearTimeout"
+                    >
+                    <span
+                      v-else
+                      id="autoClearTimeout"
+                    >{{ autoClearTimeout }}</span>
+                </div>
             </li>
         </ul>
     </div>
@@ -28,12 +44,14 @@ export default {
             this.isEditing = isEditing;
         },
         setAutoClearTimeout() {
-            this.openmct.objects.mutate(this.domainObject, 'configuration.autoClearTimeout', this.$refs.autoClearTimeout.value);
+            this.openmct.objects.mutate(this.domainObject, 'configuration.autoClearTimeout', this.autoClearTimeout);
         }
     },
     mounted() {
         this.domainObject = this.openmct.selection.get()[0][0].context.item;
-        this.autoClearTimeout = _.get(this.domainObject, 'configuration.autoClearTimeout');
+        if (this.domainObject.configuration && this.domainObject.configuration.autoClearTimeout) {
+            this.autoClearTimeout = this.domainObject.configuration.autoClearTimeout
+        }
         this.unlisteners = [];
         this.openmct.editor.on('isEditing', this.toggleEdit);
     },
