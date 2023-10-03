@@ -27,7 +27,7 @@ export default function AlarmsViewPlugin() {
         });
         openmct.inspectorViews.addProvider({
             key: 'vista.alarmsView-configuration',
-            name: 'Alarms View Timeout Configuration',
+            name: 'Timeout',
             canView: function (selection) {
                 if (selection.length === 0) {
                     return false;
@@ -53,18 +53,21 @@ export default function AlarmsViewPlugin() {
                             el: element
                         });
                     },
+                    priority: function () {
+                      return openmct.priority.HIGH;
+                    },
                     destroy: function () {
                         component.$destroy();
                         component = undefined;
                     }
                 }
-            },
-            priority: function () {
-                return 1;
             }
         });
-        openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider('vista.alarm-view-configuration', 
-            'Alarm View Configuration', 'vista.alarmsView'));
+        openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
+            'vista.alarm-view-configuration', 
+            'Config',
+            'vista.alarmsView'
+        ));
 
         openmct.composition.addPolicy((parent, child) => {
             if (parent.type === 'vista.alarmsView') {
