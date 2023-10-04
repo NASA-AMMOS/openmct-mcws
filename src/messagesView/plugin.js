@@ -19,7 +19,7 @@ export default function MessagesViewPlugin(options) {
         openmct.inspectorViews.addProvider(
             new VistaTableConfigurationProvider(
                 'vista.messages-view-configuration', 
-                'Messages View Configuration',
+                'Config',
                 'vista.messagesView'
             )
         );

@@ -1,10 +1,24 @@
 <template>
-    <div class="c-properties" v-if="isEditing">
-        <div class="c-properties__header">Out-of-Alarm Channels</div>
-        <ul class="c-properties__section">
-            <li class="c-properties__row">
-                <div class="c-properties__label" title="Clear channels if no longer in alarm state"><label><span style="white-space: nowrap">Auto-clear</span> (minutes)</label></div>
-                <div class="c-properties__value"><input type="number" v-model="autoClearTimeout" @input="setAutoClearTimeout"></div>            
+    <div class="c-inspect-properties">
+        <div class="c-inspect-properties__header">Out-of-Alarm Channels</div>
+        <ul class="c-inspect-properties__section">
+            <li class="c-inspect-properties__row">
+                <div class="c-inspect-properties__label" title="Clear channels if no longer in alarm state">
+                    <label for="autoClearTimeout">Auto-clear (mins)</label>
+                </div>
+                <div class="c-inspect-properties__value">
+                    <input
+                        type="number"
+                        v-if="isEditing"
+                        v-model="autoClearTimeout"
+                        id="autoClearTimeout"
+                        @input="setAutoClearTimeout"
+                    >
+                    <span
+                      v-else
+                      id="autoClearTimeout"
+                    >{{ autoClearTimeout }}</span>
+                </div>
             </li>
         </ul>
     </div>

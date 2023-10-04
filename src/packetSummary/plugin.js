@@ -32,7 +32,7 @@ export default function PacketSummaryPlugin() {
 
         openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
             'vista.packet-summary-configuration', 
-            'Packet Summary View Configuration',
+            'Config',
             'vista.packetSummaryView'
         ));
     }

@@ -9,10 +9,6 @@ define([
         this.type = type;
     }
 
-    VistaTableConfigurationProvider.prototype.priority = function () {
-        return Number.MAX_SAFE_INTEGER;
-    }
-
     VistaTableConfigurationProvider.prototype.canView = function (selection){
         if (selection.length === 0) {
             return false;
@@ -38,6 +34,12 @@ define([
                     template: '<table-configuration></table-configuration>',
                     el: element
                 });
+            },
+            showTab: function (isEditing) {
+              return isEditing;
+            },
+            priority: function () {
+              return openmct.priority.HIGH + 1;
             },
             destroy: function () {
                 component.$destroy();

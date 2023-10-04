@@ -24,7 +24,7 @@ export default function install() {
         
         openmct.inspectorViews.addProvider({
             key: 'vista.dataProducts-configuration',
-            name: 'Data Products Autoclear Configuration',
+            name: 'Autoclear',
             canView: function (selection) {
                 if (selection.length === 0) {
                     return false;
@@ -50,19 +50,22 @@ export default function install() {
                             el: element
                         });
                     },
+                    priority: function () {
+                        return openmct.priority.HIGH;
+                    },
                     destroy: function () {
                         component.$destroy();
                         component = undefined;
                     }
                 }
-            },
-            priority: function () {
-                return 1;
             }
         });
 
-        openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider('vista.data-products-configuration', 
-            'Data Products View Configuration', 'vista.dataProductsView'));
+        openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
+            'vista.data-products-configuration', 
+            'Config',
+            'vista.dataProductsView'
+        ));
 
         // Suppress new views via monkey-patching (for now)
         let wrappedGet = openmct.objectViews.get;
