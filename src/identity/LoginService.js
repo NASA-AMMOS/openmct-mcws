@@ -1,9 +1,7 @@
 /*global define*/
 define(
-    [
-        './login.html'
-    ],
-    function (loginTemplate) {
+    [],
+    function () {
 
 
         /**
