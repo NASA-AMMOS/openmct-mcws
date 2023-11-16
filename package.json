@@ -3,6 +3,7 @@
   "version": "5.2.0-rc1",
   "description": "Open MCT for MCWS",
   "devDependencies": {
+    "@braintree/sanitize-url": "6.0.2",
     "axios": "^0.21.2",
     "babel-loader": "8.2.3",
     "babel-plugin-istanbul": "6.1.1",
