@@ -48,9 +48,13 @@ define(
         LoginService.prototype.show = function () {
             this.overlay = document.createElement('div');
             this.overlay.classList.add('u-contents');
-            this.overlay.innerHTML = loginTemplate;
+            
+            const iframe = document.createElement('iframe');
+            iframe.classList.add('c-login-overlay');
+            iframe.src = this.getLoginUrl();
+
+            this.overlay.appendChild(iframe);
             document.body.appendChild(this.overlay);
-            this.overlay.querySelector('iframe').src = this.getLoginUrl();
         };
 
         /**
