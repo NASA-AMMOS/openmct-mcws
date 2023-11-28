@@ -1,14 +1,14 @@
 ---
-name: Documentation
-about: A modification to the project's released documentation.
+name: Other
+about: Any items that are not one of the following (Commitment, Imporovement, Defect Report, Sustaining Activity, Document)
 title: ''
-labels: documentation
+labels: other
 assignees: ''
 
 ---
 
-**Describe the document**
-<!-- A clear and concise description of what the document is. -->
+**Description**
+<!-- A clear and concise description of what the item is. -->
 
 **Additional context**
 <!-- Add any other context or information here. -->
@@ -16,9 +16,6 @@ assignees: ''
 
 <!-- REPORT SECTION
 Fill in any of the below values that apply, they can then be pulled out for reporting purposes. Add the information directly after the ":" on one line.
-
-Enter the document id for this item (ex. DOC-44322)
-$$docid:
 
 Time estimate (ex. 3 days or 8 hours)
 $$estimate:
