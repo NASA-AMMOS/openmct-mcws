@@ -1,5 +1,4 @@
 import HistoricalProvider from './HistoricalProvider';
-import SessionService from 'services/session/SessionService';
 
 describe('Historical Provider', function () {
     let historicalProvider;
