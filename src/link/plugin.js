@@ -1,7 +1,7 @@
 define([
-
+    '@braintree/sanitize-url'
 ], function (
-
+    urlSanitizeLib
 ) {
 
     function LinkPlugin() {
@@ -32,7 +32,13 @@ define([
                 view: function (domainObject) {
                     return {
                         show: function (container) {
-                            container.innerHTML = '<a href="' + domainObject.url + '">' + domainObject.name + '</a>'
+                            container.textContent = '';
+
+                            const anchor = document.createElement('a');
+                            anchor.href = urlSanitizeLib.sanitizeUrl(domainObject.url);
+                            anchor.textContent = domainObject.name;
+
+                            container.appendChild(anchor);
                         },
                         destroy: function () {}
                     };
