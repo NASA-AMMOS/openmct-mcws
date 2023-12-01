@@ -34,10 +34,7 @@ describe('Historical Provider', function () {
           'getHistoricalSession'
         ]);
         spyOn(HistoricalProvider.prototype, 'getSessionService').and.returnValue(mockSessionService);
-        // mockOpenMct.$injector = jasmine.createSpyObj('injector', [
-        //     'get'
-        // ]);
-        // mockOpenMct.$injector.get.and.returnValue(mockSessionService);
+
         mockOpenMct.notifications = jasmine.createSpyObj('notificationAPI', [
             'alert'
         ]);
@@ -46,7 +43,6 @@ describe('Historical Provider', function () {
             'off'
         ]);
         mockOpenMct.notifications.alert.and.returnValue(mockNotification);
-
 
         historicalProvider = new HistoricalProvider(mockOpenMct);
 
