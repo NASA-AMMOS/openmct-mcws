@@ -1,11 +1,16 @@
 ---
 name: Defect Report
 about: Report a defect and report a criticality
-title: "[DEFECT] "
+title: ""
 labels: defect
 assignees: ''
 
 ---
+
+<!-- 
+Bugs discovered during testing of the release.
+Bugs related to fixing items found in security scans.
+-->
 
 **Describe the defect**
 <!-- A clear and concise description of what the bug is. -->
@@ -15,20 +20,33 @@ assignees: ''
 
 **Steps To Reproduce**
 1. 
-2. 
-3. 
-4. 
 
-**Environment (please complete the following information):**
- - Version [<!-- e.g. release version, commit hash, branch-->]
- - Browser [<!-- e.g. chrome, safari -->]
 
 **Additional context**
-Add any other context, code snippets, error messages, screen shots about the problem here.
+<!-- Add any other context, software version, browser, code snippets, error messages, screen shots about the problem here. -->
 
-|Criticality|Name|Description|
-|---|---|---|
-|crit1|Critical|Defect makes the software unusable for mission operations.|
-|crit2|Major|Defect has significant impact on usability of delivered software for mission operations. User experience is difficult and/or cumbersome. Workaround available is arduous.|
-|crit3|Moderate|Defect has moderate to mild impact on usability of delivered software for mission operations. User experience is degraded but workable.|
-|crit4|Minor|Defect means software does not work as originally intended, but the defect has little impact on the usability of the delivered software.|
+
+<!--
+Consider adding a criticality label.
+
+Criticality Label Descriptions
+crit1 - Critical: Defect makes the software unusable for mission operations.
+crit2 - Major: Defect has significant impact on usability of delivered software for mission operations. User experience is difficult and/or cumbersome. Workaround available is arduous.
+crit3 - Moderate: Defect has moderate to mild impact on usability of delivered software for mission operations. User experience is degraded but workable.
+crit4 - Minor: Defect means software does not work as originally intended, but the defect has little impact on the usability of the delivered software.
+-->
+
+
+<!-- REPORT SECTION
+Fill in any of the below values that apply, they can then be pulled out for reporting purposes. Add the information directly after the ":" on one line.
+
+Who reported this?
+$$reporter:
+
+Is there an ask ticket number (ex. 322)?
+$$ask:
+
+Time estimate (ex. 3 days or 8 hours)
+$$estimate:
+
+END REPORT SECTION -->
