@@ -14,6 +14,8 @@ export default class SessionURLHandler {
         );
 
         this.didSessionParamsChange = this.didSessionParamsChange.bind(this);
+
+        this.updateSession();
     }
 
     getParams () {
