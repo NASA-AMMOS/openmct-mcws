@@ -41,6 +41,8 @@ const config = {
              * Globals
             **/
             "openmct": path.join(__dirname, '..', "node_modules/openmct/dist/openmct.js"),
+            // this is a core openmct alias required to resolve '@' in core components
+            "@": path.join(__dirname, '..', "node_modules/openmct/src"),
             "saveAs": "file-saver/src/FileSaver.js",
             "EventEmitter": "eventemitter3",
             "bourbon": "bourbon.scss",
