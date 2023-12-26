@@ -73,7 +73,7 @@ const config = {
              /**
              * Telemetry Table Components
             **/
-            "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/table.vue"),
+            "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue"),
             "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/table-configuration.vue"),
         }
     },
@@ -99,8 +99,13 @@ const config = {
                     {
                         loader: 'css-loader'
                     },
-                    'resolve-url-loader',
-                    'sass-loader'
+                    {
+                        loader: 'resolve-url-loader'
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: { sourceMap: true }
+                    }
                 ]
             },
             {
