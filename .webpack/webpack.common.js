@@ -74,7 +74,7 @@ const config = {
              * Telemetry Table Components
             **/
             "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue"),
-            "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/table-configuration.vue"),
+            "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue"),
         }
     },
     plugins: [
