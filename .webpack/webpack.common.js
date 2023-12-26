@@ -45,6 +45,7 @@ const config = {
             "EventEmitter": "eventemitter3",
             "bourbon": "bourbon.scss",
             "printj": path.join(__dirname, '..', "node_modules/printj/dist/printj.min.js"),
+            "vue": path.join(__dirname, '..', "node_modules/@vue/compat/dist/vue.esm-bundler.js"),
             "styles": path.join(__dirname, '..', "node_modules/openmct/src/styles"),
             /**
              * VISTA Paths
@@ -104,7 +105,15 @@ const config = {
             },
             {
                 test: /\.vue$/,
-                use: 'vue-loader'
+                loader: 'vue-loader',
+                options: {
+                    compilerOptions: {
+                        whitespace: 'preserve',
+                        compatConfig: {
+                            MODE: 2
+                        }
+                    }
+                }
             },
             {
                 test: /\.html$/,
