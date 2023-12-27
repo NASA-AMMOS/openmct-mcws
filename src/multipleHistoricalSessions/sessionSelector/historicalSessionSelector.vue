@@ -9,7 +9,7 @@
             </div>
         </template>
 
-        <template v-if="!isLoading">
+        <template v-else>
             <div class="c-overlay__top-bar">
                 <div class="c-overlay__dialog-title">Select Historical Sessions</div>
                 <div class="c-overlay__dialog-hint">Select one or more sessions to use for historical queries. Note that sessions may only be selected within one host at a time.</div>
