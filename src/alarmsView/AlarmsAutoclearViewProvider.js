@@ -1,5 +1,5 @@
 import createApp from 'vue';
-import AlarmsViewTimeoutComponent from './alarms-view-timout.vue';
+import AlarmsAutoclear from './AlarmsAutoclear.vue';
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 
 export default class AlarmsAutoClearViewProvider {
@@ -33,9 +33,9 @@ export default class AlarmsAutoClearViewProvider {
             tableConfiguration
           },
           components: {
-            AlarmsViewTimeout: AlarmsViewTimeoutComponent
+            AlarmsAutoclear
           },
-          template: '<alarms-view-timeout></alarms-view-timeout>'
+          template: '<AlarmsAutoclear />'
         });
 
         this.destroy = () => this.component.unmount();
