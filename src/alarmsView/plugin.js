@@ -1,4 +1,5 @@
 import AlarmsViewProvider from './AlarmsViewProvider';
+import AlarmsAutoclearViewProvider from './AlarmsAutoclearViewProvider';
 import AlarmsViewActions from './AlarmsViewActions';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider';
 
