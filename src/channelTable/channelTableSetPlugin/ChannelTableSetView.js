@@ -1,6 +1,5 @@
 import ChannelTableSet from './ChannelTableSet.vue';
-
-import Vue from 'vue';
+import createApp from 'vue';
 
 export default class ChannelTableSetView {
     constructor(openmct, domainObject, objectPath) {
@@ -8,11 +7,11 @@ export default class ChannelTableSetView {
         this.domainObject = domainObject;
         this.objectPath = objectPath;
         this.component = undefined;
+        this.destroy = null;
     }
 
     show(element) {
-        this.component = new Vue({
-            el: element,
+        this.component = createApp({
             components: {
                 ChannelTableSet
             },
@@ -38,8 +37,7 @@ export default class ChannelTableSetView {
         return this.component.$refs.channelTableSet.getViewContext();
     }
 
-    destroy(element) {
-        this.component.$destroy();
-        this.component = undefined;
+    destroy() {
+        this.destroy?.();
     }
 }

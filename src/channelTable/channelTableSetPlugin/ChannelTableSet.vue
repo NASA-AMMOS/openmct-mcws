@@ -63,7 +63,7 @@ export default {
         this.setTimesystem(this.openmct.time.timeSystem());
         this.composition.load();
     },
-    destroyed() {
+    beforeUnmount() {
         this.composition.off('add', this.addLadTable);
         this.composition.off('remove', this.removeLadTable);
         this.composition.off('reorder', this.reorderLadTables);
