@@ -1,13 +1,11 @@
 import AlarmsViewProvider from './AlarmsViewProvider';
 import AlarmsViewActions from './AlarmsViewActions';
-import AlarmsViewTimeoutComponent from './alarms-view-timeout.vue';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider';
-import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
-import Vue from 'vue';
 
 export default function AlarmsViewPlugin() {
     return function install(openmct) {
         openmct.objectViews.addProvider(new AlarmsViewProvider(openmct));
+        openmct.inspectorViews.addProvider(new AlarmsAutoclearViewProvider(openmct));
 
         AlarmsViewActions.forEach(action => {
             openmct.actions.register(action);
@@ -25,44 +23,7 @@ export default function AlarmsViewPlugin() {
                 };
             }
         });
-        openmct.inspectorViews.addProvider({
-            key: 'vista.alarmsView-configuration',
-            name: 'Autoclear',
-            canView: function (selection) {
-                if (selection.length === 0) {
-                    return false;
-                }
-                let object = selection[0][0].context.item;
-                return object && object.type === 'vista.alarmsView';
-            },
-            view: function (selection) {
-                let component;
-                let domainObject = selection[0][0].context.item;
-                const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct);
-                return {
-                    show: function (element) {
-                        component = new Vue({
-                            provide: {
-                                openmct,
-                                tableConfiguration
-                            },
-                            components: {
-                                AlarmsViewTimeout: AlarmsViewTimeoutComponent
-                            },
-                            template: '<alarms-view-timeout></alarms-view-timeout>',
-                            el: element
-                        });
-                    },
-                    priority: function () {
-                      return openmct.priority.HIGH;
-                    },
-                    destroy: function () {
-                        component.$destroy();
-                        component = undefined;
-                    }
-                }
-            }
-        });
+
         openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
             'vista.alarm-view-configuration', 
             'Config',
