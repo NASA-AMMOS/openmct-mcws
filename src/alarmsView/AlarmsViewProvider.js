@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import createApp from 'vue';
 import TableComponent from 'openmct.tables.components.Table';
 import AlarmsTable from './AlarmsTable.js';
 
@@ -18,6 +18,7 @@ export default class AlarmsViewProvider {
     view(domainObject, objectPath) {
         let table = new AlarmsTable(domainObject, openmct);
         let component;
+        let _destroy = null;
         let markingProp = {
             enable: true,
             useAlternateControlBar: false,
@@ -26,8 +27,7 @@ export default class AlarmsViewProvider {
         };
         const view = {
             show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+                component = createApp({
                     components: {
                         TableComponent
                     },
@@ -53,6 +53,8 @@ export default class AlarmsViewProvider {
                             :view="view"
                         />`
                 });
+
+                _destroy = () => component.unmount;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -62,7 +64,7 @@ export default class AlarmsViewProvider {
             },
             getViewContext() {
                 if (component) {
-                    let context = component.$refs.tableComponent.getViewContext();
+                    const context = component.$refs.tableComponent.getViewContext();
 
                     context['vista.alarmsView'] = true;
                     context.clearOutOfAlarmRows = () => {
@@ -78,8 +80,7 @@ export default class AlarmsViewProvider {
                 }
             },
             destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+                _destroy?.();
             }
         };
 
