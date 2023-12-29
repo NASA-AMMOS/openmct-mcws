@@ -47,7 +47,6 @@ const config = {
             "EventEmitter": "eventemitter3",
             "bourbon": "bourbon.scss",
             "printj": path.join(__dirname, '..', "node_modules/printj/dist/printj.min.js"),
-            "vue": path.join(__dirname, '..', "node_modules/@vue/compat/dist/vue.esm-bundler.js"),
             "styles": path.join(__dirname, '..', "node_modules/openmct/src/styles"),
             /**
              * VISTA Paths
@@ -84,7 +83,9 @@ const config = {
             __VISTA_VERSION__: `'${packageDefinition.version}'`,
             __VISTA_BUILD_DATE__: `'${new Date()}'`,
             __VISTA_REVISION__: `'${gitRevision}'`,
-            __VISTA_BUILD_BRANCH__: `'${gitBranch}'`
+            __VISTA_BUILD_BRANCH__: `'${gitBranch}'`,
+            __VUE_OPTIONS_API__: true, // enable/disable Options API support, default: true
+            __VUE_PROD_DEVTOOLS__: false // enable/disable devtools support in production, default: false
         }),
         new VueLoaderPlugin(),
         new MiniCssExtractPlugin({
