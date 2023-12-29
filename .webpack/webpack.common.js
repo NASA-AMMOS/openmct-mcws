@@ -55,6 +55,7 @@ const config = {
             "services": path.join(__dirname, '..', "src/services"),
             "lib": path.join(__dirname, '..', "src/lib"),
             "tables": path.join(__dirname, '..', "src/tables"),
+            "utils": path.join(__dirname, '..', "src/utils"),
             /**
              * Open MCT Folder View Components
             **/

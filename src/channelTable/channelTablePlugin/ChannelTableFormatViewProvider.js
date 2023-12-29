@@ -1,6 +1,6 @@
 import CellFormatConfigurationComponent from './CellFormatConfigurationComponent.vue';
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
-import { createApp } from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default function ChannelTableFormatViewProvider(openmct) {
   return {
@@ -18,14 +18,13 @@ export default function ChannelTableFormatViewProvider(openmct) {
       return false;
     },
     view: function (selection) {
-      let component;
       let _destroy = null;
       let domainObject = selection[0][1].context.item;
       const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct);
 
       return {
         show: function (element) {
-          component = createApp({
+          const componentDefinition = {
             provide: {
               openmct,
               tableConfiguration
@@ -34,9 +33,18 @@ export default function ChannelTableFormatViewProvider(openmct) {
               CellFormatConfiguration: CellFormatConfigurationComponent
             },
             template: '<cell-format-configuration></cell-format-configuration>',
-          });
+          };
+          const componentOptions = {
+            element
+          };
 
-          _destroy = () => component.unmount();
+          const {
+            componentInstance,
+            destroy,
+            el
+          } = mount(componentDefinition, componentOptions);
+
+          _destroy = destroy;
         },
         priority: function () {
           return openmct.priority.HIGH;

@@ -1,6 +1,6 @@
 import ChannelTable from './ChannelTable';
 import TableComponent from 'openmct.tables.components.Table';
-import { createApp } from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class ChannelTableViewProvider { 
     constructor(openmct) {
@@ -34,7 +34,7 @@ export default class ChannelTableViewProvider {
         const table = new ChannelTable(domainObject, this.openmct);
         const view = {
             show(element, isEditing) {
-                this.component = createApp({
+                const componentDefinition = {
                     data() {
                         return {
                             isEditing,
@@ -61,9 +61,19 @@ export default class ChannelTableViewProvider {
                         :allowSorting="false"
                         :view="view"
                     ></table-component>`
-                });
-
-                this.destroy = () => this.component.unmount();
+                };
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(isEditing) {
                 component.isEditing = isEditing;

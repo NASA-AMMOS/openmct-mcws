@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import mount from 'utils/mountVueComponent';
 import AlarmsAutoclear from './AlarmsAutoclear.vue';
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 
@@ -7,8 +7,7 @@ export default class AlarmsAutoClearViewProvider {
     this.key = 'vista.alarmsView-configuration';
     this.name = 'Autoclear';
     this.openmct = openmct;
-    this.component = undefined;
-    this.destroy = null;
+    this._destroy = null;
   }
 
   canView(selection) {
@@ -27,7 +26,7 @@ export default class AlarmsAutoClearViewProvider {
 
     return {
       show: function (element) {
-        this.component = createApp({
+        const componentDefinition = {
           provide: {
             openmct,
             tableConfiguration
@@ -36,15 +35,24 @@ export default class AlarmsAutoClearViewProvider {
             AlarmsAutoclear
           },
           template: '<AlarmsAutoclear />'
-        });
+        };
+        const componentOptions = {
+          element
+        };
 
-        this.destroy = () => this.component.unmount();
+        const {
+          componentInstance,
+          destroy,
+          el
+        } = mount(componentDefinition, componentOptions);
+
+        this._destroy = destroy;
       },
       priority: function () {
         return openmct.priority.HIGH;
       },
       destroy: function () {
-        this.destroy?.();
+        this._destroy?.();
       }
     }
   }

@@ -1,5 +1,5 @@
 import ImportWithDatasetsFormComponent from './ImportWithDatasetsFormComponent.vue';
-import { createApp } from 'vue';
+import mount from 'utils/mountVueComponent';
 import DatasetCache from 'services/dataset/DatasetCache';
 import Types from 'types/types';
 
@@ -9,7 +9,7 @@ function importWithDatasetsModifier(openmct) {
     let datasets;
     let referencedDatasets;
     let component;
-    let destroyForm = null;
+    let _destroy = null;
 
     const importAsJSONAction = openmct.actions._allActions['import.JSON'];
 
@@ -76,7 +76,7 @@ function importWithDatasetsModifier(openmct) {
                 onSave(domainObject, changes);
             })
             .catch(error => {
-                destroyForm?.();
+                _destroy?.();
             });
     }
 
@@ -125,7 +125,7 @@ function importWithDatasetsModifier(openmct) {
     function getImportWithDatasetsFormController(openmct) {
         return {
             show(element, model, onChange) {
-                component = createApp({
+                const componentDefinition = {
                     components: {
                         ImportWithDatasetsFormComponent
                     },
@@ -149,12 +149,19 @@ function importWithDatasetsModifier(openmct) {
                             this.hasImport = true
                         }
                     }
-                });
+                };
+                const componentOptions = { element };
 
-                destroyForm = () => component.unmount();
+                const {
+                  componentInstance,
+                  destroy,
+                  el
+                } = mount(componentDefinition, componentOptions)
+
+                _destroy = destroy;
             },
             destroy() {
-                destroyForm?.();
+                _destroy?.();
                 resetAction();
             }
         };

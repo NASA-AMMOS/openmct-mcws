@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import mount from 'utils/mountVueComponent';
 import TableComponent from 'openmct.tables.components.Table';
 import AlarmsTable from './AlarmsTable.js';
 
@@ -27,7 +27,7 @@ export default class AlarmsViewProvider {
         };
         const view = {
             show: function (element, editMode) {
-                component = createApp({
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
@@ -52,9 +52,19 @@ export default class AlarmsViewProvider {
                             :marking="markingProp"
                             :view="view"
                         />`
-                });
+                };
+                const componentOptions = {
+                  element
+                };
 
-                _destroy = () => component.unmount;
+                const {
+                  componentInstance,
+                  destroy,
+                  el
+                } = mount(componentDefinition, componentOptions);
+
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
