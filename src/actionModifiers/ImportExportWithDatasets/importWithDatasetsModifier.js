@@ -1,5 +1,5 @@
 import ImportWithDatasetsFormComponent from './ImportWithDatasetsFormComponent.vue';
-import createApp from 'vue';
+import { createApp } from 'vue';
 import DatasetCache from 'services/dataset/DatasetCache';
 import Types from 'types/types';
 

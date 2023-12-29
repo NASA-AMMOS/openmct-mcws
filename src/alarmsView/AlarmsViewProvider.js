@@ -1,4 +1,4 @@
-import createApp from 'vue';
+import { createApp } from 'vue';
 import TableComponent from 'openmct.tables.components.Table';
 import AlarmsTable from './AlarmsTable.js';
 

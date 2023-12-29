@@ -1,4 +1,4 @@
-import createApp from 'vue';
+import { createApp } from 'vue';
 import AlarmsAutoclear from './AlarmsAutoclear.vue';
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 

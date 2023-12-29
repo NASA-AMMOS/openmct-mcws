@@ -1,5 +1,5 @@
 import ChannelTableSet from './ChannelTableSet.vue';
-import createApp from 'vue';
+import { createApp } from 'vue';
 
 export default class ChannelTableSetView {
     constructor(openmct, domainObject, objectPath) {
