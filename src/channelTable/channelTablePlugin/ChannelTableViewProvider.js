@@ -1,6 +1,6 @@
 import ChannelTable from './ChannelTable';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import { createApp } from 'vue';
 
 export default class ChannelTableViewProvider { 
     constructor(openmct) {
@@ -8,6 +8,8 @@ export default class ChannelTableViewProvider {
         this.key = 'vista.channel-list';
         this.name = 'Channel List';
         this.cssClass = 'icon-tabular-realtime';
+        this.component = undefined;
+        this.destroy = null;
 
         this.view = this.view.bind(this);
     }
@@ -32,7 +34,7 @@ export default class ChannelTableViewProvider {
         const table = new ChannelTable(domainObject, this.openmct);
         const view = {
             show(element, isEditing) {
-                component = new Vue({
+                this.component = createApp({
                     data() {
                         return {
                             isEditing,
@@ -49,7 +51,6 @@ export default class ChannelTableViewProvider {
                         objectPath,
                         currentView: view
                     },
-                    el: element,
                     template: `
                     <table-component
                         class="js-channel-list-view"
@@ -61,6 +62,8 @@ export default class ChannelTableViewProvider {
                         :view="view"
                     ></table-component>`
                 });
+
+                this.destroy = () => this.component.unmount();
             },
             onEditModeChange(isEditing) {
                 component.isEditing = isEditing;
@@ -78,8 +81,7 @@ export default class ChannelTableViewProvider {
                 }
             },
             destroy() {
-                component.$destroy();
-                component = undefined;
+                this.destroy?.();
             }
         }
 
