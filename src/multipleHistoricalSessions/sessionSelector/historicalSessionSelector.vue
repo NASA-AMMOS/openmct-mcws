@@ -145,6 +145,7 @@
 <script>
 import TelemetryTable from 'openmct.tables.components.Table';
 import SessionService from 'services/session/SessionService';
+import { nextTick } from 'vue';
 
 export default {
     inject: ['openmct', 'table'],
@@ -182,7 +183,7 @@ export default {
         selectHostAndFilterSessions(host){
             this.selectedHost = host;
             this.sessionServiceFilteredByHost = this.availableSessions.filter(session => session.host === host);
-            this.$nextTick(() => {
+            nextTick(() => {
                 this.updateDataInTable(this.sessionServiceFilteredByHost);
             });
         },
