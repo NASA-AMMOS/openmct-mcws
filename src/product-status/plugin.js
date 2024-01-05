@@ -42,10 +42,11 @@ export default function install() {
 
         // register cell components globally for dynamic component in core openmct table rows
         openmct.on('start', () => {
-            openmct.app.component('vista-table-dat-cell', DATDownloadCell);
-            openmct.app.component('vista-table-emd-cell', EMDDownloadCell);
-            openmct.app.component('vista-table-emd-preview-cell', EMDPreviewCell);
-            openmct.app.component('vista-table-txt-cell', TXTDownloadCell);
+            openmct.app
+                .component('vista-table-dat-cell', DATDownloadCell)
+                .component('vista-table-emd-cell', EMDDownloadCell)
+                .component('vista-table-emd-preview-cell', EMDPreviewCell)
+                .component('vista-table-txt-cell', TXTDownloadCell);
         });
     }
 }
