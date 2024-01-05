@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import PacketSummaryTable from './PacketSummaryTable.js';
 import PacketSummaryViewComponent from './components/PacketSummaryViewComponent.vue';
 
@@ -16,13 +16,14 @@ export default class ProductSummaryViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new PacketSummaryTable(domainObject, openmct);
         let component;
+        let _destroy = null;
+
+        const table = new PacketSummaryTable(domainObject, openmct);
 
         const view = {
             show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         PacketSummaryViewComponent
                     },
@@ -44,7 +45,20 @@ export default class ProductSummaryViewProvider {
                             :view="view"
                             :isEditing="isEditing"
                         />`
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -63,9 +77,8 @@ export default class ProductSummaryViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

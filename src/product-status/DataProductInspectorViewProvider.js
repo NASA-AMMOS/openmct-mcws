@@ -1,44 +1,44 @@
-
-import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
-import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
 import mount from 'utils/mountVueComponent';
+import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
+import DataProductAutoclear from './data-product-autoclear.vue';
 
-export default class VistaTableConfigurationProvider {
-  constructor (key, name, type) {
-    this.key = key;
-    this.name = name;
-    this.type = type;
+export default class DataProductViewProvider {
+  constructor(openmct) {
+    this.openmct = openmct;
+
+    this.key = 'vista.dataProducts-configuration';
+    this.name = 'Autoclear';
   }
 
   canView (selection) {
     const domainObject = selection?.[0]?.[0]?.context?.item;
 
-    return domainObject?.type === this.type;
-  };
+    return domainObject?.type === 'vista.dataProductsView';
+  }
 
   view (selection) {
     let _destroy = null;
 
     const domainObject = selection[0][0].context.item;
-    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct);
+    const tableConfiguration = new TelemetryTableConfiguration(domainObject, this.openmct);
 
     return {
       show: function (element) {
         const componentDefinition = {
           provide: {
-            openmct,
+            openmct: this.openmct,
             tableConfiguration
           },
           components: {
-              TableConfiguration: TableConfigurationComponent
+              DataProductAutoclear
           },
-          template: '<table-configuration></table-configuration>'
+          template: '<data-product-autoclear></data-product-autoclear>',
         };
-        
+
         const componentOptions = {
             element
         };
-        
+
         const {
             componentInstance,
             destroy,
@@ -47,11 +47,8 @@ export default class VistaTableConfigurationProvider {
 
         _destroy = destroy;
       },
-      showTab: function (isEditing) {
-        return isEditing;
-      },
       priority: function () {
-        return openmct.priority.HIGH + 1;
+        return openmct.priority.HIGH;
       },
       destroy: function () {
         _destroy?.();

@@ -8,8 +8,6 @@ export default class ChannelTableViewProvider {
         this.key = 'vista.channel-list';
         this.name = 'Channel List';
         this.cssClass = 'icon-tabular-realtime';
-        this.component = undefined;
-        this.destroy = null;
 
         this.view = this.view.bind(this);
     }
@@ -24,14 +22,16 @@ export default class ChannelTableViewProvider {
 
     view(domainObject, objectPath) {
         let component;
-        let markingProp = {
+        let _destroy = null;
+
+        const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
-
         const table = new ChannelTable(domainObject, this.openmct);
+
         const view = {
             show(element, isEditing) {
                 const componentDefinition = {
@@ -91,7 +91,7 @@ export default class ChannelTableViewProvider {
                 }
             },
             destroy() {
-                this.destroy?.();
+                _destroy?.();
             }
         }
 

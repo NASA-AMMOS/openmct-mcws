@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import TableComponent from 'openmct.tables.components.Table';
 import DataProductTable from './DataProductTable.js';
 
@@ -16,18 +16,20 @@ export default class DataProductViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new DataProductTable(domainObject, openmct);
         let component;
-        let markingProp = {
+        let _destroy = null;
+
+        const table = new DataProductTable(domainObject, this.openmct);
+        const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
             show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
@@ -39,7 +41,7 @@ export default class DataProductViewProvider {
                         };
                     },
                     provide: {
-                        openmct,
+                        openmct: this.openmct,
                         table,
                         objectPath,
                         currentView: view
@@ -61,7 +63,20 @@ export default class DataProductViewProvider {
                             :marking="markingProp"
                             :view="view"
                         ></table-component>`
-                });
+                };
+
+                const componentOptions = {
+                    element
+                };
+
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -89,9 +104,8 @@ export default class DataProductViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

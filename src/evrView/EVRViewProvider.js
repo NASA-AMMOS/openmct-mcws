@@ -1,6 +1,6 @@
 import EVRTable from './EVRTable';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 const RESTRICTED_VIEWS = ['plot-single', 'table'];
 const EVR_SOURCES = [
@@ -37,6 +37,8 @@ export default class EVRViewProvider {
 
     view(domainObject, objectPath) {
         let component;
+        let _destroy = null;
+
         const table = new EVRTable(domainObject, this.openmct);
         const markingProp = {
             enable: true,
@@ -44,10 +46,10 @@ export default class EVRViewProvider {
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
             show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
@@ -73,7 +75,20 @@ export default class EVRViewProvider {
                             :view="view"
                         ></table-component>
                     `
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -90,9 +105,8 @@ export default class EVRViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

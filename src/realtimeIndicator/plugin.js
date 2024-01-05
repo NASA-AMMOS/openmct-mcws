@@ -1,27 +1,27 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import RealtimeIndicator from './RealtimeIndicator.vue';
 
 export default function plugin(vistaTime) {
-    return function install(openmct) {
-        let indicator = {
-            element: document.createElement('div'),
-            priority: -5
-        };
-
-        openmct.indicators.add(indicator);
-        openmct.on('start', () => {
-            let component  = new Vue ({
-                el: indicator.element,
-                provide: {
-                    openmct,
-                    vistaTime
-                },
-                components: {
-                    RealtimeIndicator
-                },
-                template: '<RealtimeIndicator />'
-            });
-        });
+  return function install(openmct) {
+    const indicator = {
+        element: document.createElement('div'),
+        priority: -5
     };
-}
+    const componentDefinition = {
+      provide: {
+        openmct,
+        vistaTime
+      },
+      components: {
+          RealtimeIndicator
+      },
+      template: '<RealtimeIndicator />'
+    };
+    const componentOptions = {
+      element: indicator.element
+    };
 
+    openmct.on('start', () => mount(componentDefinition, componentOptions));
+    openmct.indicators.add(indicator);
+  };
+}

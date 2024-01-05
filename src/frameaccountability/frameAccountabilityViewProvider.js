@@ -1,6 +1,6 @@
 import frameAccountability from './components/frameAccountability';
 import BadFramesTelemetryTable from './BadFramesTelemetryTable';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 const FLAG_COLORS = {
     'InSync': '#7FFF00',
@@ -16,6 +16,7 @@ export default class FrameAccountabilityViewProvider {
         this.openmct = openmct;
         this.table = this.instantiateBadFramesTable();
         this.expectedVcidList = expectedVcidList;
+        this._destroy = null;
     }
     instantiateBadFramesTable() {
         const domainObject = {
@@ -30,7 +31,7 @@ export default class FrameAccountabilityViewProvider {
         return new BadFramesTelemetryTable(domainObject, this.openmct);
     }
     show(element) {
-        this.component = new Vue({
+        const componentDefinition = {
             components: {
                 frameAccountability
             },
@@ -43,13 +44,23 @@ export default class FrameAccountabilityViewProvider {
                 expectedVcidList: this.expectedVcidList,
                 currentView: {}
             },
-            el: element,
             template: '<frame-accountability></frame-accountability>'
-        });
+        };
+        
+        const componentOptions = {
+            element
+        };
+        
+        const {
+            componentInstance,
+            destroy,
+            el
+        } = mount(componentDefinition, componentOptions);
+        
+        this._destroy = destroy;
     }
     destroy() {
-        this.component.$destroy();
+        this._destroy?.();
         this.table.extendsDestroy();
-        delete this.component;
     }
 }

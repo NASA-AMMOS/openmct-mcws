@@ -1,6 +1,6 @@
 import FrameEventFilterTable from './FrameEventFilterTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class FrameEventFilterViewProvider {
     constructor(openmct) {
@@ -16,18 +16,20 @@ export default class FrameEventFilterViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new FrameEventFilterTable(domainObject, openmct);
         let component;
+        let _destroy = null;
+
+        let table = new FrameEventFilterTable(domainObject, openmct);
         let markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
             show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
@@ -57,7 +59,20 @@ export default class FrameEventFilterViewProvider {
                             </template>
                         </table-component>
                     `
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -74,9 +89,8 @@ export default class FrameEventFilterViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import GlobalFilterIndicator from './GlobalFilterIndicator.vue';
 
 export default function plugin(config) {
@@ -10,8 +10,7 @@ export default function plugin(config) {
 
     openmct.indicators.add(indicator);
     openmct.on('start', () => {
-      let component = new Vue({
-        el: indicator.element,
+      const componentDefinition = {
         provide: {
           openmct,
           filters: config
@@ -20,7 +19,17 @@ export default function plugin(config) {
           GlobalFilterIndicator
         },
         template: '<GlobalFilterIndicator />'
-      });
+      };
+      
+      const componentOptions = {
+          element: indicator.element
+      };
+      
+      const {
+          componentInstance,
+          destroy,
+          el
+      } = mount(componentDefinition, componentOptions);
     });
   };
 }

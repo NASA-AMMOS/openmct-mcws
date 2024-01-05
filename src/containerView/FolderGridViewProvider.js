@@ -1,5 +1,5 @@
 import FolderGridViewComponent from 'openmct.views.FolderGridViewComponent';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class FolderGridView {
     constructor(openmct, types) {
@@ -16,12 +16,11 @@ export default class FolderGridView {
     }
 
     view(domainObject, objectPath) {
-        let component;
+        let _destroy = null;
 
         return {
             show: function (element) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         gridViewComponent: FolderGridViewComponent
                     },
@@ -30,11 +29,22 @@ export default class FolderGridView {
                         domainObject
                     },
                     template: '<grid-view-component></grid-view-component>'
-                });
+                };
+
+                const componentOptions = {
+                    element
+                };
+
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+
+                _destroy = destroy;
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
     }

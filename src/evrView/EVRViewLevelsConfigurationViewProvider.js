@@ -1,5 +1,5 @@
 import EVRViewLevelsConfigurationView from './EVRViewLevelsConfigurationView.vue'
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default function EVRViewLevelsConfigurationViewProvider(options) {
     return {
@@ -15,13 +15,13 @@ export default function EVRViewLevelsConfigurationViewProvider(options) {
             return object && object.type === 'vista.evrView';
         },
         view: function (selection) {
-            let component;
-            let domainObject = selection[0][0].context.item;
+            let _destroy = null;
+
+            const domainObject = selection[0][0].context.item;
 
             return {
                 show: function (element) {
-                    component = new Vue({
-                        el: element,
+                    const componentDefinition = {
                         provide: {
                             openmct
                         },
@@ -39,15 +39,26 @@ export default function EVRViewLevelsConfigurationViewProvider(options) {
                                 :domain-object="domainObject"
                                 :options="options"
                             ></evr-levels-configuration>
-                        `,
-                    });
+                        `
+                    };
+
+                    const componentOptions = {
+                        element
+                    };
+
+                    const {
+                        componentInstance,
+                        destroy,
+                        el
+                    } = mount(componentDefinition, componentOptions);
+
+                    _destroy = destroy;
                 },
                 priority: function () {
                     return openmct.priority.HIGH;
                 },
                 destroy: function () {
-                    component.$destroy();
-                    component = undefined;
+                    _destroy?.();
                 }
             }
         }

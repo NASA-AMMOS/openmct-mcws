@@ -1,12 +1,9 @@
-import Vue from 'vue';
 import DataProductViewProvider from './DataProductViewProvider.js';
 import DATDownloadCell from './DATDownloadCell.js';
 import EMDDownloadCell from './EMDDownloadCell.js';
 import EMDPreviewCell from './EMDPreviewCell.js';
 import TXTDownloadCell from './TXTDownloadCell.js';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
-import DataProductAutoclear from './data-product-autoclear.vue';
-import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 import DataProductViewActions from './DataProductViewActions.js';
 
 export default function install() {
@@ -21,45 +18,7 @@ export default function install() {
             }
         });
         openmct.objectViews.addProvider(new DataProductViewProvider(openmct));
-        
-        openmct.inspectorViews.addProvider({
-            key: 'vista.dataProducts-configuration',
-            name: 'Autoclear',
-            canView: function (selection) {
-                if (selection.length === 0) {
-                    return false;
-                }
-                let object = selection[0][0].context.item;
-                return object && object.type === 'vista.dataProductsView';
-            },
-            view: function (selection) {
-                let component;
-                let domainObject = selection[0][0].context.item;
-                const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct);
-                return {
-                    show: function (element) {
-                        component = new Vue({
-                            provide: {
-                                openmct,
-                                tableConfiguration
-                            },
-                            components: {
-                                DataProductAutoclear
-                            },
-                            template: '<data-product-autoclear></data-product-autoclear>',
-                            el: element
-                        });
-                    },
-                    priority: function () {
-                        return openmct.priority.HIGH;
-                    },
-                    destroy: function () {
-                        component.$destroy();
-                        component = undefined;
-                    }
-                }
-            }
-        });
+        openmct.inspectorViews.addProvider(new DataProductInspectorViewProvider(openmct));
 
         openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
             'vista.data-products-configuration', 
@@ -81,9 +40,12 @@ export default function install() {
             openmct.actions.register(action);
         });
 
-        Vue.component('vista-table-dat-cell', DATDownloadCell);
-        Vue.component('vista-table-emd-cell', EMDDownloadCell);
-        Vue.component('vista-table-emd-preview-cell', EMDPreviewCell);
-        Vue.component('vista-table-txt-cell', TXTDownloadCell);
+        // register cell components globally for dynamic component in core openmct table rows
+        openmct.on('start', () => {
+            openmct.app.component('vista-table-dat-cell', DATDownloadCell);
+            openmct.app.component('vista-table-emd-cell', EMDDownloadCell);
+            openmct.app.component('vista-table-emd-preview-cell', EMDPreviewCell);
+            openmct.app.component('vista-table-txt-cell', TXTDownloadCell);
+        });
     }
 }

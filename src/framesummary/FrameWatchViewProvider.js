@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import FrameWatchTable from './FrameWatchTable';
 import FrameWatchViewComponent from './components/FrameWatchViewComponent.vue';
 import { FRAME_WATCH_TYPE } from './config';
@@ -18,13 +18,14 @@ export default class FrameWatchViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new FrameWatchTable(domainObject, openmct, this.type);
         let component;
+        let _destroy = null;
+      
+        const table = new FrameWatchTable(domainObject, this.openmct, this.type);
 
         const view = {
             show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         FrameWatchViewComponent
                     },
@@ -47,7 +48,20 @@ export default class FrameWatchViewProvider {
                             :isEditing="isEditing"
                         />
                     `
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -66,9 +80,8 @@ export default class FrameWatchViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 
