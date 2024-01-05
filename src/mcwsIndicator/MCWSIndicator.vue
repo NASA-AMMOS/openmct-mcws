@@ -56,7 +56,7 @@ export default {
             namespace: ''
         };
     },
-    destroyed() {
+    beforeUnmount() {
         clearInterval(this.intervalId);
     },
     mounted() {

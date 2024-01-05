@@ -208,7 +208,7 @@ define([
             this.composition.on('remove', this.removeEvents);
             this.composition.load();
         },
-        destroyed() {
+        beforeUnmount() {
             this.composition.off('add', this.addEvents);
             this.composition.off('remove', this.removeEvents);
 

@@ -167,7 +167,7 @@ export default {
             isLoading: true
         }
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.table.destroy();
     },
     methods: {

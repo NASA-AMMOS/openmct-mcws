@@ -84,7 +84,7 @@ export default {
             onDestroy: this.hideBadFrames
         });
     },
-    destroyed() {
+    beforeUnmount() {
        this.table.sortBy({});
     }
 }
