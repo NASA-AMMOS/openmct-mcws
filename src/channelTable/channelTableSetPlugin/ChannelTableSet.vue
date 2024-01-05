@@ -79,7 +79,7 @@ export default {
             ladTable.domainObject = domainObject;
             ladTable.key = this.openmct.objects.makeKeyString(domainObject.identifier);
             ladTable.objectPath = [domainObject, ...this.objectPath];
-            this.$set(this.ladTelemetryObjects, ladTable.key, []);
+            this.ladTelemetryObjects[ladTable.key] = [];
             this.ladTableObjects.push(ladTable);
             let composition = this.openmct.composition.get(ladTable.domainObject);
             let addCallback = this.addTelemetryObject(ladTable);
@@ -102,7 +102,7 @@ export default {
         reorderLadTables(reorderPlan) {
             let oldComposition = this.ladTableObjects.slice();
             reorderPlan.forEach(reorderEvent => {
-                this.$set(this.ladTableObjects, reorderEvent.newIndex, oldComposition[reorderEvent.oldIndex]);
+                this.ladTableObjects[reorderEvent.newIndex] = oldComposition[reorderEvent.oldIndex];
             });
         },
         setTimesystem(timesystem) {
@@ -115,7 +115,7 @@ export default {
                 telemetryObject.domainObject = domainObject;
                 let telemetryObjects = this.ladTelemetryObjects[ladTable.key];
                 telemetryObjects.push(telemetryObject);
-                this.$set(this.ladTelemetryObjects, ladTable.key, telemetryObjects);
+                this.ladTelemetryObjects[ladTable.key] = telemetryObjects;
             };
         },
         removeTelemetryObject(ladTable) {
@@ -123,7 +123,7 @@ export default {
                 let telemetryObjects = this.ladTelemetryObjects[ladTable.key];
                 let index = telemetryObjects.findIndex(telemetryObject => this.openmct.objects.makeKeyString(identifier) === telemetryObject.key);
                 telemetryObjects.splice(index, 1);
-                this.$set(this.ladTelemetryObjects, ladTable.key, telemetryObjects);
+                this.ladTelemetryObjects[ladTable.key] = telemetryObjects;
             };
         },
         updateViewContext(rowContext) {

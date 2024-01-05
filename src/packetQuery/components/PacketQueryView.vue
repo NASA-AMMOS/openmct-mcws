@@ -164,21 +164,17 @@ export default {
     },
     methods: {
         initializeQueryModel() {
-            this.$set(this.queryModel, 'useSession' , false);
-            this.$set(this.queryModel, 'sessionId', '');
-            this.$set(this.queryModel, 'useTimeConductor', false);
+            this.queryModel['useSession'] = false;
+            this.queryModel['sessionId'] = '';
+            this.queryModel['useTimeConductor'] = false;
         },
         onChange(change) {
-            this.$set(
-                this.queryModel,
-                change.model.key,
-                change.value
-            );
+            this.queryModel[change.model.key] = change.value;
         },
         setFilterOptions() {
             FILTER_OPTIONS.forEach(key => {
                 const propertyName = key + FILTER_SUFFIX;
-                this.$set(this.queryModel, propertyName, '');
+                this.queryModel[propertyName] = '';
 
                 filterRows.push({
                     name: key.toUpperCase(),
