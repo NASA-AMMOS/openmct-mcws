@@ -77,6 +77,7 @@ const config = {
             **/
             "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue"),
             "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue"),
+            "vue": "vue/dist/vue.esm-bundler.js"
         }
     },
     plugins: [
