@@ -1,11 +1,8 @@
 import mount from 'utils/mountVueComponent';
-import ClearDataIndicator from './indicator/clearDataIndicator.vue';
+import ClearDataIndicator from './ClearDataIndicator.vue';
 
 export default function plugin(globalStalenessMs) {
     return function install(openmct) {
-        const indicator = {
-            element: document.createElement('div')
-        };
         const componentDefinition = {
             provide: {
                 openmct,
@@ -16,14 +13,19 @@ export default function plugin(globalStalenessMs) {
             },
             template: '<ClearDataIndicator />'
         };
-        const componentOptions = {
-            element: indicator.element
+
+        const {
+          componentInstance,
+          destroy,
+          el
+        } = mount(componentDefinition);
+
+        const indicator = {
+            key: 'clear-data-indicator',
+            element: el,
+            destroy
         };
 
         openmct.indicators.add(indicator);
-        openmct.on(
-            'start',
-            () => mount(componentDefinition, componentOptions)
-        );
     };
 }

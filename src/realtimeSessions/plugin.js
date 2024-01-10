@@ -3,10 +3,6 @@ import RealtimeSessionIndicator from './components/RealtimeSessionIndicator.vue'
 
 export default function plugin() {
   return function install(openmct) {
-    const indicator = {
-        element: document.createElement('div'),
-        priority: -4
-    };
     const componentDefinition = {
       provide: {
         openmct
@@ -16,13 +12,21 @@ export default function plugin() {
       },
       template: '<RealtimeSessionIndicator />'
     };
-
-    const componentOptions = {
-        element: indicator.element
+    
+    const {
+      componentInstance,
+      destroy,
+      el
+    } = mount(componentDefinition);
+    
+    const indicator = {
+      key: 'realtime-session-indicator',
+      element: el,
+      priority: -4,
+      destroy
     };
 
     openmct.indicators.add(indicator);
-    openmct.on('start', () => mount(componentDefinition, componentOptions));
   };
 }
 

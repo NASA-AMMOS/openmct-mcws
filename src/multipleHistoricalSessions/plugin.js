@@ -5,11 +5,6 @@ import HistoricalSessionMetadata from './HistoricalSessionMetadata';
 
 export default function HistoricalSessionsPlugin() {
     return function install(openmct) {
-        const indicator = {
-            element: document.createElement('div'),
-            priority: -1
-        };
-
         openmct.on('start', () => {
             const instantiate = openmct.$injector.get('instantiate');
             const model = {
@@ -41,18 +36,22 @@ export default function HistoricalSessionsPlugin() {
                 },
                 template: '<HistoricalSessionIndicator></HistoricalSessionIndicator>'
             };
-            
-            const componentOptions = {
-                element: indicator.element
-            };
-            
+
             const {
                 componentInstance,
                 destroy,
                 el
-            } = mount(componentDefinition, componentOptions);
+            } = mount(componentDefinition);
+
+            const indicator = {
+                key: 'historical-session-indicator',
+                element: el,
+                priority: -1,
+                destroy
+            };
+
+            openmct.indicators.add(indicator);
         });
 
-        openmct.indicators.add(indicator);
     };
 }

@@ -3,10 +3,6 @@ import RealtimeIndicator from './RealtimeIndicator.vue';
 
 export default function plugin(vistaTime) {
   return function install(openmct) {
-    const indicator = {
-        element: document.createElement('div'),
-        priority: -5
-    };
     const componentDefinition = {
       provide: {
         openmct,
@@ -17,11 +13,20 @@ export default function plugin(vistaTime) {
       },
       template: '<RealtimeIndicator />'
     };
-    const componentOptions = {
-      element: indicator.element
+
+    const {
+      componentInstance,
+      destroy,
+      el
+    } = mount(componentDefinition);
+
+    const indicator = {
+      key: 'realtime-update-indicator',
+      element: el,
+      priority: -5,
+      destroy
     };
 
-    openmct.on('start', () => mount(componentDefinition, componentOptions));
     openmct.indicators.add(indicator);
   };
 }
