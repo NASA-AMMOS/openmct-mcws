@@ -11,7 +11,7 @@ export default function HistoricalSessionsPlugin() {
                 namespace: ''
             },
             name: 'Historical Session',
-            type: 'vista.channel'
+            type: 'vista.historical-session'
         };
 
         const table = new SessionTable(
