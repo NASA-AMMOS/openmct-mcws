@@ -1,4 +1,5 @@
 import DataProductViewProvider from './DataProductViewProvider.js';
+import DataProductInspectorViewProvider from './DataProductInspectorViewProvider.js';
 import DATDownloadCell from './DATDownloadCell.js';
 import EMDDownloadCell from './EMDDownloadCell.js';
 import EMDPreviewCell from './EMDPreviewCell.js';
