@@ -24,7 +24,7 @@ export default class FrameWatchViewProvider {
         const table = new FrameWatchTable(domainObject, this.openmct, this.type);
 
         const view = {
-            show: function (element, editMode) {
+            show: function (element, editMode, { renderWhenVisible }) {
                 const componentDefinition = {
                     components: {
                         FrameWatchViewComponent
@@ -32,7 +32,8 @@ export default class FrameWatchViewProvider {
                     data() {
                         return {
                             isEditing: editMode,
-                            view
+                            view,
+                            renderWhenVisible
                         };
                     },
                     provide: {

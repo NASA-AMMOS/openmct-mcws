@@ -33,7 +33,7 @@ export default class ChannelTableViewProvider {
         const table = new ChannelTable(domainObject, this.openmct);
 
         const view = {
-            show(element, isEditing) {
+            show(element, isEditing, { renderWhenVisible }) {
                 const componentDefinition = {
                     data() {
                         return {
@@ -49,11 +49,12 @@ export default class ChannelTableViewProvider {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     template: `
                     <table-component
-                        class="js-channel-list-view"
+                        :class="'js-channel-list-view'"
                         ref="tableComponent"
                         :isEditing="isEditing"
                         :marking="markingProp"

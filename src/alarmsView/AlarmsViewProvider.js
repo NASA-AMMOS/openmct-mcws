@@ -16,17 +16,18 @@ export default class AlarmsViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new AlarmsTable(domainObject, openmct);
         let component;
         let _destroy = null;
-        let markingProp = {
+
+        const table = new AlarmsTable(domainObject, openmct);
+        const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
         const view = {
-            show: function (element, editMode) {
+            show: function (element, editMode, { renderWhenVisible }) {
                 const componentDefinition = {
                     components: {
                         TableComponent
@@ -35,7 +36,8 @@ export default class AlarmsViewProvider {
                         return {
                             isEditing: editMode,
                             markingProp,
-                            view
+                            view,
+                            renderWhenVisible
                         };
                     },
                     provide: {
@@ -89,7 +91,7 @@ export default class AlarmsViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
+            destroy: function () {
                 _destroy?.();
             }
         };

@@ -30,7 +30,7 @@ export default class FrameAccountabilityViewProvider {
 
         return new BadFramesTelemetryTable(domainObject, this.openmct);
     }
-    show(element) {
+    show(element, isEditing, { renderWhenVisible }) {
         const componentDefinition = {
             components: {
                 frameAccountability
@@ -42,7 +42,8 @@ export default class FrameAccountabilityViewProvider {
                 objectPath: [],
                 FLAG_COLORS,
                 expectedVcidList: this.expectedVcidList,
-                currentView: {}
+                currentView: {},
+                renderWhenVisible
             },
             template: '<frame-accountability></frame-accountability>'
         };

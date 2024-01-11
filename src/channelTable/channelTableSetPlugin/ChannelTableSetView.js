@@ -10,7 +10,7 @@ export default class ChannelTableSetView {
         this._destroy = null;
     }
 
-    show(element) {
+    show(element, isEditing, { renderWhenVisible }) {
         const componentDefinition = {
             components: {
                 ChannelTableSet
@@ -18,7 +18,8 @@ export default class ChannelTableSetView {
             provide: {
                 openmct: this.openmct,
                 objectPath: this.objectPath,
-                currentView: this
+                currentView: this,
+                renderWhenVisible
             },
             data: () => {
                 return {

@@ -48,7 +48,7 @@ export default class EVRViewProvider {
         };
 
         const view = {
-            show: function (element, editMode) {
+            show: function (element, editMode, { renderWhenVisible }) {
                 const componentDefinition = {
                     components: {
                         TableComponent
@@ -57,7 +57,8 @@ export default class EVRViewProvider {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     data() {
                         return {

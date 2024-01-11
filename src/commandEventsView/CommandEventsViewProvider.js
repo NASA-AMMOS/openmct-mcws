@@ -28,7 +28,7 @@ export default class CommandEventsViewProvider {
         };
 
         const view = {
-            show: function (element, editMode) {
+            show: function (element, editMode, { renderWhenVisible }) {
                 const componentDefinition = {
                   components: {
                       TableComponent
@@ -37,7 +37,8 @@ export default class CommandEventsViewProvider {
                       return {
                           isEditing: editMode,
                           markingProp,
-                          view
+                          view,
+                          renderWhenVisible
                       };
                   },
                   provide: {

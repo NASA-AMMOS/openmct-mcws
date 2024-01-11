@@ -22,7 +22,7 @@ export default class ProductSummaryViewProvider {
         const table = new PacketSummaryTable(domainObject, openmct);
 
         const view = {
-            show: function (element, editMode) {
+            show: function (element, editMode, { renderWhenVisible }) {
                 const componentDefinition = {
                     components: {
                         PacketSummaryViewComponent
@@ -30,7 +30,8 @@ export default class ProductSummaryViewProvider {
                     data() {
                         return {
                             isEditing: editMode,
-                            view
+                            view,
+                            renderWhenVisible
                         };
                     },
                     provide: {
