@@ -5,6 +5,11 @@ import HistoricalSessionMetadata from './HistoricalSessionMetadata';
 
 export default function HistoricalSessionsPlugin() {
     return function install(openmct) {
+        const renderWhenVisible = func => {
+            window.requestAnimationFrame(func);
+            return true;
+        };
+
         const domainObject = {
             identifier: {
                 key: 'session-historical',
@@ -26,7 +31,8 @@ export default function HistoricalSessionsPlugin() {
                 openmct,
                 table,
                 objectPath,
-                currentView: {}
+                currentView: {},
+                renderWhenVisible
             },
             components: {
                 HistoricalSessionIndicator
