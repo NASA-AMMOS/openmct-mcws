@@ -37,15 +37,15 @@ export default class MessagesViewProvider {
                         return {
                             isEditing: editMode,
                             markingProp,
-                            view,
-                            renderWhenVisible
+                            view
                         };
                     },
                     provide: {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     template: `
                         <table-component

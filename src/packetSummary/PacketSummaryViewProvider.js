@@ -30,15 +30,15 @@ export default class ProductSummaryViewProvider {
                     data() {
                         return {
                             isEditing: editMode,
-                            view,
-                            renderWhenVisible
+                            view
                         };
                     },
                     provide: {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     template:
                         `<packet-summary-view-component

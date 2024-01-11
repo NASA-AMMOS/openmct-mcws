@@ -37,15 +37,15 @@ export default class DataProductViewProvider {
                         return {
                             isEditing: editMode,
                             markingProp,
-                            view,
-                            renderWhenVisible
+                            view
                         };
                     },
                     provide: {
                         openmct: this.openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     methods: {
                         clearCompleted() {
