@@ -13,23 +13,19 @@ export default function HistoricalSessionsPlugin() {
         openmct.indicators.add(indicator);
 
         openmct.on('start', () => {
-            let instantiate = openmct.$injector.get('instantiate'),
-                model = {
-                    identifier: {
-                        key: 'session-historical',
-                        namespace: ''
-                    },
-                    name: 'Historical Session',
-                    type: 'vista.channel'
-                };
+            const domainObject = {
+                identifier: {
+                    key: 'session-historical',
+                    namespace: ''
+                },
+                name: 'Historical Session',
+                type: 'vista.channel'
+            };
             
-            let oldStyleDomainObject = instantiate(model),
-                newStyleDomainObject = oldStyleDomainObject.useCapability('adapter');
+            const table = new SessionTable(domainObject, openmct, HistoricalSessionMetadata),
+                objectPath = [domainObject];
 
-            let table = new SessionTable(newStyleDomainObject, openmct, HistoricalSessionMetadata),
-                objectPath = [model];
-
-            let component = new Vue ({
+            const component = new Vue ({
                 el: indicator.element,
                 provide: {
                     openmct,
