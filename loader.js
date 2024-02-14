@@ -11,7 +11,6 @@ define([
     './about.html',
     './src/metadataAction/plugin',
     './src/clearDataIndicator/plugin',
-    './src/globalStaleness/plugin',
     './src/dictionaryView/plugin',
     './src/packetSummary/plugin',
     './src/containerView/plugin',
@@ -31,7 +30,6 @@ define([
     AboutTemplate,
     MetadataActionPlugin,
     ClearDataIndicator,
-    GlobalStalenessPlugin,
     DictionaryViewPlugin,
     PacketSummaryPlugin,
     ContainerViewPlugin,
@@ -82,7 +80,6 @@ define([
             }
         ));
         openmct.install(ClearDataIndicator.default(config.globalStalenessInterval));
-        openmct.install(GlobalStalenessPlugin.default(config.globalStalenessInterval));
         openmct.install(CommandEventsViewPlugin.default());
         openmct.install(MessagesPlugin.default());
         openmct.install(ProductStatusPlugin.default());

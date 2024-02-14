@@ -1,6 +1,7 @@
 define([
     'services/dataset/DatasetCache',
     'services/session/SessionService',
+    'services/globalStaleness/globalStaleness',
     './types/plugin',
     './taxonomy/plugin',
     './time/plugin',
@@ -34,6 +35,7 @@ define([
 ], function (
     DatasetCache,
     SessionService,
+    GlobalStaleness,
     TypePlugin,
     TaxonomyPlugin,
     TimePlugin,
@@ -68,9 +70,10 @@ define([
 
     function AMMOSPlugins(options) {
         return function install(openmct) {
-            // initialze session service and datasetCache service
+            // initialze session service, datasetCache service, global staleness
             SessionService.default(openmct, options);
             DatasetCache.default(openmct);
+            GlobalStaleness.default(openmct, window.openmctMCWSConfig.globalStalenessInterval);
 
             openmct.install(new FormatPlugin(options));
 
