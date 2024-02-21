@@ -142,10 +142,10 @@ class SessionService {
 
             if (model) {
                 this.notificationService.info('Connected to realtime from ' + model.topic);
-                console.log(`Connected to realtime from ${model.topic}. ${currentTime}`);
+                console.log(`Connected to realtime from ${model.topic}. ${currentTime} wall clock time.`);
             } else {
                 this.notificationService.info('Disconnected from realtime');
-                console.log(`Disconnected from realtime. ${currentTime}`);
+                console.log(`Disconnected from realtime. ${currentTime} wall clock time.`);
             }
         }
     };
