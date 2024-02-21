@@ -179,12 +179,12 @@ class SessionService {
         
         const currentTime = new Date().toISOString();
 
-        console.warn(`CAM login session timeout. ${currentTime}`);
+        console.warn(`CAM login session timeout. ${currentTime} wall clock time.`);
         console.warn(error);
 
         const dialog = this.openmct.overlays.dialog({
             iconClass: 'alert',
-            message: `Your CAM login session has timed out - please login again. ${currentTime}`,
+            message: `Your CAM login session has timed out - please login again. ${currentTime} wall clock time.`,
             buttons: [
                 {
                     label: 'Cancel',
