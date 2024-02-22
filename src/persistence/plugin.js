@@ -23,7 +23,8 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         const ROOT_IDENTIFIERS = rootNamespaces.map(createIdentifierFromNamespaceDefinition);
 
         // user namespaces are not required
-        const checkOldNamespaces = localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null;
+        let usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
+        const checkOldNamespaces = usersNamespace ? localStorage.getItem(`r5.0_old_namespace_checked:${usersNamespace.key}`) === null : false;
         existingNamespaceUpdateInterceptor(openmct, usersNamespace, checkOldNamespaces);
         oldPersistenceFolderInterceptor(openmct, namespaces, ROOT_IDENTIFIERS);
 

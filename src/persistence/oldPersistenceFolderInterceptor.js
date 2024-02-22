@@ -7,7 +7,7 @@ export default async function oldPersistenceFolderInterceptor(openmct, namespace
     const userTemplate = usersNamespace.childTemplate.key.split('$')[0];
     const userKeyCheck = new RegExp(`^${userTemplate}([^:]+)$`);
     let usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
-    usersNamespace = structuredClone(usersNamespace); // don't want to modify the original
+    usersNamespace = structuredClone(usersNamespace);
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
