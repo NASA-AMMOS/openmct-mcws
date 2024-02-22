@@ -4,10 +4,11 @@ import {
 } from './utils';
 
 export default async function oldPersistenceFolderInterceptor(openmct, namespaces, ROOT_IDENTIFIERS) {
-    const userTemplate = usersNamespace.childTemplate.key.split('$')[0];
-    const userKeyCheck = new RegExp(`^${userTemplate}([^:]+)$`);
     let usersNamespace = namespaces.find((namespace) => namespace.containsNamespaces);
     usersNamespace = structuredClone(usersNamespace);
+
+    const userTemplate = usersNamespace.childTemplate.key.split('$')[0];
+    const userKeyCheck = new RegExp(`^${userTemplate}([^:]+)$`);
 
     openmct.objects.addGetInterceptor({
         appliesTo: (identifier, domainObject) => {
