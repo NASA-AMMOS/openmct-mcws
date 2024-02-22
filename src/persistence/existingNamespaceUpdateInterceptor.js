@@ -1,4 +1,9 @@
 export default function existingNamespaceUpdateInterceptor(openmct, usersNamespace, shouldCheck) {
+    // not all instances utilize user namespaces
+    if (!usersNamespace) {
+        return;
+    }
+
     let loggedNamespaceCheck = false;
 
     openmct.objects.addGetInterceptor({
