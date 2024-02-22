@@ -32,7 +32,7 @@ export default async function oldPersistenceFolderInterceptor(openmct, namespace
                 namespaceDefinition = interpolateUsername(usersNamespace.childTemplate, userId);
                 namespaceDefinition.location = usersNamespace.id;
             } else {
-                namespaceDefinition = namespaces.find(namespace => namespace.key === identifier.key);
+                namespaceDefinition = namespaces.find(namespace => namespace.key === identifier.namespace);
             }
 
             const model = createModelFromNamespaceDefinition(userId, namespaceDefinition);
