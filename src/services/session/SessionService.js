@@ -178,13 +178,14 @@ class SessionService {
         this.camErrorDialogActive = true;
         
         const currentTime = new Date().toISOString();
+        const noActiveSessionMessage = `Poll for active session failed at ${currentTime} wall clock time. This may indicate a CAM timeout or session connection issue, which could result in data loss. Refresh if data does not appear to be flowing.`;
 
-        console.warn(`CAM login session timeout. ${currentTime} wall clock time.`);
+        console.warn(noActiveSessionMessage);
         console.warn(error);
 
         const dialog = this.openmct.overlays.dialog({
             iconClass: 'alert',
-            message: `Your CAM login session has timed out - please login again. ${currentTime} wall clock time.`,
+            message: noActiveSessionMessage,
             buttons: [
                 {
                     label: 'Cancel',
@@ -194,7 +195,7 @@ class SessionService {
                     }
                 },
                 {
-                    label: 'Login',
+                    label: 'Refresh',
                     emphasis: true,
                     callback() {
                         dialog.dismiss();
