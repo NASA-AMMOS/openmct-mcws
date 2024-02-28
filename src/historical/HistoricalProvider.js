@@ -516,7 +516,7 @@ define([
             // TODO: better handling when domain not available.
         }
 
-        const sessions = sessionServiceDefault.default();
+        const sessions = this.getSessionService();
         const session = sessions.getHistoricalSession();
 
         if (session) {
@@ -642,6 +642,10 @@ define([
         }
 
         return false;
+    }
+
+    HistoricalProvider.prototype.getSessionService = function () {
+      return sessionServiceDefault.default();
     }
 
     return HistoricalProvider;
