@@ -25,13 +25,15 @@ export default async function oldPersistenceFolderInterceptor(openmct, namespace
         invoke: (identifier, object) => {
             const isUserNamespace = identifier.key === 'container';
 
-            const userId = identifier.namespace.match(userKeyCheck)[1];
+            let userId;
             let namespaceDefinition;
             
             if (isUserNamespace) {
+                userId = identifier.namespace.match(userKeyCheck)[1];
                 namespaceDefinition = interpolateUsername(usersNamespace.childTemplate, userId);
                 namespaceDefinition.location = usersNamespace.id;
             } else {
+                userId = 'system';
                 namespaceDefinition = namespaces.find(namespace => namespace.key === identifier.namespace);
             }
 
