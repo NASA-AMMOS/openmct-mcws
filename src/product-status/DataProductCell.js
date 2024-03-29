@@ -32,7 +32,7 @@ export default {
 
             this.openmct.overlays.overlay({
                 element,
-                size: 'large',
+                size: 'small',
                 dismissable: true
             });
         
