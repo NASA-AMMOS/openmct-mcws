@@ -10,10 +10,12 @@ define([
         this.timeFormat = 'lmst';
         this.durationFormat = 'duration';
         this.isUTCBased = false;
+
+        this.openmct = openmct;
     }
 
     LMSTTimeSystem.prototype.defaults = function () {
-        var mode = this.$injector.get('timeConductorViewService').mode();
+        var mode = this.openmct.time.getMode();
         if (mode === 'fixed') {
             var nowLST = this.solFormat.format(moment.utc());
             var sol = Number(/SOL-(\d+)M/.exec(nowLST)[1]);
