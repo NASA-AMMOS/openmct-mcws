@@ -28,7 +28,7 @@ export default {
             }
         
             const element = document.createElement('div');
-            element.className = "abs loading";
+            element.className = 'abs loading';
         
             try {
                 const response = await mcws.opaqueFile(datum.emd_preview).read();
@@ -37,7 +37,7 @@ export default {
                 const codeElement = document.createElement('code');
 
                 preElement.appendChild(codeElement);
-                element.className = "abs scroll";
+                element.className = 'abs scroll';
                 codeElement.textContent = text;
                 element.appendChild(preElement);
             } catch (error) {
@@ -47,14 +47,8 @@ export default {
                     reason = error.data.description;
                 }
 
-                element.className = "abs scroll";
-                element.textContent = [
-                    "Failed to load data product content from ",
-                    datum.emd_preview,
-                    ' due to: "',
-                    reason,
-                    '"'
-                ].join('');
+                element.className = 'abs scroll';
+                element.textContent = `Failed to load data product content from ${datum.emd_preview} due to: "${reason}"`;
             }
 
             this.openmct.overlays.overlay({
