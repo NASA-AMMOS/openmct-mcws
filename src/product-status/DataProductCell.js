@@ -1,4 +1,4 @@
-import mcws from './services/mcws/mcws';
+import mcws from '../services/mcws/mcws';
 
 export default {
     inject: ['openmct'],
