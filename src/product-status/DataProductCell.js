@@ -1,3 +1,5 @@
+import mcws from './services/mcws/mcws';
+
 export default {
     inject: ['openmct'],
     props: {
@@ -18,11 +20,48 @@ export default {
         }
     },
     methods: {
-        preview(fileType) {
-            let overlayService = this.openmct.$injector.get('overlayService');
-            let dialogModel = { datum: this.row.datum, fileType: fileType };
-            let dialog = overlayService.createOverlay('product-dialog', dialogModel);
-            dialogModel.cancel = dialog.dismiss.bind(dialog);
+        async preview(fileType) {
+            const datum = this.row.datum;
+        
+            if (fileType !== 'emd' || !datum.emd_preview) {
+                return;
+            }
+        
+            const element = document.createElement('div');
+            element.className = "abs loading";
+        
+            try {
+                const response = await mcws.opaqueFile(datum.emd_preview).read();
+                const text = await response.text();
+                const preElement = document.createElement('pre');
+                const codeElement = document.createElement('code');
+
+                preElement.appendChild(codeElement);
+                element.className = "abs scroll";
+                codeElement.textContent = text;
+                element.appendChild(preElement);
+            } catch (error) {
+                let reason = 'Unknown Error';
+
+                if (error?.data?.description) {
+                    reason = error.data.description;
+                }
+
+                element.className = "abs scroll";
+                element.textContent = [
+                    "Failed to load data product content from ",
+                    datum.emd_preview,
+                    ' due to: "',
+                    reason,
+                    '"'
+                ].join('');
+            }
+
+            this.openmct.overlays.overlay({
+                element,
+                size: 'large',
+                dismissable: true
+            });
         }
     }
 }
