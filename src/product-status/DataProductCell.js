@@ -29,6 +29,12 @@ export default {
         
             const element = document.createElement('div');
             element.className = 'abs loading';
+
+            this.openmct.overlays.overlay({
+                element,
+                size: 'large',
+                dismissable: true
+            });
         
             try {
                 const response = await mcws.opaqueFile(datum.emd_preview).read();
@@ -50,12 +56,6 @@ export default {
                 element.className = 'abs scroll';
                 element.textContent = `Failed to load data product content from ${datum.emd_preview} due to: "${reason}"`;
             }
-
-            this.openmct.overlays.overlay({
-                element,
-                size: 'large',
-                dismissable: true
-            });
         }
     }
 }
