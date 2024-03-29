@@ -3,7 +3,7 @@ define([
 ], function (
     moment
 ) {
-    function LMSTTimeSystem() {
+    function LMSTTimeSystem(openmct) {
         this.key = 'lmst';
         this.name = 'LMST';
         this.cssClass = 'icon-clock';

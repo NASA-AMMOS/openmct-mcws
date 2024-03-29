@@ -3,7 +3,7 @@ define([
 ], function (
     moment
 ) {
-    function MSLSolTimeSystem() {
+    function MSLSolTimeSystem(openmct) {
         this.key = 'msl.sol';
         this.name = 'MSL Sol';
         this.cssClass = 'icon-clock';
