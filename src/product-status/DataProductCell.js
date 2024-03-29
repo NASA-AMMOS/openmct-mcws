@@ -23,7 +23,7 @@ export default {
         async preview(fileType) {
             const datum = this.row.datum;
         
-            if (fileType !== 'emd' || !datum.emd_preview) {
+            if (fileType !== '.emd' || !datum.emd_preview) {
                 return;
             }
         
