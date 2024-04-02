@@ -1,62 +1,59 @@
-define([
-    'services/session/SessionService'
-], function (
-    sessionServiceDefault
-) {
-    const SessionService = sessionServiceDefault.default;
-    const DATASET_FIELDS = [
-        "prefix",
-        "mcwsRootUrl",
-        "channelDictionaryUrl",
-        "channelEnumerationDictionaryUrl",
-        "channelHistoricalUrl",
-        "channelMinMaxUrl",
-        "channelLADUrl",
-        "channelStreamUrl",
-        "sessionUrl",
-        "sessionLADUrl",
-        "eventRecordDictionaryUrl",
-        "evrHistoricalUrl",
-        "evrLADUrl",
-        "evrStreamUrl",
-        "dataProductUrl",
-        "dataProductContentUrl",
-        "dataProductStreamUrl",
-        "packetUrl",
-        "packetContentUrl",
-        "packetSummaryEventStreamUrl",
-        "commandEventUrl",
-        "commandEventStreamUrl",
-        "messageStreamUrl",
-        "frameSummaryStreamUrl",
-    ];
+import SessionService from 'services/session/SessionService';
 
-    function Venue(configuration, openmct) {
+const DATASET_FIELDS = [
+    'prefix',
+    'mcwsRootUrl',
+    'channelDictionaryUrl',
+    'channelEnumerationDictionaryUrl',
+    'channelHistoricalUrl',
+    'channelMinMaxUrl',
+    'channelLADUrl',
+    'channelStreamUrl',
+    'sessionUrl',
+    'sessionLADUrl',
+    'eventRecordDictionaryUrl',
+    'evrHistoricalUrl',
+    'evrLADUrl',
+    'evrStreamUrl',
+    'dataProductUrl',
+    'dataProductContentUrl',
+    'dataProductStreamUrl',
+    'packetUrl',
+    'packetContentUrl',
+    'packetSummaryEventStreamUrl',
+    'commandEventUrl',
+    'commandEventStreamUrl',
+    'messageStreamUrl',
+    'frameSummaryStreamUrl',
+];
+
+class Venue {
+    constructor(configuration, openmct) {
         this.host = configuration.host;
-        this.model = DATASET_FIELDS.reduce(function (m, field) {
+        this.model = DATASET_FIELDS.reduce((model, field) => {
             if (configuration.hasOwnProperty(field)) {
-                m[field] = configuration[field];
+                model[field] = configuration[field];
             }
-            return m;
+            return model;
         }, {});
         this.model.type = 'vista.dataset';
         this.model.name = configuration.name;
-        this.sessionService = SessionService();
+        this.sessionService = new SessionService();
     }
 
-    Venue.prototype.allowsRealtime = function () {
+    allowsRealtime() {
         return !!this.model.sessionLADUrl;
     }
 
-    Venue.prototype.getActiveSessions = function () {
+    getActiveSessions() {
         return this.sessionService.getActiveSessions(this.model.sessionLADUrl);
     }
 
-    Venue.prototype.getModel = function () {
-        var model = JSON.parse(JSON.stringify(this.model));
-        model.name = model.name + ' Dataset';
+    getModel() {
+        let model = JSON.parse(JSON.stringify(this.model));
+        model.name += ' Dataset';
         return model;
     }
+}
 
-    return Venue;
-});
+export default Venue;
