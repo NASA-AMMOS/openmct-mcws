@@ -40,7 +40,7 @@ class VenueService {
     }
 
     _instantiateVenues(venueDefinitions) {
-        return venueDefinitions.map(venueDefinition => new Venue(venueDefinition, this.openmct));
+        return venueDefinitions.map(venueDefinition => new Venue(venueDefinition));
     }
 
     async listVenues() {

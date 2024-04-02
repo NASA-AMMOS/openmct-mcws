@@ -133,7 +133,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-/* Add any styles that were originally in your AngularJS component */
-</style>

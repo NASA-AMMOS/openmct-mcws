@@ -28,7 +28,7 @@ const DATASET_FIELDS = [
 ];
 
 class Venue {
-    constructor(configuration, openmct) {
+    constructor(configuration) {
         this.host = configuration.host;
         this.model = DATASET_FIELDS.reduce((model, field) => {
             if (configuration.hasOwnProperty(field)) {
@@ -42,7 +42,7 @@ class Venue {
     }
 
     allowsRealtime() {
-        return !!this.model.sessionLADUrl;
+        return Boolean(this.model.sessionLADUrl);
     }
 
     getActiveSessions() {
