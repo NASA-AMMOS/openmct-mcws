@@ -36,8 +36,7 @@ export default class FrameEventFilterViewProvider {
                     data() {
                         return {
                             isEditing: editMode,
-                            markingProp,
-                            view
+                            markingProp
                         };
                     },
                     provide: {
@@ -54,7 +53,6 @@ export default class FrameEventFilterViewProvider {
                             :allowSorting="true"
                             :isEditing="isEditing"
                             :marking="markingProp"
-                            :view="view"
                         >
                             <template slot="buttons">
                             </template>

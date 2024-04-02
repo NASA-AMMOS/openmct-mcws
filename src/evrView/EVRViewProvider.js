@@ -63,8 +63,7 @@ export default class EVRViewProvider {
                     data() {
                         return {
                             isEditing: editMode,
-                            markingProp,
-                            view
+                            markingProp
                         };
                     },
                     template: `
@@ -73,7 +72,6 @@ export default class EVRViewProvider {
                             :is-editing="isEditing"
                             :allow-sorting="true"
                             :marking="markingProp"
-                            :view="view"
                         ></table-component>
                     `
                 };

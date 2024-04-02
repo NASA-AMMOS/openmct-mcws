@@ -5,7 +5,6 @@ import DataProductTable from './DataProductTable.js';
 export default class DataProductViewProvider {
     constructor(openmct) {
         this.openmct = openmct;
-
         this.key = 'vista.productStatus';
         this.name = 'Data Product View';
         this.cssClass = 'icon-tabular-realtime';
@@ -16,10 +15,12 @@ export default class DataProductViewProvider {
     }
 
     view(domainObject, objectPath) {
+
         let component;
         let _destroy = null;
 
-        const table = new DataProductTable(domainObject, this.openmct);
+        const openmct = this.openmct;
+        const table = new DataProductTable(domainObject, openmct);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,
@@ -28,7 +29,7 @@ export default class DataProductViewProvider {
         };
 
         const view = {
-            show: function (element, editMode, { renderWhenVisible }) {
+            show(element, editMode, { renderWhenVisible }) {
                 const componentDefinition = {
                     components: {
                         TableComponent
@@ -36,12 +37,11 @@ export default class DataProductViewProvider {
                     data() {
                         return {
                             isEditing: editMode,
-                            markingProp,
-                            view
+                            markingProp
                         };
                     },
                     provide: {
-                        openmct: this.openmct,
+                        openmct,
                         table,
                         objectPath,
                         currentView: view,
@@ -58,11 +58,9 @@ export default class DataProductViewProvider {
                     template:
                         `<table-component
                             ref="tableComponent"
-                            class="v-data-products"
                             :allowSorting="true"
                             :isEditing="isEditing"
                             :marking="markingProp"
-                            :view="view"
                         ></table-component>`
                 };
 

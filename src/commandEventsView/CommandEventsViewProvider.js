@@ -36,8 +36,7 @@ export default class CommandEventsViewProvider {
                   data() {
                       return {
                           isEditing: editMode,
-                          markingProp,
-                          view
+                          markingProp
                       };
                   },
                   provide: {
@@ -50,11 +49,9 @@ export default class CommandEventsViewProvider {
                   template: `
                       <table-component
                           ref="tableComponent"
-                          class="v-data-products"
                           :allowSorting="true"
                           :isEditing="isEditing"
                           :marking="markingProp"
-                          :view="view"
                       >
                           <template slot="buttons">
                           </template>
