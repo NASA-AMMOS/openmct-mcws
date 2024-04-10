@@ -22,21 +22,21 @@
             </li>
           </ul>
 
-          <VenueSelectorComponent v-if="isActiveVenueSelect"
-              :selectVenue="selectVenue"
-              :isSelected="isSelectedVenue">
-          </VenueSelectorComponent>
+          <ActiveVenueSelectorComponent v-if="isActiveVenueSelect"
+            :venue="selectedVenue"
+            @venueSelected="selectVenue">
+          </ActiveVenueSelectorComponent>
 
-          <ActiveSessionSelector v-if="isActiveVenueSelect && selectedVenue"
-              :venue="selectedVenue"
-              :selectSession="selectSession"
-              :isSelected="isSelectedSession">
-          </ActiveSessionSelector>
+          <ActiveSessionSelectorComponent v-if="isActiveVenueSelect && selectedVenue"
+            :venue="selectedVenue"
+            :session="selectedSession"
+            @sessionSelected="selectSession">
+          </ActiveSessionSelectorComponent>
 
-          <HistsoricalSessionSelector v-if="!isActiveVenueSelect && urlsForHistoricalSessions"
-              :selectSession="selectSession"
-              :urls="urlsForHistoricalSessions">
-          </HistsoricalSessionSelector>
+          <HistsoricalSessionSelectorComponent v-if="!isActiveVenueSelect && urlsForHistoricalSessions"
+            :urls="urlsForHistoricalSessions"
+            @sessionSelected="selectSession">
+          </HistsoricalSessionSelectorComponent>
 
           <div v-if="!isActiveVenueSelect && selectedSession"
                   class="l-selected-session">
@@ -82,7 +82,16 @@
 </template>
 
 <script>
+import ActiveVenueSelectorComponent from './ActiveVenueSelectorComponent.vue';
+import ActiveSessionSelectorComponent from './ActiveSessionSelectorComponent.vue';
+import HistsoricalSessionSelectorComponent from './HistsoricalSessionSelectorComponent.vue';
+
 export default {
+  components: {
+    ActiveVenueSelectorComponent,
+    ActiveSessionSelectorComponent,
+    HistsoricalSessionSelectorComponent
+  },
    watch: {
     isActiveVenueSelect(newVal) {
       this.selectedSession = null;

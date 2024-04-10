@@ -51,6 +51,12 @@
 import sessionService from '../services/session/SessionService';
 
 export default {
+  props: {
+    urls: {
+      type: Array,
+      required: true,
+    }
+  },
   data() {
     return {
       sessions: [],
@@ -78,10 +84,10 @@ export default {
     select(session) {
       if (this.isSelected(session)) {
         this.currentSelection = undefined;
-        // Handle unselect session
+        this.$emit('sessionSelected', undefined);
       } else {
         this.currentSelection = session;
-        // Handle select session
+        this.$emit('sessionSelected', session);
       }
     },
     getSessionKey(session) {

@@ -1,6 +1,5 @@
-import sessionServiceDefault from 'services/session/SessionService';
+import sessionService from '../services/session/SessionService';
 import Venue from './Venue';
-import axios from 'axios';
 
 class VenueService {
     constructor(configuration, openmct) {
@@ -17,8 +16,6 @@ class VenueService {
     }
 
     getVenueSelectionFromUser() {
-        // Note: The overlay logic is inherently callback-based due to UI interaction. 
-        // It's not straightforward to convert this part to async/await without changing the UI logic.
         return new Promise((resolve, reject) => {
             const overlay = this.openmct.$injector.get('overlayService').createOverlay('vista.venue-dialog', {
                 submit: async (isActive, selectedSession, selectedVenue) => {
@@ -47,12 +44,23 @@ class VenueService {
         if (Array.isArray(this.venues)) {
             return this._instantiateVenues(this.venues);
         }
+
         try {
-            const response = await axios.request({
-                withCredentials: true,
-                url: this.venues
+            const response = await fetch(this.venues, {
+                method: 'GET', // Axios defaults to GET if no method is specified, so we do the same here.
+                credentials: 'include', // Equivalent to Axios' withCredentials: true
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
-            return this._instantiateVenues(response.data);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            return this._instantiateVenues(data);
         } catch (error) {
             console.error('VenueService got error fetching venues:', error);
             return [];
@@ -66,7 +74,7 @@ class VenueService {
     }
 
     async applyConfig(config) {
-        const sessions = sessionServiceDefault.default();
+        const sessions = sessionService.default();
         this.activeConfig = config;
 
         if (config.session.number) {

@@ -35,6 +35,9 @@ module.exports = merge(common, {
                         // for dev, we serve out of dist/ so we need to replace any reference
                         return content.toString().replace(/"dist\//g, '"');
                     }
+                },
+                {
+                    from: './ExampleVenueDefinitions.json'
                 }
             ]
         })

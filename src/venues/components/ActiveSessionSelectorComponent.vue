@@ -46,61 +46,77 @@
 
 <script>
 export default {
-  props: ['parameters'],
+  props: {
+    venue: {
+      type: Object,
+      required: true,
+    },
+    session: {
+      type: Object,
+      required: true,
+    }
+  },
   data() {
     return {
       topics: [],
       loading: false,
-      error: null,
       loadCounter: 0,
     };
   },
   watch: {
-    'parameters.venue': {
-      immediate: true,
-      handler: 'loadSessions',
-    },
+    venue() {
+      this.loadSessions();
+    }
   },
   methods: {
-    isSelected(item) {
-      return this.parameters.isSelected(item);
+    isSelected(session) {
+      return this.session === session;
     },
     selectSession(session) {
-      this.parameters.selectSession(session);
+      this.$emit('session-selected', session);
     },
-    loadSessions(venue) {
-      if (!venue) return;
+    async loadSessions(venue) {
+      if (!venue) {
+        return;
+      }
+
       this.loadCounter++;
+      
       const currentLoad = this.loadCounter;
+
       this.loading = true;
-      this.error = null;
       this.topics = [];
-      venue.getActiveSessions()
-        .then((topics) => {
-          if (currentLoad !== this.loadCounter) return;
-          if (!topics.length) return;
-          if (topics.length === 1 && topics[0].sessions.length === 1) {
-            this.selectSession(topics[0].sessions[0]);
-          }
-          this.topics = topics.map((t) => ({
-            model: t,
-            expanded: t.sessions.some(this.isSelected),
-          }));
-        })
-        .catch((error) => {
-          if (currentLoad !== this.loadCounter) return;
-          this.error = error;
-          console.error('Error loading Sessions', error);
-        })
-        .finally(() => {
-          if (currentLoad !== this.loadCounter) return;
-          this.loading = false;
-        });
+
+      try {
+        const topics = await venue.getActiveSessions();
+
+        if (currentLoad !== this.loadCounter || !topics.length) {
+          return;
+        }
+
+        if (topics.length === 1 && topics[0].sessions.length === 1) {
+          this.selectSession(topics[0].sessions[0]);
+        }
+
+        this.topics = topics.map((t) => ({
+          model: t,
+          expanded: t.sessions.some(this.isSelected),
+        }));
+      } catch (error) {
+        if (currentLoad !== this.loadCounter) {
+          return;
+        }
+
+        console.error('Error loading Sessions', error);
+      } finally {
+        if (currentLoad !== this.loadCounter) {
+          return;
+        }
+
+        this.loading = false;
+      }
     },
   },
 };
 </script>
 
-<style scoped>
-/* Add your component-specific styles here */
-</style>

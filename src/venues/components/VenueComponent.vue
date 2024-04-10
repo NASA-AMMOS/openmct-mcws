@@ -15,35 +15,46 @@
 
 <script>
 export default {
-  props: ['parameters'],
+  props: {
+    venue: {
+      type: Object,
+      required: true
+    },
+    isSelected: {
+      type: Function,
+      required: true
+    }
+  },
   data() {
     return {
-      venue: this.parameters.venue,
-      isSelected: this.parameters.isSelected,
-      selectVenue: this.parameters.selectVenue,
       name: '',
       isActive: false,
       isLoading: false,
     };
   },
-  created() {
+  created: async function() {
     this.name = this.venue.model.name;
     
     if (this.venue.allowsRealtime()) {
       this.isLoading = true;
-      this.venue.getActiveSessions()
-        .then((activeSessions) => {
-          if (activeSessions.length) {
-            this.isActive = true;
-          }
-        })
-        .catch((error) => {
-          console.error('Error loading active sessions for Venue', this.venue);
-        })
-        .finally(() => {
-          this.isLoading = false;
-        });
+
+      try {
+        const activeSessions = await this.venue.getActiveSessions();
+
+        if (activeSessions.length) {
+          this.isActive = true;
+        }
+      } catch (error) {
+        console.error('Error loading active sessions for Venue', this.venue, error);
+      } finally {
+        this.isLoading = false;
+      }
     }
   },
+  methods: {
+    selectVenue(venue) {
+      this.$emit('venue-selected', venue);
+    }
+  }
 };
 </script>

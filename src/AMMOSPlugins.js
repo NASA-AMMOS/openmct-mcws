@@ -103,7 +103,7 @@ define([
             openmct.install(new TypePlugin(options));
             openmct.install(new TaxonomyPlugin(options.taxonomy));
             openmct.install(new LinkPlugin(options));
-            openmct.install(new VenuePlugin(options));
+            openmct.install(new VenuePlugin.default(options));
             openmct.install(FrameWatchViewPlugin.default());
             openmct.install(FrameEventFilterViewPlugin.default());
             openmct.install(new ChannelTablePlugin.default());

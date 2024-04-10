@@ -1,16 +1,28 @@
 <template>
   <div class="l-venue-section l-active-venue-selector" :class="{ loading: loading }">
-    <div v-for="venue in venues" :key="venue.id" class="venue-item">
-      <!-- Assuming 'vista-venue' is a Vue component that you will use to render each venue. -->
-      <!-- You will need to create or adapt a Vue component for 'vista.venue' equivalent. -->
-      <vista-venue :venue="venue" :is-selected="isSelected(venue)" @select-venue="selectVenue(venue)"></vista-venue>
+    <div
+      v-for="venue in venues"
+      :key="venue.id"
+      class="venue-item"
+    >
+      <VenueComponent
+        :venue="venue"
+        :is-selected="isSelected(venue)"
+        @venue-selected="selectVenue(venue)"
+      ></VenueComponent>
     </div>
   </div>
 </template>
 
 <script>
+import venueService from '../venueService';
+import VenueComponent from './VenueComponent';
+
 export default {
-  props: ['parameters'],
+  props: ['venue'],
+  components: {
+    VenueComponent
+  },
   data() {
     return {
       venues: [],
@@ -21,33 +33,24 @@ export default {
     this.loadVenues();
   },
   methods: {
-    loadVenues() {
+    async loadVenues() {
       this.loading = true;
-      // Assuming `venueService` is an imported service with a method `listVenues` that returns a Promise.
-      // You will need to adapt this part to your project's structure.
-      venueService.listVenues()
-        .then(venues => {
-          this.venues = venues;
-        })
-        .catch(error => {
-          console.error('error loading venues', error);
-        })
-        .finally(() => {
-          this.loading = false;
-        });
+
+      try {
+        const venues = await venueService.listVenues();
+        this.venues = venues;
+      } catch (error) {
+        console.error('error loading venues', error);
+      } finally {
+        this.loading = false;
+      }
     },
     isSelected(venue) {
-      // Assuming `parameters.isSelected` is a method passed as a prop that determines if a venue is selected.
-      return this.parameters.isSelected(venue);
+      return this.venue === venue;
     },
     selectVenue(venue) {
-      // Assuming `parameters.selectVenue` is a method passed as a prop for selecting a venue.
-      this.parameters.selectVenue(venue);
+      this.$emit('venueSelected', venue);
     }
   },
 };
 </script>
-
-<style scoped>
-/* Add your component-specific styles here */
-</style>
