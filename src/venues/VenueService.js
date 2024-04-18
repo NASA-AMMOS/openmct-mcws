@@ -1,4 +1,6 @@
+import Vue from 'vue';
 import sessionService from '../services/session/SessionService';
+import VenueDialogComponent from './components/VenueDialogComponent.vue';
 import Venue from './Venue';
 
 class VenueService {
@@ -15,25 +17,56 @@ class VenueService {
         return await this.selectionPromise;
     }
 
-    getVenueSelectionFromUser() {
-        return new Promise((resolve, reject) => {
-            const overlay = this.openmct.$injector.get('overlayService').createOverlay('vista.venue-dialog', {
-                submit: async (isActive, selectedSession, selectedVenue) => {
-                    try {
-                        const venue = await this.applyConfig({
-                            isActive: isActive,
-                            session: selectedSession,
-                            venue: selectedVenue
-                        });
-                        resolve(venue);
-                    } catch (error) {
-                        reject(error);
-                    } finally {
-                        overlay.dismiss();
+    async getVenueSelectionFromUser() {
+        if (!this.selectionPromise) {
+            this.selectionPromise = new Promise((resolve, reject) => {
+                this.resolveSelection = resolve;
+                this.rejectSelection = reject;
+                const VenueDialogComponent = this.createVenueDialogElement();
+                this.overlay = this.openmct.overlays.overlay({
+                    element: VenueDialogComponent.$mount().$el,
+                    size: 'small',
+                    dismissable: false,
+                    onDestroy: () => {
+                        VenueDialogComponent.$destroy();
                     }
+                });
+            }).finally(() => this.overlay.dismiss());
+        }
+        return this.selectionPromise;
+    }
+
+    createVenueDialogElement() {
+        const self = this;
+        const VenueDialogVueComponent = new Vue({
+            provide: {
+                venueService: self
+            },
+            components: {
+                VenueDialogComponent
+            },
+            template: `<VenueDialogComponent @submit="handleSubmit" />`,
+            methods: {
+                handleSubmit(isActive, selectedSession, selectedVenue) {
+                    self.handleDialogSubmit(isActive, selectedSession, selectedVenue);
                 }
-            });
+            }
         });
+
+        return VenueDialogVueComponent;
+    }
+
+    async handleDialogSubmit(isActive, selectedSession, selectedVenue) {
+        try {
+            const venue = await this.applyConfig({
+                isActive,
+                session: selectedSession,
+                venue: selectedVenue
+            });
+            this.resolveSelection(venue);
+        } catch (error) {
+            this.rejectSelection(error);
+        }
     }
 
     _instantiateVenues(venueDefinitions) {
@@ -47,8 +80,8 @@ class VenueService {
 
         try {
             const response = await fetch(this.venues, {
-                method: 'GET', // Axios defaults to GET if no method is specified, so we do the same here.
-                credentials: 'include', // Equivalent to Axios' withCredentials: true
+                method: 'GET',
+                credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 }
@@ -62,7 +95,7 @@ class VenueService {
 
             return this._instantiateVenues(data);
         } catch (error) {
-            console.error('VenueService got error fetching venues:', error);
+            console.error('VenueService - error fetching venues:', error);
             return [];
         }
     }

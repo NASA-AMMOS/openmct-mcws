@@ -53,7 +53,8 @@ export default {
     },
     session: {
       type: Object,
-      required: true,
+      required: false,
+      default: () => {},
     }
   },
   data() {
@@ -64,9 +65,14 @@ export default {
     };
   },
   watch: {
-    venue() {
-      this.loadSessions();
+    venue(newVenue, oldVenue) {
+      if (newVenue !== oldVenue) {
+        this.loadSessions(newVenue);
+      }
     }
+  },
+  mounted() {
+    this.loadSessions(this.venue);
   },
   methods: {
     isSelected(session) {
@@ -109,11 +115,11 @@ export default {
 
         console.error('Error loading Sessions', error);
       } finally {
+        this.loading = false;
+
         if (currentLoad !== this.loadCounter) {
           return;
         }
-
-        this.loading = false;
       }
     },
   },

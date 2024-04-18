@@ -15,11 +15,19 @@
 </template>
 
 <script>
-import venueService from '../venueService';
-import VenueComponent from './VenueComponent';
+import VenueComponent from './VenueComponent.vue';
 
 export default {
-  props: ['venue'],
+  inject: ['venueService'],
+  props: {
+    venue: {
+      type: Object,
+      required: false,
+      default: () => {
+        return {};
+      }
+    }
+  },
   components: {
     VenueComponent
   },
@@ -29,7 +37,7 @@ export default {
       loading: true,
     };
   },
-  created() {
+  mounted() {
     this.loadVenues();
   },
   methods: {
@@ -37,7 +45,8 @@ export default {
       this.loading = true;
 
       try {
-        const venues = await venueService.listVenues();
+        const venues = await this.venueService.listVenues();
+
         this.venues = venues;
       } catch (error) {
         console.error('error loading venues', error);
@@ -49,7 +58,7 @@ export default {
       return this.venue === venue;
     },
     selectVenue(venue) {
-      this.$emit('venueSelected', venue);
+      this.$emit('venue-selected', venue);
     }
   },
 };

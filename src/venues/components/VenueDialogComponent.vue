@@ -1,5 +1,4 @@
 <template>
-  <div>
     <span class="u-contents">
       <div class="c-overlay__top-bar">
         <div class="c-overlay__dialog-title">Connect to a Data Source</div>
@@ -24,19 +23,19 @@
 
           <ActiveVenueSelectorComponent v-if="isActiveVenueSelect"
             :venue="selectedVenue"
-            @venueSelected="selectVenue">
+            @venue-selected="selectVenue">
           </ActiveVenueSelectorComponent>
 
           <ActiveSessionSelectorComponent v-if="isActiveVenueSelect && selectedVenue"
             :venue="selectedVenue"
             :session="selectedSession"
-            @sessionSelected="selectSession">
+            @session-selected="selectSession">
           </ActiveSessionSelectorComponent>
 
-          <HistsoricalSessionSelectorComponent v-if="!isActiveVenueSelect && urlsForHistoricalSessions"
+          <HistoricalSessionSelectorComponent v-if="!isActiveVenueSelect && urlsForHistoricalSessions"
             :urls="urlsForHistoricalSessions"
-            @sessionSelected="selectSession">
-          </HistsoricalSessionSelectorComponent>
+            @session-selected="selectSession">
+          </HistoricalSessionSelectorComponent>
 
           <div v-if="!isActiveVenueSelect && selectedSession"
                   class="l-selected-session">
@@ -78,25 +77,25 @@
         </button>
       </div>
     </span>
-  </div>
 </template>
 
 <script>
 import ActiveVenueSelectorComponent from './ActiveVenueSelectorComponent.vue';
 import ActiveSessionSelectorComponent from './ActiveSessionSelectorComponent.vue';
-import HistsoricalSessionSelectorComponent from './HistsoricalSessionSelectorComponent.vue';
+import HistoricalSessionSelectorComponent from './HistoricalSessionSelectorComponent.vue';
 
 export default {
   components: {
     ActiveVenueSelectorComponent,
     ActiveSessionSelectorComponent,
-    HistsoricalSessionSelectorComponent
+    HistoricalSessionSelectorComponent
   },
-   watch: {
+  inject: ['venueService'],
+  watch: {
     isActiveVenueSelect(newVal) {
       this.selectedSession = null;
       if (!newVal) {
-        this.listVenues();
+        this.fetchAndSetUrlsForHistoricalSessions();
       } else {
         this.urlsForHistoricalSessions = [];
       }
@@ -121,7 +120,6 @@ export default {
       selectedVenue: null,
       selectedSession: null,
       urlsForHistoricalSessions: [],
-      // Other data properties as needed
     };
   },
   methods: {
@@ -133,11 +131,17 @@ export default {
       this.selectedSession = session;
     },
     submit() {
-      // Adapt this method to match how you handle form submission in Vue
+      this.$emit('submit', this.isActiveVenueSelect, this.selectedSession, this.selectedVenue);
     },
-    listVenues() {
-      // This method should replace the venueService.listVenues call
-      // Adapt it to your application's way of fetching data
+    async fetchAndSetUrlsForHistoricalSessions() {
+      try {
+          const venues = await this.venueService.listVenues();
+          this.urlsForHistoricalSessions = venues
+              .map(v => v.model.sessionUrl)
+              .filter(v => !!v);
+      } catch (error) {
+          console.error("Error fetching venues:", error);
+      }
     }
   }
 };

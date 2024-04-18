@@ -3,7 +3,7 @@
     class="c-venue-button c-button"
     :class="{
       loading: isLoading,
-      'is-selected': isSelected(venue),
+      'is-selected': isSelected,
       'is-active': isActive
     }"
     @click="selectVenue(venue)"
@@ -21,7 +21,7 @@ export default {
       required: true
     },
     isSelected: {
-      type: Function,
+      type: Boolean,
       required: true
     }
   },
@@ -32,7 +32,7 @@ export default {
       isLoading: false,
     };
   },
-  created: async function() {
+  async created() {
     this.name = this.venue.model.name;
     
     if (this.venue.allowsRealtime()) {

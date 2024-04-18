@@ -1,9 +1,9 @@
 define([
     'openmct',
     './src/AMMOSPlugins',
-    './src/legacy/export/bundle',
-    './src/legacy/products/bundle',
-    './src/legacy/table/bundle',
+    // './src/legacy/export/bundle',
+    // './src/legacy/products/bundle',
+    // './src/legacy/table/bundle',
     './src/legacy/general/res/sass/vista.scss',
     './src/commandEventsView/plugin',
     './src/messagesView/plugin',
@@ -14,15 +14,14 @@ define([
     './src/dictionaryView/plugin',
     './src/packetSummary/plugin',
     './src/containerView/plugin',
-    'openmct-legacy-support',
     'services/identity/MCWSIdentityProvider',
     './src/persistence/plugin'
 ], function (
     openmct,
     AMMOSPlugins,
-    exportBundle,
-    productsBundle,
-    legacyTablesBundle,
+    // exportBundle,
+    // productsBundle,
+    // legacyTablesBundle,
     VistaStyles, /** Do not delete, needed for webpack to compile scss file*/
     CommandEventsViewPlugin,
     MessagesPlugin,
@@ -33,7 +32,6 @@ define([
     DictionaryViewPlugin,
     PacketSummaryPlugin,
     ContainerViewPlugin,
-    LegacySupport,
     IdentityProvider,
     MCWSPersistenceProviderPlugin
 ) {
@@ -44,8 +42,6 @@ define([
             persistenceLoaded = resolve;
         });
         openmct.setAssetPath(config.assetPath);
-
-        openmct.install(LegacySupport.default());
 
         //Optional Themes
         if (config.theme) {
@@ -109,11 +105,11 @@ define([
             });
         }
 
-        [
-            exportBundle,
-            productsBundle,
-            legacyTablesBundle
-        ].forEach(openmct.install, openmct);
+        // [
+        //     exportBundle,
+        //     productsBundle,
+        //     legacyTablesBundle
+        // ].forEach(openmct.install, openmct);
 
         if (config.plugins) {
             if (config.plugins.summaryWidgets) {

@@ -48,7 +48,7 @@
 </template>
 
 <script>
-import sessionService from '../services/session/SessionService';
+import SessionService from '../../services/session/SessionService';
 
 export default {
   props: {
@@ -78,6 +78,7 @@ export default {
     },
   },
   mounted() {
+    this.sessionService = SessionService();
     this.loadSessions();
   },
   methods: {
@@ -101,26 +102,26 @@ export default {
     applyFilter() {
       this.loadSessions();
     },
-    loadSessions() {
+    async loadSessions() {
       this.loading = true;
       this.sessions = [];
+
       const loadTracker = {};
       this.loadTracker = loadTracker;
 
-      sessionService.getHistoricalSessions(this.filter) // Adjust this call based on your actual session service
-        .then(sessions => {
-          if (loadTracker !== this.loadTracker) {
-            return;
-          }
-          this.sessions = sessions;
+      try {
+        const sessions = await this.sessionService.getHistoricalSessions(this.filter);
+        if (loadTracker !== this.loadTracker) {
+          return;
+        }
+        this.sessions = sessions;
+      } catch (error) {
+        console.error("Failed to load sessions:", error);
+      } finally {
+        if (loadTracker === this.loadTracker) {
           this.loading = false;
-        })
-        .catch(() => {
-          if (loadTracker !== this.loadTracker) {
-            return;
-          }
-          this.loading = false;
-        });
+        }
+      }
     },
   }
 };
