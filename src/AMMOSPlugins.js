@@ -100,7 +100,7 @@ define([
 
             openmct.install(new HistoricalTelemetryPlugin(options));
             openmct.install(new RealtimeTelemetryPlugin(vistaTime, options));
-            openmct.install(new TypePlugin(options));
+            openmct.install(new TypePlugin.default());
             openmct.install(new TaxonomyPlugin(options.taxonomy));
             openmct.install(new LinkPlugin(options));
             openmct.install(new VenuePlugin.default(options));
