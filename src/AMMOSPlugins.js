@@ -31,7 +31,8 @@ define([
     './mcwsIndicator/plugin',
     './multipleHistoricalSessions/plugin',
     './realtimeSessions/plugin',
-    './globalFilters/plugin'
+    './globalFilters/plugin',
+    './exportDataAction/plugin'
 ], function (
     DatasetCache,
     SessionService,
@@ -65,7 +66,8 @@ define([
     MCWSIndicatorPlugin,
     MultipleHistoricalSessions,
     RealtimeSessions,
-    GlobalFilters
+    GlobalFilters,
+    ExportDataAction
 ) {
 
     function AMMOSPlugins(options) {
@@ -131,6 +133,15 @@ define([
             openmct.install(CustomFormsPlugin.default());
 
             openmct.install(openmct.plugins.DefaultRootName('VISTA'));
+            openmct.install(new ExportDataAction.default([
+                'telemetry.plot.overlay',
+                'telemetry.plot.stacked',
+                'vista.channel',
+                'vista.channelGroup',
+                'vista.chanTableGroup',
+                'vista.evr',
+                'vista.evrView'
+            ]));
             openmct.install(ActionModifiersPlugin.default());
             openmct.install(new PacketQueryPlugin.default());
             if (options.globalFilters) {

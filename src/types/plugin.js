@@ -11,7 +11,7 @@ export default function TypePlugin() {
             openmct.types.addType(type.key, pickedType);
         });
 
-        openmct.composition.addPolicy(TypeCompositionPolicy);
+        openmct.composition.addPolicy(new TypeCompositionPolicy().allow);
 
         openmct.telemetry.addFormat({
             key: 'vista.invert-realtime-flag',
