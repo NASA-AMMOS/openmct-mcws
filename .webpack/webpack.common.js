@@ -4,6 +4,7 @@ const path = require('path');
 const packageDefinition = require('../package.json');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const { VueLoaderPlugin } = require('vue-loader');
 let gitRevision = 'error-retrieving-revision';
@@ -87,6 +88,17 @@ const config = {
         new MiniCssExtractPlugin({
             filename: '[name].css',
             chunkFilename: '[name].css'
+        }),
+        new CopyWebpackPlugin({
+            patterns: [
+                {
+                    from: './index.html',
+                    transform: function (content) {
+                        // for dev, we serve out of dist/ so we need to replace any reference
+                        return content.toString().replace(/"dist\//g, '"');
+                    }
+                }
+            ]
         })
     ],
     module: {

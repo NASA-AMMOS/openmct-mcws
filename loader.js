@@ -1,10 +1,7 @@
 define([
     'openmct',
     './src/AMMOSPlugins',
-    // './src/legacy/export/bundle',
-    // './src/legacy/products/bundle',
-    // './src/legacy/table/bundle',
-    './src/legacy/general/res/sass/vista.scss',
+    './src/styles/sass/vista.scss',
     './src/commandEventsView/plugin',
     './src/messagesView/plugin',
     './src/product-status/plugin',
@@ -19,9 +16,6 @@ define([
 ], function (
     openmct,
     AMMOSPlugins,
-    // exportBundle,
-    // productsBundle,
-    // legacyTablesBundle,
     VistaStyles, /** Do not delete, needed for webpack to compile scss file*/
     CommandEventsViewPlugin,
     MessagesPlugin,
