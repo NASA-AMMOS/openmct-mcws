@@ -4,10 +4,10 @@
 This configuration should be used for development purposes. It contains full source map, a
 devServer (which be invoked using by `npm start`), and a non-minified Vue.js distribution.
 */
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
 const path = require('path');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const proxyUrl = process.env.PROXY_URL || 'http://localhost:8080';
 const apiUrl = process.env.API_URL ?? '';
