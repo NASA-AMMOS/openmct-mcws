@@ -18,21 +18,20 @@ class VenueService {
     }
 
     async getVenueSelectionFromUser() {
-        if (!this.selectionPromise) {
-            this.selectionPromise = new Promise((resolve, reject) => {
-                this.resolveSelection = resolve;
-                this.rejectSelection = reject;
-                const VenueDialogComponent = this.createVenueDialogElement();
-                this.overlay = this.openmct.overlays.overlay({
-                    element: VenueDialogComponent.$mount().$el,
-                    size: 'small',
-                    dismissable: false,
-                    onDestroy: () => {
-                        VenueDialogComponent.$destroy();
-                    }
-                });
-            }).finally(() => this.overlay.dismiss());
-        }
+        this.selectionPromise = new Promise((resolve, reject) => {
+            this.resolveSelection = resolve;
+            this.rejectSelection = reject;
+            const VenueDialogComponent = this.createVenueDialogElement();
+            this.overlay = this.openmct.overlays.overlay({
+                element: VenueDialogComponent.$mount().$el,
+                size: 'small',
+                dismissable: false,
+                onDestroy: () => {
+                    VenueDialogComponent.$destroy();
+                }
+            });
+        }).finally(() => this.overlay.dismiss());
+
         return this.selectionPromise;
     }
 
