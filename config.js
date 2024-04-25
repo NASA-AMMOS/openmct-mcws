@@ -486,8 +486,8 @@
          * they do!
          */
         assetPath: 'node_modules/openmct/dist',
-        proxyUrl: 'http://localhost:8080/',
-        useDeveloperStorage: true
+        // proxyUrl: 'http://localhost:8080/',
+        // useDeveloperStorage: true
     };
 
     window.openmctMCWSConfig = openmctMCWSConfig;
