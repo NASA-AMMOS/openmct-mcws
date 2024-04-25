@@ -99,12 +99,6 @@ define([
             });
         }
 
-        // [
-        //     exportBundle,
-        //     productsBundle,
-        //     legacyTablesBundle
-        // ].forEach(openmct.install, openmct);
-
         if (config.plugins) {
             if (config.plugins.summaryWidgets) {
                 openmct.install(openmct.plugins.SummaryWidget());
