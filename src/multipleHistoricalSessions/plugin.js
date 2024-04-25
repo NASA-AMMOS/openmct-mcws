@@ -22,10 +22,9 @@ export default function HistoricalSessionsPlugin() {
                 type: 'vista.channel'
             };
             
-            const table = new SessionTable(domainObject, openmct, HistoricalSessionMetadata),
-                objectPath = [domainObject];
-
-            const component = new Vue ({
+            const table = new SessionTable(domainObject, openmct, HistoricalSessionMetadata);
+            const objectPath = [domainObject];
+            new Vue ({
                 el: indicator.element,
                 provide: {
                     openmct,
