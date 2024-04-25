@@ -14,7 +14,8 @@ class VenueService {
         if (!this.selectionPromise) {
             this.selectionPromise = this.getVenueSelectionFromUser();
         }
-        return await this.selectionPromise;
+
+        return this.selectionPromise;
     }
 
     async getVenueSelectionFromUser() {
