@@ -96,6 +96,7 @@ class VenueService {
             return this._instantiateVenues(data);
         } catch (error) {
             console.error('VenueService - error fetching venues:', error);
+
             return [];
         }
     }
@@ -103,6 +104,7 @@ class VenueService {
     async findSelectedVenue(session) {
         const venues = await this.listVenues();
         const matchingVenue = venues.find(v => v.host === session.host);
+
         return matchingVenue || venues[0];
     }
 
@@ -113,7 +115,7 @@ class VenueService {
         if (config.session.number) {
             config.session.numbers = [config.session.number];
             sessions.setHistoricalSession(config.session);
-        } else if (config.session.sessions && config.session.sessions[0]) {
+        } else if (config.session.sessions?.[0]) {
             let session = config.session.sessions[0];
             session.numbers = [session.number];
             sessions.setHistoricalSession(session);
@@ -125,6 +127,7 @@ class VenueService {
 
         let venue = config.venue ? config.venue : await this.findSelectedVenue(config.session);
         config.venue = venue;
+
         return venue;
     }
 }
