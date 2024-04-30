@@ -22,7 +22,7 @@ class ExportDataAction {
 
     appliesTo(objectPath) {
         const domainObject = objectPath[0];
-        const isValidType = this.validTypes.includes(domainObject.type);
+        const isValidType = this.validTypes.includes(domainObject?.type);
         if (!isValidType) {
             return false;
         }
