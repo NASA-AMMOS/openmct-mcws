@@ -61,41 +61,6 @@ define([
             openmct.install(new ChannelAlarmPlugin(domains, datasets));
             openmct.objects.addProvider('vista-frame-event-filter', new FrameEventFilterObjectProvider(datasets));
             openmct.telemetry.addProvider(new EVRHighlightProvider(options));
-
-            // TODO: verify if this is still needed in a new format, old format below
-            // openmct.legacyExtension('components', {
-            //     provides: 'identifierService',
-            //     type: 'decorator',
-            //     implementation: function (identifierService) {
-            //         // Monkey patch so that we don't generate identifiers in
-            //         // vista namespace.
-            //         var oldGenerate = identifierService.generate;
-            //         identifierService.generate = function (space) {
-            //             if (space === 'vista' || space === 'vista-active') {
-            //                 return oldGenerate();
-            //             }
-            //             return oldGenerate(space);
-            //         };
-            //         return identifierService;
-            //     }
-            // });
-
-            // /**
-            //  * Generate a new domain object identifier. A persistence space
-            //  * may optionally be included; if not specified, no space will
-            //  * be encoded into the identifier.
-            //  * @param {string} [space] the persistence space to encode
-            //  *        in this identifier
-            //  * @returns {string} a new domain object identifier
-            //  */
-            // IdentifierProvider.prototype.generate = function (space) {
-            //     var id = uuid.v4();
-            //     if (space !== undefined) {
-            //         id = space + ":" + id;
-            //     }
-
-            //     return id;
-            // };
         };
     }
 
