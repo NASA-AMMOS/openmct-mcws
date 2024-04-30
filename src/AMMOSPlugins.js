@@ -75,7 +75,7 @@ define([
             // initialze session service, datasetCache service, global staleness
             SessionService.default(openmct, options);
             DatasetCache.default(openmct);
-            GlobalStaleness.default(openmct, window.openmctMCWSConfig.globalStalenessInterval);
+            GlobalStaleness.default(openmct, options.globalStalenessInterval);
 
             openmct.install(new FormatPlugin(options));
 
