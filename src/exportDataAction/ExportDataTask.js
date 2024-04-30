@@ -10,7 +10,7 @@ export default class ExportDataTask {
      *        telemetry data should be exported
      */
     constructor(openmct, filename, domainObjects) {
-        this._openmct = openmct;
+        this.openmct = openmct;
         this.filename = filename;
         this.domainObjects = domainObjects;
     }
@@ -24,7 +24,7 @@ export default class ExportDataTask {
         const headers = [];
         const headerSet = {};
         const requestTelemetry = async (domainObject) => {
-            const telemetry = await this._openmct.telemetry.request(domainObject);
+            const telemetry = await this.openmct.telemetry.request(domainObject);
 
             return telemetry;
         };

@@ -17,7 +17,7 @@ class ExportDataAction {
         this.priority = 1;
         this.validTypes = validTypes;
 
-        this._openmct = openmct;
+        this.openmct = openmct;
     }
 
     appliesTo(objectPath) {
@@ -27,8 +27,8 @@ class ExportDataAction {
             return false;
         }
 
-        const hasComposition = this._openmct.composition.get(domainObject) !== undefined;
-        const hasHistoricalTelemetry = this._openmct.telemetry.isTelemetryObject(domainObject) && 
+        const hasComposition = this.openmct.composition.get(domainObject) !== undefined;
+        const hasHistoricalTelemetry = this.openmct.telemetry.isTelemetryObject(domainObject) && 
                 !domainObject.telemetry.realtimeOnly;
 
         return hasHistoricalTelemetry || !hasHistoricalTelemetry && hasComposition;
@@ -36,13 +36,13 @@ class ExportDataAction {
 
     invoke(objectPath) {
         const domainObject = objectPath[0];
-        const progressDialog = this._openmct.notifications.progress('Exporting CSV', 'unknown');
-        const runTask = (domainObjects) => new ExportDataTask(this._openmct, domainObject.name, domainObjects).invoke();
+        const progressDialog = this.openmct.notifications.progress('Exporting CSV', 'unknown');
+        const runTask = (domainObjects) => new ExportDataTask(this.openmct, domainObject.name, domainObjects).invoke();
         const exportData = async (object) => {
-            if (this._openmct.telemetry.isTelemetryObject(object)) {
+            if (this.openmct.telemetry.isTelemetryObject(object)) {
                 runTask([object]);
             } else {
-                const compositionCollection = this._openmct.composition.get(object);
+                const compositionCollection = this.openmct.composition.get(object);
                 const composition = await compositionCollection.load();
                 runTask(composition);
             }
@@ -56,7 +56,7 @@ class ExportDataAction {
         const failure = (error) => {
             progressDialog.dismiss();
             console.error(error);
-            this._openmct.notifications.error('Error exporting CSV');
+            this.openmct.notifications.error('Error exporting CSV');
         };
 
         return exportData(domainObject).then(success, failure);

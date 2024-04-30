@@ -8,7 +8,7 @@ export default class MetadataAction {
         this.description = 'Shows dictionary attributes related to this object';
         this.cssClass = 'icon-info';
 
-        this._openmct = openmct;
+        this.openmct = openmct;
     }
     invoke(objectPath) {
         let domainObject = objectPath[0],
@@ -24,7 +24,7 @@ export default class MetadataAction {
                 },
                 template: '<MetadataListView/>'
             }),
-            overlay = this._openmct.overlays.overlay({
+            overlay = this.openmct.overlays.overlay({
                 element: component.$mount().$el,
                 size: 'large',
                 dismissable: true,
