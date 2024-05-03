@@ -1,116 +1,135 @@
-define([
-    'services/session/SessionService',
-    './Venue',
-    'axios'
-], function (
-    sessionServiceDefault,
-    Venue,
-    axios
-) {
+import Vue from 'vue';
+import sessionService from '../services/session/SessionService';
+import VenueDialogComponent from './components/VenueDialogComponent.vue';
+import Venue from './Venue';
 
-    function VenueService(configuration, openmct) {
+class VenueService {
+    constructor(configuration, openmct) {
         this.venues = configuration.venues;
         this.openmct = openmct;
+        this.selectionPromise = null;
     }
 
-    VenueService.prototype.getSelectedVenue = function () {
-        // TODO: Check localstorage/url for already selected venue.
-        // Needs resolution process similar to session url handler.
+    async getSelectedVenue() {
         if (!this.selectionPromise) {
             this.selectionPromise = this.getVenueSelectionFromUser();
         }
 
         return this.selectionPromise;
-    };
-
-    VenueService.prototype.getVenueSelectionFromUser = function () {
-        return new Promise(function (resolve, reject) {
-            // TODO: this overlay should block.
-            var overlay = this.openmct.$injector.get('overlayService').createOverlay(
-                'vista.venue-dialog',
-                {
-                    submit: function (isActive, selectedSession, selectedVenue) {
-                        this.applyConfig({
-                                isActive: isActive,
-                                session: selectedSession,
-                                venue: selectedVenue
-                            })
-                            .then(resolve, reject)
-                            .then(function () {
-                                overlay.dismiss();
-                            });
-                    }.bind(this)
-                }
-            );
-        }.bind(this));
     }
 
-    VenueService.prototype._instantiateVenues = function (venueDefinitions) {
-        return venueDefinitions.map(function(venueDefinition) {
-            return new Venue(venueDefinition, openmct);
-        });
-    };
-
-    VenueService.prototype.listVenues = function () {
-        if (Array.isArray(this.venues)) {
-            return Promise.resolve(this._instantiateVenues(this.venues));
-        }
-        return axios.request({
-            withCredentials: true,
-            url: this.venues
-        }).then(function (response) {
-            return response.data;
-        }, function (error) {
-            console.error('VenueService got error fetching venues:', error);
-            return [];
-        }).then(this._instantiateVenues);
-    };
-
-    // Tries to find the correct venue for a given session by matching
-    // against venue definitions.  If it can't find the correct venue, will
-    // use the first venue in the configuration.
-    VenueService.prototype.findSelectedVenue = function (session) {
-        return this.listVenues()
-            .then(function (venues) {
-                var matchingVenue = venues.filter(function (v) {
-                    return v.host === session.host;
-                })[0];
-                if (matchingVenue) {
-                    return matchingVenue;
+    async getVenueSelectionFromUser() {
+        this.selectionPromise = new Promise((resolve, reject) => {
+            this.resolveSelection = resolve;
+            this.rejectSelection = reject;
+            const VenueDialogComponent = this.createVenueDialogElement();
+            this.overlay = this.openmct.overlays.overlay({
+                element: VenueDialogComponent.$mount().$el,
+                size: 'small',
+                dismissable: false,
+                onDestroy: () => {
+                    VenueDialogComponent.$destroy();
                 }
-                return venues[0];
             });
-    };
+        }).finally(() => this.overlay.dismiss());
 
-    VenueService.prototype.applyConfig = function (config) {
-        const sessions = sessionServiceDefault.default();
+        return this.selectionPromise;
+    }
+
+    createVenueDialogElement() {
+        const self = this;
+        const VenueDialogVueComponent = new Vue({
+            provide: {
+                venueService: self
+            },
+            components: {
+                VenueDialogComponent
+            },
+            template: `<VenueDialogComponent @submit="handleSubmit" />`,
+            methods: {
+                handleSubmit(isActive, selectedSession, selectedVenue) {
+                    self.handleDialogSubmit(isActive, selectedSession, selectedVenue);
+                }
+            }
+        });
+
+        return VenueDialogVueComponent;
+    }
+
+    async handleDialogSubmit(isActive, selectedSession, selectedVenue) {
+        try {
+            const venue = await this.applyConfig({
+                isActive,
+                session: selectedSession,
+                venue: selectedVenue
+            });
+            this.resolveSelection(venue);
+        } catch (error) {
+            this.rejectSelection(error);
+        }
+    }
+
+    _instantiateVenues(venueDefinitions) {
+        return venueDefinitions.map(venueDefinition => new Venue(venueDefinition));
+    }
+
+    async listVenues() {
+        if (Array.isArray(this.venues)) {
+            return this._instantiateVenues(this.venues);
+        }
+
+        try {
+            const response = await fetch(this.venues, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            return this._instantiateVenues(data);
+        } catch (error) {
+            console.error('VenueService - error fetching venues:', error);
+
+            return [];
+        }
+    }
+
+    async findSelectedVenue(session) {
+        const venues = await this.listVenues();
+        const matchingVenue = venues.find(v => v.host === session.host);
+
+        return matchingVenue || venues[0];
+    }
+
+    async applyConfig(config) {
+        const sessions = sessionService.default();
         this.activeConfig = config;
 
         if (config.session.number) {
             config.session.numbers = [config.session.number];
             sessions.setHistoricalSession(config.session);
-        } else if (config.session.sessions[0]) {
-            // It's a topic, filter by first session.
-            var session = config.session.sessions[0];
+        } else if (config.session.sessions?.[0]) {
+            let session = config.session.sessions[0];
             session.numbers = [session.number];
-            sessions.setHistoricalSession(config.session.sessions[0]);
+            sessions.setHistoricalSession(session);
         }
 
         if (config.isActive) {
             sessions.setActiveTopicOrSession(config.session);
         }
 
-        var findVenue;
-        if (!config.venue) {
-            findVenue = this.findSelectedVenue(config.session)
-        } else {
-            findVenue = Promise.resolve(config.venue);
-        }
-        return findVenue.then(function (venue) {
-            config.venue = venue;
-            return venue;
-        });
-    };
+        let venue = config.venue ? config.venue : await this.findSelectedVenue(config.session);
+        config.venue = venue;
 
-    return VenueService;
-});
+        return venue;
+    }
+}
+
+export default VenueService;

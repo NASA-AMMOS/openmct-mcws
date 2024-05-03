@@ -5,13 +5,15 @@ define([
     'lodash',
     './MCWSStreamWorker',
     'services/session/SessionService',
-    'services/filtering/FilterService'
+    'services/filtering/FilterService',
+    'services/globalStaleness/globalStaleness'
 ], function (
     extend,
     _,
     runMCWSStreamWorker,
     sessionServiceDefault,
-    filterServiceDefault
+    filterServiceDefault,
+    GlobalStaleness
 ) {
     'use strict';
 
@@ -34,9 +36,6 @@ define([
         this.vistaTime = function () {
             return vistaTime;
         };
-        this.globalStaleness = function () {
-            return openmct.$injector.get('vista.staleness');
-        };
 
         this.sessions = sessionServiceDefault.default();
         this.filterService = filterServiceDefault.default();
@@ -48,9 +47,9 @@ define([
     MCWSStreamProvider.extend = extend;
 
     MCWSStreamProvider.prototype.processGlobalStaleness = function (data, latestTimestamp) {
-        const globalStaleness = this.globalStaleness();
+        const globalStaleness = GlobalStaleness.default();
 
-        if (!Object.keys(globalStaleness).length) {
+        if (globalStaleness === null) {
             return;
         }
 

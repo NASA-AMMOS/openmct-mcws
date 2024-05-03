@@ -3,7 +3,7 @@ define([
 ], function (
 
 ) {
-    function SCLKTimeSystem($injector) {
+    function SCLKTimeSystem() {
         this.key = 'sclk';
         this.name = 'SCLK as Float 64';
         this.cssClass = 'icon-clock';
