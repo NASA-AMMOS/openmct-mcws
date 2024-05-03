@@ -23,14 +23,11 @@ class ExportDataAction {
     appliesTo(objectPath) {
         const domainObject = objectPath[0];
 
-        if (!this.isValidType(domainObject)) {
-            return false;
+        if (this.isValidType(domainObject)) {
+            return true;
         }
 
-        const hasComposition = this.openmct.composition.get(domainObject) !== undefined;
-        const hasHistoricalTelemetry = this.hasHistoricalTelemetry(domainObject);
-
-        return hasHistoricalTelemetry || !hasHistoricalTelemetry && hasComposition;
+        return false;
     }
 
     async invoke([domainObject]) {
