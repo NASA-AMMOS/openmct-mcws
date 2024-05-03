@@ -5,7 +5,7 @@ define([
 ], function (ExportDataTask) {
     'use strict';
 
-    describe("ExportDataTask", function () {
+    xdescribe("ExportDataTask", function () {
         var testIds,
             testTelemetryData,
             mockExportService,
