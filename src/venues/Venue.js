@@ -23,7 +23,6 @@ const DATASET_FIELDS = [
 
 class Venue {
     constructor(configuration) {
-        console.log('configuration', configuration);
         this.host = configuration.host;
         this.domainObject = DATASET_FIELDS.reduce((domainObject, field) => {
             if (configuration.hasOwnProperty(field)) {

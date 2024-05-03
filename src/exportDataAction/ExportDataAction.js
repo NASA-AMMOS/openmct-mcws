@@ -30,7 +30,8 @@ class ExportDataAction {
         return false;
     }
 
-    async invoke([domainObject]) {
+    async invoke(objectPath) {
+        const domainObject = objectPath[0];
         const progressDialog = this.openmct.notifications.progress('Exporting CSV', 'unknown');
 
         try {
@@ -44,7 +45,7 @@ class ExportDataAction {
     }
 
     async exportData(domainObject) {
-        if (this.openmct.telemetry.isTelemetryObject(domainObject)) {
+        if (this.hasHistoricalTelemetry(domainObject)) {
             await this.runExportTask([domainObject]);
         } else {
             await this.exportCompositionData(domainObject);
