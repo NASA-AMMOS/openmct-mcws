@@ -21,43 +21,42 @@ export default class ExportDataTask {
      *          successfully completed, or be rejected if an error occurs
      */
     async invoke() {
-        const headers = [];
-        const headerSet = {};
-        const requestTelemetry = async (domainObject) => {
-            const telemetry = await this.openmct.telemetry.request(domainObject);
+        const telemetryData = await this.fetchAllTelemetryData();
+        const headers = this.extractHeaders(telemetryData);
+        const allTelemetry = telemetryData.flat();
 
-            return telemetry;
-        };
-        const pullHeaders = (dataArray) => {
-            dataArray.forEach((data) => {
-                const datum = data[0] || {};
-                Object.keys(datum).forEach((key) => {
-                    if (!headerSet[key]) {
-                        headerSet[key] = true;
-                        headers.push(key);
-                    }
-                });
-            });
+        return this.exportAsCSV(allTelemetry, headers);
+    }
 
-            return dataArray;
-        };
-        const exportAsCSV = (rows) => this.exportCSV(rows, {
-            headers,
-            filename: this.filename
+    async fetchAllTelemetryData() {
+        return Promise.all(this.domainObjects.map(async (domainObject) => {
+            return this.openmct.telemetry.request(domainObject, { strategy: 'comprehensive' });
+        }));
+    }
+
+    extractHeaders(telemetryData) {
+        const headerSet = new Set();
+        telemetryData.forEach(data => {
+            const datum = data[0] || {};
+            Object.keys(datum).forEach(key => headerSet.add(key));
         });
-        const telemetry = await Promise.all(this.domainObjects.map(requestTelemetry));
-        pullHeaders(telemetry);
-        const allTelemetry = telemetry.flat();
+        return Array.from(headerSet);
+    }
 
-        return exportAsCSV(allTelemetry);
+    exportAsCSV(rows, headers) {
+        const options = {
+            headers: headers,
+            filename: this.filename
+        };
+        return this.exportCSV(rows, options);
     }
 
     exportCSV(rows, options) {
-        let headers = (options && options.headers)
-            || (Object.keys((rows[0] || {})).sort());
-        let filename = `${(options && options.filename) || 'export'}.csv`;
-        let csvText = new CSV(rows, { header: headers }).encode();
-        let blob = new Blob([csvText], { type: "text/csv" });
+        const headers = options.headers || Object.keys((rows[0] || {})).sort();
+        const filename = `${options.filename || 'export'}.csv`;
+        const csvText = new CSV(rows, { header: headers }).encode();
+        const blob = new Blob([csvText], { type: "text/csv" });
         saveAs(blob, filename);
     }
 }
+

@@ -1,58 +1,55 @@
 import SessionService from 'services/session/SessionService';
+import constants from '../constants';
 
-const DATASET_FIELDS = [
+const ADDITIONAL_FIELDS = [
     'prefix',
     'mcwsRootUrl',
-    'channelDictionaryUrl',
-    'channelEnumerationDictionaryUrl',
-    'channelHistoricalUrl',
-    'channelMinMaxUrl',
-    'channelLADUrl',
-    'channelStreamUrl',
     'sessionUrl',
     'sessionLADUrl',
-    'eventRecordDictionaryUrl',
-    'evrHistoricalUrl',
-    'evrLADUrl',
-    'evrStreamUrl',
-    'dataProductUrl',
-    'dataProductContentUrl',
-    'dataProductStreamUrl',
-    'packetUrl',
-    'packetContentUrl',
     'packetSummaryEventStreamUrl',
     'commandEventUrl',
     'commandEventStreamUrl',
-    'messageStreamUrl',
-    'frameSummaryStreamUrl',
+];
+const DATASET_FIELDS = [
+    ...ADDITIONAL_FIELDS,
+    ...constants.DICTIONARY_PROPERTIES,
+    ...constants.EVR_PROPERTIES,
+    ...constants.CHANNEL_PROPERTIES,
+    ...constants.CHANNEL_TAXONOMY_PROPERTIES,
+    ...constants.DATA_PRODUCT_PROPERTIES,
+    ...constants.PACKET_PROPERTIES,
+    ...constants.WEBSOCKET_STREAM_URL_KEYS
 ];
 
 class Venue {
     constructor(configuration) {
+        console.log('configuration', configuration);
         this.host = configuration.host;
-        this.model = DATASET_FIELDS.reduce((model, field) => {
+        this.domainObject = DATASET_FIELDS.reduce((domainObject, field) => {
             if (configuration.hasOwnProperty(field)) {
-                model[field] = configuration[field];
+                domainObject[field] = configuration[field];
             }
-            return model;
+
+            return domainObject;
         }, {});
-        this.model.type = 'vista.dataset';
-        this.model.name = configuration.name;
+        this.domainObject.type = 'vista.dataset';
+        this.domainObject.name = configuration.name;
         this.sessionService = new SessionService();
     }
 
     allowsRealtime() {
-        return Boolean(this.model.sessionLADUrl);
+        return Boolean(this.domainObject.sessionLADUrl);
     }
 
     getActiveSessions() {
-        return this.sessionService.getActiveSessions(this.model.sessionLADUrl);
+        return this.sessionService.getActiveSessions(this.domainObject.sessionLADUrl);
     }
 
-    getModel() {
-        let model = JSON.parse(JSON.stringify(this.model));
-        model.name += ' Dataset';
-        return model;
+    getdomainObject() {
+        const domainObject = JSON.parse(JSON.stringify(this.domainObject));
+        domainObject.name += ' Dataset';
+
+        return domainObject;
     }
 }
 

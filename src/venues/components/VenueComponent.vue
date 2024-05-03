@@ -33,7 +33,7 @@ export default {
     };
   },
   async created() {
-    this.name = this.venue.model.name;
+    this.name = this.venue.domainObject.name;
     
     if (this.venue.allowsRealtime()) {
       this.isLoading = true;

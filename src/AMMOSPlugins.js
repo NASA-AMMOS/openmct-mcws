@@ -134,12 +134,15 @@ define([
 
             openmct.install(openmct.plugins.DefaultRootName('VISTA'));
             openmct.install(new ExportDataAction.default([
+                'table',
                 'telemetry.plot.overlay',
                 'telemetry.plot.stacked',
                 'vista.channel',
                 'vista.channelGroup',
                 'vista.chanTableGroup',
                 'vista.evr',
+                'vista.evrModule',
+                'vista.evrSource',
                 'vista.evrView'
             ]));
             openmct.install(ActionModifiersPlugin.default());

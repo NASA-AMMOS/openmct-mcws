@@ -11,10 +11,10 @@ export default class MetadataAction {
         this.openmct = openmct;
     }
     invoke(objectPath) {
-        let domainObject = objectPath[0],
-            name = domainObject.name,
-            attributes = domainObject.telemetry.definition,
-            component = new Vue ({
+            const domainObject = objectPath[0];
+            const name = domainObject.name;
+            const attributes = domainObject.telemetry.definition;
+            const component = new Vue ({
                 provide: {
                     name,
                     attributes
@@ -23,8 +23,9 @@ export default class MetadataAction {
                     MetadataListView
                 },
                 template: '<MetadataListView/>'
-            }),
-            overlay = this.openmct.overlays.overlay({
+            });
+            
+            this.openmct.overlays.overlay({
                 element: component.$mount().$el,
                 size: 'large',
                 dismissable: true,

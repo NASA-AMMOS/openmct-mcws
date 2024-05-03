@@ -22,44 +22,64 @@ class ExportDataAction {
 
     appliesTo(objectPath) {
         const domainObject = objectPath[0];
-        const isValidType = this.validTypes.includes(domainObject?.type);
-        if (!isValidType) {
+
+        if (!this.isValidType(domainObject)) {
             return false;
         }
 
         const hasComposition = this.openmct.composition.get(domainObject) !== undefined;
-        const hasHistoricalTelemetry = this.openmct.telemetry.isTelemetryObject(domainObject) && 
-                !domainObject.telemetry.realtimeOnly;
+        const hasHistoricalTelemetry = this.hasHistoricalTelemetry(domainObject);
 
         return hasHistoricalTelemetry || !hasHistoricalTelemetry && hasComposition;
     }
 
-    invoke(objectPath) {
-        const domainObject = objectPath[0];
+    async invoke([domainObject]) {
         const progressDialog = this.openmct.notifications.progress('Exporting CSV', 'unknown');
-        const runTask = (domainObjects) => new ExportDataTask(this.openmct, domainObject.name, domainObjects).invoke();
-        const exportData = async (object) => {
-            if (this.openmct.telemetry.isTelemetryObject(object)) {
-                runTask([object]);
-            } else {
-                const compositionCollection = this.openmct.composition.get(object);
-                const composition = await compositionCollection.load();
-                runTask(composition);
-            }
-        }
 
-        const success = (value) => {
-            progressDialog.dismiss();
-            return value;
-        };
-
-        const failure = (error) => {
-            progressDialog.dismiss();
+        try {
+            await this.exportData(domainObject);
+        } catch (error) {
             console.error(error);
             this.openmct.notifications.error('Error exporting CSV');
-        };
+        } finally {
+            progressDialog.dismiss();
+        }
+    }
 
-        return exportData(domainObject).then(success, failure);
+    async exportData(domainObject) {
+        if (this.openmct.telemetry.isTelemetryObject(domainObject)) {
+            await this.runExportTask([domainObject]);
+        } else {
+            await this.exportCompositionData(domainObject);
+        }
+    }
+
+    async exportCompositionData(domainObject) {
+        const compositionCollection = this.openmct.composition.get(domainObject);
+        const composition = await compositionCollection.load();
+        const filteredComposition = composition.filter(obj => 
+            this.isValidType(obj) && this.hasHistoricalTelemetry(obj)
+        );
+
+        if (filteredComposition.length > 0) {
+            await this.runExportTask(filteredComposition);
+        } else {
+            this.openmct.notifications.info('No historical data to export');
+        }
+    }
+
+    runExportTask(domainObjects) {
+        const task = new ExportDataTask(this.openmct, domainObjects[0].name, domainObjects);
+
+        return task.invoke();
+    }
+
+    isValidType(domainObject) {
+        return this.validTypes.includes(domainObject?.type);
+    }
+
+    hasHistoricalTelemetry(domainObject) {
+        return this.openmct.telemetry.isTelemetryObject(domainObject) && !domainObject.telemetry.realtimeOnly;
     }
 }
 

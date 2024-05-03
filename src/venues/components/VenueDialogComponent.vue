@@ -137,7 +137,7 @@ export default {
       try {
           const venues = await this.venueService.listVenues();
           this.urlsForHistoricalSessions = venues
-              .map(v => v.model.sessionUrl)
+              .map(v => v.domainObject.sessionUrl)
               .filter(v => !!v);
       } catch (error) {
           console.error("Error fetching venues:", error);
