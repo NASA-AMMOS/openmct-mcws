@@ -522,6 +522,12 @@ define([
         if (session) {
             params.filter.session_id = '(' + session.numbers.join(',') + ')';
             params.filter.session_host = session.host;
+        } else if (window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.denyUnfilteredQueries === true) {
+            const notificationMessage = "Filtering by historical sessions is required for historical queries.";
+
+            this.openmct.notifications.error(notificationMessage);
+
+            return Promise.resolve([]);
         }
 
         if (this.isUnsupportedDomain(provider, options)) {
