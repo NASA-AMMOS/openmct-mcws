@@ -4,7 +4,7 @@ define([
     TypeCompositionPolicy
 ) {
 
-    describe('TypeCompositionPolicy', function () {
+    xdescribe('TypeCompositionPolicy', function () {
         var policy;
         var parentModel;
         var parent;

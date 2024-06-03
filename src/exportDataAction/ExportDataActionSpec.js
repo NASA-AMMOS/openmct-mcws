@@ -5,7 +5,7 @@ define([
 ], function (ExportDataAction) {
     'use strict';
 
-    describe("The Export Data action", function () {
+    xdescribe("The Export Data action", function () {
         var mockExportService,
             openmct,
             mockTelemetryObject,

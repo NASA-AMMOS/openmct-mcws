@@ -1,29 +1,21 @@
 define([
     'openmct',
     './src/AMMOSPlugins',
-    './src/legacy/export/bundle',
-    './src/legacy/products/bundle',
-    './src/legacy/table/bundle',
-    './src/legacy/general/res/sass/vista.scss',
+    './src/styles/sass/vista.scss',
     './src/commandEventsView/plugin',
     './src/messagesView/plugin',
     './src/product-status/plugin',
     './about.html',
     './src/metadataAction/plugin',
     './src/clearDataIndicator/plugin',
-    './src/globalStaleness/plugin',
     './src/dictionaryView/plugin',
     './src/packetSummary/plugin',
     './src/containerView/plugin',
-    'openmct-legacy-support',
     'services/identity/MCWSIdentityProvider',
     './src/persistence/plugin'
 ], function (
     openmct,
     AMMOSPlugins,
-    exportBundle,
-    productsBundle,
-    legacyTablesBundle,
     VistaStyles, /** Do not delete, needed for webpack to compile scss file*/
     CommandEventsViewPlugin,
     MessagesPlugin,
@@ -31,11 +23,9 @@ define([
     AboutTemplate,
     MetadataActionPlugin,
     ClearDataIndicator,
-    GlobalStalenessPlugin,
     DictionaryViewPlugin,
     PacketSummaryPlugin,
     ContainerViewPlugin,
-    LegacySupport,
     IdentityProvider,
     MCWSPersistenceProviderPlugin
 ) {
@@ -46,8 +36,6 @@ define([
             persistenceLoaded = resolve;
         });
         openmct.setAssetPath(config.assetPath);
-
-        openmct.install(LegacySupport.default());
 
         //Optional Themes
         if (config.theme) {
@@ -82,7 +70,6 @@ define([
             }
         ));
         openmct.install(ClearDataIndicator.default(config.globalStalenessInterval));
-        openmct.install(GlobalStalenessPlugin.default(config.globalStalenessInterval));
         openmct.install(CommandEventsViewPlugin.default());
         openmct.install(MessagesPlugin.default());
         openmct.install(ProductStatusPlugin.default());
@@ -111,12 +98,6 @@ define([
                 persistenceLoaded();
             });
         }
-
-        [
-            exportBundle,
-            productsBundle,
-            legacyTablesBundle
-        ].forEach(openmct.install, openmct);
 
         if (config.plugins) {
             if (config.plugins.summaryWidgets) {
