@@ -23,7 +23,7 @@ export default async function oldPersistenceFolderInterceptor(openmct, namespace
             return isMissing && isNotUserRoot && (isUserFolderIdentifier || isRootFolder);
         },
         invoke: (identifier, object) => {
-            const isUserFolderIdentifier = userKeyCheck.test(identifier.namespace) && identifier.key !== 'root';
+            const isUserFolderIdentifier = userKeyCheck.test(identifier.namespace) && !identifier.namespace.includes('shared');
 
             let userId;
             let namespaceDefinition;
@@ -45,3 +45,4 @@ export default async function oldPersistenceFolderInterceptor(openmct, namespace
         }
     });
 }
+
