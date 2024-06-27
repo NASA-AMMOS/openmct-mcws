@@ -1,48 +1,38 @@
 define([
     './TypeCompositionPolicy'
 ], function (
-    TypeCompositionPolicy
+    TypeCompositionPolicyModule // Importing the module, not the constructor directly
 ) {
+    var TypeCompositionPolicy = TypeCompositionPolicyModule.default; // Accessing the default export
 
-    xdescribe('TypeCompositionPolicy', function () {
+    fdescribe('TypeCompositionPolicy', () => {
         var policy;
-        var parentModel;
         var parent;
-        var childModel;
         var child;
 
-        beforeEach(function () {
-            parentModel = {};
-            parent = jasmine.createSpyObj('parentObject', [
-                'getModel'
-            ]);
-            parent.getModel.and.returnValue(parentModel);
-
-            childModel = {};
-            child = jasmine.createSpyObj('childObject', [
-                'getModel'
-            ]);
-            child.getModel.and.returnValue(childModel);
+        beforeEach(() => {
+            parent = {};
+            child = {};
             policy = new TypeCompositionPolicy();
         });
 
-        it('Allows by default', function () {
+        it('Allows by default', () => {
             expect(policy.allow(parent, child)).toBe(true);
         });
 
-        it('does not allow packet summary events in table', function () {
-            parentModel.type = 'table';
-            childModel.type = 'vista.packetSummaryEvents';
+        it('does not allow packet summary events in table', () => {
+            parent.type = 'table';
+            child.type = 'vista.packetSummaryEvents';
             expect(policy.allow(parent, child)).toBe(false);
         });
 
-        it('allows other types in table', function () {
-            parentModel.type = 'table';
+        it('allows other types in table', () => {
+            parent.type = 'table';
             expect(policy.allow(parent, child)).toBe(true);
         });
 
-        it('does not allow anything in dataset nodes', function () {
-            [
+        it('does not allow anything in dataset nodes', () => {
+            const types = [
                 'vista.channelAlarms',
                 'vista.channelGroup',
                 'vista.channelSource',
@@ -57,8 +47,9 @@ define([
                 'vista.evr',
                 'vista.packets',
                 'vista.packetSummaryEvents'
-            ].forEach(function (t) {
-                parentModel.type = t;
+            ];
+            types.forEach(function (t) {
+                parent.type = t;
                 expect(policy.allow(parent, child)).toBe(false);
             });
         });
