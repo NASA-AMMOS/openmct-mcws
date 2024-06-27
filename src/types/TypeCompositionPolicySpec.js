@@ -5,7 +5,7 @@ define([
 ) {
     var TypeCompositionPolicy = TypeCompositionPolicyModule.default; // Accessing the default export
 
-    fdescribe('TypeCompositionPolicy', () => {
+    describe('TypeCompositionPolicy', () => {
         var policy;
         var parent;
         var child;

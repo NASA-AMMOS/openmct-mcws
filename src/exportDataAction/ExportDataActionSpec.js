@@ -1,9 +1,9 @@
 /*global define,describe,beforeEach,jasmine,spyOn,Promise,it,expect,waitsFor,runs,afterEach*/
 
 define([
-    '../src/ExportDataAction'
-], function (ExportDataAction) {
-    'use strict';
+    './ExportDataAction'
+], function (ExportDataActionModule) {
+    const ExportDataAction = ExportDataActionModule.default;
 
     xdescribe("The Export Data action", function () {
         var mockExportService,
