@@ -5,7 +5,7 @@ define([
 ], function (ExportDataTaskModule) {
     const ExportDataTask = ExportDataTaskModule.default;
 
-    describe("ExportDataTask", () => {
+    describe('ExportDataTask', () => {
         let testIds;
         let testTelemetryData;
         let mockTelemetryObjects;
@@ -39,7 +39,7 @@ define([
                     { y : 1, z: 8, id: 'b' }
                 ],
                 c: [
-                    { x: "foo", id: 'c' }
+                    { x: 'foo', id: 'c' }
                 ]
             };
 
@@ -60,14 +60,14 @@ define([
             task = new ExportDataTask(mockOpenMct, 'TestObject', mockTelemetryObjects);
         });
 
-        describe("when invoked", () => {
+        describe('when invoked', () => {
 
             beforeEach(async (done) => {
                 await task.invoke();
                 done();
             });
 
-            it("requests comprehensive telemetry for all objects", () => {
+            it('requests comprehensive telemetry for all objects', () => {
                 testIds.forEach(function (id) {
                     const telemetryObject = mockTelemetryObjects.find(obj => obj.identifier.key === id);
                     expect(mockOpenMct.telemetry.request)
@@ -75,26 +75,26 @@ define([
                 });
             });
 
-            describe("and data is received", () => {
+            describe('and data is received', () => {
 
-                it("initiates a CSV export", () => {
+                it('initiates a CSV export', () => {
                     expect(ExportDataTask.prototype.exportCSV).toHaveBeenCalled();
                 });
 
-                it("includes rows for telemetry for all objects", () => {
+                it('includes rows for telemetry for all objects', () => {
                     const rows = ExportDataTask.prototype.exportCSV.calls.mostRecent().args[0];
                     expect(rows.length).toEqual(testIds.map(function (id) {
                         return testTelemetryData[id].length;
                     }).reduce(function (a, b) { return a + b; }));
                 });
 
-                it("includes headers for all data properties", () => {
+                it('includes headers for all data properties', () => {
                     const options = ExportDataTask.prototype.exportCSV.calls.mostRecent().args[1];
                     const headers = options.headers;
                     expect(headers.sort()).toEqual(['id', 'x', 'y', 'z']);
                 });
 
-                it("contains all telemetry data for all objects", () => {
+                it('contains all telemetry data for all objects', () => {
                     const rows = ExportDataTask.prototype.exportCSV.calls.mostRecent().args[0];
                     const options = ExportDataTask.prototype.exportCSV.calls.mostRecent().args[1];
                     const headers = options.headers;

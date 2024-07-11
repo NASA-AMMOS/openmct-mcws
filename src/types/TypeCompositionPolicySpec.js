@@ -3,12 +3,12 @@ define([
 ], function (
     TypeCompositionPolicyModule // Importing the module, not the constructor directly
 ) {
-    var TypeCompositionPolicy = TypeCompositionPolicyModule.default; // Accessing the default export
+    const TypeCompositionPolicy = TypeCompositionPolicyModule.default; // Accessing the default export
 
     describe('TypeCompositionPolicy', () => {
-        var policy;
-        var parent;
-        var child;
+        let policy;
+        let parent;
+        let child;
 
         beforeEach(() => {
             parent = {};

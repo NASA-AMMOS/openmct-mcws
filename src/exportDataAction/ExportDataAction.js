@@ -66,10 +66,12 @@ class ExportDataAction {
         }
     }
 
-    runExportTask(domainObjects) {
+    async runExportTask(domainObjects) {
         const task = new ExportDataTask(this.openmct, domainObjects[0].name, domainObjects);
 
-        return task.invoke();
+        await task.invoke();
+
+        return;
     }
 
     isValidType(domainObject) {
