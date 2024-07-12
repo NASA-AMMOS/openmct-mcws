@@ -1,220 +1,198 @@
 /*global define,describe,beforeEach,jasmine,spyOn,Promise,it,expect,waitsFor,runs,afterEach*/
 
 define([
-    '../src/ExportDataAction'
-], function (ExportDataAction) {
-    'use strict';
+    './ExportDataAction'
+], (ExportDataActionModule) => {
+    const ExportDataAction = ExportDataActionModule.default;
 
-    xdescribe("The Export Data action", function () {
-        var mockExportService,
-            openmct,
-            mockTelemetryObject,
-            mockRealtimeOnlyTelemetryObject,
-            mockDelegatingObject,
-            mockDelegateObjects,
-            mockNotification,
-            mockCallback,
-            telemetryPromises,
-            telemetryRequested;
+    describe('The Export Data action', () => {
+        let mockOpenmct;
+        let mockCompositionCollection;
+        let mockComposition;
+        let mockTelemetryObject;
+        let mockRealtimeOnlyTelemetryObject;
+        let mockTelemetryObjectWithComposition;
+        let mockNotification;
+        let telemetryPromises;
+        let exportDataAction;
+        let telemetryRequested;
+        let telemetryRequestCount;
 
-        function makeMockDomainObject(id, capabilities, realtimeOnly) {
-            var mockDomainObject = jasmine.createSpyObj('object-' + id, [
-                    'getId',
-                    'getModel',
-                    'hasCapability',
-                    'useCapability',
-                    'getCapability'
-                ]);
-            mockDomainObject.getId.and.returnValue(id);
-            mockDomainObject.getModel.and.returnValue({telemetry: {realtimeOnly: realtimeOnly}});
-            mockDomainObject.hasCapability.and.callFake(function (c) {
-                return !!(capabilities[c]);
-            });
-            mockDomainObject.getCapability.and.callFake(function (c) {
-                return capabilities[c];
-            });
-            mockDomainObject.useCapability.and.callFake(function (c) {
-                return capabilities[c].invoke();
-            });
+        function makeMockDomainObject(id, telemetry, realtimeOnly) {
+            let mockDomainObject =  {
+                identifier: {
+                    namespace: 'object',
+                    key: id
+                },
+                type: 'validType',
+            }
+
+            if (telemetry) {
+                mockDomainObject.telemetry = {};
+            }
+
+            if (realtimeOnly) {
+                mockDomainObject.realtimeOnly = true;
+            }
+
             return mockDomainObject;
         }
 
         function telemetryPromise() {
-            return new Promise(function (resolve, reject) {
-                telemetryPromises.push({ resolve: resolve, reject: reject });
+            return new Promise((resolve, reject) => {
+                telemetryPromises.push({ resolve, reject });
                 setTimeout(telemetryRequested);
             });
         }
 
-        function makeMockTelemetryObject(id) {
-            var mockTelemetry = jasmine.createSpyObj('telemetry-' + id, [
-                    'requestData',
-                    'subscribe'
-                ]);
-            mockTelemetry.requestData.and.callFake(telemetryPromise);
-            return makeMockDomainObject(id, { telemetry: mockTelemetry });
-        }
-
-        function makeMockRealtimeOnlyTelemetryObject(id) {
-            var mockTelemetry = jasmine.createSpyObj('telemetry-' + id, [
-                'requestData',
-                'subscribe'
-            ]);
-            mockTelemetry.requestData.and.callFake(telemetryPromise);
-            return makeMockDomainObject(id, { telemetry: mockTelemetry }, true);
-        }
-
-        beforeEach(function () {
-            var mockCapabilities = {
-                composition: jasmine.createSpyObj('composition', ['invoke']),
-                delegation: jasmine.createSpyObj(
-                    'delegation',
-                    ['doesDelegateCapability']
-                )
-            };
-            
+        beforeEach(() => {            
             telemetryPromises = [];
-            telemetryRequested = jasmine.createSpy('telemetryRequested');
+            telemetryRequested = jasmine.createSpy('telemetryRequested').and.callFake(() => {
+                telemetryRequestCount--;
+                if (telemetryRequestCount === 0) {
+                    telemetryRequested.done();
+                }
+            });
 
-            openmct = jasmine.createSpyObj('openmct',
+            mockOpenmct = jasmine.createSpyObj('mockOpenmct',
                 [
-                    'overlays',
-                    'notifications'
+                    'notifications',
+                    'composition',
+                    'telemetry'
                 ]
             );
-            openmct.notifications = jasmine.createSpyObj('notificationService',
-                ['error']
-            );
-            openmct.overlays = jasmine.createSpyObj('overlays',
-                ['progressDialog']
-            );
-            mockExportService = jasmine.createSpyObj(
-                'exportService',
-                ['exportCSV']
+            mockTelemetry = [];
+            mockCompositionCollection = jasmine.createSpyObj('compositionCollection', ['load']);
+            mockCompositionCollection.load.and.returnValue(Promise.resolve(mockComposition));
+            mockOpenmct.composition = jasmine.createSpyObj('composition', ['get']);
+            mockOpenmct.composition.get.and.returnValue(mockCompositionCollection);
+            mockOpenmct.telemetry = jasmine.createSpyObj('telemetry', ['isTelemetryObject', 'request']);
+            mockOpenmct.telemetry.request.and.callFake(telemetryPromise);
+            mockOpenmct.telemetry.isTelemetryObject.and.callFake((object) => {
+                return object.telemetry;
+            });
+            mockOpenmct.notifications = jasmine.createSpyObj('notificationService',
+                [
+                    'error',
+                    'progress',
+                    'info'
+                ]
             );
             mockNotification = jasmine.createSpyObj('notification', ['dismiss']);
-            mockTelemetryObject = makeMockTelemetryObject('singular');
-            mockRealtimeOnlyTelemetryObject = makeMockRealtimeOnlyTelemetryObject('singular');
-            mockDelegateObjects =
-                ['a', 'b', 'c'].map(makeMockTelemetryObject);
-            mockDelegatingObject =
-                makeMockDomainObject('delegator', mockCapabilities);
+            mockTelemetryObject = makeMockDomainObject('singular', true);
+            mockRealtimeOnlyTelemetryObject = makeMockDomainObject('singular', true, true);
+            mockTelemetryObjectWithComposition = makeMockDomainObject('composition');
 
-            openmct.overlays.progressDialog.and.returnValue(mockNotification);
+            mockOpenmct.notifications.progress.and.returnValue(mockNotification);
 
-            mockCapabilities.delegation.doesDelegateCapability
-                .and.callFake(function (c) {
-                    return c === 'telemetry';
-                });
-            mockCapabilities.composition.invoke
-                .and.returnValue(Promise.resolve(mockDelegateObjects));
-
-            mockCallback = jasmine.createSpy('callback');
+            exportDataAction = new ExportDataAction(
+                mockOpenmct,
+                ['validType']
+            );
         });
 
-
-        it("applies to objects with a telemetry capability", function () {
-            expect(ExportDataAction.appliesTo({
-                domainObject: mockTelemetryObject
-            })).toBe(true);
+        it('applies to objects with a valid type', () => {
+            expect(exportDataAction.appliesTo([mockTelemetryObject])).toBe(true);
         });
 
-        it("applies to objects which delegate the telemetry capability", function () {
-            expect(ExportDataAction.appliesTo({
-                domainObject: mockDelegatingObject
-            })).toBe(true);
+        it('does not apply to realtime only telemetry objects', (done) => {
+            telemetryRequested.and.callFake(done);
+            exportDataAction.invoke([mockRealtimeOnlyTelemetryObject]).then(() => {
+                expect(mockOpenmct.notifications.info).toHaveBeenCalledWith('No historical data to export');
+            });
         });
 
-        it("does not apply to objects with no such capabilities", function () {
-            expect(ExportDataAction.appliesTo({
-                domainObject: makeMockDomainObject('foo', {})
-            })).toBe(false);
-        });
+        [ false, true ].forEach((singular) => {
+            let targetDescription;
 
-        it("does not apply to realtime only telemetry objects", function () {
-            expect(ExportDataAction.appliesTo({
-                domainObject: mockRealtimeOnlyTelemetryObject
-            })).toBe(false);
-        });
+            if (singular) {
+                targetDescription = 'a single object';
+            } else {
+                targetDescription = 'multiple objects';
+                mockComposition = [
+                    makeMockDomainObject('composition-1', true),
+                    makeMockDomainObject('composition-2', true)
+                ];
+            }
 
+            describe('when performed on ' + targetDescription, () => {
+                let mockTarget;
 
-        [ false, true ].forEach(function (singular) {
-            var targetDescription = singular ?
-                "a single object" : "multiple objects";
+                beforeEach((done) => {
+                    let doneCalled = false;
+                    const callDoneOnce = () => {
+                        if (!doneCalled) {
+                            doneCalled = true;
+                            done();
+                        }
+                    };
 
-            describe("when performed on " + targetDescription, function () {
-                var mockTarget;
-
-                beforeEach(function (done) {
-                    mockTarget = singular ?
-                        mockTelemetryObject : mockDelegatingObject;
-                    telemetryRequested.and.callFake(done);
-
-                    new ExportDataAction(
-                        mockExportService,
-                        openmct,
-                        { domainObject: mockTarget }
-                    ).perform().then(mockCallback);
+                    spyOn(exportDataAction, 'runExportTask').and.callThrough();
+                    spyOn(exportDataAction, 'exportCompositionData').and.callThrough();
+                    mockTarget = singular ? mockTelemetryObject : mockTelemetryObjectWithComposition;
+                    telemetryRequestCount = singular ? 1 : mockComposition.length;
+                    telemetryRequested.done = callDoneOnce;
+                    exportDataAction.invoke([mockTarget]).finally(callDoneOnce);
                 });
 
-                it("shows a progress notification", function () {
-                    expect(openmct.overlays.progressDialog)
-                        .toHaveBeenCalled();
+                it('shows a progress notification', () => {
+                    expect(mockOpenmct.notifications.progress).toHaveBeenCalled();
                 });
 
                 if (singular) {
-                    it("initiates a telemetry request", function () {
+                    it('initiates a telemetry request', () => {
                         expect(telemetryPromises.length).toEqual(1);
                     });
                 } else {
-                    it("initiates telemetry requests", function () {
-                        expect(telemetryPromises.length)
-                            .toEqual(mockDelegateObjects.length);
+                    it('initiates telemetry requests', () => {
+                        expect(telemetryPromises.length).toEqual(mockComposition.length);
                     });
                 }
 
-                describe("and data is provided", function () {
-                    beforeEach(function (done) {
-                        mockCallback.and.callFake(done);
-
-                        telemetryPromises.forEach(function (p, i) {
-                            var mockSeries = jasmine.createSpyObj(
-                                'series-' + i,
-                                [ 'getData' ]
-                            );
-                            mockSeries.getData.and.returnValue([]);
-                            p.resolve(mockSeries);
+                describe('and data is provided', () => {
+                    beforeEach((done) => {
+                        telemetryPromises.forEach((promise) => {
+                            promise.resolve([]);
                         });
+                        setTimeout(done, 0); // Ensure all promises are resolved
                     });
 
-                    it("dismisses its progress notification", function () {
-                        expect(mockNotification.dismiss)
-                            .toHaveBeenCalled();
+                    it('does not show an error notification', () => {
+                        expect(mockOpenmct.notifications.error).not.toHaveBeenCalled();
                     });
 
-                    it("triggers a CSV export", function () {
-                        expect(mockExportService.exportCSV)
-                            .toHaveBeenCalledWith(
-                                jasmine.any(Array),
-                                { headers: jasmine.any(Array) }
-                            );
+                    it('dismisses its progress notification', (done) => {
+                        setTimeout(() => {
+                            expect(mockNotification.dismiss).toHaveBeenCalled();
+                            done();
+                        }, 0);
                     });
+
+                    if (singular) {
+                        it('triggers a CSV export for one object', () => {
+                            expect(exportDataAction.runExportTask).toHaveBeenCalled();
+                        });
+                    } else {
+                        it('triggers a CSV export for each object', () => {
+                            expect(exportDataAction.exportCompositionData).toHaveBeenCalled();
+                        });
+                    }
                 });
 
-                describe("and a request failure occurs", function () {
-                    beforeEach(function (done) {
-                        mockCallback.and.callFake(done);
-                        telemetryPromises[0].reject();
+                describe('and a request failure occurs', () => {
+                    beforeEach((done) => {
+                        telemetryPromises.forEach((promise) => {
+                            promise.reject();
+                        });
+                        done();
                     });
 
-                    it("dismisses its progress notification", function () {
-                        expect(mockNotification.dismiss)
-                            .toHaveBeenCalled();
+                    it('dismisses its progress notification', () => {
+                        expect(mockNotification.dismiss).toHaveBeenCalled();
                     });
 
-                    it("displays an error notification", function () {
-                        expect(openmct.notifications.error)
-                            .toHaveBeenCalled();
+                    it('displays an error notification', () => {
+                        expect(mockOpenmct.notifications.error).toHaveBeenCalled();
                     });
                 });
 

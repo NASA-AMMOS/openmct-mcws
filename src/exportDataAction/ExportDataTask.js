@@ -29,7 +29,7 @@ export default class ExportDataTask {
     }
 
     async fetchAllTelemetryData() {
-        return Promise.all(this.domainObjects.map(async (domainObject) => {
+        return Promise.all(this.domainObjects.map((domainObject) => {
             return this.openmct.telemetry.request(domainObject, { strategy: 'comprehensive' });
         }));
     }
