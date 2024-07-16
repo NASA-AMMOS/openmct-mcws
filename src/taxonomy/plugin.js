@@ -61,23 +61,6 @@ define([
             openmct.install(new ChannelAlarmPlugin(domains, datasets));
             openmct.objects.addProvider('vista-frame-event-filter', new FrameEventFilterObjectProvider(datasets));
             openmct.telemetry.addProvider(new EVRHighlightProvider(options));
-
-            openmct.legacyExtension('components', {
-                provides: 'identifierService',
-                type: 'decorator',
-                implementation: function (identifierService) {
-                    // Monkey patch so that we don't generate identifiers in
-                    // vista namespace.
-                    var oldGenerate = identifierService.generate;
-                    identifierService.generate = function (space) {
-                        if (space === 'vista' || space === 'vista-active') {
-                            return oldGenerate();
-                        }
-                        return oldGenerate(space);
-                    };
-                    return identifierService;
-                }
-            });
         };
     }
 

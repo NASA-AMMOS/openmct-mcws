@@ -21,43 +21,42 @@ define([
     LMSTFormat,
     moment
 ) {
+    function TimePlugin(_openmct, options) {
+        var SYSTEM_MAP = {
+            ert: ERTTimeSystem,
+            scet: SCETTimeSystem,
+            sclk: SCLKTimeSystem,
+            'msl.sol': MSLSolTimeSystem,
+            lmst: LMSTTimeSystem
+        };
+    
+        var TODAY_BOUNDS = {
+            start: moment.utc().startOf('day').valueOf(),
+            end: moment.utc().endOf('day').valueOf()
+        };
+    
+        var solFormat = new MSLSolFormat(_openmct);
+        var lmstFormat = new LMSTFormat(_openmct);
+        var nowLST = solFormat.format(moment.utc());
+        var sol = Number(/SOL-(\d+)M/.exec(nowLST)[1]);
+    
+        var BOUNDS_MAP = {
+            ert: TODAY_BOUNDS,
+            scet: TODAY_BOUNDS,
+            sclk: {
+                start: 1,
+                end: 10000
+            },
+            'msl.sol': {
+                start: solFormat.parse('SOL-' + sol),
+                end: solFormat.parse('SOL-' + (sol + 1))
+            },
+            lmst: {
+                start: lmstFormat.parse('SOL-' + sol),
+                end: lmstFormat.parse('SOL-' + (sol + 1))
+            }
+        };
 
-    var SYSTEM_MAP = {
-        ert: ERTTimeSystem,
-        scet: SCETTimeSystem,
-        sclk: SCLKTimeSystem,
-        'msl.sol': MSLSolTimeSystem,
-        lmst: LMSTTimeSystem
-    };
-
-    var TODAY_BOUNDS = {
-        start: moment.utc().startOf('day').valueOf(),
-        end: moment.utc().endOf('day').valueOf()
-    };
-
-    var solFormat = new MSLSolFormat();
-    var lmstFormat = new LMSTFormat();
-    var nowLST = solFormat.format(moment.utc());
-    var sol = Number(/SOL-(\d+)M/.exec(nowLST)[1]);
-
-    var BOUNDS_MAP = {
-        ert: TODAY_BOUNDS,
-        scet: TODAY_BOUNDS,
-        sclk: {
-            start: 1,
-            end: 10000
-        },
-        'msl.sol': {
-            start: solFormat.parse('SOL-' + sol),
-            end: solFormat.parse('SOL-' + (sol + 1))
-        },
-        lmst: {
-            start: lmstFormat.parse('SOL-' + sol),
-            end: lmstFormat.parse('SOL-' + (sol + 1))
-        }
-    };
-
-    function TimePlugin(options) {
         if (!options.timeSystems) {
             console.error('Please specify one or more time systems to enable.');
         }

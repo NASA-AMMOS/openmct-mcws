@@ -1,6 +1,7 @@
 define([
     'services/dataset/DatasetCache',
     'services/session/SessionService',
+    'services/globalStaleness/globalStaleness',
     './types/plugin',
     './taxonomy/plugin',
     './time/plugin',
@@ -30,10 +31,12 @@ define([
     './mcwsIndicator/plugin',
     './multipleHistoricalSessions/plugin',
     './realtimeSessions/plugin',
-    './globalFilters/plugin'
+    './globalFilters/plugin',
+    './exportDataAction/plugin'
 ], function (
     DatasetCache,
     SessionService,
+    GlobalStaleness,
     TypePlugin,
     TaxonomyPlugin,
     TimePlugin,
@@ -63,18 +66,20 @@ define([
     MCWSIndicatorPlugin,
     MultipleHistoricalSessions,
     RealtimeSessions,
-    GlobalFilters
+    GlobalFilters,
+    ExportDataAction
 ) {
 
     function AMMOSPlugins(options) {
         return function install(openmct) {
-            // initialze session service and datasetCache service
+            // initialze session service, datasetCache service, global staleness
             SessionService.default(openmct, options);
             DatasetCache.default(openmct);
+            GlobalStaleness.default(openmct, options.globalStalenessInterval);
 
             openmct.install(new FormatPlugin(options));
 
-            const timePlugin = new TimePlugin(options.time);
+            const timePlugin = new TimePlugin(openmct, options.time);
             openmct.install(timePlugin);
 
             const formatKey = options.time.utcFormat;
@@ -97,10 +102,10 @@ define([
 
             openmct.install(new HistoricalTelemetryPlugin(options));
             openmct.install(new RealtimeTelemetryPlugin(vistaTime, options));
-            openmct.install(new TypePlugin(options));
+            openmct.install(new TypePlugin.default());
             openmct.install(new TaxonomyPlugin(options.taxonomy));
             openmct.install(new LinkPlugin(options));
-            openmct.install(new VenuePlugin(options));
+            openmct.install(new VenuePlugin.default(options));
             openmct.install(FrameWatchViewPlugin.default());
             openmct.install(FrameEventFilterViewPlugin.default());
             openmct.install(new ChannelTablePlugin.default());
@@ -128,6 +133,18 @@ define([
             openmct.install(CustomFormsPlugin.default());
 
             openmct.install(openmct.plugins.DefaultRootName('VISTA'));
+            openmct.install(new ExportDataAction.default([
+                'table',
+                'telemetry.plot.overlay',
+                'telemetry.plot.stacked',
+                'vista.channel',
+                'vista.channelGroup',
+                'vista.chanTableGroup',
+                'vista.evr',
+                'vista.evrModule',
+                'vista.evrSource',
+                'vista.evrView'
+            ]));
             openmct.install(ActionModifiersPlugin.default());
             openmct.install(new PacketQueryPlugin.default());
             if (options.globalFilters) {
