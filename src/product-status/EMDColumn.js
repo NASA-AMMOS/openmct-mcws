@@ -1,9 +1,7 @@
-define([
-    'openmct.tables.TelemetryTableColumn'
-], function (TelemetryTableColumn) {
-    return class EMDColumn extends TelemetryTableColumn {
-        getCellComponentName() {
-            return 'vista-table-emd-cell';
-        }
-    }
-});
+
+import TelemetryTableColumn from 'openmct.tables.TelemetryTableColumn';
+export default class EMDColumn extends TelemetryTableColumn {
+  getCellComponentName() {
+    return 'vista-table-emd-cell';
+  }
+}

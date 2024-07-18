@@ -1,14 +1,11 @@
-define([
-    'openmct.tables.TelemetryTableRow'
-], function (TelemetryTableRow) {
-    class HistoricalContextTableRow extends TelemetryTableRow {
-        constructor(datum, columns, objectKeyString, limitEvaluator) {
-            super(datum, columns, objectKeyString, limitEvaluator);
-        }
+import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
 
-        getContextMenuActions() {
-            return ['viewHistoricalData'];
-        }
-    }
-    return HistoricalContextTableRow;
-});
+export default class HistoricalContextTableRow extends TelemetryTableRow {
+  constructor(datum, columns, objectKeyString, limitEvaluator) {
+    super(datum, columns, objectKeyString, limitEvaluator);
+  }
+
+  getContextMenuActions() {
+    return ['viewHistoricalData'];
+  }
+}

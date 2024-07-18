@@ -1,132 +1,119 @@
-define(
-    [
-        'lodash',
-        'openmct.tables.collections.TableRowCollection',
-        './EmptyChannelTableRow'
+import TableRowCollection from 'openmct.tables.collections.TableRowCollection';
+import EmptyChannelTableRow from './EmptyChannelTableRow.js';
+export default class ChannelTableRowCollection extends TableRowCollection {
+  constructor(openmct) {
+    super();
 
-    ],
-    function (
-        _,
-        TableRowCollection,
-        EmptyChannelTableRow
-    ) {
+    this.openmct = openmct;
+    this.ladMap = new Map();
+    this.timeColumn = openmct.time.timeSystem().key;
+    this.addOrUpdateRow = this.addOrUpdateRow.bind(this);
+  }
 
-        class ChannelTableRowCollection extends TableRowCollection {
-            constructor (openmct) {
-                super();
+  addOrUpdateRow(row) {
+    if (this.isLADRow(row)) {
+      this.addRows([row]);
+    }
+  }
 
-                this.openmct = openmct;
-                this.ladMap = new Map();
-                this.timeColumn = openmct.time.timeSystem().key;
-                this.addOrUpdateRow = this.addOrUpdateRow.bind(this);
-            }
+  isLADRow(newRow) {
+    const isStaleData = this.rows.some(row =>
+      row.objectKeyString === newRow.objectKeyString
+      && !row.isDummyRow
+      && row.datum[this.timeColumn] > newRow.datum[this.timeColumn]
+    );
 
-            addOrUpdateRow(row) {
-                if (this.isLADRow(row)) {
-                    this.addRows([row]);
-                }
-            }
+    return !isStaleData;
+  }
 
-            isLADRow(newRow) {
-                const isStaleData = this.rows.some(row => 
-                    row.objectKeyString === newRow.objectKeyString
-                    && !row.isDummyRow
-                    && row.datum[this.timeColumn] > newRow.datum[this.timeColumn]
-                );
+  addOne(item) {
+    if (item.isDummyRow) {
+      this.ladMap.set(item.objectKeyString, this.rows.length);
+      this.rows.push(item);
+      this.emit('add', item);
+      return true;
+    }
 
-                return !isStaleData;
-            }
+    if (this.isNewerThanLAD(item)) {
+      let rowIndex = this.ladMap.get(item.objectKeyString);
+      this.rows[rowIndex] = item;
+      this.removeExistingByKeystring(item.objectKeyString);
+      this.emit('add', [item]);
+      return true;
+    }
+    return false;
+  }
 
-            addOne(item) {
-                if (item.isDummyRow) {
-                    this.ladMap.set(item.objectKeyString, this.rows.length);
-                    this.rows.push(item);
-                    this.emit('add', item);
-                    return true;
-                }
+  addRows(rows) {
+    let rowsToAdd = this.filterRows(rows);
 
-                if (this.isNewerThanLAD(item)) {
-                    let rowIndex = this.ladMap.get(item.objectKeyString);
-                    this.rows[rowIndex] = item;
-                    this.removeExistingByKeystring(item.objectKeyString);
-                    this.emit('add', [item]);
-                    return true;
-                }
-                return false;
-            }
+    if (rowsToAdd.length > 0) {
+      rowsToAdd.forEach(this.addOne.bind(this));
+      this.emit('add', rowsToAdd);
+    }
+  }
 
-            addRows(rows) {
-                let rowsToAdd = this.filterRows(rows);
+  removeAllRowsForObject(objectKeyString) {
+    super.removeAllRowsForObject(objectKeyString);
+    this.rebuildLadMap();
+  }
 
-                if (rowsToAdd.length > 0) {
-                    rowsToAdd.forEach(this.addOne.bind(this));
-                    this.emit('add', rowsToAdd);
-                }
-            }
+  removeExistingByKeystring(keyString) {
+    let removed = [];
 
-            removeAllRowsForObject(objectKeyString) {
-                super.removeAllRowsForObject(objectKeyString);
-                this.rebuildLadMap();
-            }
+    this.rows.forEach((row) => {
+      if (row.objectKeyString === keyString) {
+        removed.push(row);
 
-            removeExistingByKeystring(keyString) {
-                let removed = [];
+        return false;
+      } else {
+        return true;
+      }
+    });
 
-                this.rows.forEach((row) => {
-                    if (row.objectKeyString === keyString) {
-                        removed.push(row);
+    this.emit('remove', removed);
+  }
 
-                        return false;
-                    } else {
-                        return true;
-                    }
-                });
+  rebuildLadMap() {
+    this.ladMap.clear();
+    this.rows.forEach((row, index) => {
+      this.ladMap.set(row.objectKeyString, index);
+    });
+  }
 
-                this.emit('remove', removed);
-            }
+  reorder(reorderPlan) {
+    let oldRows = this.rows.slice();
+    reorderPlan.forEach(reorderEvent => {
+      let item = oldRows[reorderEvent.oldIndex];
+      this.rows[reorderEvent.newIndex] = item;
+      this.ladMap.set(item.objectKeyString, reorderEvent.newIndex);
+    });
+  }
 
-            rebuildLadMap() {
-                this.ladMap.clear();
-                this.rows.forEach((row, index) => {
-                    this.ladMap.set(row.objectKeyString, index);
-                });
-            }
+  sortByTimeSystem(timeSystem) {
+    this.timeColumn = timeSystem.key;
+  }
 
-            reorder(reorderPlan) {
-                let oldRows = this.rows.slice();
-                reorderPlan.forEach(reorderEvent => {
-                    let item = oldRows[reorderEvent.oldIndex];
-                    this.rows[reorderEvent.newIndex] = item;
-                    this.ladMap.set(item.objectKeyString, reorderEvent.newIndex);
-                });
-            }
+  isNewerThanLAD(item) {
+    let rowIndex = this.ladMap.get(item.objectKeyString);
+    let latestRow = this.rows[rowIndex];
+    let newerThanLatest = latestRow === undefined ||
+      item.datum[this.timeColumn] > latestRow.datum[this.timeColumn] ||
+      latestRow.isDummyRow;
 
-            sortByTimeSystem(timeSystem) {
-                this.timeColumn = timeSystem.key;
-            }
+    return !this.ladMap.has(item.objectKeyString) || newerThanLatest;
+  }
 
-            isNewerThanLAD(item) {
-                let rowIndex = this.ladMap.get(item.objectKeyString);
-                let latestRow = this.rows[rowIndex];
-                let newerThanLatest = latestRow === undefined ||
-                    item.datum[this.timeColumn] > latestRow.datum[this.timeColumn] ||
-                    latestRow.isDummyRow;
+  getRows() {
+    return this.rows;
+  }
 
-                return !this.ladMap.has(item.objectKeyString) || newerThanLatest;
-            }
+  clear() {
+    this.rows = this.rows.map(
+      row => new EmptyChannelTableRow(row.columns, row.objectKeyString)
+    );
+    this.rebuildLadMap();
+  }
 
-            getRows() {
-                return this.rows;
-            }
-
-            clear() {
-                this.rows = this.rows.map(
-                    row => new EmptyChannelTableRow(row.columns, row.objectKeyString)
-                );
-                this.rebuildLadMap();
-            }
-
-            destroy() {}
-        }
-    return ChannelTableRowCollection;
-});
+  destroy() { }
+}
