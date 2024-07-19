@@ -7,7 +7,7 @@ import TXTDownloadCell from './TXTDownloadCell.js';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 import DataProductViewActions from './DataProductViewActions.js';
 
-export default function install() {
+export default function install(options) {
     return function ProductStatusPlugin(openmct) {
         openmct.types.addType('vista.dataProductsView', {
             name: "Data Product View",
@@ -18,13 +18,14 @@ export default function install() {
                 domainObject.composition = [];
             }
         });
-        openmct.objectViews.addProvider(new DataProductViewProvider(openmct));
-        openmct.inspectorViews.addProvider(new DataProductInspectorViewProvider(openmct));
+        openmct.objectViews.addProvider(new DataProductViewProvider(openmct, options));
+        openmct.inspectorViews.addProvider(new DataProductInspectorViewProvider(openmct, options));
 
         openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
             'vista.data-products-configuration', 
             'Config',
-            'vista.dataProductsView'
+            'vista.dataProductsView',
+            options
         ));
 
         // Suppress new views via monkey-patching (for now)

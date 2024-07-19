@@ -4,8 +4,9 @@ import FrameWatchViewComponent from './components/FrameWatchViewComponent.vue';
 import { FRAME_WATCH_TYPE } from './config';
 
 export default class FrameWatchViewProvider {
-    constructor(openmct, key, name, type = FRAME_WATCH_TYPE) {
+    constructor(openmct, key, name, options, type = FRAME_WATCH_TYPE) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = key;
         this.name = name;
@@ -21,7 +22,7 @@ export default class FrameWatchViewProvider {
         let component;
         let _destroy = null;
       
-        const table = new FrameWatchTable(domainObject, this.openmct, this.type);
+        const table = new FrameWatchTable(domainObject, this.openmct, this.options, this.type);
 
         const view = {
             show: function (element, editMode, { renderWhenVisible }) {

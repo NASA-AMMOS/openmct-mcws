@@ -3,8 +3,9 @@ import TableComponent from 'openmct.tables.components.Table';
 import mount from 'utils/mountVueComponent';
 
 export default class FrameEventFilterViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.frameEventFilterView';
         this.name = 'Frame Events Filtered View';
@@ -19,7 +20,7 @@ export default class FrameEventFilterViewProvider {
         let component;
         let _destroy = null;
 
-        let table = new FrameEventFilterTable(domainObject, openmct);
+        let table = new FrameEventFilterTable(domainObject, openmct, this.options);
         let markingProp = {
             enable: true,
             useAlternateControlBar: false,

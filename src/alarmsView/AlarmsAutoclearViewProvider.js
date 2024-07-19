@@ -3,10 +3,12 @@ import AlarmsAutoclear from './AlarmsAutoclear.vue';
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 
 export default class AlarmsAutoClearViewProvider {
-  constructor(openmct) {
+  constructor(openmct, options) {
     this.key = 'vista.alarmsView-configuration';
     this.name = 'Autoclear';
+
     this.openmct = openmct;
+    this.options = options;
     this._destroy = null;
   }
 
@@ -22,7 +24,7 @@ export default class AlarmsAutoClearViewProvider {
 
   view(selection) {
     const domainObject = selection[0][0].context.item;
-    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct);
+    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct, this.options);
 
     return {
       show: function (element) {

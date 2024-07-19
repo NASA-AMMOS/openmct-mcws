@@ -15,11 +15,12 @@ function providesEVRData(domainObject) {
     ));
 }
 export default class EVRViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.key = 'vista.evrView';
         this.name = 'EVR View';
         this.cssClass = 'icon-tabular-realtime';
         this.openmct = openmct;
+        this.options = options;
 
         this.view = this.view.bind(this);
     }
@@ -39,7 +40,7 @@ export default class EVRViewProvider {
         let component;
         let _destroy = null;
 
-        const table = new EVRTable(domainObject, this.openmct);
+        const table = new EVRTable(domainObject, this.openmct, this.options);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,

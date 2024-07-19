@@ -97,7 +97,7 @@ define([
 
             mcwsClient.default.configure(options, identityPlugin.login);
 
-            openmct.install(MultipleHistoricalSessions.default());
+            openmct.install(MultipleHistoricalSessions.default(options.tablePerformanceOptions));
             openmct.install(RealtimeSessions.default());
 
             openmct.install(new HistoricalTelemetryPlugin(options));
@@ -108,12 +108,12 @@ define([
             openmct.install(new VenuePlugin.default(options));
             openmct.install(FrameWatchViewPlugin.default());
             openmct.install(FrameEventFilterViewPlugin.default());
-            openmct.install(new ChannelTablePlugin.default());
+            openmct.install(new ChannelTablePlugin.default(options.tablePerformanceOptions));
             openmct.install(new ChannelTableSetPlugin.default());
             openmct.install(new ChannelLimitsPlugin.default());
-            openmct.install(new FrameAccountabilityPlugin.default(options.frameAccountabilityExpectedVcidList));
-            openmct.install(EVRViewPlugin.default(options.taxonomy));
-            openmct.install(new AlarmsViewPlugin.default());
+            openmct.install(new FrameAccountabilityPlugin.default(options));
+            openmct.install(EVRViewPlugin.default(options));
+            openmct.install(new AlarmsViewPlugin.default(options.tablePerformanceOptions));
             openmct.install(MCWSIndicatorPlugin.default());
             
             if (window.openmctMCWSConfig.messageStreamUrl && window.openmctMCWSConfig.messageStreamUrl !== '') {

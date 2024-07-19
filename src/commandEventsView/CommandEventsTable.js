@@ -1,9 +1,5 @@
 import TelemetryTable from 'openmct.tables.TelemetryTable';
 export default class CommandEventsTable extends TelemetryTable {
-  constructor(domainObject, openmct) {
-    super(domainObject, openmct);
-  }
-
   initialize() {
     this.filterObserver = this.openmct.objects.observe(
       this.domainObject,

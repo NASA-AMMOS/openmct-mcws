@@ -3,8 +3,10 @@ import TableComponent from 'openmct.tables.components.Table';
 import DataProductTable from './DataProductTable.js';
 
 export default class DataProductViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
+
         this.key = 'vista.productStatus';
         this.name = 'Data Product View';
         this.cssClass = 'icon-tabular-realtime';
@@ -15,12 +17,11 @@ export default class DataProductViewProvider {
     }
 
     view(domainObject, objectPath) {
-
         let component;
         let _destroy = null;
 
         const openmct = this.openmct;
-        const table = new DataProductTable(domainObject, openmct);
+        const table = new DataProductTable(domainObject, openmct, this.options);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,

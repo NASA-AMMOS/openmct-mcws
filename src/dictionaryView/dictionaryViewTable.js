@@ -3,8 +3,8 @@ import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
 import mcws from 'services/mcws/mcws';
 
 export default class DictionaryViewTable extends TelemetryTable { 
-    constructor(domainObject, openmct, metadata = []) {
-        super(domainObject, openmct);
+    constructor(domainObject, openmct, options, metadata = []) {
+        super(domainObject, openmct, options);
 
         this.metadata = metadata;
         this.data = [];

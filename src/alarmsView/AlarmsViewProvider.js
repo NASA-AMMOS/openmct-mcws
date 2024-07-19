@@ -3,8 +3,9 @@ import TableComponent from 'openmct.tables.components.Table';
 import AlarmsTable from './AlarmsTable.js';
 
 export default class AlarmsViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.alarmsView';
         this.name = 'Alarms Table';
@@ -19,7 +20,7 @@ export default class AlarmsViewProvider {
         let component;
         let _destroy = null;
 
-        const table = new AlarmsTable(domainObject, openmct);
+        const table = new AlarmsTable(domainObject, openmct, this.options);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,

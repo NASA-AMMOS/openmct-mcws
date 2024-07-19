@@ -70,14 +70,14 @@ define([
             }
         ));
         openmct.install(ClearDataIndicator.default(config.globalStalenessInterval));
-        openmct.install(CommandEventsViewPlugin.default());
-        openmct.install(MessagesPlugin.default());
-        openmct.install(ProductStatusPlugin.default());
+        openmct.install(CommandEventsViewPlugin.default(config.tablePerformanceOptions));
+        openmct.install(MessagesPlugin.default(config.tablePerformanceOptions));
+        openmct.install(ProductStatusPlugin.default(config.tablePerformanceOptions));
         openmct.install(openmct.plugins.UTCTimeSystem())
         openmct.install(openmct.plugins.Notebook());
         openmct.install(MetadataActionPlugin.default());
-        openmct.install(DictionaryViewPlugin.default());
-        openmct.install(PacketSummaryPlugin.default());
+        openmct.install(DictionaryViewPlugin.default(config.tablePerformanceOptions));
+        openmct.install(PacketSummaryPlugin.default(config.tablePerformanceOptions));
         openmct.install(ContainerViewPlugin.default());
         openmct.install(openmct.plugins.Clock(
             { useClockIndicator: false }

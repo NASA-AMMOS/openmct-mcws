@@ -10,12 +10,13 @@ const FLAG_COLORS = {
 };
 
 export default class FrameAccountabilityViewProvider {
-    constructor(domainObject, openmct, expectedVcidList) {
+    constructor(domainObject, openmct, options) {
         this.domainObject = domainObject;
         this.keystring = openmct.objects.makeKeyString(this.domainObject.identifier);
         this.openmct = openmct;
         this.table = this.instantiateBadFramesTable();
-        this.expectedVcidList = expectedVcidList;
+        this.expectedVcidList = options.frameAccountabilityExpectedVcidList;
+        this.tablePerformanceOptions = options.tablePerformanceOptions;
         this._destroy = null;
     }
     instantiateBadFramesTable() {
@@ -28,7 +29,7 @@ export default class FrameAccountabilityViewProvider {
             type: 'vista.frameEvent'
         };
 
-        return new BadFramesTelemetryTable(domainObject, this.openmct);
+        return new BadFramesTelemetryTable(domainObject, this.openmct, this.tablePerformanceOptions);
     }
     show(element, isEditing, { renderWhenVisible }) {
         const componentDefinition = {

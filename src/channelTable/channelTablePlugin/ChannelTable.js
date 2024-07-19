@@ -6,8 +6,9 @@ import EmptyChannelTableRow from './EmptyChannelTableRow';
 import ObjectNameColumn from './ObjectNameColumn';
 
 export default class ChannelTable extends TelemetryTable {
-  constructor(domainObject, openmct) {
-    super(domainObject, openmct);
+  constructor(domainObject, openmct, options) {
+    super(domainObject, openmct, options);
+
     this.updateConfiguration = this.updateConfiguration.bind(this);
     this.reorder = this.reorder.bind(this);
     this.addDummyRowForObject = this.addDummyRowForObject.bind(this);

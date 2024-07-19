@@ -3,8 +3,10 @@ import TableComponent from 'openmct.tables.components.Table';
 import mount from 'utils/mountVueComponent';
 
 export default class ChannelTableViewProvider { 
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
+
         this.key = 'vista.channel-list';
         this.name = 'Channel List';
         this.cssClass = 'icon-tabular-realtime';
@@ -30,7 +32,7 @@ export default class ChannelTableViewProvider {
             rowName: '',
             rowNamePlural: ''
         };
-        const table = new ChannelTable(domainObject, this.openmct);
+        const table = new ChannelTable(domainObject, this.openmct, this.options);
 
         const view = {
             show(element, isEditing, { renderWhenVisible }) {

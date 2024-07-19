@@ -1,7 +1,7 @@
 import CommandEventsViewProvider from './CommandEventsViewProvider.js';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 
-export default function CommandEventsViewPlugin() {
+export default function CommandEventsViewPlugin(options) {
     return function install(openmct) {        
         openmct.types.addType('vista.commandEventsView', {
             name: 'Command Events View',
@@ -16,7 +16,7 @@ export default function CommandEventsViewPlugin() {
             }
         });
 
-        openmct.objectViews.addProvider(new CommandEventsViewProvider(openmct));
+        openmct.objectViews.addProvider(new CommandEventsViewProvider(openmct, options));
 
         const wrappedGet = openmct.objectViews.get;
         openmct.objectViews.get = function (domainObject) {
@@ -30,7 +30,8 @@ export default function CommandEventsViewPlugin() {
             new VistaTableConfigurationProvider(
                 'vista.command-events-view-configuration',
                 'Config',
-                'vista.commandEventsView'
+                'vista.commandEventsView',
+                options
             )
         );
 

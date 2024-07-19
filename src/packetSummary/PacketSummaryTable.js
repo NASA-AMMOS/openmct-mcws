@@ -3,10 +3,6 @@ import PacketSummaryRowCollection from './PacketSummaryRowCollection';
 import PacketSummaryRow from './PacketSummaryRow';
 
 export default class PacketSummaryTable extends TelemetryTable {
-    constructor(domainObject, openmct) {
-        super(domainObject, openmct);
-    }
-
     initialize() {
         if (this.isDatasetNode()) {
             this.addTelemetryObject(this.domainObject);

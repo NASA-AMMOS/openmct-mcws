@@ -8,8 +8,8 @@ import DataProductRowCollection from './DataProductRowCollection';
 import _ from 'lodash';
 
 export default class DataProductTable extends TelemetryTable {
-  constructor(domainObject, openmct) {
-    super(domainObject, openmct);
+  constructor(domainObject, openmct, options) {
+    super(domainObject, openmct, options);
 
     this.setAutoClearTimeout = this.setAutoClearTimeout.bind(this);
     this.autoClearTimeoutObserver = this.openmct.objects.observe(this.domainObject,
@@ -28,7 +28,7 @@ export default class DataProductTable extends TelemetryTable {
   }
 
   createTableRowCollections() {
-    this.tableRows = new DataProductRowCollection.default(this.openmct);
+    this.tableRows = new DataProductRowCollection(this.openmct);
 
     //Fetch any persisted default sort
     let sortOptions = this.configuration.getConfiguration().sortOptions;

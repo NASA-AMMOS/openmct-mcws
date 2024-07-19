@@ -3,7 +3,7 @@ import HistoricalSessionIndicator from './indicator/historicalSessionIndicator.v
 import SessionTable from './sessionTable/SessionTable';
 import HistoricalSessionMetadata from './HistoricalSessionMetadata';
 
-export default function HistoricalSessionsPlugin() {
+export default function HistoricalSessionsPlugin(options) {
     return function install(openmct) {
         const renderWhenVisible = func => {
             window.requestAnimationFrame(func);
@@ -22,6 +22,7 @@ export default function HistoricalSessionsPlugin() {
         const table = new SessionTable(
             domainObject,
             openmct,
+            options,
             HistoricalSessionMetadata
         );
         const objectPath = [ domainObject ];

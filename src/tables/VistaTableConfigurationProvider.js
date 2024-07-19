@@ -4,7 +4,9 @@ import TableConfigurationComponent from 'openmct.tables.components.TableConfigur
 import mount from 'utils/mountVueComponent';
 
 export default class VistaTableConfigurationProvider {
-  constructor (key, name, type) {
+  constructor (key, name, type, options) {
+    this.options = options;
+
     this.key = key;
     this.name = name;
     this.type = type;
@@ -20,7 +22,7 @@ export default class VistaTableConfigurationProvider {
     let _destroy = null;
 
     const domainObject = selection[0][0].context.item;
-    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct);
+    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct, this.options);
 
     return {
       show: function (element) {

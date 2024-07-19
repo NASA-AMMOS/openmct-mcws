@@ -2,7 +2,7 @@ import CellFormatConfigurationComponent from './CellFormatConfigurationComponent
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 import mount from 'utils/mountVueComponent';
 
-export default function ChannelTableFormatViewProvider(openmct) {
+export default function ChannelTableFormatViewProvider(openmct, options) {
   return {
     key: 'channel-list-format',
     name: 'Format',
@@ -20,7 +20,7 @@ export default function ChannelTableFormatViewProvider(openmct) {
     view: function (selection) {
       let _destroy = null;
       let domainObject = selection[0][1].context.item;
-      const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct);
+      const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct, options);
 
       return {
         show: function (element) {

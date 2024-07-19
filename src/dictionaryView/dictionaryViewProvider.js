@@ -3,12 +3,13 @@ import DictionaryViewTable from './dictionaryViewTable.js';
 import mount from 'utils/mountVueComponent';
 
 export default class DictionaryViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.key = 'dictionary-view';
         this.name = 'Dictionary View';
         this.cssClass = 'icon-dataset';
 
         this.openmct = openmct;
+        this.options = options;
     }
 
     canView(domainObject) {
@@ -19,7 +20,7 @@ export default class DictionaryViewProvider {
         let component;
         let _destroy = null;
 
-        const table = new DictionaryViewTable(domainObject, openmct);
+        const table = new DictionaryViewTable(domainObject, openmct, this.options);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,

@@ -3,10 +3,10 @@ import AlarmsAutoclearViewProvider from './AlarmsAutoclearViewProvider';
 import AlarmsViewActions from './AlarmsViewActions';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider';
 
-export default function AlarmsViewPlugin() {
+export default function AlarmsViewPlugin(options) {
     return function install(openmct) {
-        openmct.objectViews.addProvider(new AlarmsViewProvider(openmct));
-        openmct.inspectorViews.addProvider(new AlarmsAutoclearViewProvider(openmct));
+        openmct.objectViews.addProvider(new AlarmsViewProvider(openmct, options));
+        openmct.inspectorViews.addProvider(new AlarmsAutoclearViewProvider(openmct, options));
 
         AlarmsViewActions.forEach(action => {
             openmct.actions.register(action);
@@ -28,7 +28,8 @@ export default function AlarmsViewPlugin() {
         openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
             'vista.alarm-view-configuration', 
             'Config',
-            'vista.alarmsView'
+            'vista.alarmsView',
+            options
         ));
 
         openmct.composition.addPolicy((parent, child) => {

@@ -3,8 +3,9 @@ import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfigurat
 import DataProductAutoclear from './data-product-autoclear.vue';
 
 export default class DataProductViewProvider {
-  constructor(openmct) {
+  constructor(openmct, options) {
     this.openmct = openmct;
+    this.options = options;
 
     this.key = 'vista.dataProducts-configuration';
     this.name = 'Autoclear';
@@ -20,13 +21,13 @@ export default class DataProductViewProvider {
     let _destroy = null;
 
     const domainObject = selection[0][0].context.item;
-    const tableConfiguration = new TelemetryTableConfiguration(domainObject, this.openmct);
+    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct, this.options);
 
     return {
       show: function (element) {
         const componentDefinition = {
           provide: {
-            openmct: this.openmct,
+            openmct,
             tableConfiguration
           },
           components: {

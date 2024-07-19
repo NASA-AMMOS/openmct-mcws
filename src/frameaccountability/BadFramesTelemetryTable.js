@@ -2,8 +2,8 @@ import TelemetryTable from 'openmct.tables.TelemetryTable';
 import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
 
 export default class BadFramesTelemetryTable extends TelemetryTable { 
-    constructor(domainObject, openmct, metadata = []) {
-        super(domainObject, openmct);
+    constructor(domainObject, openmct, options, metadata = []) {
+        super(domainObject, openmct, options);
 
         this.metadata = metadata;
         this.data = [];
