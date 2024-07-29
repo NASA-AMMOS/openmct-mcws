@@ -3,8 +3,9 @@ import TableComponent from 'openmct.tables.components.Table';
 import mount from 'utils/mountVueComponent';
 
 export default class MessagesViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.messagesView';
         this.name = 'Messages View';
@@ -19,7 +20,7 @@ export default class MessagesViewProvider {
         let component;
         let _destroy = null;
 
-        const table = new MessagesTable(domainObject, openmct);
+        const table = new MessagesTable(domainObject, openmct, this.options);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,
