@@ -1,7 +1,7 @@
 import PacketSummaryViewProvider from './PacketSummaryViewProvider';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 
-export default function PacketSummaryPlugin() {
+export default function PacketSummaryPlugin(options) {
     return function install(openmct) {
         openmct.types.addType('vista.packetSummaryView', {
             name: "Packet Summary View",
@@ -14,7 +14,7 @@ export default function PacketSummaryPlugin() {
             }
         });
 
-        openmct.objectViews.addProvider(new PacketSummaryViewProvider(openmct));
+        openmct.objectViews.addProvider(new PacketSummaryViewProvider(openmct, options));
 
         const wrappedGet = openmct.objectViews.get;
         openmct.objectViews.get = function (domainObject) {
@@ -33,7 +33,8 @@ export default function PacketSummaryPlugin() {
         openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
             'vista.packet-summary-configuration', 
             'Config',
-            'vista.packetSummaryView'
+            'vista.packetSummaryView',
+            options
         ));
     }
 };

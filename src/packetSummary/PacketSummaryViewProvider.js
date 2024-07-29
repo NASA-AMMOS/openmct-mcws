@@ -3,8 +3,9 @@ import PacketSummaryTable from './PacketSummaryTable.js';
 import PacketSummaryViewComponent from './components/PacketSummaryViewComponent.vue';
 
 export default class ProductSummaryViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.packetSummaryViewProvider';
         this.name = 'Packet Summary View';
@@ -19,7 +20,7 @@ export default class ProductSummaryViewProvider {
         let component;
         let _destroy = null;
 
-        const table = new PacketSummaryTable(domainObject, openmct);
+        const table = new PacketSummaryTable(domainObject, openmct, this.options);
 
         const view = {
             show: function (element, editMode, { renderWhenVisible }) {
