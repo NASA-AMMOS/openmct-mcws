@@ -171,7 +171,7 @@ function importWithDatasetsModifier(openmct) {
         datasets = undefined;
         referencedDatasets = undefined;
         component = undefined;
-        destroyForm = undefined;
+        _destroy = undefined;
     }
 
     function getReferencedDatasetsFromImport(json) {
