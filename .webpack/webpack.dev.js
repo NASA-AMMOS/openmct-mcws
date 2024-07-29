@@ -67,8 +67,7 @@ module.exports = merge(common, {
         }],
         client: {
             progress: true,
-            // overlay: true
-            overlay: false
+            overlay: true
         },
         proxy: {
             '/mcws-test': {
