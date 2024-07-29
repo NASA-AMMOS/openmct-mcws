@@ -22,7 +22,7 @@ export default class FrameWatchConfigurationViewProvider {
 
     view(selection) {
         const domainObject = selection[0][0].context.item;
-        const tableConfiguration = new FrameWatchTableConfiguration(domainObject, this.openmct, this.type);
+        const tableConfiguration = new FrameWatchTableConfiguration(domainObject, openmct, this.type);
 
         return {
             show: function (element) {
