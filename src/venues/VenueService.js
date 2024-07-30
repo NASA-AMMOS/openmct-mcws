@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import sessionService from '../services/session/SessionService';
 import VenueDialogComponent from './components/VenueDialogComponent.vue';
 import Venue from './Venue';
@@ -8,6 +8,8 @@ class VenueService {
         this.venues = configuration.venues;
         this.openmct = openmct;
         this.selectionPromise = null;
+
+        this._destroy = null;
     }
 
     async getSelectedVenue() {
@@ -22,13 +24,13 @@ class VenueService {
         this.selectionPromise = new Promise((resolve, reject) => {
             this.resolveSelection = resolve;
             this.rejectSelection = reject;
-            const VenueDialogComponent = this.createVenueDialogElement();
+            const element = this.createVenueDialogElement();
             this.overlay = this.openmct.overlays.overlay({
-                element: VenueDialogComponent.$mount().$el,
+                element,
                 size: 'small',
                 dismissable: false,
                 onDestroy: () => {
-                    VenueDialogComponent.$destroy();
+                    this._destroy();
                 }
             });
         }).finally(() => this.overlay.dismiss());
@@ -36,24 +38,37 @@ class VenueService {
         return this.selectionPromise;
     }
 
-    createVenueDialogElement() {
+    createVenueDialogElement(element) {
         const self = this;
-        const VenueDialogVueComponent = new Vue({
+
+        const componentDefinition = {
             provide: {
                 venueService: self
             },
+            template: `<VenueDialogComponent @submit="handleSubmit" />`,
             components: {
                 VenueDialogComponent
             },
-            template: `<VenueDialogComponent @submit="handleSubmit" />`,
             methods: {
                 handleSubmit(isActive, selectedSession, selectedVenue) {
                     self.handleDialogSubmit(isActive, selectedSession, selectedVenue);
                 }
             }
-        });
+        };
 
-        return VenueDialogVueComponent;
+        const componentOptions = {
+            element
+        };
+
+        const {
+            componentInstance,
+            destroy,
+            el
+        } = mount(componentDefinition, componentOptions);
+
+        this._destroy = destroy;
+
+        return el;
     }
 
     async handleDialogSubmit(isActive, selectedSession, selectedVenue) {
