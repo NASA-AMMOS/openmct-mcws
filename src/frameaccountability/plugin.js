@@ -1,7 +1,7 @@
 import FrameAccountabilityViewProvider from './frameAccountabilityViewProvider';
 import FrameAccountabilityCompositionPolicy from './frameAccountabilityCompositionPolicy';
 
-export default function install(expectedVcidList) {
+export default function install(options) {
     return function FrameAccountabilityPlugin(openmct) {
 
         openmct.types.addType('vista.frameaccountability', {
@@ -28,7 +28,7 @@ export default function install(expectedVcidList) {
                 return domainObject.type === 'vista.frameaccountability';
             },
             view(domainObject) {
-                return new FrameAccountabilityViewProvider(domainObject, openmct, expectedVcidList);
+                return new FrameAccountabilityViewProvider(domainObject, openmct, options);
             }
         });
 

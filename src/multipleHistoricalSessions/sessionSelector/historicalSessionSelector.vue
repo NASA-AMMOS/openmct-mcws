@@ -9,7 +9,7 @@
             </div>
         </template>
 
-        <template v-if="!isLoading">
+        <template v-else>
             <div class="c-overlay__top-bar">
                 <div class="c-overlay__dialog-title">Select Historical Sessions</div>
                 <div class="c-overlay__dialog-hint">Select one or more sessions to use for historical queries. Note that sessions may only be selected within one host at a time.</div>
@@ -145,6 +145,7 @@
 <script>
 import TelemetryTable from 'openmct.tables.components.Table';
 import SessionService from 'services/session/SessionService';
+import { nextTick } from 'vue';
 
 export default {
     inject: ['openmct', 'table'],
@@ -167,7 +168,7 @@ export default {
             isLoading: true
         }
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.table.destroy();
     },
     methods: {
@@ -182,7 +183,7 @@ export default {
         selectHostAndFilterSessions(host){
             this.selectedHost = host;
             this.sessionServiceFilteredByHost = this.availableSessions.filter(session => session.host === host);
-            this.$nextTick(() => {
+            nextTick(() => {
                 this.updateDataInTable(this.sessionServiceFilteredByHost);
             });
         },

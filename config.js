@@ -482,6 +482,22 @@
         ],
         */
         /**
+         * Table Performance Mode Configuration
+         * Can increase performance by limiting the maximum rows retained and displayed by tables
+         * Affects all bounded table types such as Telemetry and EVR tables
+         * Does not affect latest available tables such as Channel tables
+         * @typedef TablePerformanceOptions
+         * @type {object}
+         * @property {('performance'|'unlimited')} telemetryMode performance mode limits the maximum table rows
+         * @property {Boolean} persistModeChange whether changes in the UI are persisted with the table
+         * @property {Number} rowLimit the maximum number of rows in performance mode
+         */
+        tablePerformanceOptions: {
+          telemetryMode: 'unlimited',
+          persistModeChange: false,
+          rowLimit: 50
+        },
+        /**
          * Developer Settings-- do not modify these unless you know what
          * they do!
          */

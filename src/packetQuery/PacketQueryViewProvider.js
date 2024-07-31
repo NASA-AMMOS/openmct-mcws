@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import PacketQueryView from './components/PacketQueryView.vue';
 
 export default class PacketQueryViewProvider {
@@ -14,12 +14,11 @@ export default class PacketQueryViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let component;
+        let _destroy = null;
 
         const view = {
             show: function (element) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         PacketQueryView
                     },
@@ -40,11 +39,22 @@ export default class PacketQueryViewProvider {
                             :domain-object="domainObject"
                             :view="view"
                         />`
-                });
+                };
+
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+
+                _destroy = destroy;
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

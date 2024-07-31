@@ -1,10 +1,11 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import TableComponent from 'openmct.tables.components.Table';
 import DataProductTable from './DataProductTable.js';
 
 export default class DataProductViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.productStatus';
         this.name = 'Data Product View';
@@ -16,33 +17,36 @@ export default class DataProductViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new DataProductTable(domainObject, openmct);
         let component;
-        let markingProp = {
+        let _destroy = null;
+
+        const openmct = this.openmct;
+        const table = new DataProductTable(domainObject, openmct, this.options);
+        const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+            show(element, editMode, { renderWhenVisible }) {
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
                     data() {
                         return {
                             isEditing: editMode,
-                            markingProp,
-                            view
+                            markingProp
                         };
                     },
                     provide: {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     methods: {
                         clearCompleted() {
@@ -55,13 +59,24 @@ export default class DataProductViewProvider {
                     template:
                         `<table-component
                             ref="tableComponent"
-                            class="v-data-products"
                             :allowSorting="true"
                             :isEditing="isEditing"
                             :marking="markingProp"
-                            :view="view"
                         ></table-component>`
-                });
+                };
+
+                const componentOptions = {
+                    element
+                };
+
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -89,9 +104,8 @@ export default class DataProductViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

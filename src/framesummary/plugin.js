@@ -2,7 +2,7 @@ import FrameWatchViewProvider from './FrameWatchViewProvider';
 import FrameWatchConfigurationViewProvider from './FrameWatchConfigurationViewProvider';
 import { ENCODING_WATCH_TYPE, FRAME_WATCH_TYPE } from './config';
 
-export default function FrameWatchViewPlugin() {
+export default function FrameWatchViewPlugin(options) {
     return function install(openmct) {
         openmct.types.addType(ENCODING_WATCH_TYPE, {
             name: "Encoding Watch View",
@@ -30,6 +30,7 @@ export default function FrameWatchViewPlugin() {
             openmct,
             'vista.frameWatchViewProvider',
             'Frame Watch View',
+            options,
             FRAME_WATCH_TYPE
         ));
 
@@ -37,6 +38,7 @@ export default function FrameWatchViewPlugin() {
             openmct,
             'vista.encodingWatchViewProvider',
             'Encoding Watch View',
+            options,
             ENCODING_WATCH_TYPE
         ));
 
@@ -44,6 +46,7 @@ export default function FrameWatchViewPlugin() {
             openmct,
             'vista.encodingWatchConfigurationViewProvider',
             'Config',
+            options,
             ENCODING_WATCH_TYPE
         ));
 
@@ -51,6 +54,7 @@ export default function FrameWatchViewPlugin() {
             openmct,
             'vista.frameWatchConfigurationViewProvider',
             'Config',
+            options,
             FRAME_WATCH_TYPE
         ));
 

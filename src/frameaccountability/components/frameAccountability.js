@@ -145,13 +145,11 @@ define([
             },
             updateFramesCollection(vcid) {
                 return (datum) => {
-                    let collection = this.sortedEventsCollections[vcid];
+                    const collection = this.sortedEventsCollections[vcid];
 
-                    if (this.events[vcid]) {
-                        this.$set(this.events, vcid, collection.getRows());
-                    } else {
-                        this.$set(this.events, vcid, [collection.getRows()]);
-                    }
+                    this.events[vcid] = this.events[vcid] !== undefined
+                        ? collection.getRows()
+                        : [ collection.getRows() ];
                 };
             },
             lastChild(vcid) {
@@ -208,7 +206,7 @@ define([
             this.composition.on('remove', this.removeEvents);
             this.composition.load();
         },
-        destroyed() {
+        beforeUnmount() {
             this.composition.off('add', this.addEvents);
             this.composition.off('remove', this.removeEvents);
 

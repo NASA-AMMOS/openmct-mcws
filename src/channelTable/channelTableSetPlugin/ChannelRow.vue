@@ -22,6 +22,7 @@
     const BLANK_VALUE = '---';
     export default {
         inject: ['openmct', 'currentView'],
+        emits: ['rowContextClick'],
         props: {
             domainObject: {
                 type: Object,
@@ -105,7 +106,7 @@
             this.telemetryCollection.on('clear', this.resetValues);
             this.telemetryCollection.load();
         },
-        destroyed() {
+        beforeUnmount() {
             this.openmct.time.off('timeSystem', this.updateTimeSystem);
             this.telemetryCollection.off('add', this.setLatestValues);
             this.telemetryCollection.off('clear', this.resetValues);

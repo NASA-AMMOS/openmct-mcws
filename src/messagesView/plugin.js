@@ -3,7 +3,7 @@ import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationPr
 
 export default function MessagesViewPlugin(options) {
     return function install(openmct) {
-        openmct.objectViews.addProvider(new MessagesViewProvider(openmct));
+        openmct.objectViews.addProvider(new MessagesViewProvider(openmct, options));
         openmct.types.addType('vista.messagesView', {
             name: "Messages View",
             description: "Drag and drop a message node into this view to show a filterable table of messages",
@@ -20,7 +20,8 @@ export default function MessagesViewPlugin(options) {
             new VistaTableConfigurationProvider(
                 'vista.messages-view-configuration', 
                 'Config',
-                'vista.messagesView'
+                'vista.messagesView',
+                options
             )
         );
 

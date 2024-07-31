@@ -1,10 +1,11 @@
 import FrameEventFilterTable from './FrameEventFilterTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class FrameEventFilterViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.frameEventFilterView';
         this.name = 'Frame Events Filtered View';
@@ -16,33 +17,35 @@ export default class FrameEventFilterViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new FrameEventFilterTable(domainObject, openmct);
         let component;
+        let _destroy = null;
+
+        let table = new FrameEventFilterTable(domainObject, openmct, this.options);
         let markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+            show: function (element, editMode, { renderWhenVisible }) {
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
                     data() {
                         return {
                             isEditing: editMode,
-                            markingProp,
-                            view
+                            markingProp
                         };
                     },
                     provide: {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     template: `
                         <table-component
@@ -51,13 +54,25 @@ export default class FrameEventFilterViewProvider {
                             :allowSorting="true"
                             :isEditing="isEditing"
                             :marking="markingProp"
-                            :view="view"
                         >
                             <template slot="buttons">
                             </template>
                         </table-component>
                     `
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -74,9 +89,8 @@ export default class FrameEventFilterViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

@@ -1,5 +1,5 @@
 import ImportWithDatasetsFormComponent from './ImportWithDatasetsFormComponent.vue';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import DatasetCache from 'services/dataset/DatasetCache';
 import Types from 'types/types';
 
@@ -9,6 +9,7 @@ function importWithDatasetsModifier(openmct) {
     let datasets;
     let referencedDatasets;
     let component;
+    let _destroy = null;
 
     const importAsJSONAction = openmct.actions._allActions['import.JSON'];
 
@@ -75,7 +76,7 @@ function importWithDatasetsModifier(openmct) {
                 onSave(domainObject, changes);
             })
             .catch(error => {
-                component.$destroy();
+                _destroy?.();
             });
     }
 
@@ -124,8 +125,7 @@ function importWithDatasetsModifier(openmct) {
     function getImportWithDatasetsFormController(openmct) {
         return {
             show(element, model, onChange) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         ImportWithDatasetsFormComponent
                     },
@@ -149,12 +149,19 @@ function importWithDatasetsModifier(openmct) {
                             this.hasImport = true
                         }
                     }
-                });
+                };
+                const componentOptions = { element };
 
-                return component;
+                const {
+                  componentInstance,
+                  destroy,
+                  el
+                } = mount(componentDefinition, componentOptions)
+
+                _destroy = destroy;
             },
             destroy() {
-                component.$destroy();
+                _destroy?.();
                 resetAction();
             }
         };
@@ -164,6 +171,7 @@ function importWithDatasetsModifier(openmct) {
         datasets = undefined;
         referencedDatasets = undefined;
         component = undefined;
+        _destroy = undefined;
     }
 
     function getReferencedDatasetsFromImport(json) {

@@ -3,8 +3,10 @@ import EVRViewLevelsConfigurationViewProvider from './EVRViewLevelsConfiguration
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider';
 
 export default function EVRViewPlugin(options) {
+    const { taxonomy, tablePerformanceOptions } = options;
+
     return function install(openmct) {
-        openmct.objectViews.addProvider(new EVRViewProvider(openmct));
+        openmct.objectViews.addProvider(new EVRViewProvider(openmct, tablePerformanceOptions));
 
         openmct.types.addType('vista.evrView', {
             name: "EVR View",
@@ -20,14 +22,15 @@ export default function EVRViewPlugin(options) {
         });
 
         openmct.inspectorViews.addProvider(
-            new EVRViewLevelsConfigurationViewProvider(options)
+            new EVRViewLevelsConfigurationViewProvider(taxonomy)
         );
 
         openmct.inspectorViews.addProvider(
             new VistaTableConfigurationProvider(
                 'vista.evr-view-configuration', 
                 'Config',
-                'vista.evrView'
+                'vista.evrView',
+                tablePerformanceOptions
             )
         );
 

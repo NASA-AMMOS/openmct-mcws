@@ -1,21 +1,13 @@
-define([
-    'openmct.tables.TelemetryTable'
-], function (
-    TelemetryTable
-) {
-    return class CommandEventsTable extends TelemetryTable {
-        constructor(domainObject, openmct) {
-            super(domainObject, openmct);
-        }
+import TelemetryTable from 'openmct.tables.TelemetryTable';
+export default class CommandEventsTable extends TelemetryTable {
+  initialize() {
+    this.filterObserver = this.openmct.objects.observe(
+      this.domainObject,
+      'configuration.filters',
+      this.updateFilters
+    );
 
-        initialize() {
-            this.filterObserver = this.openmct.objects.observe(
-                this.domainObject,
-                'configuration.filters',
-                this.updateFilters
-            );
-            this.filters = this.domainObject.configuration && this.domainObject.configuration.filters;
-            this.loadComposition();
-        }
-    };
-});
+    this.filters = this.domainObject.configuration && this.domainObject.configuration.filters;
+    this.loadComposition();
+  }
+}

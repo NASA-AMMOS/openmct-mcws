@@ -113,7 +113,7 @@ export default {
     mounted() {
         this.openmct.editor.on('isEditing', this.toggleEdit);
     },
-    destroyed() {
+    beforeUnmount() {
         this.openmct.editor.off('isEditing', this.toggleEdit);
     }
 }

@@ -1,6 +1,6 @@
 import EVRTable from './EVRTable';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 const RESTRICTED_VIEWS = ['plot-single', 'table'];
 const EVR_SOURCES = [
@@ -15,11 +15,12 @@ function providesEVRData(domainObject) {
     ));
 }
 export default class EVRViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.key = 'vista.evrView';
         this.name = 'EVR View';
         this.cssClass = 'icon-tabular-realtime';
         this.openmct = openmct;
+        this.options = options;
 
         this.view = this.view.bind(this);
     }
@@ -37,17 +38,19 @@ export default class EVRViewProvider {
 
     view(domainObject, objectPath) {
         let component;
-        const table = new EVRTable(domainObject, this.openmct);
+        let _destroy = null;
+
+        const table = new EVRTable(domainObject, this.openmct, this.options);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+            show: function (element, editMode, { renderWhenVisible }) {
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
@@ -55,13 +58,13 @@ export default class EVRViewProvider {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     data() {
                         return {
                             isEditing: editMode,
-                            markingProp,
-                            view
+                            markingProp
                         };
                     },
                     template: `
@@ -70,10 +73,22 @@ export default class EVRViewProvider {
                             :is-editing="isEditing"
                             :allow-sorting="true"
                             :marking="markingProp"
-                            :view="view"
                         ></table-component>
                     `
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -90,9 +105,8 @@ export default class EVRViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

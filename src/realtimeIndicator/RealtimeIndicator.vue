@@ -69,7 +69,7 @@ export default {
                 this.vistaTime.ladClocks.ert.on('tick', this.setTick.bind(this));
             }
     },
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.vistaTime.ladClocks.ert) {
             this.vistaTime.ladClocks.ert.off('tick', this.setTick.bind(this));
         }

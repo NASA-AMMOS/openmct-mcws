@@ -3,8 +3,8 @@ import { config } from './config';
 import FrameWatchColumn from './FrameWatchColumn';
 
 export default class FrameWatchTableConfiguration extends TelemetryTableConfiguration {
-    constructor(domainObject, openmct, type) {
-        super(domainObject, openmct);
+    constructor(domainObject, openmct, options, type) {
+        super(domainObject, openmct, options);
 
         this.config = config[type];
         this.columns = this.config.columns.map(column => new FrameWatchColumn(column.key, column.title));

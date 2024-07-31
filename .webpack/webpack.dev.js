@@ -21,11 +21,6 @@ module.exports = merge(common, {
     entry: {
         config: './config.js'
     },
-    resolve: {
-        alias: {
-            vue: path.join(__dirname, '..', 'node_modules/vue/dist/vue.js'),
-        }
-    },
     plugins: [
         new CopyWebpackPlugin({
             patterns: [

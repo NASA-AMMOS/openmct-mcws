@@ -1,10 +1,11 @@
 import CommandEventsTable from './CommandEventsTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class CommandEventsViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.commandEventsView';
         this.name = 'Command Events View';
@@ -16,48 +17,61 @@ export default class CommandEventsViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new CommandEventsTable(domainObject, openmct);
         let component;
-        let markingProp = {
+        let _destroy = null;
+
+        const table = new CommandEventsTable(domainObject, openmct, this.options);
+        const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
-                    components: {
-                        TableComponent
-                    },
-                    data() {
-                        return {
-                            isEditing: editMode,
-                            markingProp,
-                            view
-                        };
-                    },
-                    provide: {
-                        openmct,
-                        table,
-                        objectPath,
-                        currentView: view
-                    },
-                    template: `
-                        <table-component
-                            ref="tableComponent"
-                            class="v-data-products"
-                            :allowSorting="true"
-                            :isEditing="isEditing"
-                            :marking="markingProp"
-                            :view="view"
-                        >
-                            <template slot="buttons">
-                            </template>
-                        </table-component>
-                    `
-                });
+            show: function (element, editMode, { renderWhenVisible }) {
+                const componentDefinition = {
+                  components: {
+                      TableComponent
+                  },
+                  data() {
+                      return {
+                          isEditing: editMode,
+                          markingProp
+                      };
+                  },
+                  provide: {
+                      openmct,
+                      table,
+                      objectPath,
+                      currentView: view,
+                      renderWhenVisible
+                  },
+                  template: `
+                      <table-component
+                          ref="tableComponent"
+                          :allowSorting="true"
+                          :isEditing="isEditing"
+                          :marking="markingProp"
+                      >
+                          <template slot="buttons">
+                          </template>
+                      </table-component>
+                  `
+                };
+
+                const componentOptions = {
+                    element
+                };
+
+                const {
+                  componentInstance,
+                  destroy,
+                  el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -74,9 +88,8 @@ export default class CommandEventsViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

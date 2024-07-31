@@ -1,29 +1,26 @@
-define([
-    'lib/HistoricalContextTableRow',
-    'printj',
-], function (HistoricalContextTableRow, printj) {
-    class ChannelTableRow extends HistoricalContextTableRow{
-        constructor(datum, columns, objectKeyString, limitEvaluator, rowFormatConfiguration) {
-            super(datum, columns, objectKeyString, limitEvaluator);
-            this.rowFormats = rowFormatConfiguration || {};
-        }
+import HistoricalContextTableRow from 'lib/HistoricalContextTableRow';
+import printj from 'printj';
 
-        getFormattedValue(key) {
-            if (this.rowFormats[key]) {
-                return this.getCustomFormattedValue(this.datum[key], this.rowFormats[key]);
-            } else {
-                let column = this.columns[key];
-                return column && column.getFormattedValue(this.datum[key]);    
-            }
-        }
+export default class ChannelTableRow extends HistoricalContextTableRow {
+  constructor(datum, columns, objectKeyString, limitEvaluator, rowFormatConfiguration) {
+    super(datum, columns, objectKeyString, limitEvaluator);
+    this.rowFormats = rowFormatConfiguration || {};
+  }
 
-        getCustomFormattedValue(value, format) {
-            return printj.sprintf(format, value);
-        }
-
-        updateRowConfiguration(rowFormatConfiguration) {
-            this.rowFormats = rowFormatConfiguration || {};
-        }
+  getFormattedValue(key) {
+    if (this.rowFormats[key]) {
+      return this.getCustomFormattedValue(this.datum[key], this.rowFormats[key]);
+    } else {
+      let column = this.columns[key];
+      return column && column.getFormattedValue(this.datum[key]);
     }
-    return ChannelTableRow;
-});
+  }
+
+  getCustomFormattedValue(value, format) {
+    return printj.sprintf(format, value);
+  }
+
+  updateRowConfiguration(rowFormatConfiguration) {
+    this.rowFormats = rowFormatConfiguration || {};
+  }
+}

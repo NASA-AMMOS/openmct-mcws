@@ -138,7 +138,7 @@ export default {
         let activeSessions = this.sessionService.getHistoricalSession();
         this.onActiveSessionChange(activeSessions);
     },
-    destroyed() {
+    beforeUnmount() {
         this.table.extendsDestroy();    
         this.unsubscribeSessionListener();
     }

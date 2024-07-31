@@ -13,6 +13,7 @@
     </div>
     <div class="l-preview-window__object-view l-preview-window__object-view-no-padding">
         <telemetry-table
+            ref="tableComponent"
             :marking="markingProp"
             :enableLegacyToolbar="true"
         >
@@ -69,7 +70,7 @@ export default {
     mounted() {
         this.table.clearAndUpdateData(this.badFrames);
 
-        this.telemetryTableVueComponent = this.$children[0];
+        this.telemetryTableVueComponent = this.$refs.tableComponent;
         this.telemetryTableVueComponent.sortBy('event_time');
 
         let overlay = this.openmct.overlays.overlay({
@@ -84,7 +85,7 @@ export default {
             onDestroy: this.hideBadFrames
         });
     },
-    destroyed() {
+    beforeUnmount() {
        this.table.sortBy({});
     }
 }
