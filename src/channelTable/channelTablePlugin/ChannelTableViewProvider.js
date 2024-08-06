@@ -61,7 +61,7 @@ export default class ChannelTableViewProvider {
                         :isEditing="isEditing"
                         :marking="markingProp"
                         :allowFiltering="false"
-                        :allowSorting="false"
+                        :allowSorting="true"
                         :view="view"
                     ></table-component>`
                 };
