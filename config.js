@@ -427,7 +427,8 @@
         sessions: {
             historicalSessionFilter: {
                 disable: false,
-                maxRecords: 100
+                maxRecords: 100,
+                denyUnfilteredQueries: false
             },
             realtimeSession: {
                 disable: false
