@@ -156,7 +156,9 @@ function importWithDatasetsModifier(openmct) {
                   componentInstance,
                   destroy,
                   el
-                } = mount(componentDefinition, componentOptions)
+                } = mount(componentDefinition, componentOptions);
+
+                component = componentInstance;
 
                 _destroy = destroy;
             },
