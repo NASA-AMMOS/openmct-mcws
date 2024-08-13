@@ -1,10 +1,12 @@
 import ChannelTable from './ChannelTable';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class ChannelTableViewProvider { 
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
+
         this.key = 'vista.channel-list';
         this.name = 'Channel List';
         this.cssClass = 'icon-tabular-realtime';
@@ -22,17 +24,19 @@ export default class ChannelTableViewProvider {
 
     view(domainObject, objectPath) {
         let component;
-        let markingProp = {
+        let _destroy = null;
+
+        const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+        const table = new ChannelTable(domainObject, this.openmct, this.options);
 
-        const table = new ChannelTable(domainObject, this.openmct);
         const view = {
-            show(element, isEditing) {
-                component = new Vue({
+            show(element, isEditing, { renderWhenVisible }) {
+                const componentDefinition = {
                     data() {
                         return {
                             isEditing,
@@ -47,20 +51,32 @@ export default class ChannelTableViewProvider {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
-                    el: element,
                     template: `
                     <table-component
-                        class="js-channel-list-view"
+                        :class="'js-channel-list-view'"
                         ref="tableComponent"
                         :isEditing="isEditing"
                         :marking="markingProp"
                         :allowFiltering="false"
-                        :allowSorting="false"
+                        :allowSorting="true"
                         :view="view"
                     ></table-component>`
-                });
+                };
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(isEditing) {
                 component.isEditing = isEditing;
@@ -78,8 +94,7 @@ export default class ChannelTableViewProvider {
                 }
             },
             destroy() {
-                component.$destroy();
-                component = undefined;
+                _destroy?.();
             }
         }
 

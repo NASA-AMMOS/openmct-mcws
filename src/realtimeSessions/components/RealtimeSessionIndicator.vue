@@ -75,7 +75,7 @@ export default {
 
         this.pollForSessions();
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.stopListening?.();
     },
     computed: {

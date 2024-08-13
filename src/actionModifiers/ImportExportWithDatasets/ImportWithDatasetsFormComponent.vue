@@ -139,7 +139,7 @@ export default {
                 const referencedDatasetKeyString = this.makeKeyString(referencedDataset);
                 const datasetKeyString = this.makeKeyString(this.datasets[0]);
 
-                this.$set(this.mapping, referencedDatasetKeyString, datasetKeyString);
+                this.mapping[referencedDatasetKeyString] = datasetKeyString;
             });
         },
         makeKeyString(domainObject) {

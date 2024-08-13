@@ -1,11 +1,12 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import FrameWatchTable from './FrameWatchTable';
 import FrameWatchViewComponent from './components/FrameWatchViewComponent.vue';
 import { FRAME_WATCH_TYPE } from './config';
 
 export default class FrameWatchViewProvider {
-    constructor(openmct, key, name, type = FRAME_WATCH_TYPE) {
+    constructor(openmct, key, name, options, type = FRAME_WATCH_TYPE) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = key;
         this.name = name;
@@ -18,13 +19,14 @@ export default class FrameWatchViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new FrameWatchTable(domainObject, openmct, this.type);
         let component;
+        let _destroy = null;
+      
+        const table = new FrameWatchTable(domainObject, this.openmct, this.options, this.type);
 
         const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+            show: function (element, editMode, { renderWhenVisible }) {
+                const componentDefinition = {
                     components: {
                         FrameWatchViewComponent
                     },
@@ -38,7 +40,8 @@ export default class FrameWatchViewProvider {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     template: `
                         <frame-watch-view-component
@@ -47,7 +50,20 @@ export default class FrameWatchViewProvider {
                             :isEditing="isEditing"
                         />
                     `
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -66,9 +82,8 @@ export default class FrameWatchViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

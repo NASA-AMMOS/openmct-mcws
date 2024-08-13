@@ -11,7 +11,6 @@
 </template>
 
 <script>
-
 import mcws from 'services/mcws/mcws';
 
 const MCWS_PERSISTENCE_CHECK_NAMESPACE = '';
@@ -57,7 +56,7 @@ export default {
             namespace: ''
         };
     },
-    destroyed() {
+    beforeUnmount() {
         clearInterval(this.intervalId);
     },
     mounted() {
@@ -70,7 +69,7 @@ export default {
             this.namespace.read().then(
                 () => { this.state = CONNECTION_STATES.CONNECTED; },
                 () => { this.state = CONNECTION_STATES.DISCONNECTED; }
-           );
+            );
         }
     }
 };

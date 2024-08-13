@@ -1,14 +1,15 @@
 import DictionaryView from './components/dictionaryView.vue';
 import DictionaryViewTable from './dictionaryViewTable.js';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class DictionaryViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.key = 'dictionary-view';
         this.name = 'Dictionary View';
         this.cssClass = 'icon-dataset';
 
         this.openmct = openmct;
+        this.options = options;
     }
 
     canView(domainObject) {
@@ -17,8 +18,9 @@ export default class DictionaryViewProvider {
 
     view(domainObject, objectPath) {
         let component;
+        let _destroy = null;
 
-        let table = new DictionaryViewTable(domainObject, openmct);
+        const table = new DictionaryViewTable(domainObject, openmct, this.options);
         const markingProp = {
             enable: true,
             useAlternateControlBar: false,
@@ -28,8 +30,7 @@ export default class DictionaryViewProvider {
 
         const view = {
             show: function (element, editMode) {
-                component =  new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
                         DictionaryView
                     },
@@ -58,8 +59,21 @@ export default class DictionaryViewProvider {
                         >
                             <template v-slot:buttons></template>
                         </dictionary-view>
-                    `,
-                });
+                    `
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -70,9 +84,8 @@ export default class DictionaryViewProvider {
             getViewContext() {
                 return {};
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

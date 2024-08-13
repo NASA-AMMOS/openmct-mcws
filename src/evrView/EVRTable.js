@@ -2,10 +2,6 @@ import TelemetryTable from 'openmct.tables.TelemetryTable'
 import EVRLevelIndicatorTableRow from './EVRLevelIndicatorTableRow'
 
 export default class EVRTable extends TelemetryTable {
-    constructor(domainObject, openmct) {
-        super(domainObject, openmct);
-    }
-
     initialize() {
         if (this.domainObject.type === 'vista.evrView') {
             this.filterObserver = this.openmct.objects.observe(

@@ -22,6 +22,10 @@ export default class UserProvider {
         return this.userPromise;
     }
 
+    getPossibleRoles() {
+        return [];
+    }
+
     async #getUserInfo() {
         try {
             const rows = await mcws.namespace().read();

@@ -8,8 +8,8 @@ import Types from '../types/types.js';
 
 
 export default class FrameWatchTable extends TelemetryTable {
-    constructor(domainObject, openmct, type) {
-        super(domainObject, openmct);
+    constructor(domainObject, openmct, options, type) {
+        super(domainObject, openmct, options);
 
         this.type = type;
         this.config = config[this.type];

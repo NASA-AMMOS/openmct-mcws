@@ -63,7 +63,7 @@ export default {
     mounted() {
         this.table.on('update-header', this.updateHeader);
     },
-    destroyed() {
+    beforeUnmount() {
         this.table.off('update-header', this.updateHeader);
     },
     data() {

@@ -1,4 +1,4 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import FrameWatchTableConfiguration from './FrameWatchTableConfiguration';
 import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
 
@@ -7,6 +7,9 @@ export default class FrameWatchConfigurationViewProvider {
         this.key = key;
         this.name = name;
         this.type = type;
+
+        this.openmct = openmct;
+        this._destroy = null;
     }
 
     canView(selection) {
@@ -18,30 +21,39 @@ export default class FrameWatchConfigurationViewProvider {
     }
 
     view(selection) {
-        let component;
-        let domainObject = selection[0][0].context.item;
+        const domainObject = selection[0][0].context.item;
         const tableConfiguration = new FrameWatchTableConfiguration(domainObject, openmct, this.type);
 
         return {
             show: function (element) {
-                component = new Vue({
+                const componentDefinition = {
                     provide: {
-                        openmct,
+                        openmct: this.openmct,
                         tableConfiguration
                     },
                     components: {
                         TableConfiguration: TableConfigurationComponent
                     },
                     template: '<table-configuration></table-configuration>',
-                    el: element
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                this._destroy = destroy;
             },
             priority: function () {
-                return openmct.priority.HIGH + 1;
+                return this.openmct.priority.HIGH + 1;
             },
             destroy: function () {
-                component.$destroy();
-                component = undefined;
+                this._destroy?.();
             }
         }
     }

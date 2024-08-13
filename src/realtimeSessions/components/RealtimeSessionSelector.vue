@@ -11,7 +11,7 @@
         </div>
     </template>
 
-    <template>
+    <template v-else>
         <div class="c-overlay__top-bar">
             <div class="c-overlay__dialog-title">Select Real-time Data Source</div>
         </div>

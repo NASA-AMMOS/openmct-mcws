@@ -1,22 +1,21 @@
-
-import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
-import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
 import mount from 'utils/mountVueComponent';
+import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
+import DataProductAutoclear from './data-product-autoclear.vue';
 
-export default class VistaTableConfigurationProvider {
-  constructor (key, name, type, options) {
+export default class DataProductViewProvider {
+  constructor(openmct, options) {
+    this.openmct = openmct;
     this.options = options;
 
-    this.key = key;
-    this.name = name;
-    this.type = type;
+    this.key = 'vista.dataProducts-configuration';
+    this.name = 'Autoclear';
   }
 
   canView (selection) {
     const domainObject = selection?.[0]?.[0]?.context?.item;
 
-    return domainObject?.type === this.type;
-  };
+    return domainObject?.type === 'vista.dataProductsView';
+  }
 
   view (selection) {
     let _destroy = null;
@@ -32,15 +31,15 @@ export default class VistaTableConfigurationProvider {
             tableConfiguration
           },
           components: {
-              TableConfiguration: TableConfigurationComponent
+              DataProductAutoclear
           },
-          template: '<table-configuration></table-configuration>'
+          template: '<data-product-autoclear></data-product-autoclear>',
         };
-        
+
         const componentOptions = {
             element
         };
-        
+
         const {
             componentInstance,
             destroy,
@@ -49,11 +48,8 @@ export default class VistaTableConfigurationProvider {
 
         _destroy = destroy;
       },
-      showTab: function (isEditing) {
-        return isEditing;
-      },
       priority: function () {
-        return openmct.priority.HIGH + 1;
+        return openmct.priority.HIGH;
       },
       destroy: function () {
         _destroy?.();

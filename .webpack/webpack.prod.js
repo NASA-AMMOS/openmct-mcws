@@ -11,11 +11,5 @@ const path = require('path');
 
 /** @type {import('webpack').Configuration} */
 module.exports =  merge(common, {
-    mode: 'production',
-    resolve: {
-        alias: {
-            "vue": path.join(__dirname, '..', 'node_modules/vue/dist/vue.min.js'),
-        }
-    },
-    devtool: 'source-map'
+    mode: 'production'
 });

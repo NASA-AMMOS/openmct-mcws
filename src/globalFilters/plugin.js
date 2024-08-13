@@ -1,26 +1,32 @@
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 import GlobalFilterIndicator from './GlobalFilterIndicator.vue';
 
 export default function plugin(config) {
   return function install(openmct) {
+    const componentDefinition = {
+      provide: {
+        openmct,
+        filters: config
+      },
+      components: {
+        GlobalFilterIndicator
+      },
+      template: '<GlobalFilterIndicator />'
+    };
+
+    const {
+      componentInstance,
+      destroy,
+      el
+    } = mount(componentDefinition);
+
     const indicator = {
-      element: document.createElement('div'),
-      priority: openmct.priority.DEFAULT
+      key: 'global-filter-indicator',
+      priority: openmct.priority.DEFAULT,
+      element: el,
+      destroy
     };
 
     openmct.indicators.add(indicator);
-    openmct.on('start', () => {
-      let component = new Vue({
-        el: indicator.element,
-        provide: {
-          openmct,
-          filters: config
-        },
-        components: {
-          GlobalFilterIndicator
-        },
-        template: '<GlobalFilterIndicator />'
-      });
-    });
   };
 }

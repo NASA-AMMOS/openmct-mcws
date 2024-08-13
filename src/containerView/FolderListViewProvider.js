@@ -1,5 +1,5 @@
 import FolderListViewComponent from 'openmct.views.FolderListViewComponent';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class FolderListView {
     constructor(openmct, types) {
@@ -16,25 +16,35 @@ export default class FolderListView {
     }
 
     view(domainObject, objectPath) {
-        let component;
+        let _destroy = null;
 
         return {
             show: function (element) {
-                component = new Vue({
-                    el: element,
+                const componentDefinition = {
                     components: {
-                        listViewComponent: FolderListViewComponent
+                      listViewComponent: FolderListViewComponent
                     },
                     provide: {
                         openmct,
                         domainObject
                     },
                     template: '<list-view-component></list-view-component>'
-                });
+                };
+
+                const componentOptions = {
+                    element
+                };
+
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+
+                _destroy = destroy;
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
     }

@@ -1,10 +1,11 @@
 import MessagesTable from './MessagesTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'utils/mountVueComponent';
 
 export default class MessagesViewProvider {
-    constructor(openmct) {
+    constructor(openmct, options) {
         this.openmct = openmct;
+        this.options = options;
 
         this.key = 'vista.messagesView';
         this.name = 'Messages View';
@@ -16,18 +17,20 @@ export default class MessagesViewProvider {
     }
 
     view(domainObject, objectPath) {
-        let table = new MessagesTable(domainObject, openmct);
         let component;
-        let markingProp = {
+        let _destroy = null;
+
+        const table = new MessagesTable(domainObject, openmct, this.options);
+        const markingProp = {
             enable: true,
             useAlternateControlBar: false,
             rowName: '',
             rowNamePlural: ''
         };
+
         const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
+            show: function (element, editMode, { renderWhenVisible }) {
+                const componentDefinition = {
                     components: {
                         TableComponent
                     },
@@ -42,7 +45,8 @@ export default class MessagesViewProvider {
                         openmct,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     template: `
                         <table-component
@@ -55,7 +59,20 @@ export default class MessagesViewProvider {
                         >
                         </table-component>
                     `
-                });
+                };
+                
+                const componentOptions = {
+                    element
+                };
+                
+                const {
+                    componentInstance,
+                    destroy,
+                    el
+                } = mount(componentDefinition, componentOptions);
+                
+                component = componentInstance;
+                _destroy = destroy;
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;
@@ -72,9 +89,8 @@ export default class MessagesViewProvider {
                     };
                 }
             },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
+            destroy: function () {
+                _destroy?.();
             }
         };
 

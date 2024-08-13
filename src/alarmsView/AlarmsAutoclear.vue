@@ -49,7 +49,7 @@ export default {
         this.unlisteners = [];
         this.openmct.editor.on('isEditing', this.toggleEdit);
     },
-    destroyed() {
+    beforeUnmount() {
         this.openmct.editor.off('isEditing', this.toggleEdit);
         this.unlisteners.forEach((unlisten) => unlisten());
     }

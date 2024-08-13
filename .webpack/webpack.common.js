@@ -41,6 +41,8 @@ const config = {
              * Globals
             **/
             "openmct": path.join(__dirname, '..', "node_modules/openmct/dist/openmct.js"),
+            // this is a core openmct alias required to resolve '@' in core components
+            "@": path.join(__dirname, '..', "node_modules/openmct/src"),
             "saveAs": "file-saver/src/FileSaver.js",
             "EventEmitter": "eventemitter3",
             "bourbon": "bourbon.scss",
@@ -53,6 +55,7 @@ const config = {
             "services": path.join(__dirname, '..', "src/services"),
             "lib": path.join(__dirname, '..', "src/lib"),
             "tables": path.join(__dirname, '..', "src/tables"),
+            "utils": path.join(__dirname, '..', "src/utils"),
             /**
              * Open MCT Folder View Components
             **/
@@ -72,8 +75,9 @@ const config = {
              /**
              * Telemetry Table Components
             **/
-            "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/table.vue"),
-            "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/table-configuration.vue"),
+            "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue"),
+            "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue"),
+            "vue": "vue/dist/vue.esm-bundler.js"
         }
     },
     plugins: [
@@ -81,7 +85,9 @@ const config = {
             __VISTA_VERSION__: `'${packageDefinition.version}'`,
             __VISTA_BUILD_DATE__: `'${new Date()}'`,
             __VISTA_REVISION__: `'${gitRevision}'`,
-            __VISTA_BUILD_BRANCH__: `'${gitBranch}'`
+            __VISTA_BUILD_BRANCH__: `'${gitBranch}'`,
+            __VUE_OPTIONS_API__: true, // enable/disable Options API support, default: true
+            __VUE_PROD_DEVTOOLS__: false // enable/disable devtools support in production, default: false
         }),
         new VueLoaderPlugin(),
         new MiniCssExtractPlugin({
@@ -98,13 +104,23 @@ const config = {
                     {
                         loader: 'css-loader'
                     },
-                    'resolve-url-loader',
-                    'sass-loader'
+                    {
+                        loader: 'resolve-url-loader'
+                    },
+                    {
+                        loader: 'sass-loader',
+                        options: { sourceMap: true }
+                    }
                 ]
             },
             {
                 test: /\.vue$/,
-                use: 'vue-loader'
+                loader: 'vue-loader',
+                options: {
+                    compilerOptions: {
+                        whitespace: 'preserve'
+                    }
+                }
             },
             {
                 test: /\.html$/,
