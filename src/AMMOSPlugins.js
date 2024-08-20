@@ -92,7 +92,7 @@ define([
             });
             openmct.install(RealtimeIndicatorPlugin.default(vistaTime));
 
-            const identityPlugin = new IdentityPlugin(options);
+            const identityPlugin = new IdentityPlugin.default(options);
             openmct.install(identityPlugin);
 
             mcwsClient.default.configure(options, identityPlugin.login);

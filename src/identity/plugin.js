@@ -1,20 +1,17 @@
-define([
-    './LoginService'
-], function (
-    LoginService
-) {
+import LoginService from './LoginService';
 
-    function IdentityPlugin(options) {
-
-        return function install(openmct) {
-            if (options.proxyUrl) {
-                options.camUrl = options.proxyUrl + 'cam/UI/Login';
-            }
-            var loginService = new LoginService(options.camUrl);
-            install.login = loginService.login.bind(loginService);
-        }
+class IdentityPlugin {
+    constructor(options) {
+        this.options = options;
     }
 
-    return IdentityPlugin;
+    install(openmct) {
+        if (this.options.proxyUrl) {
+            this.options.camUrl = this.options.proxyUrl + 'cam/UI/Login';
+        }
+        const loginService = new LoginService(this.options.camUrl);
+        this.install.login = loginService.login.bind(loginService);
+    }
+}
 
-});
+export default IdentityPlugin;
