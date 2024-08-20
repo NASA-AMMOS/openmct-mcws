@@ -18,8 +18,17 @@ export default class LoginService {
         const message = event.data;
         const trustedOrigin = new URL(this.camUrl).origin;
 
-        if (event.origin === trustedOrigin && message.name === 'login:complete') {
+        // Check if the event origin matches the trusted origin
+        if (event.origin !== trustedOrigin) {
+            console.warn('Untrusted origin:', event.origin);
+            return;
+        }
+
+        // Validate the message object
+        if (typeof message === 'object' && message !== null && message.name === 'login:complete') {
             this.completeLogin();
+        } else {
+            console.warn('Invalid message:', message);
         }
     }
 
