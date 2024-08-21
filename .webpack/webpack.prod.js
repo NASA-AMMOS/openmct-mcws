@@ -11,5 +11,6 @@ const path = require('path');
 
 /** @type {import('webpack').Configuration} */
 module.exports =  merge(common, {
-    mode: 'production'
+    mode: 'production',
+    devtool: 'eval-source-map'
 });
