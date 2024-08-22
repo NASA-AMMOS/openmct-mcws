@@ -5,9 +5,8 @@ class MCWSClient {
         this._updatePending = this._updatePending.bind(this);
     }
 
-    configure(config, login) {
+    configure(config) {
         this.config = config;
-        this.login = login;
     }
     
     proxyRequest(options) {
@@ -86,21 +85,6 @@ class MCWSClient {
         return this.proxyRequest(options);
     };
     
-    isCamResponse(response) {
-        const contentType = response?.headers?.['content-type'];
-
-        return contentType?.includes('text/html');
-    }
-
-    getResponseType(response) {
-        // TODO: more nuanced response handling should be done here
-        if (this.isCamResponse(response)) {
-            return 'cam';
-        } else {
-            return 'unhandled';
-        }
-    }
-    
     async authorizedRequest(options) {
         let response;
         const url = options.url;
@@ -108,13 +92,6 @@ class MCWSClient {
         
         try {
             response = await this.baseRequest(url, options);
-            const responseType = this.getResponseType(response);
-
-            if (responseType === 'cam') {
-                await this.login();
-                
-                response = await this.baseRequest(url, options);
-            }
         } catch(error) {
             return Promise.reject(error);
         }

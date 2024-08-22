@@ -6,7 +6,6 @@ define([
     './taxonomy/plugin',
     './time/plugin',
     'services/time/vistaTime',
-    './identity/plugin',
     './historical/plugin',
     './realtime/plugin',
     './link/plugin',
@@ -41,7 +40,6 @@ define([
     TaxonomyPlugin,
     TimePlugin,
     getVistaTime,
-    IdentityPlugin,
     HistoricalTelemetryPlugin,
     RealtimeTelemetryPlugin,
     LinkPlugin,
@@ -92,10 +90,7 @@ define([
             });
             openmct.install(RealtimeIndicatorPlugin.default(vistaTime));
 
-            const identityPlugin = new IdentityPlugin(options);
-            openmct.install(identityPlugin);
-
-            mcwsClient.default.configure(options, identityPlugin.login);
+            mcwsClient.default.configure(options);
 
             openmct.install(MultipleHistoricalSessions.default(options.tablePerformanceOptions));
             openmct.install(RealtimeSessions.default());
