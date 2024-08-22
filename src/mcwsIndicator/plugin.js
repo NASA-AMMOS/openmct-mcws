@@ -1,5 +1,5 @@
 import MCWSIndicator from './MCWSIndicator.vue';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default function MCWSIndicatorPlugin() {
   return function install(openmct) {

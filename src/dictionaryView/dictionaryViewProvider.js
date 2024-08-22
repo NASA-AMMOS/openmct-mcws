@@ -1,6 +1,6 @@
 import DictionaryView from './components/dictionaryView.vue';
 import DictionaryViewTable from './dictionaryViewTable.js';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class DictionaryViewProvider {
     constructor(openmct, options) {

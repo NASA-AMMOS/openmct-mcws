@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import PacketSummaryTable from './PacketSummaryTable.js';
 import PacketSummaryViewComponent from './components/PacketSummaryViewComponent.vue';
 

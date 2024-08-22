@@ -1,6 +1,6 @@
 import MCWSIndicator from './MCWSIndicator.vue';
 import mcws from 'services/mcws/mcws'
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import { nextTick } from 'vue';
 
 function getText(el) {

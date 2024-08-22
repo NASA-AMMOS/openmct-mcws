@@ -1,5 +1,5 @@
 import FolderListViewComponent from 'openmct.views.FolderListViewComponent';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class FolderListView {
     constructor(openmct, types) {

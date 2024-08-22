@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import HistoricalSessionIndicator from './indicator/historicalSessionIndicator.vue';
 import SessionTable from './sessionTable/SessionTable';
 import HistoricalSessionMetadata from './HistoricalSessionMetadata';

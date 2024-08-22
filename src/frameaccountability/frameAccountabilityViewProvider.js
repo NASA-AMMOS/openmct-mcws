@@ -1,6 +1,6 @@
 import frameAccountability from './components/frameAccountability';
 import BadFramesTelemetryTable from './BadFramesTelemetryTable';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 const FLAG_COLORS = {
     'InSync': '#7FFF00',
