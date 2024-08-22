@@ -1,6 +1,6 @@
 import ChannelTable from './ChannelTable';
 import TableComponent from 'openmct.tables.components.Table';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class ChannelTableViewProvider { 
     constructor(openmct, options) {

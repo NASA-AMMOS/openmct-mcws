@@ -38,24 +38,30 @@ const config = {
     resolve: {
         alias: {
             /**
+             * Core Open MCT Aliases -- required to resolve source dependencies
+            **/
+            "@": path.join(__dirname, '..', "node_modules/openmct/src"),
+            "objectUtils": path.join(__dirname, '..', "node_modules/openmct/src/api/objects/object-utils.js"),
+            "styles": path.join(__dirname, '..', "node_modules/openmct/src/styles"),
+            "testUtils": path.join(__dirname, '..', "node_modules/openmct/src/utils/testUtils.js"),
+            "utils": path.join(__dirname, '..', "node_modules/openmct/src/utils"),
+            /**
              * Globals
             **/
             "openmct": path.join(__dirname, '..', "node_modules/openmct/dist/openmct.js"),
-            // this is a core openmct alias required to resolve '@' in core components
-            "@": path.join(__dirname, '..', "node_modules/openmct/src"),
             "saveAs": "file-saver/src/FileSaver.js",
             "EventEmitter": "eventemitter3",
             "bourbon": "bourbon.scss",
             "printj": path.join(__dirname, '..', "node_modules/printj/dist/printj.min.js"),
-            "styles": path.join(__dirname, '..', "node_modules/openmct/src/styles"),
+            "vue": "vue/dist/vue.esm-bundler.js",
             /**
-             * VISTA Paths
+             * Open MCT for MCWS Paths
             **/
             "types": path.join(__dirname, '..', "src/types"),
             "services": path.join(__dirname, '..', "src/services"),
             "lib": path.join(__dirname, '..', "src/lib"),
             "tables": path.join(__dirname, '..', "src/tables"),
-            "utils": path.join(__dirname, '..', "src/utils"),
+            "ommUtils": path.join(__dirname, '..', "src/utils"),
             /**
              * Open MCT Folder View Components
             **/
@@ -77,7 +83,6 @@ const config = {
             **/
             "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue"),
             "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue"),
-            "vue": "vue/dist/vue.esm-bundler.js"
         }
     },
     plugins: [

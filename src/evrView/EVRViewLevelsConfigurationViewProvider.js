@@ -1,5 +1,5 @@
 import EVRViewLevelsConfigurationView from './EVRViewLevelsConfigurationView.vue'
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default function EVRViewLevelsConfigurationViewProvider(options) {
     return {

@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import sessionService from '../services/session/SessionService';
 import VenueDialogComponent from './components/VenueDialogComponent.vue';
 import Venue from './Venue';

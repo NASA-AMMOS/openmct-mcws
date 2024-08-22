@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import PacketQueryView from './components/PacketQueryView.vue';
 
 export default class PacketQueryViewProvider {

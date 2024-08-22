@@ -1,6 +1,6 @@
 import CommandEventsTable from './CommandEventsTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class CommandEventsViewProvider {
     constructor(openmct, options) {

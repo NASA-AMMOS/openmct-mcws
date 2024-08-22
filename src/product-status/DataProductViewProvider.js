@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import TableComponent from 'openmct.tables.components.Table';
 import DataProductTable from './DataProductTable.js';
 
