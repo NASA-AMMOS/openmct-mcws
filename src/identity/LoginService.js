@@ -10,7 +10,6 @@ define(
          * @param camUrl the url to use for logging in a user.
          */
         function LoginService(camUrl) {
-            console.log("init");
             this.camUrl = camUrl;
             this.overlay = undefined;
             this.whenLoggedIn = undefined;
@@ -21,7 +20,6 @@ define(
          * @private
          */
         LoginService.prototype.onMessage = function (event) {
-            console.log("onMessage");
             var message = event.data;
             if (message.name === 'login:complete') {
                 this.completeLogin();
@@ -34,7 +32,6 @@ define(
          * @private
          */
         LoginService.prototype.getLoginUrl = function () {
-            console.log("getLoginUrl");
             return this.camUrl + "?goto=" +
                 encodeURIComponent(
                     window.location.origin +
@@ -47,7 +44,6 @@ define(
          * @private
          */
         LoginService.prototype.show = function () {
-            console.log("show");
             this.overlay = document.createElement('div');
             this.overlay.classList.add('u-contents');
             
@@ -65,7 +61,6 @@ define(
          * @private
          */
         LoginService.prototype.completeLogin = function () {
-            console.log("completeLogin");
             this.overlay.remove();
             this.resolve();
             delete this.overlay;
@@ -80,7 +75,6 @@ define(
          *     or rejected if they choose not to log in.
          */
         LoginService.prototype.login = function () {
-            console.log("login");
             if (this.whenLoggedIn) {
                 return this.whenLoggedIn;
             }
