@@ -8,5 +8,13 @@ const blob = new Blob(
 const objectUrl = URL.createObjectURL(blob);
 
 export default function run() {
-    return new Worker(objectUrl);
+    const worker = new Worker(objectUrl);
+    const allowedOrigin = window.location.origin;
+
+    worker.postMessage({
+        key: 'establish-origin',
+        value: { origin: allowedOrigin }
+    });
+
+    return worker;
 }

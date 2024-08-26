@@ -2,7 +2,8 @@
 (function (self, WebSocket) {
     "use strict";
 
-    var worker;
+    let worker;
+    let allowedOrigin;
 
     /**
      * Represents a subscription to streaming channel data for
@@ -305,8 +306,21 @@
     self.onmessage = function (messageEvent) {
         var data = messageEvent.data,
             method = worker[data.key];
-        if (method) {
-            method.call(worker, data.value);
+
+        // Check for 'establish-origin' message type
+        if (data.key === 'establish-origin') {
+            allowedOrigin = data.value.origin;
+            console.log('Allowed origin set to:', allowedOrigin);
+            return;
+        }
+
+        // Check if the event origin matches the allowed origin
+        if (messageEvent.origin === allowedOrigin) {
+            if (method) {
+                method.call(worker, data.value);
+            }
+        } else {
+            console.warn('Untrusted origin:', messageEvent.origin);
         }
     };
 
