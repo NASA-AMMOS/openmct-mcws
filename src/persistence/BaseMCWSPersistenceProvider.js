@@ -1,6 +1,5 @@
 import mcws from '../services/mcws/mcws';
 import {
-    createIdentifierFromNamespaceDefinition,
     createModelFromNamespaceDefinitionWithPersisted,
     interpolateUsername
   } from './utils';
