@@ -1,6 +1,7 @@
 import { createIdentifierFromNamespaceDefinition, createNamespace } from './utils';
 import existingNamespaceUpdateInterceptor from './existingNamespaceUpdateInterceptor';
 import MCWSPersistenceProvider from './MCWSPersistenceProvider';
+import MCWSUserContainerProvider from './MCWSUserContainerProvider';
 import oldPersistenceFolderInterceptor from './oldPersistenceFolderInterceptor';
 
 export default function MCWSPersistenceProviderPlugin(configNamespaces) {
@@ -12,11 +13,15 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
         openmct.objects.addRoot(() => rootsPromise);
         const namespaces = configNamespaces.map(createNamespace);
         const mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, namespaces);
-
+        const mcwsUserContainerProvider = new MCWSUserContainerProvider(openmct, namespaces);
         // install the provider for each persistence space,
         // key is the namespace in the response for persistence namespaces
         const persistenceNamespaces = await mcwsPersistenceProvider.getPersistenceNamespaces();
-        persistenceNamespaces.forEach(({ key }) => openmct.objects.addProvider(key, mcwsPersistenceProvider));
+        persistenceNamespaces.forEach(({ key, containsNamespaces }) => {
+            const provider = containsNamespaces ? mcwsUserContainerProvider : mcwsPersistenceProvider;
+
+            openmct.objects.addProvider(key, provider);
+        });
 
         // add the roots
         const rootNamespaces = await mcwsPersistenceProvider.getRootNamespaces();
