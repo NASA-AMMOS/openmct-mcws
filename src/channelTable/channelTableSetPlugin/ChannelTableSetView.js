@@ -1,5 +1,5 @@
 import ChannelTableSet from './ChannelTableSet.vue';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class ChannelTableSetView {
     constructor(openmct, domainObject, objectPath) {

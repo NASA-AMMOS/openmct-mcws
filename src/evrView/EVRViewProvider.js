@@ -1,6 +1,6 @@
 import EVRTable from './EVRTable';
 import TableComponent from 'openmct.tables.components.Table';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 const RESTRICTED_VIEWS = ['plot-single', 'table'];
 const EVR_SOURCES = [

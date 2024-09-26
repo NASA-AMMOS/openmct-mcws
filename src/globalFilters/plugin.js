@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import GlobalFilterIndicator from './GlobalFilterIndicator.vue';
 
 export default function plugin(config) {

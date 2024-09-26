@@ -1,6 +1,6 @@
 import FrameEventFilterTable from './FrameEventFilterTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class FrameEventFilterViewProvider {
     constructor(openmct, options) {
