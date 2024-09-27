@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws",
-  "version": "5.3.0-next",
+  "version": "5.3.0-rc1",
   "description": "Open MCT for MCWS",
   "devDependencies": {
     "@braintree/sanitize-url": "6.0.2",
@@ -32,7 +32,7 @@
     "mini-css-extract-plugin": "2.6.0",
     "moment": "2.29.4",
     "node-bourbon": "^4.2.3",
-    "openmct": "nasa/openmct#omm-5.3-openmct-4.0.0",
+    "openmct": "nasa/openmct#omm-r5.3.0-rc1",
     "printj": "^1.2.1",
     "raw-loader": "^0.5.1",
     "resolve-url-loader": "5.0.0",
