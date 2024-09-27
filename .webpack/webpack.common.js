@@ -38,16 +38,28 @@ const config = {
     resolve: {
         alias: {
             /**
+             * Open MCT Source Paths
+             * TODO FIXME these rely on openmct core source paths becase we extend core code directly
+             */
+            "@": path.join(__dirname, '..', "node_modules/openmct/src"),
+            "objectUtils": path.join(__dirname, '..', 'node_modules/openmct/src/api/objects/object-utils.js'),
+            "utils": path.join(__dirname, '..', 'node_modules/openmct/src/utils'),
+            "openmct.views.FolderGridViewComponent": path.join(__dirname, '..', "node_modules/openmct/src/plugins/folderView/components/GridView.vue"),
+            "openmct.views.FolderListViewComponent": path.join(__dirname, '..', "node_modules/openmct/src/plugins/folderView/components/ListView.vue"),
+            "openmct.tables.TelemetryTable": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTable.js"),
+            "openmct.tables.TelemetryTableColumn": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTableColumn.js"),
+            "openmct.tables.TelemetryTableRow": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTableRow.js"),
+            "openmct.tables.TelemetryTableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTableConfiguration.js"),
+            "openmct.tables.collections.TableRowCollection": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/collections/TableRowCollection.js"),
+            "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue"),
+            "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue"),
+            /**
              * Globals
             **/
             "openmct": path.join(__dirname, '..', "node_modules/openmct/dist/openmct.js"),
-            // this is a core openmct alias required to resolve '@' in core components
-            "@": path.join(__dirname, '..', "node_modules/openmct/src"),
             "saveAs": "file-saver/src/FileSaver.js",
-            "EventEmitter": "eventemitter3",
             "bourbon": "bourbon.scss",
             "printj": path.join(__dirname, '..', "node_modules/printj/dist/printj.min.js"),
-            "styles": path.join(__dirname, '..', "node_modules/openmct/src/styles"),
             /**
              * VISTA Paths
             **/
@@ -55,28 +67,7 @@ const config = {
             "services": path.join(__dirname, '..', "src/services"),
             "lib": path.join(__dirname, '..', "src/lib"),
             "tables": path.join(__dirname, '..', "src/tables"),
-            "utils": path.join(__dirname, '..', "src/utils"),
-            /**
-             * Open MCT Folder View Components
-            **/
-            "openmct.views.FolderGridViewComponent": path.join(__dirname, '..', "node_modules/openmct/src/plugins/folderView/components/GridView.vue"),
-            "openmct.views.FolderListViewComponent": path.join(__dirname, '..', "node_modules/openmct/src/plugins/folderView/components/ListView.vue"),
-            /**
-             * Open MCT Telemetry Tables
-            **/
-            "openmct.tables.TelemetryTable": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTable.js"),
-            "openmct.tables.TelemetryTableColumn": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTableColumn.js"),
-            "openmct.tables.TelemetryTableRow": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTableRow.js"),
-            "openmct.tables.TelemetryTableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/TelemetryTableConfiguration.js"),
-            /**
-             * Telemetry Table Collections
-            **/
-            "openmct.tables.collections.TableRowCollection": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/collections/TableRowCollection.js"),
-             /**
-             * Telemetry Table Components
-            **/
-            "openmct.tables.components.Table": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue"),
-            "openmct.tables.components.TableConfiguration": path.join(__dirname, '..', "node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue"),
+            "ommUtils": path.join(__dirname, '..', "src/utils"),
             "vue": "vue/dist/vue.esm-bundler.js"
         }
     },
@@ -118,6 +109,7 @@ const config = {
                 loader: 'vue-loader',
                 options: {
                     compilerOptions: {
+                        hoistStatic: false,
                         whitespace: 'preserve'
                     }
                 }

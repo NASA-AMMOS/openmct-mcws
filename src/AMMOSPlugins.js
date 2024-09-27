@@ -77,7 +77,7 @@ define([
 
             openmct.install(new FormatPlugin(options));
 
-            const timePlugin = new TimePlugin(openmct, options.time);
+            const timePlugin = new TimePlugin.default(options.time);
             openmct.install(timePlugin);
 
             const formatKey = options.time.utcFormat;

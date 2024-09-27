@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import FrameWatchTable from './FrameWatchTable';
 import FrameWatchViewComponent from './components/FrameWatchViewComponent.vue';
 import { FRAME_WATCH_TYPE } from './config';

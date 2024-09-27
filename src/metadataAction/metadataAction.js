@@ -1,5 +1,5 @@
 import MetadataListView from './components/metadataList.vue';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class MetadataAction {
   constructor(openmct) {

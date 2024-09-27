@@ -1,5 +1,5 @@
 import ImportWithDatasetsFormComponent from './ImportWithDatasetsFormComponent.vue';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import DatasetCache from 'services/dataset/DatasetCache';
 import Types from 'types/types';
 

@@ -1,4 +1,4 @@
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 import FrameWatchTableConfiguration from './FrameWatchTableConfiguration';
 import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
 

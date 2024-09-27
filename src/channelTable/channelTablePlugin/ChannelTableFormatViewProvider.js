@@ -1,6 +1,6 @@
 import CellFormatConfigurationComponent from './CellFormatConfigurationComponent.vue';
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
-import mount from 'utils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent';
 
 export default function ChannelTableFormatViewProvider(openmct, options) {
   return {
