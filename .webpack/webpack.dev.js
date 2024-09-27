@@ -48,7 +48,6 @@ module.exports = merge(common, {
     },
     devtool: 'eval-source-map',
     devServer: {
-        open: true,
         devMiddleware: {
             writeToDisk: (filePathString) => {
                 const filePath = path.parse(filePathString);
@@ -57,40 +56,46 @@ module.exports = merge(common, {
                 return shouldWrite;
             }
         },
-        watchFiles: ['**/*.css'],
+        watchFiles: ['src/**/*.css'],
         static: [{
             directory: path.join(__dirname, '..', 'node_modules/openmct/dist'),
-            publicPath: '/node_modules/openmct/dist'
+            publicPath: '/node_modules/openmct/dist',
+            watch: false
         },{
             directory: path.join(__dirname, '..', 'test_data'),
-            publicPath: '/test_data'
+            publicPath: '/test_data',
+            watch: false
         }],
         client: {
             progress: true,
-            overlay: true
+            overlay: false
         },
-        proxy: {
-            '/mcws-test': {
-                target: 'http://localhost:8090',
-                secure: false
-            },
-            '/mcws': {
-                target: apiUrl,
-                secure: false,
-                headers: proxyHeaders
-            },
-            '/proxyUrl': {
-                target: proxyUrl,
-                secure: false,
-                headers: proxyHeaders,
-                pathRewrite: (_path, req) => {
-                    const apiUrl = req.query.url;
-                    console.log('Generic URL Proxy to: ', apiUrl);
+        proxy: [
+          {
+            context: ['/mcws-test'],
+            target: 'http://localhost:8090',
+            secure: false,
+          },
+          {
+            context: ['/mcws'],
+            target: apiUrl,
+            secure: false,
+            headers: proxyHeaders
+          },
+          {
+            context: ['/proxyUrl'],
+              target: proxyUrl,
+              secure: false,
+              headers: proxyHeaders,
+              pathRewrite: (_path, req) => {
+                  const apiUrl = req.query.url;
+                  console.log('Generic URL Proxy to: ', apiUrl);
 
-                    return apiUrl;
-                }
-            }
-        }
+                  return apiUrl;
+              }
+          }
+        ],
+        hot: true,
     },
     stats: 'errors-warnings'
 });

@@ -1,4 +1,4 @@
-import EventEmitter from 'EventEmitter';
+import { EventEmitter } from 'eventemitter3';
 import FilterURLHandler from './FilterUrlHandler';
 import isEqual from 'lodash/isequal';
 import pickBy from 'lodash/pickby';

@@ -11,7 +11,7 @@
     "comma-separated-values": "3.6.4",
     "copy-webpack-plugin": "11.0.0",
     "css-loader": "4.0.0",
-    "eventemitter3": "1.2.0",
+    "eventemitter3": "5.0.1",
     "file-saver": "2.0.5",
     "git-rev-sync": "3.0.2",
     "html2canvas": "1.4.1",
@@ -42,10 +42,10 @@
     "style-loader": "^1.0.1",
     "vue": "3.3.8",
     "vue-loader": "16.8.3",
-    "webpack": "5.76.3",
-    "webpack-cli": "5.0.0",
-    "webpack-dev-server": "4.11.1",
-    "webpack-merge": "5.8.0",
+    "webpack": "5.90.3",
+    "webpack-cli": "5.1.1",
+    "webpack-dev-server": "5.0.2",
+    "webpack-merge": "5.10.0",
     "zepto": "^1.2.0"
   },
   "scripts": {

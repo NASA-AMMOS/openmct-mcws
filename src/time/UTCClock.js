@@ -1,22 +1,20 @@
-define([
-    './Clock'
-], function (
-    Clock
-) {
+import Clock from './Clock.js';
 
-    var UTCClock = Clock.extend({
-        key: 'utc.local',
-        name: 'Local UTC',
-        description: 'Ticks based on your local computer time.',
-        initialize: function () {
-            this.generateTick = this.generateTick.bind(this);
-            this.generateTick();
-            setInterval(this.generateTick, 1000/30);
-        },
-        generateTick: function () {
-            this.tick(Date.now());
-        }
-    });
+export default class UTCClock extends Clock {
+  constructor() {
+    super();
 
-    return UTCClock;
-});
+    this.key = 'utc.local';
+    this.name = 'Local UTC';
+    this.description = 'Ticks based on your local computer time.';
+  }
+
+  initialize() {
+    this.generateTick();
+    setInterval(this.generateTick.bind(this), 1000/30);
+  }
+
+  generateTick() {
+    super.tick(Date.now());
+  }
+}

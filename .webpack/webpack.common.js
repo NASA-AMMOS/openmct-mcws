@@ -58,7 +58,6 @@ const config = {
             **/
             "openmct": path.join(__dirname, '..', "node_modules/openmct/dist/openmct.js"),
             "saveAs": "file-saver/src/FileSaver.js",
-            "EventEmitter": "eventemitter3",
             "bourbon": "bourbon.scss",
             "printj": path.join(__dirname, '..', "node_modules/printj/dist/printj.min.js"),
             /**
@@ -110,6 +109,7 @@ const config = {
                 loader: 'vue-loader',
                 options: {
                     compilerOptions: {
+                        hoistStatic: false,
                         whitespace: 'preserve'
                     }
                 }
