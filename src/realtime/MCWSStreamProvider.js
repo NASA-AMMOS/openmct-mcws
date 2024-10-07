@@ -88,8 +88,8 @@ define([
 
         //Communicate websocket timeout and errors to users
         if (data.onclose && data.code === 1006) {
-            this.openmct.notifications.alert('Real-time data connection lost - data may not be displayed as expected.');
-            console.warn(`Real-time data connection lost - data may not be displayed as expected.`);
+            this.openmct.notifications.error('Real-time data connection lost - data may not be displayed as expected.');
+            console.error(`Real-time data connection lost - data may not be displayed as expected.`);
         } else if (data.onerror) {
             this.openmct.notifications.error('Websocket Error, please see console for details');
             console.error(`Websocket Error - Code:${data.code}, Error:${data.reason}`);
