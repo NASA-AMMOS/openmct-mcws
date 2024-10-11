@@ -88,27 +88,8 @@ define([
 
         //Communicate websocket timeout and errors to users
         if (data.onclose && data.code === 1006) {
-            let dialog = this.openmct.overlays.dialog({
-                iconClass: "alert",
-                message: 'Real-time data connection lost - data may not be displayed as expected. Please reload page to reconnect.',
-                buttons: [
-                    {
-                        label: "Cancel",
-                        callback: function () {
-                            dialog.dismiss();
-                        }
-                    },
-                    {
-                        label: "Reload",
-                        emphasis: true,
-                        callback: function () {
-                            dialog.dismiss();
-                            window.location.reload();
-                        }
-                    }
-                ]
-            });
-
+            this.openmct.notifications.error('Real-time data connection lost - data may not be displayed as expected.');
+            console.error(`Real-time data connection lost - data may not be displayed as expected.`);
         } else if (data.onerror) {
             this.openmct.notifications.error('Websocket Error, please see console for details');
             console.error(`Websocket Error - Code:${data.code}, Error:${data.reason}`);
