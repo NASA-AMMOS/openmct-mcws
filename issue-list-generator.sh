@@ -51,7 +51,7 @@ done
 get_heading() {
     case $1 in
         "commitment")
-            echo "Commitments"
+            echo "Requirements"
             ;;
         "improvement")
             echo "Improvements"
