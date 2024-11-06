@@ -20,7 +20,7 @@
 REPO="NASA-AMMOS/openmct-mcws"
 MILESTONE_NUMBERS=("11")
 MILESTONE_TITLES=() # will be populated with titles mapped to milestone nnumbers
-LABELS=("commitment" "improvement" "defect" "sustaining" "documentation" "other")
+LABELS=("commitment" "improvement" "defect" "sustaining" "other")
 
 # Default charge accounts
 CHARGE_ACCOUNT_DEFAULT="N/A"
@@ -61,9 +61,6 @@ get_heading() {
             ;;
         "sustaining")
             echo "Sustaining Activities"
-            ;;
-        "documentation")
-            echo "Documentation"
             ;;
         "other")
             echo "Other"
@@ -186,13 +183,9 @@ list_issues() {
                     columns="|| *ID* || *Title* || *Rational/Issue (PRS/ASK/MCR)* || *Requester/Reporter* || *Estimated Hours* || *Charge Account* || *Security Related (y/n)* || *Release Version* ||"
                     issues="| [$issue_number|$issue_url] | $issue_title | ${rationale} | ${requester} | ${estimated_hours} | ${charge_account} | ${is_security_related} | ${planned_release} |\n$issues"
                     ;;
-                "documentation")
+                "other")
                     columns="|| *ID* || *Title* || *Doc-id* || *Requester/Reporter* || *Estimated Hours* || *Charge Account* || *Security Related (y/n)* || *Release Version* ||"
                     issues="| [$issue_number|$issue_url] | $issue_title | ${doc_id} | ${requester} | ${estimated_hours} | ${charge_account} | ${is_security_related} | ${planned_release} |\n$issues"
-                    ;;
-                "other")
-                    columns="|| *ID* || *Title* || *Requester/Reporter* || *Estimated Hours* || *Charge Account* || *Security Related (y/n)* || *Release Version* ||"
-                    issues="| [$issue_number|$issue_url] | $issue_title | ${requester} | ${estimated_hours} | ${charge_account} | ${is_security_related} | ${planned_release} |\n$issues"
                     ;;
             esac
         done <<< "$issue_data"
