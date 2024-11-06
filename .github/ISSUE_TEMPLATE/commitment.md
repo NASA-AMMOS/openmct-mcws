@@ -2,7 +2,7 @@
 name: Requirement
 about: Items in this category are considered significant to the functionality of the software, the workload of the subsystem or a promised commitment to customers or the MGSS Program Office
 title: ''
-labels: commitment
+labels: commitment, requirement
 assignees: ''
 
 ---
