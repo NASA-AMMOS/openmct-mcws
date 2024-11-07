@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Script Name: issue-list-generator.sh
 # Description: Generates a list of issues from a specified GitHub repository and formats them for Confluence.
 
