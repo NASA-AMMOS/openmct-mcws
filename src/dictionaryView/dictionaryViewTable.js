@@ -22,34 +22,6 @@ export default class DictionaryViewTable extends TelemetryTable {
     addTelemetryObject(telemetryObject) {
         this.addColumnsForObject(telemetryObject, true);
 
-        const keyString = this.openmct.objects.makeKeyString(telemetryObject.identifier);
-        let requestOptions = this.buildOptionsFromConfiguration(telemetryObject);
-        let columnMap = this.getColumnMapForObject(keyString);
-        let limitEvaluator = this.openmct.telemetry.limitEvaluator(telemetryObject);
-
-        const telemetryProcessor = this.getTelemetryProcessor(keyString, columnMap, limitEvaluator);
-        const telemetryRemover = this.getTelemetryRemover();
-
-        this.removeTelemetryCollection(keyString);
-
-        this.telemetryCollections[keyString] = this.openmct.telemetry
-            .requestCollection(telemetryObject, requestOptions);
-
-        this.telemetryCollections[keyString].on('requestStarted', this.incrementOutstandingRequests);
-        this.telemetryCollections[keyString].on('requestEnded', this.decrementOutstandingRequests);
-        this.telemetryCollections[keyString].on('remove', telemetryRemover);
-        this.telemetryCollections[keyString].on('add', telemetryProcessor);
-        this.telemetryCollections[keyString].on('clear', this.clearData);
-        // this.telemetryCollections[keyString].load();
-
-        this.telemetryObjects[keyString] = {
-            telemetryObject,
-            keyString,
-            requestOptions,
-            columnMap,
-            limitEvaluator
-        };
-
         this.emit('object-added', telemetryObject);
     }
 
