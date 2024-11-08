@@ -1,7 +1,11 @@
-import mount from 'ommUtils/mountVueComponent';
 import TableComponent from 'openmct.tables.components.Table';
 import DataProductTable from './DataProductTable.js';
+import DATDownloadCell from './DATDownloadCell.js';
+import EMDDownloadCell from './EMDDownloadCell.js';
+import EMDPreviewCell from './EMDPreviewCell.js';
+import TXTDownloadCell from './TXTDownloadCell.js';
 
+import { createApp, defineComponent } from 'vue';
 export default class DataProductViewProvider {
     constructor(openmct, options) {
         this.openmct = openmct;
@@ -65,18 +69,20 @@ export default class DataProductViewProvider {
                         ></table-component>`
                 };
 
-                const componentOptions = {
-                    element
-                };
+                const mountingElement = element ?? document.createElement('div');
 
-                const {
-                    componentInstance,
-                    destroy,
-                    el
-                } = mount(componentDefinition, componentOptions);
-                
+                const vueComponent = defineComponent(componentDefinition);
+                const app = createApp(vueComponent);
+
+                app.component('vista-table-dat-cell', DATDownloadCell);
+                app.component('vista-table-emd-cell', EMDDownloadCell);
+                app.component('vista-table-emd-preview-cell', EMDPreviewCell);
+                app.component('vista-table-txt-cell', TXTDownloadCell);
+
+                const componentInstance = app.mount(mountingElement);
+
                 component = componentInstance;
-                _destroy = destroy;
+                _destroy = () => app.unmount();
             },
             onEditModeChange(editMode) {
                 component.isEditing = editMode;

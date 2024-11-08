@@ -15,8 +15,7 @@ const SORT_OPTIONS =
     ['session_id', 'rct', 'scet', 'ert', 'sclk', 'apid', 'spsc', 'vcid', 'ls'];
 
 const MINIMUM_QUERY_MESSAGE =
-    'One of "Query by Session" or "Bound to Time Conductor"' +
-    ' must be selected in order to query for packet content.';
+    `Select "Query by Session" or "Bound to Time Conductor" to query for packet content.`;
 const SESSION_ID_MESSAGE =
     'Must specify Session ID to query by session.';
 
