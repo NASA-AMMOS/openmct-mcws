@@ -83,6 +83,7 @@
 import ActiveVenueSelectorComponent from './ActiveVenueSelectorComponent.vue';
 import ActiveSessionSelectorComponent from './ActiveSessionSelectorComponent.vue';
 import HistoricalSessionSelectorComponent from './HistoricalSessionSelectorComponent.vue';
+import { toRaw } from 'vue';
 
 export default {
   components: {
@@ -131,7 +132,7 @@ export default {
       this.selectedSession = session;
     },
     submit() {
-      this.$emit('submit', this.isActiveVenueSelect, this.selectedSession, this.selectedVenue);
+      this.$emit('submit', this.isActiveVenueSelect, toRaw(this.selectedSession), this.selectedVenue);
     },
     async fetchAndSetUrlsForHistoricalSessions() {
       try {
