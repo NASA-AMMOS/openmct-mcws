@@ -136,8 +136,7 @@ export default {
             this.selection = model;
         },
         setActiveTopicOrSession() {
-            const plainData = toRaw(this.selection.data);
-            this.sessionService.setActiveTopicOrSession(plainData);
+            this.sessionService.setActiveTopicOrSession(toRaw(this.selection.data));
 
             this.closeOverlay();
         },
