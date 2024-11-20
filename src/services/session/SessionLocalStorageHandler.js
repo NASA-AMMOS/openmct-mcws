@@ -58,18 +58,18 @@ define([
      * from localStorage (if it exists)
      */
     SessionLocalStorageHandler.prototype.initializeFromStorage = function () {
-        if (this.sessionService.hasActiveTopicOrSession()) {
-            return;
+        if (!this.sessionService.hasActiveTopicOrSession()) {
+          const realtimeSession = localStorage.getItem(REALTIME_SESSION_KEY);
+
+          if (realtimeSession) {
+              this.sessionService.setActiveTopicOrSession(JSON.parse(realtimeSession));
+          }
         }
 
-        var realtimeSession = localStorage.getItem(REALTIME_SESSION_KEY);
-        if (realtimeSession) {
-            this.sessionService.setActiveTopicOrSession(JSON.parse(realtimeSession));
-        }
+        if (!this.sessionService.hasHistoricalSession()) {
+          const historicalSessionJSON = localStorage.getItem(HISTORICAL_SESSION_KEY);
 
-        var historicalSessionJSON = localStorage.getItem(HISTORICAL_SESSION_KEY);
-
-        if (historicalSessionJSON) {
+          if (historicalSessionJSON) {
             var historicalSession = JSON.parse(historicalSessionJSON);
 
             if (!historicalSession.numbers) {
@@ -77,6 +77,7 @@ define([
             }
 
             this.sessionService.setHistoricalSession(historicalSession);
+          }
         }
     };
 

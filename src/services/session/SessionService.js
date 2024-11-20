@@ -61,9 +61,9 @@ class SessionService {
         openmct.on('start', () => {
             new SessionURLHandler(this, openmct);
             new SessionLocalStorageHander(this);
-        });
 
-        this.pollForActiveSession();
+            this.pollForActiveSession();
+        });
     }
 
     /**
@@ -334,6 +334,13 @@ class SessionService {
 
     getHistoricalSession() {
         return this.historicalSession;
+    };
+
+    /**
+     * @returns boolean true if a historical session filtering is active, otherwise false.
+     */
+    hasHistoricalSession() {
+        return Boolean(this.historicalSession);
     };
 
     setHistoricalSession(model) {
