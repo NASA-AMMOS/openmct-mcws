@@ -48,7 +48,7 @@ define([
 
         sessionService.listen(this.storeRealtimeSession.bind(this));
         sessionService.listenForHistoricalChange(
-            this.storeHistoricalSession.bind(this)
+            this.storeHistoricalSessionFilter.bind(this)
         );
         this.initializeFromStorage();
     }
@@ -66,17 +66,17 @@ define([
           }
         }
 
-        if (!this.sessionService.hasHistoricalSession()) {
-          const historicalSessionJSON = localStorage.getItem(HISTORICAL_SESSION_KEY);
+        if (!this.sessionService.hasHistoricalSessionFilter()) {
+          const sessionFilterJSON = localStorage.getItem(HISTORICAL_SESSION_KEY);
 
-          if (historicalSessionJSON) {
-            var historicalSession = JSON.parse(historicalSessionJSON);
+          if (sessionFilterJSON) {
+            const sessionFilter = JSON.parse(sessionFilterJSON);
 
-            if (!historicalSession.numbers) {
-                historicalSession.numbers = [historicalSession.number];
+            if (!sessionFilter.numbers) {
+                sessionFilter.numbers = [sessionFilter.number];
             }
 
-            this.sessionService.setHistoricalSession(historicalSession);
+            this.sessionService.setHistoricalSessionFilter(sessionFilter);
           }
         }
     };
@@ -93,11 +93,11 @@ define([
     };
 
     /**
-     * store the historical session in localStorage.
+     * store the historical session filter in localStorage.
      */
-    SessionLocalStorageHandler.prototype.storeHistoricalSession = function (historicalSession) {
-        if (historicalSession) {
-            localStorage.setItem(HISTORICAL_SESSION_KEY, JSON.stringify(historicalSession));
+    SessionLocalStorageHandler.prototype.storeHistoricalSessionFilter = function (sessionFilter) {
+        if (sessionFilter) {
+            localStorage.setItem(HISTORICAL_SESSION_KEY, JSON.stringify(sessionFilter));
         } else {
             localStorage.removeItem(HISTORICAL_SESSION_KEY);
         }

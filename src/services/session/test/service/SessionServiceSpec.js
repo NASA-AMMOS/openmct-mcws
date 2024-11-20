@@ -101,7 +101,7 @@ describe('SessionService', () => {
         spyOn(sessionService, 'listen').and.callThrough();
         spyOn(sessionService, 'listenForHistoricalChange').and.callThrough();
         spyOn(sessionService, 'getDatasets').and.returnValue(datasetCache.datasets);
-        sessionService.notifyUserOfHistoricalSessionChange = jasmine.createSpy('notifyUserOfHistoricalSessionChange');
+        sessionService.notifyUserOfHistoricalSessionFilterChange = jasmine.createSpy('notifyUserOfHistoricalSessionFilterChange');
     });
 
     afterEach(() => {
@@ -131,7 +131,7 @@ describe('SessionService', () => {
         sessionService.listenForHistoricalChange(callback);
         expect(sessionService.listenForHistoricalChange).toHaveBeenCalledWith(callback);
 
-        sessionService.setHistoricalSession(model);
+        sessionService.setHistoricalSessionFilter(model);
         expect(callback).toHaveBeenCalledWith(model);
     });
 
@@ -234,12 +234,12 @@ describe('SessionService', () => {
                 misc: 'other stuff'                };
 
             sessionService.listenForHistoricalChange(callback);
-            sessionService.setHistoricalSession(model);
+            sessionService.setHistoricalSessionFilter(model);
         });
 
         it('notifies topic with active session', () => {
             expect(callback).toHaveBeenCalledWith(model);
-            expect(sessionService.notifyUserOfHistoricalSessionChange).toHaveBeenCalledWith(model);
+            expect(sessionService.notifyUserOfHistoricalSessionFilterChange).toHaveBeenCalledWith(model);
         });
     });
 

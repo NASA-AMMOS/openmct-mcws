@@ -31,7 +31,7 @@ describe('Historical Provider', function () {
         });
 
         mockSessionService = jasmine.createSpyObj('SessionService', [
-          'getHistoricalSession'
+          'getHistoricalSessionFilter'
         ]);
         spyOn(HistoricalProvider.prototype, 'getSessionService').and.returnValue(mockSessionService);
 
