@@ -519,10 +519,20 @@ define([
         const sessions = this.getSessionService();
         const session = sessions.getHistoricalSession();
 
+        const isHistoricalSessionFilteringEnabled = window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.disable !== true;
+        const isDenyUnfilteredHistoricalQueriesEnabled = window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.denyUnfilteredQueries === true;
+        const isFixedTimeMode = this.openmct.time.isFixed();
+
         if (session) {
             params.filter.session_id = '(' + session.numbers.join(',') + ')';
             params.filter.session_host = session.host;
-        } else if (window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.disable !== true && window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.denyUnfilteredQueries === true) {
+        } else if (
+            isHistoricalSessionFilteringEnabled
+            && isDenyUnfilteredHistoricalQueriesEnabled
+            && isFixedTimeMode
+        ) {
+            // In realtime mode, you cannot specify a max past time frame of 24 hours or more,
+            // so we don't need to prevent unfiltered historical queries unless in fixed mode.
             const notificationMessage = 'Filtering by historical sessions is required for historical queries.';
 
             this.openmct.notifications.error(notificationMessage);
