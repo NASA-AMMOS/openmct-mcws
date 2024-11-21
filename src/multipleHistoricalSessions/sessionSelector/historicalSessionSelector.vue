@@ -190,7 +190,7 @@ export default {
         setMarkedSessions() {
             if(this.sessionFilter.numbers && this.sessionFilter.host) {
                 this.availableSessions.forEach(session => {
-                    if (this.sessionFilter.numbers.some((sessionNumber => sessionNumber == session.number))
+                    if (this.sessionFilter.numbers.some((sessionNumber => sessionNumber === session.number))
                         && this.sessionFilter.host === session.host) {
 
                         session.marked = true;
