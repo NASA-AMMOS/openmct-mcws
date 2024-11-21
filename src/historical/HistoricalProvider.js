@@ -520,7 +520,7 @@ define([
         const sessionFilter = sessions.getHistoricalSessionFilter();
 
         if (sessionFilter) {
-            params.filter.session_id = '(' + sessionFilter.numbers.join(',') + ')';
+            params.filter.session_id = `(${sessionFilter.numbers.join(',')})`;
             params.filter.session_host = sessionFilter.host;
         } else if (window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.disable !== true && window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.denyUnfilteredQueries === true) {
             const notificationMessage = 'Filtering by historical sessions is required for historical queries.';
