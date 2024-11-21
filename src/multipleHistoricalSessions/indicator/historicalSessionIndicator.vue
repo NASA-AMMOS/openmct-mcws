@@ -3,12 +3,12 @@
 
         <div class="c-indicator icon-session"
             :class="{
-                's-status-on': activeSessions.numbers,
+                's-status-on': sessionFilter.numbers,
                 's-status-available': availableSessions.length
             }">
 
             <span 
-                v-if="historicalSessionDisabled" 
+                v-if="historicalSessionFilterDisabled" 
                 class="c-indicator__label"
             >
                 <span class="angular-w">
@@ -24,7 +24,7 @@
 
                 <template v-if="availableSessions.length">
 
-                    <span v-if="activeSessions.numbers"
+                    <span v-if="sessionFilter.numbers"
                         class="angular-w">
                         {{filteredByMessageString}}
                         <button @click="openSessionSelector">
@@ -57,7 +57,7 @@
 
         <historical-session-selector
             v-if="showSessionSelector"
-            :activeSessions="activeSessions"
+            :sessionFilter="sessionFilter"
             @update-available-sessions="setAvailableSessions"
             @close-session-selector="closeSessionSelector"
         />
@@ -83,30 +83,30 @@ export default {
         filteredByMessageString() {
             let sessionOrSessions;
 
-            if (this.activeSessions.numbers.length === 1) {
+            if (this.sessionFilter.numbers.length === 1) {
                 sessionOrSessions = 'session'
             } else {
                 sessionOrSessions = 'sessions'
             }
-            return `Historical queries filtered by ${this.activeSessions.numbers.length} ${sessionOrSessions}`;
+            return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
         }
     },
     data() {
         return {
-            activeSessions: {},
+            sessionFilter: {},
             numFilteredSessions: 8,
             availableSessions: [],
             showSessionSelector: false,
             isRequestingSessions: false,
-            historicalSessionDisabled: false
+            historicalSessionFilterDisabled: false
         }
     },
     methods: {
-        onActiveSessionChange(sessions) {
+        setHistoricalSessionFilter(sessions) {
             if (sessions) {
-                this.activeSessions = sessions;
+                this.sessionFilter = sessions;
             } else {
-                this.activeSessions = {};
+                this.sessionFilter = {};
             }
         },  
         setAvailableSessions(sessions) {
@@ -120,7 +120,7 @@ export default {
             this.showSessionSelector = false;
         },
         clearAllSessions() {
-            this.sessionService.setHistoricalSession();
+            this.sessionService.setHistoricalSessionFilter();
         },
         checkForHistoricalSessions() {
             this.isRequestingSessions = true;
@@ -129,17 +129,17 @@ export default {
     },
     mounted() {
         this.sessionService = SessionService();
-        this.historicalSessionDisabled = this.sessionService.historicalSessionFilterConfig.disable;
+        this.historicalSessionFilterDisabled = this.sessionService.historicalSessionFilterConfig.disable;
 
         window.setTimeout(this.checkForHistoricalSessions, 2000);
 
-        this.unsubscribeSessionListener = this.sessionService.listenForHistoricalChange(this.onActiveSessionChange);
+        this.unsubscribeSessionListener = this.sessionService.listenForHistoricalChange(this.setHistoricalSessionFilter);
 
-        let activeSessions = this.sessionService.getHistoricalSession();
-        this.onActiveSessionChange(activeSessions);
+        const sessionFilter = this.sessionService.getHistoricalSessionFilter();
+        this.setHistoricalSessionFilter(sessionFilter);
     },
     beforeUnmount() {
-        this.table.extendsDestroy();    
+        this.table.extendsDestroy();
         this.unsubscribeSessionListener();
     }
 }

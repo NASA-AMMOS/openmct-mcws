@@ -47,12 +47,12 @@
             <div class="c-overlay__button-bar">
                 <a class="c-button c-button--major"
                     :class="{disabled: !selectedSessions.length}"
-                    @click="applyHistoricalSessions">
+                    @click="applyHistoricalSessionFilter">
                     Filter By Selected Sessions
                 </a>
                 <a class="c-button"
-                    :class="{disabled: !activeSessions}"
-                    @click="clearHistoricalSessions">
+                    :class="{disabled: !sessionFilter}"
+                    @click="clearHistoricalSessionFilter">
                     Clear Filtering
                 </a>
                 <a class="c-button"
@@ -149,7 +149,7 @@ import { nextTick } from 'vue';
 
 export default {
     inject: ['openmct', 'table'],
-    props: ['activeSessions'],
+    props: ['sessionFilter'],
     components: {
         TelemetryTable
     },
@@ -188,10 +188,10 @@ export default {
             });
         },
         setMarkedSessions() {
-            if(this.activeSessions.numbers && this.activeSessions.host) {
+            if(this.sessionFilter.numbers && this.sessionFilter.host) {
                 this.availableSessions.forEach(session => {
-                    if (this.activeSessions.numbers.some((sessionNumber => sessionNumber == session.number))
-                        && this.activeSessions.host === session.host) {
+                    if (this.sessionFilter.numbers.some((sessionNumber => sessionNumber === session.number))
+                        && this.sessionFilter.host === session.host) {
 
                         session.marked = true;
                     }
@@ -207,8 +207,8 @@ export default {
             this.setMarkedSessions();
             this.hosts = this.getUniq('host', this.availableSessions)
             
-            if (this.activeSessions.host) {
-                primaryHost = this.activeSessions.host
+            if (this.sessionFilter.host) {
+                primaryHost = this.sessionFilter.host
             } else {
                 primaryHost = this.hosts[0];
             }
@@ -221,11 +221,11 @@ export default {
         updateSelectedSessions(sessions) {
             this.selectedSessions = sessions;
         },
-        clearHistoricalSessions() {
-            this.sessionService.setHistoricalSession();
+        clearHistoricalSessionFilter() {
+            this.sessionService.setHistoricalSessionFilter();
             this.closeOverlay();
         },
-        applyHistoricalSessions() {
+        applyHistoricalSessionFilter() {
             let selectedSessions  = this.selectedSessions.map(row => row.datum),
                 host = this.selectedHost,
                 startTime,
@@ -253,7 +253,7 @@ export default {
                 numbers: selectedSessions.map(s => s.number)
             }
 
-            this.sessionService.setHistoricalSession(sessionObject);
+            this.sessionService.setHistoricalSessionFilter(sessionObject);
             this.closeOverlay();
         },
         closeOverlay() {
