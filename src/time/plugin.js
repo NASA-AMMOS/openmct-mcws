@@ -104,7 +104,7 @@ export default function TimePlugin(options) {
                 }
             });
         }
-        if (options.allowLAD) {
+        if (options.allowRealtime && options.allowLAD) {
             var ladClock = new LADClock(key);
             install.ladClocks[key] = ladClock;
             openmct.time.addClock(ladClock);

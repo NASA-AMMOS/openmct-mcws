@@ -281,11 +281,13 @@
             /**
              * allowRealtime: whether or not to allow utc-relative time conductor.
              */
-            allowRealtime: true,
+            allowRealtime: false,
             /**
-             * allowLAD: whether or not to allow latest data relative time conductor.
+             * allowLAD: whether or not to allow latest data relative time conductor. 
+             * 
+             * Note: allowRealtime must be true to use this option
              */
-            allowLAD: true,
+            allowLAD: false,
             /**
              * records: number of previous bounds per timeSystem to save in time conductor history.
              */
