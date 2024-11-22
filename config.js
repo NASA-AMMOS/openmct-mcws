@@ -283,7 +283,9 @@
              */
             allowRealtime: true,
             /**
-             * allowLAD: whether or not to allow latest data relative time conductor.
+             * allowLAD: whether or not to allow latest data relative time conductor. 
+             * 
+             * Note: allowRealtime must be true to use this option
              */
             allowLAD: true,
             /**
