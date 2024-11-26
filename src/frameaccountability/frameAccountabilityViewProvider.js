@@ -14,10 +14,11 @@ export default class FrameAccountabilityViewProvider {
         this.domainObject = domainObject;
         this.keystring = openmct.objects.makeKeyString(this.domainObject.identifier);
         this.openmct = openmct;
-        this.table = this.instantiateBadFramesTable();
         this.expectedVcidList = options.frameAccountabilityExpectedVcidList;
         this.tablePerformanceOptions = options.tablePerformanceOptions;
         this._destroy = null;
+
+        this.table = this.instantiateBadFramesTable();
     }
     instantiateBadFramesTable() {
         const domainObject = {
