@@ -189,9 +189,7 @@
              */
             timeSystems: [
                 'scet',
-                'ert',
-                'sclk',
-                'lmst'
+                'ert'
             ],
 
             /**
