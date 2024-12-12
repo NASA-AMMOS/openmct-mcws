@@ -1,5 +1,4 @@
-import isEqual from 'lodash/isequal';
-import isEmpty from 'lodash/isempty';
+import { isEqual,isEmpty } from 'lodash';
 
 const GLOBAL_FILTER_PARAM_PREFIX = "global_filter_"
 
