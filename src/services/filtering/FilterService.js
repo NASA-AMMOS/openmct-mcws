@@ -1,6 +1,6 @@
 import { EventEmitter } from 'eventemitter3';
 import FilterURLHandler from './FilterUrlHandler';
-import { isEqual,pickBy,isEmpty } from 'lodash';
+import { isEqual, pickBy, isEmpty } from 'lodash';
 
 class FilterService extends EventEmitter {
   constructor(openmct, config) {
