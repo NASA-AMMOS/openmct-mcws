@@ -10,11 +10,8 @@
             name="setSelectionThreshold"
             @change="updateFilterValueFromDropdown($event, filter.comparator, $event.target.value)"
           >
-           <option value="NONE" v-if="filter.defaultLabel">
-            {{ filter.defaultLabel }}
-            </option>
-            <option v-else value="NONE">
-               None
+           <option value="NONE">
+            {{ filter.defaultLabel || "None" }}
             </option>
             <option
               v-for="option in filter.possibleValues"
