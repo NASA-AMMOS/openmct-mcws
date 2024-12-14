@@ -10,8 +10,8 @@
             name="setSelectionThreshold"
             @change="updateFilterValueFromDropdown($event, filter.comparator, $event.target.value)"
           >
-            <option key="NONE" value="NONE">
-              None
+           <option value="NONE">
+            {{ defaultLabel }}
             </option>
             <option
               v-for="option in filter.possibleValues"
@@ -53,6 +53,9 @@ export default {
   computed: {
     name() {
       return this.filterName || this.filterKey;
+    },
+    defaultLabel(){
+      return this.filter.defaultLabel ?? 'None';
     }
   },
   data() {
