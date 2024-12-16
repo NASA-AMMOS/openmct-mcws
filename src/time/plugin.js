@@ -80,15 +80,15 @@ export default function TimePlugin(options) {
             timeSystem: system.key,
             name: 'fixed'
         };
-        if( timeSystem.modeSettings && timeSystem.modeSettings['fixed']?.bounds){
-            systemOptions.bounds=timeSystem.modeSettings['fixed'].bounds;
+        if(timeSystem.modeSettings?.fixed?.bounds){
+            systemOptions.bounds=timeSystem.modeSettings.fixed.bounds;
 
         } else {
             systemOptions.bounds=BOUNDS_MAP[key];
         }
 
-        if (timeSystem.modeSettings && timeSystem.modeSettings['fixed']?.presets) {
-            systemOptions.presets = timeSystem.modeSettings['fixed'].presets;
+        if (timeSystem.modeSettings?.fixed?.presets) {
+            systemOptions.presets = timeSystem.modeSettings.fixed.presets;
         }
         if (timeSystem.limit) {
             systemOptions.limit = timeSystem.limit;
@@ -107,11 +107,11 @@ export default function TimePlugin(options) {
                 end: 5 * 60 * 1000
             }
             var presetConfig = []
-            if (timeSystem.modeSettings && timeSystem.modeSettings['utc.local']?.clockOffsets){
-                offsetConfig = timeSystem.modeSettings['utc.local'].clockOffsets
+            if (timeSystem.modeSettings?.realtime?.clockOffsets){
+                offsetConfig = timeSystem.modeSettings.realtime.clockOffsets
             }
-            if (timeSystem.modeSettings && timeSystem.modeSettings['utc.local']?.presets){
-                presetConfig = timeSystem.modeSettings['utc.local'].presets
+            if (timeSystem.modeSettings?.realtime?.presets){
+                presetConfig = timeSystem.modeSettings.realtime.presets
             }
             useUTCClock = true;
             menuOptions.push({
@@ -119,7 +119,7 @@ export default function TimePlugin(options) {
                 timeSystem: system.key,
                 clock: 'utc.local',
                 clockOffsets: offsetConfig,
-                presets: presetConfig
+                presets: presetConfig            
             });
         }
         if (options.allowRealtime && options.allowLAD) {
@@ -128,23 +128,16 @@ export default function TimePlugin(options) {
                 start: -30 * 60 * 1000,
                 end: 5 * 60 * 1000
             }
-            var presetConfig = []
-            if (timeSystem.modeSettings && timeSystem.modeSettings[key]?.clockOffsets){
-                offsetConfig = timeSystem.modeSettings[key].clockOffsets
-            }
-
-            if (timeSystem.modeSettings && timeSystem.modeSettings['utc.local']?.presets){
-                presetConfig = timeSystem.modeSettings['utc.local'].presets
+            if (timeSystem.modeSettings?.lad?.clockOffsets){
+                offsetConfig = timeSystem.modeSettings.lad.clockOffsets
             }
 
             install.ladClocks[key] = ladClock;
             openmct.time.addClock(ladClock);
             menuOptions.push({
-                name: 'realtime',
                 timeSystem: system.key,
                 clock: ladClock.key,
                 clockOffsets: offsetConfig,
-                presets: presetConfig
             });
         }
     });
