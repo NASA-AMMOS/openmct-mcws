@@ -77,11 +77,10 @@ export default function TimePlugin(options) {
         openmct.time.addTimeSystem(system);
 
         const systemOptions = {
-            timeSystem: system.key
+            timeSystem: system.key,
+            name: 'fixed'
         };
         if( timeSystem.modeSettings && timeSystem.modeSettings['fixed']?.bounds){
-            // Required regardless of the time system's name. 
-            systemOptions.name='fixed';
             systemOptions.bounds=timeSystem.modeSettings['fixed'].bounds;
 
         } else {
