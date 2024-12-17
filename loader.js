@@ -12,7 +12,8 @@ define([
     './src/packetSummary/plugin',
     './src/containerView/plugin',
     'services/identity/MCWSIdentityProvider',
-    './src/persistence/plugin'
+    './src/persistence/plugin',
+    './src/OMMTelemetryMean/plugin'
 ], function (
     openmct,
     AMMOSPlugins,
@@ -27,7 +28,8 @@ define([
     PacketSummaryPlugin,
     ContainerViewPlugin,
     IdentityProvider,
-    MCWSPersistenceProviderPlugin
+    MCWSPersistenceProviderPlugin,
+    OMMTelemetryMeanPlugin
 ) {
 
     function loader(config) {
@@ -82,6 +84,7 @@ define([
         openmct.install(openmct.plugins.Clock(
             { useClockIndicator: false }
         ));
+        openmct.install(OMMTelemetryMeanPlugin());
 
         openmct.install(new AMMOSPlugins(config));
 

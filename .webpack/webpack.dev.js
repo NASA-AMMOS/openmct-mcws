@@ -9,6 +9,10 @@ const { merge } = require('webpack-merge');
 const common = require('./webpack.common');
 const path = require('path');
 
+String.prototype.replaceAt = function(index, replacement) {
+    return this.substring(0, index) + replacement + this.substring(index + replacement.length);
+}
+
 const proxyUrl = process.env.PROXY_URL || 'http://localhost:8080';
 const apiUrl = process.env.API_URL ?? '';
 const  proxyHeaders = {};
@@ -80,19 +84,55 @@ module.exports = merge(common, {
             context: ['/mcws'],
             target: apiUrl,
             secure: false,
-            headers: proxyHeaders
+            headers: proxyHeaders,
+            changeOrigin: true
+          },
+          {
+            context: ['/tsdb'],
+            target: apiUrl,
+            secure: false,
+            headers: proxyHeaders,
+            changeOrigin: true,
+            pathRewrite: (path, req) => {
+                console.log(path)
+                var replacedPath = path;
+                console.log(replacedPath)
+                const searchTerm = '?';
+                const indexOfFirst = paragraph.indexOf(searchTerm);
+                console.log(indexOfFirst);
+                if(indexOfFirst!=-1){
+                    const indexOfSecond = paragraph.indexOf(searchTerm, indexOfFirst +1);
+                    console.log(indexOfSecond)
+                    if(indexOfSecond!=-1){
+                        replacedPath=replacedPath.replaceAt(indexOfSecond,'&');
+                        console.log(replacedPath)
+                    }
+                }
+
+                return replacedPath;
+              },
           },
           {
             context: ['/proxyUrl'],
               target: proxyUrl,
               secure: false,
               headers: proxyHeaders,
+              changeOrigin: true,
               pathRewrite: (_path, req) => {
-                  const apiUrl = req.query.url;
-                  console.log('Generic URL Proxy to: ', apiUrl);
-
+                  var apiUrl = req.query.url;
+                  const searchTerm = '?';
+                  const indexOfFirst = apiUrl.indexOf(searchTerm);
+                  if(indexOfFirst!=-1){
+                      const indexOfSecond = apiUrl.indexOf(searchTerm, indexOfFirst +1);
+                      if(indexOfSecond!=-1){
+                          apiUrl=apiUrl.replaceAt(indexOfSecond,'&');
+                      }
+                  }
+                  console.log('Generic URdL Proxy to: ', apiUrl);
                   return apiUrl;
-              }
+              },
+
+              router: () => 'https://mct.vitals.jpl.nasa.gov'
           }
         ],
         hot: true,

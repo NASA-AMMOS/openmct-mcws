@@ -191,7 +191,37 @@ define([
             'frameEventStreamUrl'
         ]
     };
-
+    (function () {
+        var evrOverride= window.openmctMCWSConfig.overrideEVRColumns  === undefined;
+        if(!evrOverride){
+            var overRide=window.openmctMCWSConfig.overrideEVRColumns;
+            for (const column of overRide) {
+                switch (column.action) {
+                    case 'add':
+                        var usepos=column.position===undefined;
+                        if(!usepos){
+                           idx=column.position;
+                           CONSTANTS.EVR_RANGES.splice(idx,0,column.value);
+                           break;
+                           }
+                        else
+                           {
+                            CONSTANTS.EVR_RANGES.push(column.value);
+                            break;
+                           }
+                    case 'update':
+                        for (const [newkey, newvalue] of Object.entries(column.value)) {
+                            var index=CONSTANTS.EVR_RANGES.findIndex(item =>item.key===column.key);
+                            CONSTANTS.EVR_RANGES[index][newkey]=newvalue;
+                        };
+                        break;
+                    case 'remove':
+                       CONSTANTS.EVR_RANGES.splice(CONSTANTS.EVR_RANGES.findIndex(item =>item.key===column.key),1);
+                       break;
+                }
+            };
+        }
+    })();
     /**
      * An array of model properties that is necessary to provide channel
      * telemetry.

@@ -35,7 +35,13 @@ define([
         object.name = channel.channel_id + ' - ' + channel.channel_name;
         object.telemetry.channel_id = channel.channel_id;
         object.telemetry.definition = channel;
-
+        // Enforce SCLK to be shown even if the time system isn't available. 
+        object.telemetry.values.push({
+            name: "SCLK",
+            key: "sclk",
+            format: 'sclk.float64',
+            hints: {}
+        }); 
         if (channel.dn_to_eu === 'ON') {
             object.telemetry.defaultEU = true;
             object.telemetry.values.push({
@@ -77,18 +83,19 @@ define([
                 range: 6
             }
         });
-
+        /*
         object.telemetry.values.push({
             name: "DSS ID",
             key: "dss_id",
             format: "number",
             filters: ['equals']
         });
-
+        */
         if (channel.enumerations && channel.enumerations.length) {
             object.telemetry.values.push(
                 makeEnumerationRange(channel.enumerations)
             );
+            /* No need for status as that's covered in enum. 
             object.telemetry.values.push({
                 key: "status",
                 name: "Status",
@@ -96,7 +103,7 @@ define([
                 format: "string",
                 hints: {
                 }
-            });
+            });*/
         } else if (channel.data_type === 'BOOLEAN' ||
                    channel.data_type === 'BOOL') {
 
@@ -121,7 +128,7 @@ define([
                 }
             });
         }
-
+        /*
         object.telemetry.values.push({
             key: 'module',
             name: 'Module',
@@ -137,7 +144,7 @@ define([
                 possibleValues: [{value: true, label: "Realtime"}, {value: false, label: "Recorded"}]
             }]
         });
-        
+        */
         if (channel.status === 'missing') {
             object.status = 'missing';
         }
