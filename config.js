@@ -4,12 +4,12 @@
          * camUrl: url to the CAM server this instance uses for auth.
          * ***** REQUIRED *****
          */
-        camUrl: '',
+        camUrl: 'https://sso.vitals.jpl.nasa.gov/login.html?req=mct.vitals.jpl.nasa.gov&login_uri=/&login_querystring=',
         /**
          * mcwsUrl: url for MCWS root.
          * ***** REQUIRED *****
          */
-        mcwsUrl: '',
+        mcwsUrl: 'https://mct.vitals.jpl.nasa.gov/mcws',
         /**
          * theme: either 'Snow', 'Espresso' or 'Maelstrom'
          */
@@ -29,17 +29,22 @@
          * ***** URL REQUIRED *****
          */
         namespaces: [
-            {
-                key: 'r50-dev',
-                name: 'R5.0 Shared',
-                url: ''
-            },
-            {
-                userNamespace: true,
-                key: 'r50-dev',
-                name: 'R5.0 Users',
-                url: ''
-            }
+          {
+             key: 'shared',
+             name: 'Shared',
+             url: 'https://mct.vitals.jpl.nasa.gov/mcws/fastmio/ops/shared'
+          }, 
+          {
+             key: 'systems',
+             name: 'Systems',
+             url: 'https://mct.vitals.jpl.nasa.gov/mcws/fastmio/ops/systems'
+          },
+          {
+             key: 'users',
+             name: 'Users',
+             userNamespace: true,
+             url: 'https://mct.vitals.jpl.nasa.gov/mcws/fastmio/ops/users'
+          },
         ],
 
         /**
@@ -186,14 +191,11 @@
             /**
              * timeSystems: specify the time systems to use.
              * Options are 'scet', 'ert', 'sclk', 'msl.sol' and 'lmst'.
-             */
+             
             timeSystems: [
-                'scet',
-                'ert',
-                'sclk',
-                'lmst'
+                'scet'
             ],
-
+            */
             /**
              * timeSystems advanced configuration: 
              * Replace the above basic configuration with timeSystem specific configurations
@@ -216,104 +218,60 @@
              * * * * clockOffsets: object, optional. Start and end relative to active clock. 
              * * * * start: and end: numbers relative to active clock's 0. Start is negative, end is positive. 
              * *advanced** example configuration below 
-             
+             */
             timeSystems: [
-             {
-                key:'scet',
-                modeSettings:{
-                  fixed:{
-                    bounds:{
-                            start: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() - 2)).setUTCHours(0, 0, 0, 0),
-                            end: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())).setUTCHours(23,59, 59, 999)                       
-                            },
-                    presets:[
-                      {
-                        label: 'Last 2 hours (SCET Recorded)',
-                        bounds: {
-                            start: Date.now() - 1000 * 60 * 60 * 2,
-                            end: Date.now()
-                        }
+              {
+                  key:'scet',
+                  modeSettings:{
+                    fixed:{
+                      bounds:{
+                              start: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() - 1)).setUTCHours(0, 0, 0, 0),
+                              end: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())).setUTCHours(23,59, 59, 999)                       
+                             },
+                      presets:[
+                        {
+                          label: 'Last 2 hours (SCET Recorded)',
+                          bounds: {
+                              start: Date.now() - 1000 * 60 * 60 * 2,
+                              end: Date.now()
+                          }
+                        },
+                      ]
+                    },
+                    realtime:{
+                      clockOffsets:{
+                        start: -60 * 60 * 1000,
+                        end: 5 * 60 * 1000
                       },
-                    ]
-                  },
-                  realtime:{
-                    clockOffsets:{
-                      start: -60 * 60 * 1000,
-                      end: 5 * 60 * 1000
-                    },
-                    presets:[
-                      {
-                        label: 'Last 2 hours (SCET Realtime)',
-                        bounds: {
-                            start: -60 * 60 * 1000,
-                            end: 5 * 60 * 1000
+                      presets:[
+                        {
+                          label: 'Last 2 hours (SCET Realtime)',
+                          bounds: {
+                              start: -60 * 60 * 1000,
+                              end: 5 * 60 * 1000
+                          }
                         }
-                      }
-                    ]
-                  },
-                  lad:{
-                    clockOffsets:{
-                      start: -60 * 60 * 1000,
-                      end: 5 * 60 * 1000
+                      ]
                     },
-                  },
+                    lad:{
+                      clockOffsets:{
+                        start: -60 * 60 * 1000,
+                        end: 5 * 60 * 1000
+                      },
+                    },
+                },
+                  limit: 1000 * 60 * 60 * 60
               },
-                limit: 1000 * 60 * 60 * 60
-            },
-            {
-              key:'ert',
-              modeSettings:{
-                fixed:{
-                  bounds:{
-                          start: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() - 4)).setUTCHours(0, 0, 0, 0),
-                          end: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())).setUTCHours(23,59, 59, 999)                       
-                          },
-                  presets:[
-                    {
-                      label: 'Last 2 hours (ERT Recorded)',
-                      bounds: {
-                          start: Date.now() - 1000 * 60 * 60 * 2,
-                          end: Date.now()
-                      }
-                    },
-                  ]
-                },
-                realtime:{
-                  clockOffsets:{
-                    start: -60 * 60 * 1000,
-                    end: 5 * 60 * 1000
-                  },
-                  presets:[
-                    {
-                      label: 'Last 2 hours (ERT Realtime)',
-                      bounds: {
-                          start: -60 * 60 * 1000,
-                          end: 5 * 60 * 1000
-                      }
-                    }
-                  ]
-                },
-                lad:{
-                  clockOffsets:{
-                    start: -60 * 60 * 1000,
-                    end: 5 * 60 * 1000
-                  },
-                },
-            },
-              limit: 1000 * 60 * 60 * 60
-           }
-          ],
-            */
+            ],
+
             /**
              * allowRealtime: whether or not to allow utc-relative time conductor.
              */
-            allowRealtime: true,
+            allowRealtime: false,
             /**
-             * allowLAD: whether or not to allow latest data relative time conductor. 
-             * 
-             * Note: allowRealtime must be true to use this option
+             * allowLAD: whether or not to allow latest data relative time conductor.
              */
-            allowLAD: true,
+            allowLAD: false,
             /**
              * records: number of previous bounds per timeSystem to save in time conductor history.
              */
@@ -412,7 +370,7 @@
          * units - milliseconds
          * !!when set to undefined, user will not be warned and queries will not be blocked
          */
-        queryTimespanLimit: undefined,
+        queryTimespanLimit: 30*24*60*60*1000,
 
         /**
          * Time since last received realtime datum. 
@@ -454,7 +412,7 @@
          */
         sessions: {
             historicalSessionFilter: {
-                disable: false,
+                disable: true,
                 maxRecords: 100,
                 denyUnfilteredQueries: false
             },
@@ -464,72 +422,35 @@
         },
 
         /**
-         * Enable global filters for ALL telemetry requests that support the filter. 
-         * Telemetry filters modify the 'filter' field in queries to MCWS. 
+         * Enable global filters for ALL telemetry requests that support the filter
          * 
-         * key property is required and other options are optional
-         * globalFilters: array, optional - list of global filters to configure. 
-         * * key: string, required. Filter column, e.g. vcid
-         * * name: string, required. Identifier of the filter in the selection window. 
-         * * icon: 'icon-flag', string, icon. Not implemented - potentially icon for minimized filter list. 
-         * * filter: object, required. Filter object to implement 
-         * * * comparator: string, required. currently supports 'equals'
-         * * * singleSelectionThreshold: boolean, required. currently supports true only. 
-         * * * defaultLabel: string, optional. Defaults to 'None'. Label to show if filter inactive.  
-         * * * possibleValues: array, required. List of values and labels for filter. 
-         * * * * label: string, required. Label to show in filter selection dropdown. 
-         * * * * value: string, required. value to set parameter to in filtered query. 
          * How to use:
-         * The global filters will be available from the Global Filters indicator. 
-         * Enable a filter by selecting the desired filter from the dropdown and hitting update. 
-         * Outgoing requests that use the 'filter' parameter to MCWS will be modified with your filter. 
-         * example below, selecting 'A side' will ensure that the filter parameter in mcws includes: 
-         * vcid='1,2,3'. Note that poorly formatted filters may not pass MCWS API validation. 
-         *  
+         * The global filters will be available from the Global Filters indicator
         */
-        /*
+        
         globalFilters: [
           {
-            name: 'VCID',
-            key: 'vcid',
-            icon: 'icon-flag',
+            name: 'DataTypes',
+            key: 'sc_override',
+            icon: 'icon-session',
             filter: {
               comparator: 'equals',
               singleSelectionThreshold: true,
-              defaultLabel: "A & B",
+              defaultLabel:'Realtime + Recorded',    
               possibleValues: [
                 {
-                  label: 'A Side',
-                  value: '1,2,3'
+                  label: 'Recorded Only',
+                  value: 'smap'
                 },
                 {
-                  label: 'B Side',
-                  value: '4,5,6'
+                  label: 'Realtime only',
+                  value: 'smapauto'
                 }
               ]
             }
           },
-          {
-            name: 'Realtime',
-            key: 'realtime',
-            filter: {
-              comparator: 'equals',
-              singleSelectionThreshold: true,
-              defaultLabel: "REC & RLT",
-              possibleValues: [
-                {
-                  label: 'Realtime',
-                  value: true
-                },
-                {
-                  label: 'Recorded',
-                  value: false
-                }
-              ]
-            }
-          }
         ],
-        */
+        
         /**
          * Table Performance Mode Configuration
          * Can increase performance by limiting the maximum rows retained and displayed by tables
@@ -544,8 +465,74 @@
         tablePerformanceOptions: {
           telemetryMode: 'unlimited',
           persistModeChange: false,
-          rowLimit: 50
+          rowLimit: 50000
         },
+	    
+      overrideChannelColumns:[
+	    {
+              key:'sclk',
+              action:'add',
+              position:0,
+              value:{
+                      key:'sclk',
+                      name:'SCLK',
+                      format:'sclk.float64',
+                      hints:{}
+              }
+             }
+     ],
+
+     /**
+     * EVR Column Override. Allows customization of columns in EVR tables. Via three actions:
+     * 1. 'add'. Adds a new column matching 'key'. Requires 'key','name','format',and 'hint' keys.
+     * 2. 'remove'. Removes column matching key from view.
+     * 3. 'update'. Updates the specific keys in the value object. (i.e. rename a column)
+     */
+     overrideEVRColumns: [
+            {
+              key:'sclk',
+              action:'add',
+              position:0,
+              value:{
+                      key:'sclk',
+                      name:'SCLK',
+                      format:'sclk.float64',
+                      hints:{}
+              }
+            },
+            {
+              key:'record_type',
+              action:'remove'
+            },
+            {
+              key:'dss_id',
+              action:'remove'
+            },
+            {
+              key:'realtime',
+              action:'remove'
+            },
+            {
+              key:'session_host',
+              action:'remove'
+            },
+            {
+              key:'from_sse',
+              action:'remove'
+            },
+            {
+              key:'vcid',
+              action:'remove'
+            },
+            {
+              key:'lst',
+              action:'remove'
+            },
+            {
+              key:'rct',
+              action:'remove'
+            }
+         ],
         /**
          * Developer Settings-- do not modify these unless you know what
          * they do!
