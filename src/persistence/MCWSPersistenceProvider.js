@@ -49,7 +49,6 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
         try {
             await persistenceNamespace.opaqueFile(key).create(model);
-
             return true;
         } catch (error) {
             console.warn('MCWSPersistneceProvider:create', error);
@@ -78,7 +77,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
         } catch (error) {
             console.warn('MCWSPersistneceProvider:update', error);
 
-            return;
+            return false;
         }
     }
 
