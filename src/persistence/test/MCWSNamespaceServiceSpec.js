@@ -292,10 +292,8 @@ describe('MCWSNamespaceService', () => {
         beforeEach(() => {
             spyOn(String.prototype, 'startsWith').and.callFake(function(searchString) {
                 if (searchString.includes('/') && searchString === filterPath) {
-                    console.log(`path: ${searchString} === ${filterPath}`);
                     return true;
                 } else if (searchString.includes(filterTerm)) {
-                    console.log(`term: ${searchString} === ${filterTerm}`);
                     return true;
                 }
                 return false;
