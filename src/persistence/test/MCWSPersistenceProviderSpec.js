@@ -6,7 +6,6 @@ describe('The MCWS Persistence Provider', () => {
     let persistenceNamespaces;
     let mockNamespace;
     let mockOpaqueFile;
-    let persistence;
     let openmct;
     let mcwsPersistenceProvider;
 
