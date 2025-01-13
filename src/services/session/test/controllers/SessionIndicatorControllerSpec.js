@@ -1,4 +1,4 @@
-import SessionIndicatorController from '../SessionIndicatorController';
+// import SessionIndicatorController from '../SessionIndicatorController';
 
 // this would be better tested in an e2e test
 xdescribe('SessionIndicatorController', function () {

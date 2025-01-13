@@ -1,7 +1,7 @@
 import MCWSPersistenceProvider from '../MCWSPersistenceProvider';
 import mcws from '../../services/mcws/mcws';
 
-fdescribe('The MCWS Persistence Provider', () => {
+describe('The MCWS Persistence Provider', () => {
     let mockNamespaceService;
     let persistenceNamespaces;
     let mockNamespace;

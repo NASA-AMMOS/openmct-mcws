@@ -1,4 +1,4 @@
-import SessionSelectorController from '../SessionSelectorController';
+// import SessionSelectorController from '../SessionSelectorController';
 
 // this would be better tested in an e2e test
 xdescribe('SessionSelectorController', function () {
