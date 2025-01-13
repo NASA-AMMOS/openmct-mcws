@@ -7,7 +7,6 @@ xdescribe('SessionIndicatorController', function () {
     let overlayService;
     let overlay;
     let $timeout;
-    let instantiate;
     let controller;
 
     beforeEach(function () {
@@ -27,7 +26,7 @@ xdescribe('SessionIndicatorController', function () {
         sessionService.historicalSessionFilterConfig = {
             disable: false,
             maxRecords: 100
-        }
+        };
         sessionService.getTopicsWithSessions.and.returnValue(Promise.resolve([]));
         sessionService.getActiveTopicOrSession.and.returnValue('mySession');
         overlayService = jasmine.createSpyObj(
