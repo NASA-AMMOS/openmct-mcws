@@ -78,7 +78,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
         } catch (error) {
             console.warn('MCWSPersistneceProvider:update', error);
 
-            return;
+            return false;
         }
     }
 
