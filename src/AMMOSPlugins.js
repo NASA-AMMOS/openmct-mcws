@@ -101,8 +101,8 @@ define([
             openmct.install(new TaxonomyPlugin(options.taxonomy));
             openmct.install(new LinkPlugin(options));
             openmct.install(new VenuePlugin.default(options));
-            openmct.install(FrameWatchViewPlugin.default());
-            openmct.install(FrameEventFilterViewPlugin.default());
+            openmct.install(FrameWatchViewPlugin.default(options.tablePerformanceOptions));
+            openmct.install(FrameEventFilterViewPlugin.default(options.tablePerformanceOptions));
             openmct.install(new ChannelTablePlugin.default(options.tablePerformanceOptions));
             openmct.install(new ChannelTableSetPlugin.default());
             openmct.install(new ChannelLimitsPlugin.default());
