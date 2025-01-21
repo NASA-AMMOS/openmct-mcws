@@ -56,14 +56,13 @@ describe('The MCWS Persistence Provider', () => {
         );
     });
 
-    it('provides a promise for available namespaces', async (done) => {
+    it('provides a promise for available namespaces', async () => {
         const spaces = await mcwsPersistenceProvider.getPersistenceNamespaces();
         expect(spaces).toEqual(persistenceNamespaces);
-        done();
     });
     
     // DO WE DELETE THIS TEST? I don't think we use this functionality anymore.
-    xit('provides a listing of namespaces when provided a namespace definition', async (done) => {
+    xit('provides a listing of namespaces when provided a namespace definition', async () => {
         const namespaceTriples = [
             {
                 Subject: '/test/namespace/a',
@@ -95,10 +94,9 @@ describe('The MCWS Persistence Provider', () => {
         
         const objects = await mcwsPersistenceProvider.getNamespacesFromMCWS({ url: '/test/namespace' });
         expect(objects).toEqual(namespaceTriples);
-        done();
     });
 
-    it('allows objects to be created', async (done) => {
+    it('allows objects to be created', async () => {
         mockOpaqueFile.create.and.returnValue(Promise.resolve(true));
         const domainObject = {
             identifier: {
@@ -114,10 +112,9 @@ describe('The MCWS Persistence Provider', () => {
             .toHaveBeenCalledWith('testKey');
         expect(mockOpaqueFile.create)
             .toHaveBeenCalledWith({ someKey: 'some value' });
-        done();
     });
 
-    it('allows objects to be read', async (done) => {
+    it('allows objects to be read', async () => {
         const identifier = {
             key: 'testKey',
             namespace: 'testSpace'
@@ -139,10 +136,9 @@ describe('The MCWS Persistence Provider', () => {
             .toHaveBeenCalledWith('testKey');
         expect(mockOpaqueFile.read)
             .toHaveBeenCalled();
-        done();
     });
 
-    it('allows objects to be updated', async (done) => {
+    it('allows objects to be updated', async () => {
         mockOpaqueFile.replace.and.returnValue(Promise.resolve(true));
         const domainObject = {
             identifier: {
@@ -160,11 +156,10 @@ describe('The MCWS Persistence Provider', () => {
             .toHaveBeenCalledWith('testKey');
         expect(mockOpaqueFile.replace)
             .toHaveBeenCalledWith({ someKey: 'some value' });
-        done();
     });
 
     // We don't allow delete in the core API, so we don't need this test.
-    xit('allows objects to be deleted', async (done) => {
+    xit('allows objects to be deleted', async () => {
         mockOpaqueFile.remove.and.returnValue(Promise.resolve(true));
         await mcwsPersistenceProvider.delete({ key: 'testKey', namespace: 'testSpace' });
         
@@ -173,14 +168,12 @@ describe('The MCWS Persistence Provider', () => {
         expect(mockNamespace.opaqueFile)
             .toHaveBeenCalledWith('testKey');
         expect(mockOpaqueFile.remove).toHaveBeenCalled();
-        done();
     });
 
-    it('converts rejected promises to promises resolves to undefined', async (done) => {
+    it('converts rejected promises to promises resolves to undefined', async () => {
         mockOpaqueFile.read.and.returnValue(Promise.reject('hello'));
         const result = await mcwsPersistenceProvider.get({ key: 'testKey', namespace: 'testSpace' });
         
         expect(result).toBeUndefined();
-        done();
     });
 });
