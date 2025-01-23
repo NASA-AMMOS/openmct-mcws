@@ -43,14 +43,14 @@ const ERROR_PREFIX = 'Error when notifying listener: ';
 class SessionService {
     constructor(openmct, openmctMCWSConfig) {
         this.openmct = openmct;
-        this.datasetCache;
+        this.datasetCache = null;
 
         this.subscriptions = {
             session: [],
             historical: []
         };
         this.activeModel = undefined;
-        this.historicalSession = undefined;
+        this.historicalSessionFilter = undefined;
         this.sessionConfig = openmctMCWSConfig.sessions;
         this.realtimeSessionConfig = this.sessionConfig.realtimeSession;
         this.historicalSessionFilterConfig = this.sessionConfig.historicalSessionFilter;
@@ -61,9 +61,9 @@ class SessionService {
         openmct.on('start', () => {
             new SessionURLHandler(this, openmct);
             new SessionLocalStorageHander(this);
-        });
 
-        this.pollForActiveSession();
+            this.pollForActiveSession();
+        });
     }
 
     /**
@@ -80,7 +80,7 @@ class SessionService {
 
         return () => {
             this.subscriptions.session = this.subscriptions.session.filter((cb) => {
-                cb !== callback;
+                return cb !== callback;
             });
         };
     };
@@ -100,7 +100,7 @@ class SessionService {
 
         return () => {
             this.subscriptions.historical = this.subscriptions.historical.filter((cb) => {
-                cb !== callback;
+                return cb !== callback;
             });
         };
     };
@@ -332,18 +332,25 @@ class SessionService {
         return historicalSessions;
     };
 
-    getHistoricalSession() {
-        return this.historicalSession;
+    getHistoricalSessionFilter() {
+        return this.historicalSessionFilter;
     };
 
-    setHistoricalSession(model) {
+    /**
+     * @returns boolean true if a historical session filtering is active, otherwise false.
+     */
+    hasHistoricalSessionFilter() {
+        return Boolean(this.historicalSessionFilter);
+    };
+
+    setHistoricalSessionFilter(model) {
         if (this.historicalSessionFilterConfig.disable) {
             this.notificationService.alert('Historical Session Filtering has been disabled in config');
 
             return;
         }
 
-        this.historicalSession = model;
+        this.historicalSessionFilter = model;
         this.subscriptions.historical.forEach((listener) => {
             try {
                 listener(model);
@@ -353,7 +360,7 @@ class SessionService {
             }
         });
 
-        this.notifyUserOfHistoricalSessionChange(model);
+        this.notifyUserOfHistoricalSessionFilterChange(model);
         
         //clear plots and tables before requery
         this.openmct.objectViews.emit('clearData');
@@ -388,7 +395,7 @@ class SessionService {
         }
     };
 
-    notifyUserOfHistoricalSessionChange(model) {
+    notifyUserOfHistoricalSessionFilterChange(model) {
         let notificationString = 'Historical queries not restricted by session.';
 
         if (model) {
@@ -396,20 +403,6 @@ class SessionService {
         }
 
         this.notificationService.info(notificationString);
-    };
-
-    isActiveHistoricalSession(model) {
-        if ((!this.historicalSession || !model) && this.activeModel !== model) {
-            
-            return false;
-        }
-
-        if (this.historicalSession.topic === model.topic && this.historicalSession.number === model.number) {
-
-            return true;
-        }
-
-        return false;
     };
 
     sessionOrTopic(model) {

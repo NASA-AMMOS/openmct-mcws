@@ -517,11 +517,11 @@ define([
         }
 
         const sessions = this.getSessionService();
-        const session = sessions.getHistoricalSession();
+        const sessionFilter = sessions.getHistoricalSessionFilter();
 
-        if (session) {
-            params.filter.session_id = '(' + session.numbers.join(',') + ')';
-            params.filter.session_host = session.host;
+        if (sessionFilter) {
+            params.filter.session_id = `(${sessionFilter.numbers.join(',')})`;
+            params.filter.session_host = sessionFilter.host;
         } else if (window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.disable !== true && window.openmctMCWSConfig?.sessions?.historicalSessionFilter?.denyUnfilteredQueries === true) {
             const notificationMessage = 'Filtering by historical sessions is required for historical queries.';
 
@@ -531,7 +531,7 @@ define([
         }
 
         if (this.isUnsupportedDomain(provider, options)) {
-            const message = !session
+            const message = !sessionFilter
                 ? `This view requires a session or supported time system for historical requests.`
                 : `This view does not support ${options.domain}. Historical data might not match the time system.`;
 

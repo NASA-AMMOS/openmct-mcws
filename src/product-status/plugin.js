@@ -1,9 +1,5 @@
 import DataProductViewProvider from './DataProductViewProvider.js';
 import DataProductInspectorViewProvider from './DataProductInspectorViewProvider.js';
-import DATDownloadCell from './DATDownloadCell.js';
-import EMDDownloadCell from './EMDDownloadCell.js';
-import EMDPreviewCell from './EMDPreviewCell.js';
-import TXTDownloadCell from './TXTDownloadCell.js';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 import DataProductViewActions from './DataProductViewActions.js';
 
@@ -40,15 +36,6 @@ export default function install(options) {
         
         DataProductViewActions.forEach(action => {
             openmct.actions.register(action);
-        });
-
-        // register cell components globally for dynamic component in core openmct table rows
-        openmct.on('start', () => {
-            openmct.app
-                .component('vista-table-dat-cell', DATDownloadCell)
-                .component('vista-table-emd-cell', EMDDownloadCell)
-                .component('vista-table-emd-preview-cell', EMDPreviewCell)
-                .component('vista-table-txt-cell', TXTDownloadCell);
         });
     }
 }

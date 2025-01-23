@@ -189,9 +189,7 @@
              */
             timeSystems: [
                 'scet',
-                'ert',
-                'sclk',
-                'lmst'
+                'ert'
             ],
 
             /**
@@ -283,7 +281,9 @@
              */
             allowRealtime: true,
             /**
-             * allowLAD: whether or not to allow latest data relative time conductor.
+             * allowLAD: whether or not to allow latest data relative time conductor. 
+             * 
+             * Note: allowRealtime must be true to use this option
              */
             allowLAD: true,
             /**
@@ -436,10 +436,28 @@
         },
 
         /**
-         * Enable global filters for ALL telemetry requests that support the filter
+         * Enable global filters for ALL telemetry requests that support the filter. 
+         * Telemetry filters modify the 'filter' field in queries to MCWS. 
          * 
+         * key property is required and other options are optional
+         * globalFilters: array, optional - list of global filters to configure. 
+         * * key: string, required. Filter column, e.g. vcid
+         * * name: string, required. Identifier of the filter in the selection window. 
+         * * icon: 'icon-flag', string, icon. Not implemented - potentially icon for minimized filter list. 
+         * * filter: object, required. Filter object to implement 
+         * * * comparator: string, required. currently supports 'equals'
+         * * * singleSelectionThreshold: boolean, required. currently supports true only. 
+         * * * defaultLabel: string, optional. Defaults to 'None'. Label to show if filter inactive.  
+         * * * possibleValues: array, required. List of values and labels for filter. 
+         * * * * label: string, required. Label to show in filter selection dropdown. 
+         * * * * value: string, required. value to set parameter to in filtered query. 
          * How to use:
-         * The global filters will be available from the Global Filters indicator
+         * The global filters will be available from the Global Filters indicator. 
+         * Enable a filter by selecting the desired filter from the dropdown and hitting update. 
+         * Outgoing requests that use the 'filter' parameter to MCWS will be modified with your filter. 
+         * example below, selecting 'A side' will ensure that the filter parameter in mcws includes: 
+         * vcid='1,2,3'. Note that poorly formatted filters may not pass MCWS API validation. 
+         *  
         */
         /*
         globalFilters: [
@@ -450,6 +468,7 @@
             filter: {
               comparator: 'equals',
               singleSelectionThreshold: true,
+              defaultLabel: "A & B",
               possibleValues: [
                 {
                   label: 'A Side',
@@ -468,6 +487,7 @@
             filter: {
               comparator: 'equals',
               singleSelectionThreshold: true,
+              defaultLabel: "REC & RLT",
               possibleValues: [
                 {
                   label: 'Realtime',

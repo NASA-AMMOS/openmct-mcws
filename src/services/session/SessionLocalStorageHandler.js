@@ -48,7 +48,7 @@ define([
 
         sessionService.listen(this.storeRealtimeSession.bind(this));
         sessionService.listenForHistoricalChange(
-            this.storeHistoricalSession.bind(this)
+            this.storeHistoricalSessionFilter.bind(this)
         );
         this.initializeFromStorage();
     }
@@ -58,25 +58,26 @@ define([
      * from localStorage (if it exists)
      */
     SessionLocalStorageHandler.prototype.initializeFromStorage = function () {
-        if (this.sessionService.hasActiveTopicOrSession()) {
-            return;
+        if (!this.sessionService.hasActiveTopicOrSession()) {
+          const realtimeSession = localStorage.getItem(REALTIME_SESSION_KEY);
+
+          if (realtimeSession) {
+              this.sessionService.setActiveTopicOrSession(JSON.parse(realtimeSession));
+          }
         }
 
-        var realtimeSession = localStorage.getItem(REALTIME_SESSION_KEY);
-        if (realtimeSession) {
-            this.sessionService.setActiveTopicOrSession(JSON.parse(realtimeSession));
-        }
+        if (!this.sessionService.hasHistoricalSessionFilter()) {
+          const sessionFilterJSON = localStorage.getItem(HISTORICAL_SESSION_KEY);
 
-        var historicalSessionJSON = localStorage.getItem(HISTORICAL_SESSION_KEY);
+          if (sessionFilterJSON) {
+            const sessionFilter = JSON.parse(sessionFilterJSON);
 
-        if (historicalSessionJSON) {
-            var historicalSession = JSON.parse(historicalSessionJSON);
-
-            if (!historicalSession.numbers) {
-                historicalSession.numbers = [historicalSession.number];
+            if (!sessionFilter.numbers) {
+                sessionFilter.numbers = [sessionFilter.number];
             }
 
-            this.sessionService.setHistoricalSession(historicalSession);
+            this.sessionService.setHistoricalSessionFilter(sessionFilter);
+          }
         }
     };
 
@@ -92,11 +93,11 @@ define([
     };
 
     /**
-     * store the historical session in localStorage.
+     * store the historical session filter in localStorage.
      */
-    SessionLocalStorageHandler.prototype.storeHistoricalSession = function (historicalSession) {
-        if (historicalSession) {
-            localStorage.setItem(HISTORICAL_SESSION_KEY, JSON.stringify(historicalSession));
+    SessionLocalStorageHandler.prototype.storeHistoricalSessionFilter = function (sessionFilter) {
+        if (sessionFilter) {
+            localStorage.setItem(HISTORICAL_SESSION_KEY, JSON.stringify(sessionFilter));
         } else {
             localStorage.removeItem(HISTORICAL_SESSION_KEY);
         }

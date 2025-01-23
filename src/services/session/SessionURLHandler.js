@@ -10,7 +10,7 @@ export default class SessionURLHandler {
             this.updateURLFromRealtimeSession.bind(this)
         );
         sessionService.listenForHistoricalChange(
-            this.updateURLFromHistoricalSession.bind(this)
+            this.updateURLFromHistoricalSessionFilter.bind(this)
         );
 
         this.didSessionParamsChange = this.didSessionParamsChange.bind(this);
@@ -33,20 +33,21 @@ export default class SessionURLHandler {
     };
 
     updateSession() {
-        var params = this.getParams();
+        const params = this.getParams();
 
         if (!this.didSessionParamsChange(params)) {
             return;
         }
 
         if (params.historical.numbers && params.historical.host) {
-            var historicalSession = this.sessionService.getHistoricalSession();
-            if (!historicalSession ||
-                historicalSession.numbers.join(',') !== params.historical.numbers ||
-                historicalSession.host !== params.historical.host) {
+            const historicalSessionFilter = this.sessionService.getHistoricalSessionFilter();
+
+            if (!historicalSessionFilter ||
+                historicalSessionFilter.numbers.join(',') !== params.historical.numbers ||
+                historicalSessionFilter.host !== params.historical.host) {
                 
                 params.historical.numbers = params.historical.numbers.split(',');
-                this.sessionService.setHistoricalSession(params.historical);
+                this.sessionService.setHistoricalSessionFilter(params.historical);
             }
         }
         
@@ -66,15 +67,15 @@ export default class SessionURLHandler {
     };
     
     updateAfterNavigation() {
-        var params = this.getParams();
-        var historicalSession = this.sessionService.getHistoricalSession();
-        var realtimeSession = this.sessionService.getActiveTopicOrSession();
+        const params = this.getParams();
+        const historicalSessionFilter = this.sessionService.getHistoricalSessionFilter();
+        const realtimeSession = this.sessionService.getActiveTopicOrSession();
 
-        if (historicalSession && (
-                historicalSession.numbers.join(',') !== params.historical.numbers ||
-                historicalSession.host !== params.historical.host
+        if (historicalSessionFilter && (
+                historicalSessionFilter.numbers.join(',') !== params.historical.numbers ||
+                historicalSessionFilter.host !== params.historical.host
             )) {
-            this.updateURLFromHistoricalSession(historicalSession);
+            this.updateURLFromHistoricalSessionFilter(historicalSessionFilter);
         }
         if (realtimeSession && (
                 realtimeSession.topic !== params.realtime.topic ||
@@ -107,10 +108,10 @@ export default class SessionURLHandler {
     
     };
     
-    updateURLFromHistoricalSession(historicalSession) {
-        if (historicalSession) {
-            this.openmct.router.setSearchParam('v_hsi', historicalSession.numbers.join(','));
-            this.openmct.router.setSearchParam('v_hsh', historicalSession.host);
+    updateURLFromHistoricalSessionFilter(sessionFilter) {
+        if (sessionFilter) {
+            this.openmct.router.setSearchParam('v_hsi', sessionFilter.numbers.join(','));
+            this.openmct.router.setSearchParam('v_hsh', sessionFilter.host);
         } else {
             this.openmct.router.deleteSearchParam('v_hsi');
             this.openmct.router.deleteSearchParam('v_hsh');
