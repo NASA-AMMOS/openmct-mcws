@@ -32,57 +32,12 @@ describe('The MCWS Persistence Provider', () => {
                 url: '/test/namespace2'
             }
         ];
-import MCWSPersistenceProvider from '../MCWSPersistenceProvider';
-import mcws from 'services/mcws/mcws';
-
-describe('The MCWS Persistence Provider', () => {
-    let mockNamespaceService;
-    let persistenceNamespaces;
-    let mockNamespace;
-    let mockOpaqueFile;
-    let openmct;
-    let mcwsPersistenceProvider;
-
-    beforeEach(() => {
-        openmct = {
-            user: {
-                getCurrentUser: () => Promise.resolve({ id: 'myUser' })
-            }
-        };
-
-        spyOn(mcws, 'namespace');
-        mockNamespaceService = jasmine.createSpyObj(
-            'namespaceService',
-            ['getPersistenceNamespaces']
-        );
-        
-        persistenceNamespaces = [
-            {
-                key: 'testSpace',
-                url: '/test/namespace'
-            },
-            {
-                key: 'testSpace2',
-                url: '/test/namespace2'
-            }
-        ];
 
         mockNamespaceService
             .getPersistenceNamespaces
             .and.returnValue(Promise.resolve(persistenceNamespaces));
-        mockNamespaceService
-            .getPersistenceNamespaces
-            .and.returnValue(Promise.resolve(persistenceNamespaces));
 
 
-        mockNamespace =
-            jasmine.createSpyObj('namespace', ['opaqueFile', 'read']);
-        mockOpaqueFile = jasmine.createSpyObj('opaqueFile', [
-            'read',
-            'replace',
-            'remove',
-            'create'
-        ]);
         mockNamespace =
             jasmine.createSpyObj('namespace', ['opaqueFile', 'read']);
         mockOpaqueFile = jasmine.createSpyObj('opaqueFile', [
@@ -95,11 +50,6 @@ describe('The MCWS Persistence Provider', () => {
         mcws.namespace.and.returnValue(mockNamespace);
         mockNamespace.opaqueFile.and.returnValue(mockOpaqueFile);
 
-        mcwsPersistenceProvider = new MCWSPersistenceProvider(
-            openmct,
-            persistenceNamespaces
-        );
-    });
         mcwsPersistenceProvider = new MCWSPersistenceProvider(
             openmct,
             persistenceNamespaces
