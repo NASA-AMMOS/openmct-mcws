@@ -12,7 +12,7 @@ export default function warnMultipleDatasetsOnDuplicateModifier(openmct) {
       object = objectPath[0];
 
       originalInvokeFunction(objectPath);
-    }
+    };
 
     duplicateAction.onSave = async (changes) => {
       const isDuplicatingDataset = object.type === 'vista.dataset';
@@ -46,4 +46,4 @@ export default function warnMultipleDatasetsOnDuplicateModifier(openmct) {
       }
     };
   }
-};
+}

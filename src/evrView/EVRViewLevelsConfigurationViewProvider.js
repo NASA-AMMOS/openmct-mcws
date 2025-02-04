@@ -1,66 +1,62 @@
-import EVRViewLevelsConfigurationView from './EVRViewLevelsConfigurationView.vue'
+import EVRViewLevelsConfigurationView from './EVRViewLevelsConfigurationView.vue';
 import mount from 'ommUtils/mountVueComponent';
 
 export default function EVRViewLevelsConfigurationViewProvider(options) {
-    return {
-        key: 'vista.evrView-configuration',
-        name: 'Level Color',
-        canView: function (selection) {
-            if (selection.length === 0) {
-                return false;
-            }
+  return {
+    key: 'vista.evrView-configuration',
+    name: 'Level Color',
+    canView: function (selection) {
+      if (selection.length === 0) {
+        return false;
+      }
 
-            let object = selection[0][0].context.item;
+      let object = selection[0][0].context.item;
 
-            return object && object.type === 'vista.evrView';
-        },
-        view: function (selection) {
-            let _destroy = null;
+      return object && object.type === 'vista.evrView';
+    },
+    view: function (selection) {
+      let _destroy = null;
 
-            const domainObject = selection[0][0].context.item;
+      const domainObject = selection[0][0].context.item;
 
-            return {
-                show: function (element) {
-                    const componentDefinition = {
-                        provide: {
-                            openmct
-                        },
-                        data() {
-                            return {
-                                domainObject: domainObject,
-                                options: options
-                            };
-                        },
-                        components: {
-                            EvrLevelsConfiguration: EVRViewLevelsConfigurationView
-                        },
-                        template: `
+      return {
+        show: function (element) {
+          const componentDefinition = {
+            provide: {
+              openmct
+            },
+            data() {
+              return {
+                domainObject: domainObject,
+                options: options
+              };
+            },
+            components: {
+              EvrLevelsConfiguration: EVRViewLevelsConfigurationView
+            },
+            template: `
                             <evr-levels-configuration
                                 :domain-object="domainObject"
                                 :options="options"
                             ></evr-levels-configuration>
                         `
-                    };
+          };
 
-                    const componentOptions = {
-                        element
-                    };
+          const componentOptions = {
+            element
+          };
 
-                    const {
-                        componentInstance,
-                        destroy,
-                        el
-                    } = mount(componentDefinition, componentOptions);
+          const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
 
-                    _destroy = destroy;
-                },
-                priority: function () {
-                    return openmct.priority.HIGH;
-                },
-                destroy: function () {
-                    _destroy?.();
-                }
-            }
+          _destroy = destroy;
+        },
+        priority: function () {
+          return openmct.priority.HIGH;
+        },
+        destroy: function () {
+          _destroy?.();
         }
-    };
+      };
+    }
+  };
 }

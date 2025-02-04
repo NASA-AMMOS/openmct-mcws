@@ -11,13 +11,13 @@ export default class DataProductViewProvider {
     this.name = 'Autoclear';
   }
 
-  canView (selection) {
+  canView(selection) {
     const domainObject = selection?.[0]?.[0]?.context?.item;
 
     return domainObject?.type === 'vista.dataProductsView';
   }
 
-  view (selection) {
+  view(selection) {
     let _destroy = null;
 
     const domainObject = selection[0][0].context.item;
@@ -31,20 +31,16 @@ export default class DataProductViewProvider {
             tableConfiguration
           },
           components: {
-              DataProductAutoclear
+            DataProductAutoclear
           },
-          template: '<data-product-autoclear></data-product-autoclear>',
+          template: '<data-product-autoclear></data-product-autoclear>'
         };
 
         const componentOptions = {
-            element
+          element
         };
 
-        const {
-            componentInstance,
-            destroy,
-            el
-        } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
 
         _destroy = destroy;
       },
@@ -54,6 +50,6 @@ export default class DataProductViewProvider {
       destroy: function () {
         _destroy?.();
       }
-    }
+    };
   }
 }

@@ -9,8 +9,23 @@ const PRODUCT_STARTED_RECORD_TYPE = 'PRODUCT_STARTED';
 const COMPLETE_PRODUCT_RECORD_TYPE = 'COMPLETE_PRODUCT';
 const PRODUCT_PART_RECEIVED_RECORD_TYPE = 'PRODUCT_PART_RECEIVED';
 
-const PRODUCT_STATUS_MISSING_KEYS = ['ert', 'scet', 'sclk', 'lst', 'unique_name', 'creation_time', 'version',
-  'seq_id', 'dvt_coarse', 'dvt_fine', 'seq_version', 'checksum', 'file_size', 'command_number', 'ground_status'];
+const PRODUCT_STATUS_MISSING_KEYS = [
+  'ert',
+  'scet',
+  'sclk',
+  'lst',
+  'unique_name',
+  'creation_time',
+  'version',
+  'seq_id',
+  'dvt_coarse',
+  'dvt_fine',
+  'seq_version',
+  'checksum',
+  'file_size',
+  'command_number',
+  'ground_status'
+];
 
 const STATUS_CONSTANTS = {
   FIELD: 'ground_status',
@@ -19,7 +34,7 @@ const STATUS_CONSTANTS = {
   COMPLETE_CHECKSUM_PASS: 'COMPLETE_CHECKSUM_PASS',
   PARTIAL: 'PARTIAL',
   PARTIAL_CHECKSUM_FAIL: 'PARTIAL_CHECKSUM_FAIL'
-}
+};
 
 const STATUS_MAP = {};
 STATUS_MAP[STATUS_CONSTANTS.COMPLETE] = 's-status--complete';
@@ -38,7 +53,9 @@ class DataProductRow extends TelemetryTableRow {
 
     if (this.isComplete()) {
       let creationTimeColumn = this.columns[CREATION_TIME_FIELD];
-      this.timeCompleted = creationTimeColumn.formatter.parse(creationTimeColumn.getRawValue(datum));
+      this.timeCompleted = creationTimeColumn.formatter.parse(
+        creationTimeColumn.getRawValue(datum)
+      );
 
       if (!isNaN(this.datum[TOTAL_PARTS_FIELD])) {
         this.datum[PARTS_RECEIVED_FIELD] = parseInt(this.datum[TOTAL_PARTS_FIELD]);
@@ -52,8 +69,10 @@ class DataProductRow extends TelemetryTableRow {
     return STATUS_MAP[status];
   }
   getFormattedValue(key) {
-    if (upper(this.datum[RECORD_TYPE_FIELD]) === PRODUCT_STARTED_RECORD_TYPE &&
-      PRODUCT_STATUS_MISSING_KEYS.includes(key)) {
+    if (
+      upper(this.datum[RECORD_TYPE_FIELD]) === PRODUCT_STARTED_RECORD_TYPE &&
+      PRODUCT_STATUS_MISSING_KEYS.includes(key)
+    ) {
       return '';
     } else {
       return super.getFormattedValue(key);
@@ -63,11 +82,13 @@ class DataProductRow extends TelemetryTableRow {
   update(incomingDatum) {
     incomingDatum[PARTS_RECEIVED_FIELD] = '--';
 
-    // If message is a "part received" message, then increment the part count UNLESS this row is already 
+    // If message is a "part received" message, then increment the part count UNLESS this row is already
     // complete. Parts messages can be received out of order.
-    if (this.isPartReceived(incomingDatum) &&
+    if (
+      this.isPartReceived(incomingDatum) &&
       !this.isComplete() &&
-      !isNaN(this.datum[PARTS_RECEIVED_FIELD])) {
+      !isNaN(this.datum[PARTS_RECEIVED_FIELD])
+    ) {
       incomingDatum[PARTS_RECEIVED_FIELD] = this.datum[PARTS_RECEIVED_FIELD] + 1;
     }
 
@@ -86,9 +107,11 @@ class DataProductRow extends TelemetryTableRow {
     }
   }
   isComplete(datum = this.datum) {
-    return upper(datum[STATUS_CONSTANTS.FIELD]).indexOf(STATUS_CONSTANTS.COMPLETE) === 0 ||
+    return (
+      upper(datum[STATUS_CONSTANTS.FIELD]).indexOf(STATUS_CONSTANTS.COMPLETE) === 0 ||
       upper(datum[STATUS_CONSTANTS.FIELD]).indexOf(STATUS_CONSTANTS.COMPLETE_NO_CHECKSUM) === 0 ||
-      upper(datum[STATUS_CONSTANTS.FIELD]).indexOf(STATUS_CONSTANTS.COMPLETE_CHECKSUM_PASS) === 0;
+      upper(datum[STATUS_CONSTANTS.FIELD]).indexOf(STATUS_CONSTANTS.COMPLETE_CHECKSUM_PASS) === 0
+    );
   }
   isPartReceived(datum = this.datum) {
     return upper(datum[RECORD_TYPE_FIELD]).indexOf(PRODUCT_PART_RECEIVED_RECORD_TYPE) === 0;

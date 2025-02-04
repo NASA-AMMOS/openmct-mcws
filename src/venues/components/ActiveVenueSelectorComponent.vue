@@ -1,10 +1,6 @@
 <template>
   <div class="l-venue-section l-active-venue-selector" :class="{ loading: loading }">
-    <div
-      v-for="venue in venues"
-      :key="venue.id"
-      class="venue-item"
-    >
+    <div v-for="venue in venues" :key="venue.id" class="venue-item">
       <VenueComponent
         :venue="venue"
         :is-selected="isSelected(venue)"
@@ -34,7 +30,7 @@ export default {
   data() {
     return {
       venues: [],
-      loading: true,
+      loading: true
     };
   },
   mounted() {
@@ -60,6 +56,6 @@ export default {
     selectVenue(venue) {
       this.$emit('venue-selected', venue);
     }
-  },
+  }
 };
 </script>

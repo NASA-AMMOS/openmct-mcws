@@ -11,9 +11,11 @@ export default function ChannelTableFormatViewProvider(openmct, options) {
       if (selectionPath && selectionPath.length > 1) {
         let parentObject = selectionPath[1].context.item;
         let selectedContext = selectionPath[0].context;
-        return parentObject && 
+        return (
+          parentObject &&
           parentObject.type === 'vista.chanTableGroup' &&
-          selectedContext.type === 'table-cell';
+          selectedContext.type === 'table-cell'
+        );
       }
       return false;
     },
@@ -32,17 +34,13 @@ export default function ChannelTableFormatViewProvider(openmct, options) {
             components: {
               CellFormatConfiguration: CellFormatConfigurationComponent
             },
-            template: '<cell-format-configuration></cell-format-configuration>',
+            template: '<cell-format-configuration></cell-format-configuration>'
           };
           const componentOptions = {
             element
           };
 
-          const {
-            componentInstance,
-            destroy,
-            el
-          } = mount(componentDefinition, componentOptions);
+          const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
 
           _destroy = destroy;
         },
@@ -52,8 +50,7 @@ export default function ChannelTableFormatViewProvider(openmct, options) {
         destroy: function () {
           _destroy?.();
         }
-      }
+      };
     }
-  }
+  };
 }
-

@@ -10,6 +10,6 @@ const common = require('./webpack.common');
 const path = require('path');
 
 /** @type {import('webpack').Configuration} */
-module.exports =  merge(common, {
-    mode: 'production'
+module.exports = merge(common, {
+  mode: 'production'
 });

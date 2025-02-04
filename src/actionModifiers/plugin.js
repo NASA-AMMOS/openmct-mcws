@@ -7,14 +7,14 @@ import warnMultipleDatasetsOnDuplicateModifier from './MultipleDatasets/warnMult
  * DEPENDENCY: These modifiers have a dependency on Open MCT action internals.
  */
 function ActionModifiersPlugin() {
-    return function install(openmct) {
-        openmct.on('start', () => {
-            preventImportIntoDatasetModifier(openmct);
-            importWithDatasetsModifier(openmct);
-            warnMultipleDatasetsOnDuplicateModifier(openmct);
-            // warnMultipleDatasetsOnImportModifier(openmct);
-        });
-    }
+  return function install(openmct) {
+    openmct.on('start', () => {
+      preventImportIntoDatasetModifier(openmct);
+      importWithDatasetsModifier(openmct);
+      warnMultipleDatasetsOnDuplicateModifier(openmct);
+      // warnMultipleDatasetsOnImportModifier(openmct);
+    });
+  };
 }
 
 export default ActionModifiersPlugin;

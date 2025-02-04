@@ -11,7 +11,7 @@ export default class UTCClock extends Clock {
 
   initialize() {
     this.generateTick();
-    setInterval(this.generateTick.bind(this), 1000/30);
+    setInterval(this.generateTick.bind(this), 1000 / 30);
   }
 
   generateTick() {
