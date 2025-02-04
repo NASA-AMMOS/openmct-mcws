@@ -1,0 +1,39 @@
+# Copied from nasa/openmct on 20250131
+
+# Docs
+*.md
+
+# Build output
+target
+dist
+
+# Mac OS X Finder
+.DS_Store
+
+# Node dependencies
+node_modules
+
+# npm-debug log
+npm-debug.log
+
+# karma reports
+report.*.json
+
+# e2e test artifacts
+test-results
+html-test-results
+
+# codecov artifacts
+.nyc_output
+coverage
+codecov
+
+# additional configuration files not present in nasa/openmct
+.prettierignore
+.gitignore
+*.png
+*.txt
+*.yaml
+*.yml
+*.xml
+*.cfg
