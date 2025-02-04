@@ -515,9 +515,9 @@
      * Developer Settings-- do not modify these unless you know what
      * they do!
      */
-    assetPath: 'node_modules/openmct/dist'
     // proxyUrl: 'http://localhost:8080/',
-    // useDeveloperStorage: true
+    // useDeveloperStorage: true,
+    assetPath: 'node_modules/openmct/dist'
   };
 
   window.openmctMCWSConfig = openmctMCWSConfig;
