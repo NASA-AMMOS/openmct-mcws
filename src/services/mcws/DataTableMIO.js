@@ -1,5 +1,5 @@
 import MIO from './MIO';
-    
+
 /**
  * Handle for utilizing Opaque File MIOs.
  *
@@ -17,18 +17,18 @@ import MIO from './MIO';
  */
 
 class DataTableMIO extends MIO {
-    constructor(url, options) {
-        super(url);
+  constructor(url, options) {
+    super(url);
 
-        this.options = options;
-        this.type = 'datatable';
-    }
+    this.options = options;
+    this.type = 'datatable';
+  }
 
-    read(params = {}) {
-        params.output = 'json';
+  read(params = {}) {
+    params.output = 'json';
 
-        return super.read(params);
-    }
+    return super.read(params);
+  }
 }
 
 export default DataTableMIO;

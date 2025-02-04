@@ -8,17 +8,13 @@ export default function plugin() {
         openmct
       },
       components: {
-          RealtimeSessionIndicator
+        RealtimeSessionIndicator
       },
       template: '<RealtimeSessionIndicator />'
     };
-    
-    const {
-      componentInstance,
-      destroy,
-      el
-    } = mount(componentDefinition);
-    
+
+    const { componentInstance, destroy, el } = mount(componentDefinition);
+
     const indicator = {
       key: 'realtime-session-indicator',
       element: el,
@@ -29,4 +25,3 @@ export default function plugin() {
     openmct.indicators.add(indicator);
   };
 }
-

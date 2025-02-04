@@ -1,96 +1,99 @@
-import Dataset from './Dataset'
+import Dataset from './Dataset';
 import mcwsClient from 'services/mcws/MCWSClient';
-    
+
 /**
  * Provide a single place for fetching datasets so that there aren't
  * duplicates in existence.
  */
 class DatasetCache {
-    constructor(openmct) {
-        this.openmct = openmct;
-        this.datasets = {};
-        this.pending = {};
-        this.reloading = false;
+  constructor(openmct) {
+    this.openmct = openmct;
+    this.datasets = {};
+    this.pending = {};
+    this.reloading = false;
+  }
+
+  async get(domainObject) {
+    let isDomainObject = false;
+    let identifier = domainObject;
+
+    if (domainObject.identifier) {
+      isDomainObject = true;
+      identifier = domainObject.identifier;
     }
 
-    async get(domainObject) {
-        let isDomainObject = false;
-        let identifier = domainObject;
+    const keyString = openmct.objects.makeKeyString(identifier);
 
-        if (domainObject.identifier ) {
-            isDomainObject = true;
-            identifier = domainObject.identifier;
-        }
-        
-        const keyString = openmct.objects.makeKeyString(identifier);
+    if (!this.datasets[keyString]) {
+      if (isDomainObject) {
+        this.datasets[keyString] = new Dataset(domainObject);
 
-        if (!this.datasets[keyString]) {
-            if (isDomainObject) {
-                this.datasets[keyString] = new Dataset(domainObject);
+        this.#observe(domainObject);
+      } else {
+        if (!this.pending[keyString]) {
+          this.pending[keyString] = this.openmct.objects
+            .get(identifier)
+            .then((retrievedDomainObject) => {
+              this.datasets[keyString] = new Dataset(retrievedDomainObject);
+              delete this.pending[keyString];
 
-                this.#observe(domainObject);
-            } else {
-                if (!this.pending[keyString]) {
-                    this.pending[keyString] = this.openmct.objects.get(identifier).then((retrievedDomainObject) =>{
-                        this.datasets[keyString] = new Dataset(retrievedDomainObject);
-                        delete this.pending[keyString];
+              this.#observe(retrievedDomainObject);
 
-                        this.#observe(retrievedDomainObject);
-
-                        return this.datasets[keyString].load();
-                    });
-                }
-
-                return this.pending[keyString];
-            }
+              return this.datasets[keyString].load();
+            });
         }
 
-        return this.datasets[keyString].load();
+        return this.pending[keyString];
+      }
     }
 
-    async getDomainObjects() {
-        const keys = Object.keys(this.datasets);
-        const domainObjectPromises = keys.map(key => this.openmct.objects.get(key));
+    return this.datasets[keyString].load();
+  }
 
-        const domainObjects = await Promise.all(domainObjectPromises);
+  async getDomainObjects() {
+    const keys = Object.keys(this.datasets);
+    const domainObjectPromises = keys.map((key) => this.openmct.objects.get(key));
 
-        return domainObjects;
-    }
+    const domainObjects = await Promise.all(domainObjectPromises);
 
-    #scheduleReload() {
-        this.reloading = true;
+    return domainObjects;
+  }
 
-        let stabilityChecks = 0;
-        let checkCount = 5;
-        const message = 'Open MCT for MCWS will reload to apply the changes you have made to the Dataset. Please wait.';
-        const notification = this.openmct.notifications.progress(message, stabilityChecks);
+  #scheduleReload() {
+    this.reloading = true;
 
-        setInterval(() => {
-            if (stabilityChecks <= checkCount) {
-                if (mcwsClient.pending === 0) {
-                    notification.progress((++stabilityChecks / checkCount) * 100);
-                }
-            } else {
-                window.location.reload();
-            }
-        }, 500);
-    }
+    let stabilityChecks = 0;
+    let checkCount = 5;
+    const message =
+      'Open MCT for MCWS will reload to apply the changes you have made to the Dataset. Please wait.';
+    const notification = this.openmct.notifications.progress(message, stabilityChecks);
 
-    #observe(datasetDomainObject) {
-        this.openmct.objects.observe(datasetDomainObject, '*', (object, path, value) => {
-            if (!this.reloading && path !== undefined) {
-                this.#scheduleReload();
-            }
-        });
-    }
+    setInterval(() => {
+      if (stabilityChecks <= checkCount) {
+        if (mcwsClient.pending === 0) {
+          notification.progress((++stabilityChecks / checkCount) * 100);
+        }
+      } else {
+        window.location.reload();
+      }
+    }, 500);
+  }
+
+  #observe(datasetDomainObject) {
+    this.openmct.objects.observe(datasetDomainObject, '*', (object, path, value) => {
+      if (!this.reloading && path !== undefined) {
+        this.#scheduleReload();
+      }
+    });
+  }
 }
 
 let datasetCacheInstance = null;
 
-export default function(openmct) {
-    if (!datasetCacheInstance) {
-        datasetCacheInstance = new DatasetCache(openmct);
-    }
+export default function (openmct) {
+  if (!datasetCacheInstance) {
+    datasetCacheInstance = new DatasetCache(openmct);
+  }
 
-    return datasetCacheInstance;
+  return datasetCacheInstance;
 }

@@ -17,61 +17,66 @@ import MIO from './MIO';
  */
 
 class OpaqueFileMIO extends MIO {
-    constructor(url, options) {
-        super(url);
+  constructor(url, options) {
+    super(url);
 
-        this.options = options;
-        this.type = 'opaque_file';
-    }
+    this.options = options;
+    this.type = 'opaque_file';
+  }
 
-    /**
-     * Create this Opaque File MIO. This will issue an HTTP
-     * request which will be handled asynchronously, so the result
-     * is given as a promise.
-     *
-     * @method create
-     * @memberof OpaqueFileMIO
-     * @param {object} body the contents of this opaque file; if
-     *        this is not a string, this will be stringified to JSON.
-     * @param {string} [contentType='application/json'] mime contentType of the opaqueFile,
-     *        defaults to `application/json`
-     * @returns {Promise} response the response body
-     */
-    create(body, contentType = 'application/json') {
-        return this.request(this.url, 'PUT', {
-            op: 'create',
-            type: 'opaque_file',
-            content_type: contentType
-        }, body);
-    }
+  /**
+   * Create this Opaque File MIO. This will issue an HTTP
+   * request which will be handled asynchronously, so the result
+   * is given as a promise.
+   *
+   * @method create
+   * @memberof OpaqueFileMIO
+   * @param {object} body the contents of this opaque file; if
+   *        this is not a string, this will be stringified to JSON.
+   * @param {string} [contentType='application/json'] mime contentType of the opaqueFile,
+   *        defaults to `application/json`
+   * @returns {Promise} response the response body
+   */
+  create(body, contentType = 'application/json') {
+    return this.request(
+      this.url,
+      'PUT',
+      {
+        op: 'create',
+        type: 'opaque_file',
+        content_type: contentType
+      },
+      body
+    );
+  }
 
-    /**
-     * Replace the contents of this Opaque File MIO. This will issue
-     * an HTTP request which will be handled asynchronously, so the
-     * result is given as a promise.
-     *
-     * @method replace
-     * @memberof OpaqueFileMIO
-     * @param {object} body the contents of this opaque file; if
-     *        this is not a string, this will be stringified to JSON.
-     * @returns {Promise} response the response body
-     */
-    replace(body) {
-        return this.request(this.url, 'PUT', {}, body);
-    }
+  /**
+   * Replace the contents of this Opaque File MIO. This will issue
+   * an HTTP request which will be handled asynchronously, so the
+   * result is given as a promise.
+   *
+   * @method replace
+   * @memberof OpaqueFileMIO
+   * @param {object} body the contents of this opaque file; if
+   *        this is not a string, this will be stringified to JSON.
+   * @returns {Promise} response the response body
+   */
+  replace(body) {
+    return this.request(this.url, 'PUT', {}, body);
+  }
 
-    /**
-     * Delete this Opaque File MIO. This will issue an HTTP
-     * request which will be handled asynchronously, so the result
-     * is given as a promise.
-     *
-     * @method remove
-     * @memberof OpaqueFileMIO
-     * @returns {Promise} the response body
-     */
-    remove() {
-        return this.request(this.url, 'DELETE');
-    }
+  /**
+   * Delete this Opaque File MIO. This will issue an HTTP
+   * request which will be handled asynchronously, so the result
+   * is given as a promise.
+   *
+   * @method remove
+   * @memberof OpaqueFileMIO
+   * @returns {Promise} the response body
+   */
+  remove() {
+    return this.request(this.url, 'DELETE');
+  }
 }
 
 export default OpaqueFileMIO;

@@ -19,7 +19,7 @@ class FilterService extends EventEmitter {
   getAvailableFilters() {
     const filters = {};
 
-    this.filtersConfig.forEach(config => filters[config.key] = {});
+    this.filtersConfig.forEach((config) => (filters[config.key] = {}));
 
     return filters;
   }
@@ -40,8 +40,9 @@ class FilterService extends EventEmitter {
   }
 
   updateFilters(updatedFilters) {
-    const isChangedFilters = Object.entries(updatedFilters)
-      .some(([key, filter]) => !isEqual(filter, this.filters[key]));
+    const isChangedFilters = Object.entries(updatedFilters).some(
+      ([key, filter]) => !isEqual(filter, this.filters[key])
+    );
 
     if (isChangedFilters) {
       Object.assign(this.filters, updatedFilters);
@@ -71,21 +72,21 @@ class FilterService extends EventEmitter {
 
   clearFilters() {
     const clearedFilters = this.getAvailableFilters();
-    
+
     this.updateFilters(clearedFilters);
   }
 }
 
 let filterServiceInstance = null;
 
-export default function(openmct, config) {
-    if (filterServiceInstance) {
-      return filterServiceInstance;
-    }
-
-    if (config) {
-      filterServiceInstance = new FilterService(openmct, config);
-    }
-
+export default function (openmct, config) {
+  if (filterServiceInstance) {
     return filterServiceInstance;
+  }
+
+  if (config) {
+    filterServiceInstance = new FilterService(openmct, config);
+  }
+
+  return filterServiceInstance;
 }

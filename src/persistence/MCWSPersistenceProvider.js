@@ -1,129 +1,128 @@
 import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider';
 import mcws from '../services/mcws/mcws';
 
-export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider {   
+export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider {
+  /**
+   * Read an existing object back from persistence.
+   * @param module:openmct.ObjectAPI~Identifier identifier An object identifier
+   * @param {AbortSignal} abortSignal (optional) signal to abort fetch requests
+   * @returns {Promise.<object>} a promise for the stored
+   *          object; this will resolve to undefined if no such
+   *          object is found.
+   */
+  async get(identifier, abortSignal) {
+    const { key, namespace } = identifier;
+    const options = {};
 
-    /**
-     * Read an existing object back from persistence.
-     * @param module:openmct.ObjectAPI~Identifier identifier An object identifier
-     * @param {AbortSignal} abortSignal (optional) signal to abort fetch requests
-     * @returns {Promise.<object>} a promise for the stored
-     *          object; this will resolve to undefined if no such
-     *          object is found.
-     */
-    async get(identifier, abortSignal) {
-        const { key, namespace } = identifier;
-        const options = {};
-
-        if (abortSignal) {
-            options.signal = abortSignal;
-        }
-
-        const persistenceNamespace = await this.#getNamespace(namespace, options);
-
-        try {
-            let result = await persistenceNamespace.opaqueFile(key).read();
-
-            result = await this.#fromPersistableModel(result, identifier);
-
-            return result;
-        } catch (error) {
-            console.warn('MCWSPersistneceProvider:get', error);
-
-            return;
-        }
+    if (abortSignal) {
+      options.signal = abortSignal;
     }
 
-    /**
-     * Create a new object in the specified persistence space.
-     * @param {module:openmct.DomainObject} domainObject the domain object to
-     *        save
-     * @returns {Promise.<boolean>} a promise for an indication
-     *          of the success (true) or failure (false) of this
-     *          operation
-     */
-    async create(domainObject) {
-        const { key, namespace } = domainObject.identifier;
-        const persistenceNamespace = await this.#getNamespace(namespace);
-        const model = this.#toPersistableModel(domainObject);
+    const persistenceNamespace = await this.#getNamespace(namespace, options);
 
-        try {
-            await persistenceNamespace.opaqueFile(key).create(model);
+    try {
+      let result = await persistenceNamespace.opaqueFile(key).read();
 
-            return true;
-        } catch (error) {
-            console.warn('MCWSPersistneceProvider:create', error);
+      result = await this.#fromPersistableModel(result, identifier);
 
-            return false;
-        }
+      return result;
+    } catch (error) {
+      console.warn('MCWSPersistneceProvider:get', error);
+
+      return;
     }
+  }
 
-    /**
-     * Update an existing object in the specified persistence space.
-     * @param {module:openmct.DomainObject} domainObject the domain object to
-     *        update
-     * @returns {Promise.<boolean>} a promise for an indication
-     *          of the success (true) or failure (false) of this
-     *          operation
-     */
-    async update(domainObject) {
-        const { key, namespace } = domainObject.identifier;
-        const persistenceNamespace = await this.#getNamespace(namespace);
-        const model = this.#toPersistableModel(domainObject);
+  /**
+   * Create a new object in the specified persistence space.
+   * @param {module:openmct.DomainObject} domainObject the domain object to
+   *        save
+   * @returns {Promise.<boolean>} a promise for an indication
+   *          of the success (true) or failure (false) of this
+   *          operation
+   */
+  async create(domainObject) {
+    const { key, namespace } = domainObject.identifier;
+    const persistenceNamespace = await this.#getNamespace(namespace);
+    const model = this.#toPersistableModel(domainObject);
 
-        try {
-            const result = await persistenceNamespace.opaqueFile(key).replace(model);
+    try {
+      await persistenceNamespace.opaqueFile(key).create(model);
 
-            return result;
-        } catch (error) {
-            console.warn('MCWSPersistneceProvider:update', error);
+      return true;
+    } catch (error) {
+      console.warn('MCWSPersistneceProvider:create', error);
 
-            return false;
-        }
+      return false;
     }
+  }
 
-    /**
-     * Converts a domain object to a persistable model by removing the identifier.
-     * @private
-     * @param {module:openmct.DomainObject} domainObject - The domain object to convert.
-     * @returns {Object} The persistable model.
-     */
-    #toPersistableModel(domainObject) {
-        //First make a copy so we are not mutating the provided model.
-        const persistableModel = JSON.parse(JSON.stringify(domainObject));
-        delete persistableModel.identifier;
+  /**
+   * Update an existing object in the specified persistence space.
+   * @param {module:openmct.DomainObject} domainObject the domain object to
+   *        update
+   * @returns {Promise.<boolean>} a promise for an indication
+   *          of the success (true) or failure (false) of this
+   *          operation
+   */
+  async update(domainObject) {
+    const { key, namespace } = domainObject.identifier;
+    const persistenceNamespace = await this.#getNamespace(namespace);
+    const model = this.#toPersistableModel(domainObject);
 
-        return persistableModel;
+    try {
+      const result = await persistenceNamespace.opaqueFile(key).replace(model);
+
+      return result;
+    } catch (error) {
+      console.warn('MCWSPersistneceProvider:update', error);
+
+      return false;
     }
+  }
 
-    /**
-     * Converts a persisted result back into a domain object.
-     * @private
-     * @param {Object} result - The result from persistence.
-     * @param {module:openmct.ObjectAPI~Identifier} identifier - The identifier for the domain object.
-     * @returns {Promise<module:openmct.DomainObject>} A promise that resolves to the domain object.
-     */
-    async #fromPersistableModel(result, identifier) {
-        let domainObject = await result.json();
+  /**
+   * Converts a domain object to a persistable model by removing the identifier.
+   * @private
+   * @param {module:openmct.DomainObject} domainObject - The domain object to convert.
+   * @returns {Object} The persistable model.
+   */
+  #toPersistableModel(domainObject) {
+    //First make a copy so we are not mutating the provided model.
+    const persistableModel = JSON.parse(JSON.stringify(domainObject));
+    delete persistableModel.identifier;
 
-        domainObject.identifier = identifier;
+    return persistableModel;
+  }
 
-        return domainObject;
-    }
+  /**
+   * Converts a persisted result back into a domain object.
+   * @private
+   * @param {Object} result - The result from persistence.
+   * @param {module:openmct.ObjectAPI~Identifier} identifier - The identifier for the domain object.
+   * @returns {Promise<module:openmct.DomainObject>} A promise that resolves to the domain object.
+   */
+  async #fromPersistableModel(result, identifier) {
+    let domainObject = await result.json();
 
-    /**
-     * Retrieves the MCWS namespace for a given persistence space.
-     * @private
-     * @param {string} persistenceSpace - The key of the persistence space.
-     * @param {Object} [options] - Additional options for the namespace.
-     * @returns {Promise<Object>} A promise that resolves to the MCWS namespace.
-     */
-    async #getNamespace(persistenceSpace, options) {
-        const persistenceNamespaces = await this.getPersistenceNamespaces();
-        const persistenceNamespace = persistenceNamespaces.find((namespace) => {
-            return namespace.key === persistenceSpace;
-        })
-        
-        return mcws.namespace(persistenceNamespace.url, options);
-    }
+    domainObject.identifier = identifier;
+
+    return domainObject;
+  }
+
+  /**
+   * Retrieves the MCWS namespace for a given persistence space.
+   * @private
+   * @param {string} persistenceSpace - The key of the persistence space.
+   * @param {Object} [options] - Additional options for the namespace.
+   * @returns {Promise<Object>} A promise that resolves to the MCWS namespace.
+   */
+  async #getNamespace(persistenceSpace, options) {
+    const persistenceNamespaces = await this.getPersistenceNamespaces();
+    const persistenceNamespace = persistenceNamespaces.find((namespace) => {
+      return namespace.key === persistenceSpace;
+    });
+
+    return mcws.namespace(persistenceNamespace.url, options);
+  }
 }

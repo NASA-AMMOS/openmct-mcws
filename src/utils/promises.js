@@ -4,17 +4,15 @@
  * are resolved, granted that they are added before all promises resolve
  *
  * @param {Array<Promise>} promises
-*/
+ */
 async function dynamicPromiseAll(promises) {
-    let resolved = [];
+  let resolved = [];
 
-    while (resolved.length !== promises.length) {
-        resolved = await Promise.all(promises);
-    }
+  while (resolved.length !== promises.length) {
+    resolved = await Promise.all(promises);
+  }
 
-    return resolved;
+  return resolved;
 }
 
-export {
-    dynamicPromiseAll
-};
+export { dynamicPromiseAll };

@@ -14,7 +14,7 @@ export default class AlarmsAutoClearViewProvider {
 
   canView(selection) {
     if (selection.length === 0) {
-        return false;
+      return false;
     }
 
     const domainObject = selection[0][0].context.item;
@@ -42,11 +42,7 @@ export default class AlarmsAutoClearViewProvider {
           element
         };
 
-        const {
-          componentInstance,
-          destroy,
-          el
-        } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
 
         this._destroy = destroy;
       },
@@ -56,6 +52,6 @@ export default class AlarmsAutoClearViewProvider {
       destroy: function () {
         this._destroy?.();
       }
-    }
+    };
   }
 }

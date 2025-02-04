@@ -9,16 +9,12 @@ export default function plugin(vistaTime) {
         vistaTime
       },
       components: {
-          RealtimeIndicator
+        RealtimeIndicator
       },
       template: '<RealtimeIndicator />'
     };
 
-    const {
-      componentInstance,
-      destroy,
-      el
-    } = mount(componentDefinition);
+    const { componentInstance, destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'realtime-update-indicator',

@@ -1,68 +1,70 @@
 const OPERATOR_MAP = {
-    'eq': '=',
-    'neq': '!=',
-    'gt': '>',
-    'lt': '<',
-    'gte': '>=',
-    'lte': '<=',
-    'in': 'in'
+  eq: '=',
+  neq: '!=',
+  gt: '>',
+  lt: '<',
+  gte: '>=',
+  lte: '<=',
+  in: 'in'
 };
 const DEFAULT_OPERATOR = 'eq';
 const SORT_MAP = {
-    'asc': '',
-    'desc': '-'
+  asc: '',
+  desc: '-'
 };
 const DEFAULT_SORT = 'asc';
 const PARAMETER_TRANSFORMS = {
-    sort(val) {
-        if (!Array.isArray(val)) {
-            val = [val];
-        }
-
-        const formattedSortString =  val.map((sortTerm) => {
-            const termParts = sortTerm.split('__');
-            const term = termParts[0];
-            let direction = SORT_MAP[DEFAULT_SORT];
-
-            if (sortTerm.length === 2) {
-                direction = SORT_MAP[termParts[1]];
-                
-                if (!direction) {
-                    throw new Error(`Unknown Sort Direction: ${termParts[1]}`);
-                }
-            }
-
-            return `${direction}${term}`;
-        }).join(',')
-
-        return `(${formattedSortString})`;
-    },
-    filter(val) {
-        if (typeof val !== 'object') {
-            throw new Error('Filter Parameters must be an object.');
-        }
-
-        const keys = Object.keys(val);
-        const formattedFilterString = keys.map((k) => {
-            const keyParts = k.split('__');
-            const key = keyParts[0];
-            const termValue = val[k];
-            const operator = keyParts.length === 2 ?
-                    OPERATOR_MAP[keyParts[1]] :
-                    OPERATOR_MAP[DEFAULT_OPERATOR];
-
-            if (operator === 'in' && Array.isArray(termValue)) {
-                return `${key}=(${termValue.join(',')})`;
-            }
-
-            return `${key}${operator}${termValue}`;
-        }).join(',');
-
-        return `(${formattedFilterString})`;
+  sort(val) {
+    if (!Array.isArray(val)) {
+      val = [val];
     }
+
+    const formattedSortString = val
+      .map((sortTerm) => {
+        const termParts = sortTerm.split('__');
+        const term = termParts[0];
+        let direction = SORT_MAP[DEFAULT_SORT];
+
+        if (sortTerm.length === 2) {
+          direction = SORT_MAP[termParts[1]];
+
+          if (!direction) {
+            throw new Error(`Unknown Sort Direction: ${termParts[1]}`);
+          }
+        }
+
+        return `${direction}${term}`;
+      })
+      .join(',');
+
+    return `(${formattedSortString})`;
+  },
+  filter(val) {
+    if (typeof val !== 'object') {
+      throw new Error('Filter Parameters must be an object.');
+    }
+
+    const keys = Object.keys(val);
+    const formattedFilterString = keys
+      .map((k) => {
+        const keyParts = k.split('__');
+        const key = keyParts[0];
+        const termValue = val[k];
+        const operator =
+          keyParts.length === 2 ? OPERATOR_MAP[keyParts[1]] : OPERATOR_MAP[DEFAULT_OPERATOR];
+
+        if (operator === 'in' && Array.isArray(termValue)) {
+          return `${key}=(${termValue.join(',')})`;
+        }
+
+        return `${key}${operator}${termValue}`;
+      })
+      .join(',');
+
+    return `(${formattedFilterString})`;
+  }
 };
 const FALLBACK_TRANSFORM = (val) => val;
-
 
 /**
  * Converter from JavaScript objects to MCWS-style parameters.  Keys and
@@ -107,14 +109,14 @@ const FALLBACK_TRANSFORM = (val) => val;
  */
 
 export default function MCWSParameters(parameters = {}) {
-    const paramKeys = Object.keys(parameters);
+  const paramKeys = Object.keys(parameters);
 
-    return paramKeys.reduce((result, paramKey) => {
-        const transform = PARAMETER_TRANSFORMS[paramKey] ?? FALLBACK_TRANSFORM;
-        const paramValue = parameters[paramKey];
+  return paramKeys.reduce((result, paramKey) => {
+    const transform = PARAMETER_TRANSFORMS[paramKey] ?? FALLBACK_TRANSFORM;
+    const paramValue = parameters[paramKey];
 
-        result[paramKey] = transform(paramValue);
+    result[paramKey] = transform(paramValue);
 
-        return result;
-    }, {});
+    return result;
+  }, {});
 }
