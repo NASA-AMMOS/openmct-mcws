@@ -24,8 +24,11 @@
 
                 <template v-if="availableSessions.length">
 
-                    <span v-if="sessionFilter.numbers"
-                        class="angular-w">
+                    <span 
+                        v-if="sessionFilter.numbers"
+                        :title="filteredByTitleString"
+                        class="angular-w"
+                    >
                         {{filteredByMessageString}}
                         <button @click="openSessionSelector">
                             Change
@@ -84,11 +87,16 @@ export default {
             let sessionOrSessions;
 
             if (this.sessionFilter.numbers.length === 1) {
-                sessionOrSessions = 'session'
+                sessionOrSessions = `session: ${this.sessionFilter.numbers[0]}`;
             } else {
-                sessionOrSessions = 'sessions'
+                sessionOrSessions = 'sessions';
             }
             return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
+        },
+        filteredByTitleString() {
+            let sessionNumbers = this.sessionFilter.numbers.join(', ');
+
+            return `Currently filtering by: ${sessionNumbers}`;
         }
     },
     data() {

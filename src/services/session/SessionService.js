@@ -399,7 +399,7 @@ class SessionService {
         let notificationString = 'Historical queries not restricted by session.';
 
         if (model) {
-            notificationString = `Historical queries restricted to ${model.numbers.length} ${model.numbers.length > 1 ? 'session\'s' : 'session'} on ${model.host}.`;
+            notificationString = `Historical queries restricted to ${model.numbers.length} ${model.numbers.length > 1 ? 'session\'s' : 'session'} (${model.numbers.join(', ')}) on ${model.host}.`;
         }
 
         this.notificationService.info(notificationString);
