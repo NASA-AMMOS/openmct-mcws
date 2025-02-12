@@ -129,11 +129,11 @@ class VenueService {
 
         if (config.session.number) {
             config.session.numbers = [config.session.number];
-            sessions.setHistoricalSession(config.session);
+            sessions.setHistoricalSessionFilter(config.session);
         } else if (config.session.sessions?.[0]) {
             let session = config.session.sessions[0];
             session.numbers = [session.number];
-            sessions.setHistoricalSession(session);
+            sessions.setHistoricalSessionFilter(session);
         }
 
         if (config.isActive) {

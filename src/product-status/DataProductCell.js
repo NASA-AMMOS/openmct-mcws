@@ -1,6 +1,7 @@
+import { defineComponent } from 'vue';
 import mcws from '../services/mcws/mcws';
 
-export default {
+export default defineComponent({
     inject: ['openmct'],
     props: {
         row: {
@@ -10,6 +11,10 @@ export default {
         columnKey: {
             type: String,
             require: true
+        },
+        objectPath: {
+            type: Array,
+            required: true
         }
     },
     computed: {
@@ -58,4 +63,4 @@ export default {
             }
         }
     }
-}
+});

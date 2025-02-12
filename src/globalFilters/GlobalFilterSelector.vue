@@ -34,10 +34,12 @@
       </button>
     </div>
   </div>
+
 </template>
 
 <script>
 import FilterField from './FilterField.vue';
+import { toRaw } from 'vue';
 
 export default {
   inject: [
@@ -68,8 +70,8 @@ export default {
     };
   },
   mounted() {
-    this.updatedFilters = structuredClone(this.activeFilters);
 
+    this.updatedFilters = structuredClone(toRaw(this.activeFilters));
     this.openOverlay();
   },
   methods: {
@@ -84,7 +86,7 @@ export default {
       this.updatedFilters[key][comparator] = value;
     },
     updateFilters() {
-      this.$emit('update-filters', this.updatedFilters);
+      this.$emit('update-filters', toRaw(this.updatedFilters));
 
       this.closeOverlay();
     },
@@ -94,7 +96,7 @@ export default {
     openOverlay() {
       this.overlay = this.openmct.overlays.overlay({
         element: this.$el,
-        size: 'small',
+        size: 'fit',
         dismissable: true,
         onDestroy: () => {
           this.$emit('close-filter-selector');

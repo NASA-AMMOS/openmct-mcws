@@ -104,6 +104,7 @@
 </template>
 
 <script>
+import { toRaw } from 'vue';
 import SessionService from 'services/session/SessionService';
 
 export default {
@@ -135,7 +136,7 @@ export default {
             this.selection = model;
         },
         setActiveTopicOrSession() {
-            this.sessionService.setActiveTopicOrSession(this.selection.data);
+            this.sessionService.setActiveTopicOrSession(toRaw(this.selection.data));
 
             this.closeOverlay();
         },

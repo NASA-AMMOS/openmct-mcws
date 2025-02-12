@@ -29,7 +29,7 @@ export default class DictionaryViewProvider {
         };
 
         const view = {
-            show: function (element, editMode) {
+            show: function (element, editMode, { renderWhenVisible }) {
                 const componentDefinition = {
                     components: {
                         DictionaryView
@@ -46,7 +46,8 @@ export default class DictionaryViewProvider {
                         domainObject,
                         table,
                         objectPath,
-                        currentView: view
+                        currentView: view,
+                        renderWhenVisible
                     },
                     template: `
                         <dictionary-view
