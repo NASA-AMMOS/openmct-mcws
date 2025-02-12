@@ -37,3 +37,4 @@ codecov
 *.yml
 *.xml
 *.cfg
+*.sh
