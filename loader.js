@@ -79,6 +79,7 @@ define([
         openmct.install(DictionaryViewPlugin.default(config.tablePerformanceOptions));
         openmct.install(PacketSummaryPlugin.default(config.tablePerformanceOptions));
         openmct.install(ContainerViewPlugin.default());
+        openmct.install(openmct.plugins.BarChart());
         openmct.install(openmct.plugins.Clock(
             { useClockIndicator: false }
         ));
