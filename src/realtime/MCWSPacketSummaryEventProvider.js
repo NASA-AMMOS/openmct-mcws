@@ -1,5 +1,3 @@
-/*global define*/
-
 define(['./MCWSStreamProvider'], function (MCWSStreamProvider) {
   'use strict';
 

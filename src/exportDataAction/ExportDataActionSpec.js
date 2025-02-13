@@ -1,5 +1,3 @@
-/*global define,describe,beforeEach,jasmine,spyOn,Promise,it,expect,waitsFor,runs,afterEach*/
-
 define(['./ExportDataAction'], (ExportDataActionModule) => {
   const ExportDataAction = ExportDataActionModule.default;
 

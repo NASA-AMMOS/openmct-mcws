@@ -1,4 +1,3 @@
-/*global define*/
 define(['moment'], function (moment) {
   var MSL_EPOCH = moment.utc(Date.UTC(2012, 7, 5, 13, 49, 59)),
     MARS_SECONDS_PER_EARTH_SECOND = 1.02749125;

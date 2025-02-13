@@ -1,4 +1,3 @@
-/*global require,window*/
 var allTestFiles = [];
 var TEST_REGEXP = /(Spec)\.js$/;
 

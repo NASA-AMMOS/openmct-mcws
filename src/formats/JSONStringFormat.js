@@ -1,4 +1,3 @@
-/*global define*/
 define(['lodash'], function (_) {
   /**
    * Format embedded JavaScript objects as JSON strings for debugging
