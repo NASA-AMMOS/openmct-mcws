@@ -107,7 +107,7 @@ export default {
       return '';
     },
     isValid() {
-      return !Boolean(this.message);
+      return !this.message;
     },
     noFilterSelected() {
       return !this.queryModel.useSession && !this.queryModel.useTimeConductor;
