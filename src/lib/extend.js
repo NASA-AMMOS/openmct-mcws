@@ -6,7 +6,7 @@ define([], function () {
       child,
       Surrogate;
 
-    if (props && props.hasOwnProperty('constructor')) {
+    if (props && Object.hasOwn(props, 'constructor')) {
       child = props.constructor;
     } else {
       child = function () {

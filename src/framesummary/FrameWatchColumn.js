@@ -18,7 +18,7 @@ define(function () {
     }
 
     hasValueForDatum(telemetryDatum) {
-      return telemetryDatum.hasOwnProperty(this.key);
+      return Object.hasOwn(telemetryDatum, this.key);
     }
 
     getRawValue(telemetryDatum) {

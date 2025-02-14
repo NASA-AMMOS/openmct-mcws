@@ -121,7 +121,7 @@ define(['services/mcws/mcws', 'services/session/SessionService', 'lodash', 'open
    * @private
    */
   ChannelDictionary.prototype.standardizeDictionary = function (channelDictionary) {
-    if (channelDictionary[0] && channelDictionary[0].hasOwnProperty('channel-Mnemonic')) {
+    if (channelDictionary[0]?.['channel-Mnemonic']) {
       channelDictionary = channelDictionary.map(function (row) {
         return {
           channel_id: row['channel-ID'],

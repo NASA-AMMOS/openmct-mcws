@@ -55,7 +55,7 @@ define(['./injectEVRStylesheet', '../types/types'], function (injectEVRStyleshee
    * @private
    */
   EVRHighlightProvider.prototype.getLimitStateForLevel = function (level) {
-    if (!this.levelCache.hasOwnProperty(level)) {
+    if (!Object.hasOwn(this.levelCache, level)) {
       this.levelCache[level] = this.makeLimitStateForLevel(level);
     }
     return this.levelCache[level];
@@ -68,12 +68,12 @@ define(['./injectEVRStylesheet', '../types/types'], function (injectEVRStyleshee
    */
   EVRHighlightProvider.prototype.makeLimitStateForLevel = function (level) {
     var classes = [];
-    if (this.definitions.evrBackgroundColorByLevel.hasOwnProperty(level)) {
+    if (this.definitions.evrBackgroundColorByLevel?.level) {
       classes.push('vista-evr-level-bg-' + level.toLowerCase());
     } else if (this.definitions.evrDefaultBackgroundColor) {
       classes.push('vista-evr-default-bg');
     }
-    if (this.definitions.evrForegroundColorByLevel.hasOwnProperty(level)) {
+    if (this.definitions.evrForegroundColorByLevel?.level) {
       classes.push('vista-evr-level-fg-' + level.toLowerCase());
     } else if (this.definitions.evrDefaultForegroundColor) {
       classes.push('vista-evr-default-fg');

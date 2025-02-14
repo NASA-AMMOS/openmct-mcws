@@ -30,7 +30,7 @@ class TypeCompositionPolicy {
       }
     }
 
-    if (parent.hasOwnProperty('containsNamespaces') && parent.containsNamespaces) {
+    if (parent?.containsNamespaces) {
       return false;
     }
 
