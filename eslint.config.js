@@ -8,7 +8,18 @@ const prettierRecommended = require('eslint-plugin-prettier/recommended');
 
 /** @type {import('eslint').Linter.Config[]} */
 module.exports = [
-  { files: ['**/*.{js,mjs,cjs,vue}'] },
+  {
+    files: ['**/*.{js,mjs,cjs,vue}'],
+    rules: {
+      'no-unused-vars': [
+        'error',
+        {
+          vars: 'all',
+          args: 'none'
+        }
+      ]
+    }
+  },
   {
     languageOptions: {
       globals: {
