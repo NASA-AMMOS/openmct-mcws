@@ -14,7 +14,7 @@ export default function plugin(vistaTime) {
       template: '<RealtimeIndicator />'
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition);
+    const { destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'realtime-update-indicator',

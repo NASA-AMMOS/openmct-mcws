@@ -315,8 +315,6 @@ describe('SessionService', () => {
   });
 
   describe('getTopicsWithSession', () => {
-    let historicalSessions;
-
     beforeEach(async () => {
       dataTable.read.and.returnValue(
         Promise.resolve([
@@ -347,8 +345,6 @@ describe('SessionService', () => {
           }
         ])
       );
-
-      historicalSessions = await sessionService.getHistoricalSessions({});
     });
 
     it('gets available historical sessions for all datasets', () => {

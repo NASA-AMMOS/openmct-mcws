@@ -13,7 +13,7 @@ export default function plugin() {
       template: '<RealtimeSessionIndicator />'
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition);
+    const { destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'realtime-session-indicator',

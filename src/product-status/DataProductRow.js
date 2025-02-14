@@ -6,6 +6,7 @@ const RECORD_TYPE_FIELD = 'record_type';
 const TOTAL_PARTS_FIELD = 'total_parts';
 
 const PRODUCT_STARTED_RECORD_TYPE = 'PRODUCT_STARTED';
+// eslint-disable-next-line no-unused-vars
 const COMPLETE_PRODUCT_RECORD_TYPE = 'COMPLETE_PRODUCT';
 const PRODUCT_PART_RECEIVED_RECORD_TYPE = 'PRODUCT_PART_RECEIVED';
 

@@ -13,7 +13,7 @@ export default function MCWSIndicatorPlugin() {
       template: '<MCWSIndicator />'
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition);
+    const { destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'mcws-indicator',

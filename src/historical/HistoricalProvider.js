@@ -533,6 +533,7 @@ define([
       params.filter[options.domain + '__lte'] = formatter.format(options.end);
     } catch (e) {
       // TODO: better handling when domain not available.
+      console.error('Error requesting telemetry data for', domainObject, e);
     }
 
     const sessions = this.getSessionService();

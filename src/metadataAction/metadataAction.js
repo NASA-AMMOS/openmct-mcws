@@ -31,7 +31,7 @@ export default class MetadataAction {
       element
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+    const { destroy, el } = mount(componentDefinition, componentOptions);
 
     this.openmct.overlays.overlay({
       element: el,

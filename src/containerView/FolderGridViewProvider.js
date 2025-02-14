@@ -35,7 +35,7 @@ export default class FolderGridView {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { destroy } = mount(componentDefinition, componentOptions);
 
         _destroy = destroy;
       },

@@ -26,7 +26,7 @@ define(['lodash'], function (_) {
       JSON.parse(stringValue);
       return true;
     } catch (error) {
-      console.error('Failed to parse %s', stringValue);
+      console.error('Failed to parse %s', stringValue, error);
       return false;
     }
   };

@@ -14,7 +14,7 @@ export default function plugin(globalStalenessMs) {
       template: '<ClearDataIndicator />'
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition);
+    const { destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'clear-data-indicator',

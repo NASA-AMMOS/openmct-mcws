@@ -6,7 +6,6 @@ define(['./ExportDataTask'], function (ExportDataTaskModule) {
     let testTelemetryData;
     let mockTelemetryObjects;
     let mockOpenMct;
-    let pendingPromises;
     let task;
 
     function makeMockTelemetryObject(id) {
@@ -42,8 +41,6 @@ define(['./ExportDataTask'], function (ExportDataTaskModule) {
       mockOpenMct.telemetry.request.and.callFake(function (telemetryObject) {
         return Promise.resolve(testTelemetryData[telemetryObject.identifier.key]);
       });
-
-      pendingPromises = [];
 
       spyOn(ExportDataTask.prototype, 'exportCSV').and.callThrough();
 
@@ -92,8 +89,8 @@ define(['./ExportDataTask'], function (ExportDataTaskModule) {
 
         it('contains all telemetry data for all objects', () => {
           const rows = ExportDataTask.prototype.exportCSV.calls.mostRecent().args[0];
-          const options = ExportDataTask.prototype.exportCSV.calls.mostRecent().args[1];
-          const headers = options.headers;
+          // const options = ExportDataTask.prototype.exportCSV.calls.mostRecent().args[1];
+          // const headers = options.headers;
 
           function hasValue(id, key, value) {
             return rows.some(function (row) {

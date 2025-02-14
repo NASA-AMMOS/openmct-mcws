@@ -14,7 +14,7 @@ export default function plugin(config) {
       template: '<GlobalFilterIndicator />'
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition);
+    const { destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'global-filter-indicator',

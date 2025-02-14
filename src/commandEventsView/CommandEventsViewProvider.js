@@ -64,7 +64,7 @@ export default class CommandEventsViewProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
         _destroy = destroy;

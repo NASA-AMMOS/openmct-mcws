@@ -197,7 +197,9 @@ export default class BaseMCWSPersistenceProvider {
           }
 
           return namespaceDefinition;
-        } catch (createError) {
+        } catch (e) {
+          console.error('Error creating namespace:', e);
+
           return;
         }
       }

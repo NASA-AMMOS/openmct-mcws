@@ -134,13 +134,6 @@ export default {
     }
   },
   data() {
-    const sortBy = SORT_OPTIONS.map((option) => {
-      return {
-        name: option,
-        value: option
-      };
-    });
-
     return {
       queryModel: {
         useSession: undefined,

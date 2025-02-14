@@ -43,7 +43,7 @@ export default {
         }
         this.lastTimestamp = timestamp;
       } catch (e) {
-        // don't break.
+        console.warn('Error setting tick', e);
       }
     }
   },

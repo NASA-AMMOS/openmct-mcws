@@ -11,7 +11,6 @@ define(['./VISTAType'], function (VISTAType) {
     cssClass: 'icon-dictionary',
     pattern: /^source:channel:([a-zA-Z0-9\-:]+)/,
     transform: function (match) {
-      var identifierParts = match[1].split(':');
       return {
         datasetIdentifier: VISTAType.toIdentifier(match[1])
       };
