@@ -27,7 +27,11 @@ module.exports = [
         ...globals.es2024,
         ...globals.jasmine,
         ...globals.amd,
-        ...globals.node
+        ...globals.node,
+        __OMM_VERSION__: 'readonly',
+        __OMM_BUILD_DATE__: 'readonly',
+        __OMM_REVISION__: 'readonly',
+        __OMM_BUILD_BRANCH__: 'readonly'
       },
       parser: vueParser,
       parserOptions: {

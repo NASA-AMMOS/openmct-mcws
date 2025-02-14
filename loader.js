@@ -141,10 +141,10 @@ define([
    */
   function insertBuildInfo(markup) {
     return markup
-      .replace(/\$\{project\.version\}/g, __VISTA_VERSION__)
-      .replace(/\$\{timestamp\}/g, __VISTA_BUILD_DATE__)
-      .replace(/\$\{buildNumber\}/g, __VISTA_REVISION__)
-      .replace(/\$\{branch\}/g, __VISTA_BUILD_BRANCH__);
+      .replace(/\$\{project\.version\}/g, __OMM_VERSION__)
+      .replace(/\$\{timestamp\}/g, __OMM_BUILD_DATE__)
+      .replace(/\$\{buildNumber\}/g, __OMM_REVISION__)
+      .replace(/\$\{branch\}/g, __OMM_BUILD_BRANCH__);
   }
 
   return loader;
