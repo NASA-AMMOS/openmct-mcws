@@ -21,8 +21,9 @@ export default class AlarmsViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
-    const table = new AlarmsTable(domainObject, openmct, this.options);
+    const table = new AlarmsTable(domainObject, this.openmct, this.options);
     const markingProp = {
       enable: true,
       useAlternateControlBar: false,
@@ -43,7 +44,7 @@ export default class AlarmsViewProvider {
             };
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             table,
             objectPath,
             currentView: view,

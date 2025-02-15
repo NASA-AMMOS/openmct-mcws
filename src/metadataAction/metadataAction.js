@@ -27,11 +27,7 @@ export default class MetadataAction {
       template: '<MetadataListView />'
     };
 
-    const componentOptions = {
-      element
-    };
-
-    const { destroy, el } = mount(componentDefinition, componentOptions);
+    const { destroy, el } = mount(componentDefinition);
 
     this.openmct.overlays.overlay({
       element: el,

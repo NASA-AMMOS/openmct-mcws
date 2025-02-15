@@ -23,14 +23,19 @@ export default class AlarmsAutoClearViewProvider {
   }
 
   view(selection) {
+    const self = this;
     const domainObject = selection[0][0].context.item;
-    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct, this.options);
+    const tableConfiguration = new TelemetryTableConfiguration(
+      domainObject,
+      this.openmct,
+      this.options
+    );
 
     return {
       show: function (element) {
         const componentDefinition = {
           provide: {
-            openmct,
+            openmct: self.openmct,
             tableConfiguration
           },
           components: {
@@ -47,7 +52,7 @@ export default class AlarmsAutoClearViewProvider {
         this._destroy = destroy;
       },
       priority: function () {
-        return openmct.priority.HIGH;
+        return self.openmct.priority.HIGH;
       },
       destroy: function () {
         this._destroy?.();

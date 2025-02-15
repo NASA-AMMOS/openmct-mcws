@@ -87,7 +87,7 @@ define([
         options: timePlugin,
         format: utcFormat
       });
-      openmct.install(RealtimeIndicatorPlugin.default(vistaTime));
+      openmct.install(RealtimeIndicatorPlugin.default(vistaTime, utcFormat));
 
       mcwsClient.default.configure(options);
 

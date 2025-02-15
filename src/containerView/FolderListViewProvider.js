@@ -17,6 +17,7 @@ export default class FolderListView {
 
   view(domainObject, objectPath) {
     let _destroy = null;
+    const self = this;
 
     return {
       show: function (element) {
@@ -25,7 +26,7 @@ export default class FolderListView {
             listViewComponent: FolderListViewComponent
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             domainObject
           },
           template: '<list-view-component></list-view-component>'

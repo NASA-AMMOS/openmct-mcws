@@ -22,7 +22,7 @@ class DatasetCache {
       identifier = domainObject.identifier;
     }
 
-    const keyString = openmct.objects.makeKeyString(identifier);
+    const keyString = this.openmct.objects.makeKeyString(identifier);
 
     if (!this.datasets[keyString]) {
       if (isDomainObject) {

@@ -1,8 +1,8 @@
-define(['./VISTAType'], function (VISTAType) {
+define(['./VISTAType', 'ommUtils/strings'], function (VISTAType, stringUtils) {
   const makeStringColumn = function (key, index) {
     return {
       key: key,
-      name: _.startCase(key),
+      name: stringUtils.snakeCaseToStartCase(key),
       format: 'string',
       hints: {
         range: index

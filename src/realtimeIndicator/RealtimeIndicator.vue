@@ -7,9 +7,8 @@
 </template>
 
 <script>
-const UTC_DEFAULT_FORMAT = openmctMCWSConfig.time.utcFormat;
 export default {
-  inject: ['openmct', 'vistaTime'],
+  inject: ['openmct', 'vistaTime', 'format'],
   data() {
     return {
       currentValue: {
@@ -57,7 +56,6 @@ export default {
   },
   mounted() {
     this.lastTimestamp = new Date();
-    this.format = this.openmct.telemetry.getFormatter(UTC_DEFAULT_FORMAT);
 
     if (this.vistaTime.ladClocks.ert) {
       this.vistaTime.ladClocks.ert.on('tick', this.setTick.bind(this));

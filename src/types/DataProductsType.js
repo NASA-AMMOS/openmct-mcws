@@ -1,4 +1,4 @@
-define(['./VISTAType'], function (VISTAType) {
+define(['./VISTAType', 'ommUtils/strings'], function (VISTAType, stringUtils) {
   const NAME_MAP = {
     ground_status: 'Status',
     product_type: 'Type',
@@ -123,7 +123,7 @@ define(['./VISTAType'], function (VISTAType) {
             ].map(function (key, index) {
               return {
                 key: key,
-                name: NAME_MAP[key] || _.startCase(key),
+                name: NAME_MAP[key] || stringUtils.snakeCaseToStartCase(key),
                 format: 'string',
                 hints: {
                   range: index + 7

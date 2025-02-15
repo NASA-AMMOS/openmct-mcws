@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // import SessionSelectorController from '../SessionSelectorController';
 
 // this would be better tested in an e2e test

@@ -32,6 +32,7 @@ export default function install(options) {
         'vista.channel-list-configuration',
         'Config',
         CHANNEL_TABLE_KEY,
+        openmct,
         options
       )
     );

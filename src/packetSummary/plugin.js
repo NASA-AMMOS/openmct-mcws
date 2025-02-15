@@ -38,6 +38,7 @@ export default function PacketSummaryPlugin(options) {
         'vista.packet-summary-configuration',
         'Config',
         'vista.packetSummaryView',
+        openmct,
         options
       )
     );

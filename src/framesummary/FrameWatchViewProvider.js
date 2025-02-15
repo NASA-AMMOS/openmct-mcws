@@ -21,6 +21,7 @@ export default class FrameWatchViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
     const table = new FrameWatchTable(domainObject, this.openmct, this.options, this.type);
 
@@ -37,7 +38,7 @@ export default class FrameWatchViewProvider {
             };
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             table,
             objectPath,
             currentView: view,

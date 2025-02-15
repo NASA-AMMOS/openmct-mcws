@@ -19,8 +19,9 @@ export default class CommandEventsViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
-    const table = new CommandEventsTable(domainObject, openmct, this.options);
+    const table = new CommandEventsTable(domainObject, this.openmct, this.options);
     const markingProp = {
       enable: true,
       useAlternateControlBar: false,
@@ -41,7 +42,7 @@ export default class CommandEventsViewProvider {
             };
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             table,
             objectPath,
             currentView: view,

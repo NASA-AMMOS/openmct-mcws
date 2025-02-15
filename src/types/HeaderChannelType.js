@@ -1,5 +1,6 @@
 import VISTAType from './VISTAType';
 import HeaderChannelSourceType from './HeaderChannelSourceType';
+import _ from 'lodash';
 
 export default new VISTAType({
   key: 'vista.headerChannel',

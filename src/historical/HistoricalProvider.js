@@ -629,7 +629,7 @@ define([
         return map;
       }, {});
 
-    for (key in filters) {
+    for (const key in filters) {
       let metadataFilters = valuesWithFilters[key];
       if (metadataFilters) {
         metadataFilters.forEach((filter) => {
