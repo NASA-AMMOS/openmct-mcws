@@ -18,7 +18,7 @@ describe('The Data Product Row', () => {
     };
     rowId = 'test-row-id';
     startMessage = {
-      transaction_id: 'McamRThumbnail\/McamRThumbnail_0457586851-19880',
+      transaction_id: 'McamRThumbnail/McamRThumbnail_0457586851-19880',
       session_host: 'host',
       apid: '424',
       total_parts: '0',
@@ -30,7 +30,7 @@ describe('The Data Product Row', () => {
     };
     partReceivedMessage = {
       creation_time: '',
-      transaction_id: 'McamRThumbnail\/McamRThumbnail_0457586851-19880',
+      transaction_id: 'McamRThumbnail/McamRThumbnail_0457586851-19880',
       dvt_coarse: '457586851',
       ground_status: 'UNKNOWN',
       session_host: 'host',
@@ -45,7 +45,7 @@ describe('The Data Product Row', () => {
       file_size: '0',
       record_type: 'product_part_received',
       command_number: '0',
-      unique_name: 'products\/McamRThumbnail\/McamRThumbnail_0457586851-19880',
+      unique_name: 'products/McamRThumbnail/McamRThumbnail_0457586851-19880',
       seq_version: '0',
       checksum: '0',
       part_number: '0',
@@ -56,7 +56,7 @@ describe('The Data Product Row', () => {
     };
     completeMessage = {
       creation_time: '2019-259T17:06:57.800',
-      transaction_id: 'McamRThumbnail\/McamRThumbnail_0457586851-19880',
+      transaction_id: 'McamRThumbnail/McamRThumbnail_0457586851-19880',
       dvt_coarse: '457586851',
       ground_status: 'COMPLETE_CHECKSUM_PASS',
       session_host: 'host',
@@ -108,7 +108,7 @@ describe('The Data Product Row', () => {
   it('Replaces content of in progress rows with info from new message', () => {
     const secondPartReceived = {
       creation_time: '',
-      transaction_id: 'McamRThumbnail\/McamRThumbnail_0457586851-19880',
+      transaction_id: 'McamRThumbnail/McamRThumbnail_0457586851-19880',
       dvt_coarse: '457586851',
       ground_status: 'UNKNOWN',
       session_host: 'host',
@@ -143,7 +143,7 @@ describe('The Data Product Row', () => {
 
     dataProductRow.update(partReceivedMessage);
     expect(dataProductRow.datum['unique_name']).toEqual(
-      'products\/McamRThumbnail\/McamRThumbnail_0457586851-19880'
+      'products/McamRThumbnail/McamRThumbnail_0457586851-19880'
     );
     expect(dataProductRow.datum['checksum']).toEqual('0');
     expect(dataProductRow.datum['part_number']).toEqual('0');
@@ -165,7 +165,7 @@ describe('The Data Product Row', () => {
     );
     dataProductRow.update(partReceivedMessage);
     expect(dataProductRow.datum['unique_name']).toEqual(
-      'products\/McamRThumbnail\/McamRThumbnail_0457586851-19880'
+      'products/McamRThumbnail/McamRThumbnail_0457586851-19880'
     );
     expect(dataProductRow.datum['checksum']).toEqual('0');
     expect(dataProductRow.datum['part_number']).toEqual('0');
@@ -184,7 +184,7 @@ describe('The Data Product Row', () => {
   it('Does replace content of complete rows with complete rows', () => {
     const aDifferentCompleteMessage = {
       creation_time: '2019-259T17:06:57.800',
-      transaction_id: 'McamRThumbnail\/McamRThumbnail_0457586851-19880',
+      transaction_id: 'McamRThumbnail/McamRThumbnail_0457586851-19880',
       dvt_coarse: '457586851',
       ground_status: 'COMPLETE_CHECKSUM_PASS',
       session_host: 'host',
@@ -216,7 +216,7 @@ describe('The Data Product Row', () => {
     );
     dataProductRow.update(partReceivedMessage);
     expect(dataProductRow.datum['unique_name']).toEqual(
-      'products\/McamRThumbnail\/McamRThumbnail_0457586851-19880'
+      'products/McamRThumbnail/McamRThumbnail_0457586851-19880'
     );
     expect(dataProductRow.datum['checksum']).toEqual('0');
     expect(dataProductRow.datum['part_number']).toEqual('0');

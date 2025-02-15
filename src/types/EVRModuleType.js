@@ -1,3 +1,8 @@
+/* eslint-disable no-useless-escape */
+/*
+ * TODO https://github.com/NASA-AMMOS/openmct-mcws/issues/281
+ * to remove eslint-disable no-useless-escape
+ */
 define(['./VISTAType', './EVRSourceType', '../constants', 'lodash'], function (
   VISTAType,
   EVRSourceType,

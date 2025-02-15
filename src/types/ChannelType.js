@@ -1,3 +1,8 @@
+/* eslint-disable no-useless-escape */
+/*
+ * TODO https://github.com/NASA-AMMOS/openmct-mcws/issues/281
+ * to remove eslint-disable no-useless-escape
+ */
 define(['./VISTAType', './ChannelGroupType', 'lodash'], function (VISTAType, ChannelGroupType, _) {
   function makeEnumerationRange(enumerationList) {
     var enumerations = enumerationList.map(function (enumDefinition) {
