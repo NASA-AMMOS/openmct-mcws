@@ -21,6 +21,7 @@ export default class FrameWatchConfigurationViewProvider {
   }
 
   view(selection) {
+    const self = this;
     const domainObject = selection[0][0].context.item;
     const tableConfiguration = new FrameWatchTableConfiguration(
       domainObject,
@@ -32,7 +33,7 @@ export default class FrameWatchConfigurationViewProvider {
       show: function (element) {
         const componentDefinition = {
           provide: {
-            openmct: this.openmct,
+            openmct: self.openmct,
             tableConfiguration
           },
           components: {
@@ -50,7 +51,7 @@ export default class FrameWatchConfigurationViewProvider {
         this._destroy = destroy;
       },
       priority: function () {
-        return this.openmct.priority.HIGH + 1;
+        return self.openmct.priority.HIGH + 1;
       },
       destroy: function () {
         this._destroy?.();
