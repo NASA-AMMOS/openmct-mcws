@@ -1,5 +1,3 @@
-/*global define*/
-
 define([], function () {
   'use strict';
 
@@ -13,7 +11,7 @@ define([], function () {
         event: event,
         callback: callback,
         context: context,
-        _cb: !!context ? callback.bind(context) : callback
+        _cb: context ? callback.bind(context) : callback
       };
       if (object.$watch && event.indexOf('change:') === 0) {
         var scopePath = event.replace('change:', '');

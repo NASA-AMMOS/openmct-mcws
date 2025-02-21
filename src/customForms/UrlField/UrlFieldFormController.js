@@ -26,7 +26,7 @@ export default function UrlFieldFormController(openmct) {
         element
       };
 
-      const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+      const { destroy } = mount(componentDefinition, componentOptions);
 
       _destroy = destroy;
     },

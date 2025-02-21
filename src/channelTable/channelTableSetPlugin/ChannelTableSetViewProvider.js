@@ -19,7 +19,7 @@ export default class ChannelTableSetViewProvider {
   }
 
   view(domainObject, objectPath) {
-    return new ChannelTableSetView(openmct, domainObject, objectPath);
+    return new ChannelTableSetView(this.openmct, domainObject, objectPath);
   }
 
   canEdit(domainObject) {

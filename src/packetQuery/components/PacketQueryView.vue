@@ -107,7 +107,7 @@ export default {
       return '';
     },
     isValid() {
-      return !Boolean(this.message);
+      return !this.message;
     },
     noFilterSelected() {
       return !this.queryModel.useSession && !this.queryModel.useTimeConductor;
@@ -134,13 +134,6 @@ export default {
     }
   },
   data() {
-    const sortBy = SORT_OPTIONS.map((option) => {
-      return {
-        name: option,
-        value: option
-      };
-    });
-
     return {
       queryModel: {
         useSession: undefined,
@@ -213,10 +206,10 @@ export default {
         const bounds = this.openmct.time.bounds();
         const start = bounds.start;
         const end = bounds.end;
-        const timeSystem = openmct.time.timeSystem();
+        const timeSystem = this.openmct.time.timeSystem();
         const domain = timeSystem.key;
 
-        const format = openmct.telemetry.getFormatter(timeSystem.timeFormat);
+        const format = this.openmct.telemetry.getFormatter(timeSystem.timeFormat);
 
         builder.filter(domain, format.format(start), '>');
         builder.filter(domain, format.format(end), '<');

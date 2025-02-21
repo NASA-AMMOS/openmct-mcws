@@ -25,7 +25,7 @@ class Venue {
   constructor(configuration) {
     this.host = configuration.host;
     this.domainObject = DATASET_FIELDS.reduce((domainObject, field) => {
-      if (configuration.hasOwnProperty(field)) {
+      if (Object.hasOwn(configuration, field)) {
         domainObject[field] = configuration[field];
       }
 

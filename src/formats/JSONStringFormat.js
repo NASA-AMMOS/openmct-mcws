@@ -1,4 +1,3 @@
-/*global define*/
 define(['lodash'], function (_) {
   /**
    * Format embedded JavaScript objects as JSON strings for debugging
@@ -27,7 +26,7 @@ define(['lodash'], function (_) {
       JSON.parse(stringValue);
       return true;
     } catch (error) {
-      console.error('Failed to parse %s', stringValue);
+      console.error('Failed to parse %s', stringValue, error);
       return false;
     }
   };

@@ -22,6 +22,7 @@ export default function install(options) {
         'vista.data-products-configuration',
         'Config',
         'vista.dataProductsView',
+        openmct,
         options
       )
     );

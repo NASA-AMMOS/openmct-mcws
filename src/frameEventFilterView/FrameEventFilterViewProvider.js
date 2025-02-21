@@ -19,8 +19,9 @@ export default class FrameEventFilterViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
-    let table = new FrameEventFilterTable(domainObject, openmct, this.options);
+    let table = new FrameEventFilterTable(domainObject, this.openmct, this.options);
     let markingProp = {
       enable: true,
       useAlternateControlBar: false,
@@ -41,7 +42,7 @@ export default class FrameEventFilterViewProvider {
             };
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             table,
             objectPath,
             currentView: view,
@@ -65,7 +66,7 @@ export default class FrameEventFilterViewProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
         _destroy = destroy;

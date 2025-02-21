@@ -33,7 +33,7 @@ export default class ChannelTableSetView {
       element
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+    const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
     this.component = componentInstance;
     this._destroy = destroy;

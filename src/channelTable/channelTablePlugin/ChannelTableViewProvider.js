@@ -25,6 +25,7 @@ export default class ChannelTableViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
     const markingProp = {
       enable: true,
@@ -48,7 +49,7 @@ export default class ChannelTableViewProvider {
             TableComponent
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             table,
             objectPath,
             currentView: view,
@@ -69,7 +70,7 @@ export default class ChannelTableViewProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
         _destroy = destroy;

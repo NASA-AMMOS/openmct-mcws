@@ -21,13 +21,16 @@ export default function EVRViewPlugin(options) {
       }
     });
 
-    openmct.inspectorViews.addProvider(new EVRViewLevelsConfigurationViewProvider(taxonomy));
+    openmct.inspectorViews.addProvider(
+      new EVRViewLevelsConfigurationViewProvider(openmct, taxonomy)
+    );
 
     openmct.inspectorViews.addProvider(
       new VistaTableConfigurationProvider(
         'vista.evr-view-configuration',
         'Config',
         'vista.evrView',
+        openmct,
         tablePerformanceOptions
       )
     );

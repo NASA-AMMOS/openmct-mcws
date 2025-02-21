@@ -15,6 +15,7 @@ export default class PacketQueryViewProvider {
 
   view(domainObject, objectPath) {
     let _destroy = null;
+    const self = this;
 
     const view = {
       show: function (element) {
@@ -29,7 +30,7 @@ export default class PacketQueryViewProvider {
             };
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             objectPath,
             currentView: view
           },
@@ -44,7 +45,7 @@ export default class PacketQueryViewProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { destroy } = mount(componentDefinition, componentOptions);
 
         _destroy = destroy;
       },

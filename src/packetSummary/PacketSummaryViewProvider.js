@@ -22,8 +22,9 @@ export default class ProductSummaryViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
-    const table = new PacketSummaryTable(domainObject, openmct, this.options);
+    const table = new PacketSummaryTable(domainObject, this.openmct, this.options);
 
     const view = {
       show: function (element, editMode, { renderWhenVisible }) {
@@ -38,7 +39,7 @@ export default class ProductSummaryViewProvider {
             };
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             table,
             objectPath,
             currentView: view,
@@ -55,7 +56,7 @@ export default class ProductSummaryViewProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
         _destroy = destroy;

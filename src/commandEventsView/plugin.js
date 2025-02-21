@@ -35,6 +35,7 @@ export default function CommandEventsViewPlugin(options) {
         'vista.command-events-view-configuration',
         'Config',
         'vista.commandEventsView',
+        openmct,
         options
       )
     );

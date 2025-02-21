@@ -22,6 +22,7 @@ export default function MessagesViewPlugin(options) {
         'vista.messages-view-configuration',
         'Config',
         'vista.messagesView',
+        openmct,
         options
       )
     );

@@ -1,5 +1,3 @@
-/*global define,describe,beforeEach,it,expect*/
-
 define(['./UTCFormat'], function (UTCFormat) {
   'use strict';
 

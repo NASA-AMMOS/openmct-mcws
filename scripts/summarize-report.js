@@ -296,7 +296,6 @@ if (!args['exclude-requirements-matrix']) {
   console.log('Requirement ID | Test Procedures | Status');
   console.log('--- | --- | --- ');
   _.each(sortedRequirements, function (requirement) {
-    var procedureCount = requirement.procedures.length;
     var implemented = _.filter(requirement.procedures, { implemented: true }).length;
     var conducted = _.filter(requirement.procedures, { conducted: true }).length;
     var verified = _.filter(requirement.procedures, { conducted: true, passed: true }).length;

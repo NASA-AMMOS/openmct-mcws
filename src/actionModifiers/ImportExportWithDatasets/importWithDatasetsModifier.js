@@ -98,6 +98,7 @@ function importWithDatasetsModifier(openmct) {
     try {
       json = JSON.parse(objectTree);
     } catch (error) {
+      console.error('Error parsing object tree.', error);
       success = false;
     }
 
@@ -115,6 +116,7 @@ function importWithDatasetsModifier(openmct) {
 
         component.updateData(referencedDatasets, datasets);
       } catch (error) {
+        console.error('Error updating referenced datasets.', error);
         success = false;
       }
     }
@@ -158,7 +160,7 @@ function importWithDatasetsModifier(openmct) {
         };
         const componentOptions = { element };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
 

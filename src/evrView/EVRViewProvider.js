@@ -37,6 +37,7 @@ export default class EVRViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
     const table = new EVRTable(domainObject, this.openmct, this.options);
     const markingProp = {
@@ -53,7 +54,7 @@ export default class EVRViewProvider {
             TableComponent
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             table,
             objectPath,
             currentView: view,
@@ -79,7 +80,7 @@ export default class EVRViewProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
         _destroy = destroy;

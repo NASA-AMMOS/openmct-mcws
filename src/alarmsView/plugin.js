@@ -31,6 +31,7 @@ export default function AlarmsViewPlugin(options) {
         'vista.alarm-view-configuration',
         'Config',
         'vista.alarmsView',
+        openmct,
         options
       )
     );

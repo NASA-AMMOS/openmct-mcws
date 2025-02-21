@@ -126,10 +126,6 @@ export default {
         console.error('Error loading Sessions', error);
       } finally {
         this.loading = false;
-
-        if (currentLoad !== this.loadCounter) {
-          return;
-        }
       }
     }
   }

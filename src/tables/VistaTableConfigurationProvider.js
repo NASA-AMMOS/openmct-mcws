@@ -3,12 +3,13 @@ import TableConfigurationComponent from 'openmct.tables.components.TableConfigur
 import mount from 'ommUtils/mountVueComponent';
 
 export default class VistaTableConfigurationProvider {
-  constructor(key, name, type, options) {
+  constructor(key, name, type, openmct, options) {
     this.options = options;
 
     this.key = key;
     this.name = name;
     this.type = type;
+    this.openmct = openmct;
   }
 
   canView(selection) {
@@ -19,15 +20,20 @@ export default class VistaTableConfigurationProvider {
 
   view(selection) {
     let _destroy = null;
+    const self = this;
 
     const domainObject = selection[0][0].context.item;
-    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct, this.options);
+    const tableConfiguration = new TelemetryTableConfiguration(
+      domainObject,
+      this.openmct,
+      this.options
+    );
 
     return {
       show: function (element) {
         const componentDefinition = {
           provide: {
-            openmct,
+            openmct: self.openmct,
             tableConfiguration
           },
           components: {
@@ -40,7 +46,7 @@ export default class VistaTableConfigurationProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { destroy } = mount(componentDefinition, componentOptions);
 
         _destroy = destroy;
       },
@@ -48,7 +54,7 @@ export default class VistaTableConfigurationProvider {
         return isEditing;
       },
       priority: function () {
-        return openmct.priority.HIGH + 1;
+        return self.openmct.priority.HIGH + 1;
       },
       destroy: function () {
         _destroy?.();

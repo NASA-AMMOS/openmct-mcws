@@ -99,6 +99,8 @@ export default class DataProductTable extends TelemetryTable {
   }
 
   createColumn(metadatum) {
+    let copyOfMetadatum;
+
     switch (metadatum.key) {
       //Create custom column types with links for EMD, DAT, and TXT files
       case 'emd_url':
@@ -113,7 +115,7 @@ export default class DataProductTable extends TelemetryTable {
       case 'scet':
       case 'sclk':
       case 'msl.sol':
-        let copyOfMetadatum = Object.assign({}, metadatum);
+        copyOfMetadatum = Object.assign({}, metadatum);
         copyOfMetadatum.name = 'Dvt ' + copyOfMetadatum.name;
         return super.createColumn(copyOfMetadatum);
     }

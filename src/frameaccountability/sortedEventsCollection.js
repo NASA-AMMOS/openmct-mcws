@@ -1,4 +1,5 @@
 import TableRowCollection from 'openmct.tables.collections.TableRowCollection';
+import _ from 'lodash';
 
 export default class SortedEventsCollection extends TableRowCollection {
   constructor() {

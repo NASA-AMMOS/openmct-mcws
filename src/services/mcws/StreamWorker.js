@@ -1,4 +1,3 @@
-/*global setTimeout,clearTimeout,self,WebSocket*/
 (function (self, WebSocket) {
   'use strict';
 

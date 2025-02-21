@@ -19,8 +19,9 @@ export default class DictionaryViewProvider {
   view(domainObject, objectPath) {
     let component;
     let _destroy = null;
+    const self = this;
 
-    const table = new DictionaryViewTable(domainObject, openmct, this.options);
+    const table = new DictionaryViewTable(domainObject, this.openmct, this.options);
     const markingProp = {
       enable: true,
       useAlternateControlBar: false,
@@ -42,7 +43,7 @@ export default class DictionaryViewProvider {
             };
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             domainObject,
             table,
             objectPath,
@@ -67,7 +68,7 @@ export default class DictionaryViewProvider {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
         _destroy = destroy;

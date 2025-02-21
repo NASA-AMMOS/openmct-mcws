@@ -1,5 +1,3 @@
-/*global define,Promise*/
-
 define([
   '../lib/extend',
   'lodash',

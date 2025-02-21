@@ -17,6 +17,7 @@ export default class FolderGridView {
 
   view(domainObject, objectPath) {
     let _destroy = null;
+    const self = this;
 
     return {
       show: function (element) {
@@ -25,7 +26,7 @@ export default class FolderGridView {
             gridViewComponent: FolderGridViewComponent
           },
           provide: {
-            openmct,
+            openmct: self.openmct,
             domainObject
           },
           template: '<grid-view-component></grid-view-component>'
@@ -35,7 +36,7 @@ export default class FolderGridView {
           element
         };
 
-        const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+        const { destroy } = mount(componentDefinition, componentOptions);
 
         _destroy = destroy;
       },

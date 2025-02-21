@@ -1,5 +1,3 @@
-/*global define,describe,beforeEach,jasmine,spyOn,Promise,it,expect,waitsFor,runs,afterEach*/
-
 define(['./ExportDataAction'], (ExportDataActionModule) => {
   const ExportDataAction = ExportDataActionModule.default;
 
@@ -57,7 +55,6 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
         'composition',
         'telemetry'
       ]);
-      mockTelemetry = [];
       mockCompositionCollection = jasmine.createSpyObj('compositionCollection', ['load']);
       mockCompositionCollection.load.and.returnValue(Promise.resolve(mockComposition));
       mockOpenmct.composition = jasmine.createSpyObj('composition', ['get']);

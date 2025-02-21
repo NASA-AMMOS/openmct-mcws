@@ -1,4 +1,3 @@
-/*global define*/
 define(['lodash'], function (_) {
   /**
    * Format for SCLK values as 64 bit float.

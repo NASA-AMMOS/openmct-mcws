@@ -1,7 +1,7 @@
 import EVRViewLevelsConfigurationView from './EVRViewLevelsConfigurationView.vue';
 import mount from 'ommUtils/mountVueComponent';
 
-export default function EVRViewLevelsConfigurationViewProvider(options) {
+export default function EVRViewLevelsConfigurationViewProvider(openmct, options) {
   return {
     key: 'vista.evrView-configuration',
     name: 'Level Color',
@@ -46,7 +46,7 @@ export default function EVRViewLevelsConfigurationViewProvider(options) {
             element
           };
 
-          const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+          const { destroy } = mount(componentDefinition, componentOptions);
 
           _destroy = destroy;
         },

@@ -1,5 +1,3 @@
-/*global module*/
-
 const path = require('path');
 
 module.exports = function (config) {
@@ -13,7 +11,6 @@ module.exports = function (config) {
     use: {
       loader: 'babel-loader',
       options: {
-        // eslint-disable-next-line no-undef
         configFile: path.resolve(process.cwd(), 'babel.coverage.js')
       }
     }

@@ -1,5 +1,3 @@
-/*global define,describe,beforeEach,it,expect*/
-
 define(['./SCLKFloat64Format'], function (SCLKFloat64Format) {
   'use strict';
 

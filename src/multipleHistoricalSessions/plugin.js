@@ -36,7 +36,7 @@ export default function HistoricalSessionsPlugin(options) {
       template: '<HistoricalSessionIndicator></HistoricalSessionIndicator>'
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition);
+    const { destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'historical-session-indicator',

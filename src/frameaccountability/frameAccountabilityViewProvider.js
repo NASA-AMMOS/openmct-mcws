@@ -54,7 +54,7 @@ export default class FrameAccountabilityViewProvider {
       element
     };
 
-    const { componentInstance, destroy, el } = mount(componentDefinition, componentOptions);
+    const { destroy } = mount(componentDefinition, componentOptions);
 
     this._destroy = destroy;
   }
