@@ -1,5 +1,3 @@
-/* global __dirname module */
-
 const path = require('path');
 const packageDefinition = require('../package.json');
 const webpack = require('webpack');
