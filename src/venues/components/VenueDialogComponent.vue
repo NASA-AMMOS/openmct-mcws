@@ -1,82 +1,89 @@
 <template>
-    <span class="u-contents">
-      <div class="c-overlay__top-bar">
-        <div class="c-overlay__dialog-title">Connect to a Data Source</div>
-        <div class="c-overlay__dialog-hint">
-          Select an active venue or a previous session to continue.
+  <span class="u-contents">
+    <div class="c-overlay__top-bar">
+      <div class="c-overlay__dialog-title">Connect to a Data Source</div>
+      <div class="c-overlay__dialog-hint">
+        Select an active venue or a previous session to continue.
+      </div>
+    </div>
+    <div class="c-overlay__contents-main c-venue-selector">
+      <div class="abs l-venue-selection">
+        <ul class="l-venue-selection__tabs c-tabs">
+          <li
+            class="l-venue-selection__tab c-tab"
+            :class="{ 'is-current': isActiveVenueSelect }"
+            @click="isActiveVenueSelect = true"
+          >
+            Active Venues
+          </li>
+          <li
+            class="l-venue-selection__tab c-tab"
+            :class="{ 'is-current': !isActiveVenueSelect }"
+            @click="isActiveVenueSelect = false"
+          >
+            Previous Sessions
+          </li>
+        </ul>
+
+        <ActiveVenueSelectorComponent
+          v-if="isActiveVenueSelect"
+          :venue="selectedVenue"
+          @venue-selected="selectVenue"
+        >
+        </ActiveVenueSelectorComponent>
+
+        <ActiveSessionSelectorComponent
+          v-if="isActiveVenueSelect && selectedVenue"
+          :venue="selectedVenue"
+          :session="selectedSession"
+          @session-selected="selectSession"
+        >
+        </ActiveSessionSelectorComponent>
+
+        <HistoricalSessionSelectorComponent
+          v-if="!isActiveVenueSelect && urlsForHistoricalSessions"
+          :urls="urlsForHistoricalSessions"
+          @session-selected="selectSession"
+        >
+        </HistoricalSessionSelectorComponent>
+
+        <div v-if="!isActiveVenueSelect && selectedSession" class="l-selected-session">
+          <div class="label">Selected Session:</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>User</th>
+                <th>Host</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Downlink Stream Id</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-selected">
+                <td>{{ selectedSession.number }}</td>
+                <td>{{ selectedSession.user }}</td>
+                <td>{{ selectedSession.host }}</td>
+                <td>{{ selectedSession.name }}</td>
+                <td>{{ selectedSession.description }}</td>
+                <td>{{ selectedSession.start_time }}</td>
+                <td>{{ selectedSession.end_time }}</td>
+                <td>{{ selectedSession.downlink_stream_id }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="c-overlay__contents-main c-venue-selector">
-        <div class="abs l-venue-selection">
-          <ul class="l-venue-selection__tabs c-tabs">
-            <li class="l-venue-selection__tab c-tab"
-                :class="{ 'is-current': isActiveVenueSelect }"
-                @click="isActiveVenueSelect = true">
-              Active Venues
-            </li>
-            <li class="l-venue-selection__tab c-tab"
-                :class="{ 'is-current': !isActiveVenueSelect }"
-                @click="isActiveVenueSelect = false">
-              Previous Sessions
-            </li>
-          </ul>
-
-          <ActiveVenueSelectorComponent v-if="isActiveVenueSelect"
-            :venue="selectedVenue"
-            @venue-selected="selectVenue">
-          </ActiveVenueSelectorComponent>
-
-          <ActiveSessionSelectorComponent v-if="isActiveVenueSelect && selectedVenue"
-            :venue="selectedVenue"
-            :session="selectedSession"
-            @session-selected="selectSession">
-          </ActiveSessionSelectorComponent>
-
-          <HistoricalSessionSelectorComponent v-if="!isActiveVenueSelect && urlsForHistoricalSessions"
-            :urls="urlsForHistoricalSessions"
-            @session-selected="selectSession">
-          </HistoricalSessionSelectorComponent>
-
-          <div v-if="!isActiveVenueSelect && selectedSession"
-                  class="l-selected-session">
-            <div class="label">Selected Session:</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Id</th>
-                  <th>User</th>
-                  <th>Host</th>
-                  <th>Name</th>
-                  <th>Description</th>
-                  <th>Start Time</th>
-                  <th>End Time</th>
-                  <th>Downlink Stream Id</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr class="is-selected">
-                  <td>{{ selectedSession.number }}</td>
-                  <td>{{ selectedSession.user }}</td>
-                  <td>{{ selectedSession.host }}</td>
-                  <td>{{ selectedSession.name }}</td>
-                  <td>{{ selectedSession.description }}</td>
-                  <td>{{ selectedSession.start_time }}</td>
-                  <td>{{ selectedSession.end_time }}</td>
-                  <td>{{ selectedSession.downlink_stream_id }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      <div class="c-overlay__button-bar">
-        <button class="c-button c-button--major"
-            @click="submit"
-            :class="{ disabled: !canSubmit }">
-          Connect
-        </button>
-      </div>
-    </span>
+    </div>
+    <div class="c-overlay__button-bar">
+      <button class="c-button c-button--major" @click="submit" :class="{ disabled: !canSubmit }">
+        Connect
+      </button>
+    </div>
+  </span>
 </template>
 
 <script>
@@ -120,7 +127,7 @@ export default {
       isActiveVenueSelect: true,
       selectedVenue: null,
       selectedSession: null,
-      urlsForHistoricalSessions: [],
+      urlsForHistoricalSessions: []
     };
   },
   methods: {
@@ -132,16 +139,21 @@ export default {
       this.selectedSession = session;
     },
     submit() {
-      this.$emit('submit', this.isActiveVenueSelect, toRaw(this.selectedSession), this.selectedVenue);
+      this.$emit(
+        'submit',
+        this.isActiveVenueSelect,
+        toRaw(this.selectedSession),
+        this.selectedVenue
+      );
     },
     async fetchAndSetUrlsForHistoricalSessions() {
       try {
-          const venues = await this.venueService.listVenues();
-          this.urlsForHistoricalSessions = venues
-              .map(v => v.domainObject.sessionUrl)
-              .filter(v => !!v);
+        const venues = await this.venueService.listVenues();
+        this.urlsForHistoricalSessions = venues
+          .map((v) => v.domainObject.sessionUrl)
+          .filter((v) => !!v);
       } catch (error) {
-          console.error("Error fetching venues:", error);
+        console.error('Error fetching venues:', error);
       }
     }
   }

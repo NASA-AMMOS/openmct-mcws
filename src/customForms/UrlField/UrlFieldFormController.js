@@ -1,4 +1,4 @@
-import UrlField from './UrlField.vue'
+import UrlField from './UrlField.vue';
 import mount from 'ommUtils/mountVueComponent';
 
 export default function UrlFieldFormController(openmct) {
@@ -21,17 +21,13 @@ export default function UrlFieldFormController(openmct) {
         },
         template: `<UrlField :model="model" @onChange="onChange" />`
       };
-      
+
       const componentOptions = {
-          element
+        element
       };
-      
-      const {
-          componentInstance,
-          destroy,
-          el
-      } = mount(componentDefinition, componentOptions);
-      
+
+      const { destroy } = mount(componentDefinition, componentOptions);
+
       _destroy = destroy;
     },
     destroy: function () {

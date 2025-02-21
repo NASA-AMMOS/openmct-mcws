@@ -1,34 +1,33 @@
 define(function () {
-    class ObjectNameColumn {
-        constructor (objectName) {
-            this.objectName = objectName;
-        }
+  class ObjectNameColumn {
+    constructor(objectName) {
+      this.objectName = objectName;
+    }
 
-        getKey() {
-            return 'vista-lad-name';
-        }
+    getKey() {
+      return 'vista-lad-name';
+    }
 
-        getTitle() {
-            return "Name";
-        }
+    getTitle() {
+      return 'Name';
+    }
 
-        getMetadatum() {
-            return {};
-        }
+    getMetadatum() {
+      return {};
+    }
 
-        hasValueForDatum() {
-            return true;
-        }
+    hasValueForDatum() {
+      return true;
+    }
 
-        getRawValue() {
-            return this.objectName;
-        }
+    getRawValue() {
+      return this.objectName;
+    }
 
-        getFormattedValue() {
-            return this.objectName;
-        }
+    getFormattedValue() {
+      return this.objectName;
+    }
+  }
 
-    };
-
-    return ObjectNameColumn;
+  return ObjectNameColumn;
 });

@@ -11,49 +11,50 @@ export default class DataProductViewProvider {
     this.name = 'Autoclear';
   }
 
-  canView (selection) {
+  canView(selection) {
     const domainObject = selection?.[0]?.[0]?.context?.item;
 
     return domainObject?.type === 'vista.dataProductsView';
   }
 
-  view (selection) {
+  view(selection) {
     let _destroy = null;
+    const self = this;
 
     const domainObject = selection[0][0].context.item;
-    const tableConfiguration = new TelemetryTableConfiguration(domainObject, openmct, this.options);
+    const tableConfiguration = new TelemetryTableConfiguration(
+      domainObject,
+      this.openmct,
+      this.options
+    );
 
     return {
       show: function (element) {
         const componentDefinition = {
           provide: {
-            openmct,
+            openmct: self.openmct,
             tableConfiguration
           },
           components: {
-              DataProductAutoclear
+            DataProductAutoclear
           },
-          template: '<data-product-autoclear></data-product-autoclear>',
+          template: '<data-product-autoclear></data-product-autoclear>'
         };
 
         const componentOptions = {
-            element
+          element
         };
 
-        const {
-            componentInstance,
-            destroy,
-            el
-        } = mount(componentDefinition, componentOptions);
+        const { destroy } = mount(componentDefinition, componentOptions);
 
         _destroy = destroy;
       },
       priority: function () {
-        return openmct.priority.HIGH;
+        return self.openmct.priority.HIGH;
       },
       destroy: function () {
         _destroy?.();
       }
-    }
+    };
   }
 }

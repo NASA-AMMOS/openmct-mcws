@@ -1,38 +1,38 @@
 define(function () {
-    class FrameWatchColumn {
-        constructor (key, title) {
-            this.key = key;
-            this.title = title;
-        }
+  class FrameWatchColumn {
+    constructor(key, title) {
+      this.key = key;
+      this.title = title;
+    }
 
-        getKey() {
-            return this.key;
-        }
+    getKey() {
+      return this.key;
+    }
 
-        getTitle() {
-            return this.title;
-        }
+    getTitle() {
+      return this.title;
+    }
 
-        getMetadatum() {
-            return undefined;
-        }
+    getMetadatum() {
+      return undefined;
+    }
 
-        hasValueForDatum(telemetryDatum) {
-            return telemetryDatum.hasOwnProperty(this.key);
-        }
+    hasValueForDatum(telemetryDatum) {
+      return Object.hasOwn(telemetryDatum, this.key);
+    }
 
-        getRawValue(telemetryDatum) {
-            return telemetryDatum[this.key];
-        }
+    getRawValue(telemetryDatum) {
+      return telemetryDatum[this.key];
+    }
 
-        getFormattedValue(telemetryValue) {
-            return telemetryValue;
-        }
+    getFormattedValue(telemetryValue) {
+      return telemetryValue;
+    }
 
-        getParsedValue(telemetryValue) {
-            return telemetryValue;
-        }
-    };
+    getParsedValue(telemetryValue) {
+      return telemetryValue;
+    }
+  }
 
-    return FrameWatchColumn;
+  return FrameWatchColumn;
 });
