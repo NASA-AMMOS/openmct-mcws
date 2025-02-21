@@ -21,6 +21,9 @@ module.exports = [
     }
   },
   {
+    ignores: ['**/dist/*', '**/target/*']
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.browser,
