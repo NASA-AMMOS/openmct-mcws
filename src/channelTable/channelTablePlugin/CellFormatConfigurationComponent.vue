@@ -1,13 +1,17 @@
 <template>
-<div class="c-properties" v-if="isEditing">
-  <div class="c-properties__header">Cell Format</div>
-  <ul class="c-properties__section">
-    <li class="c-properties__row">
-      <div class="c-properties__label" title="Printf formatting for the selected cell"><label for="cellPrintfFormat">Format</label></div>
-      <div class="c-properties__value"><input id="cellPrintfFormat" type="text" @change="formatCell" :value="cellFormat"></div>
-    </li>
-  </ul>
-</div>
+  <div class="c-properties" v-if="isEditing">
+    <div class="c-properties__header">Cell Format</div>
+    <ul class="c-properties__section">
+      <li class="c-properties__row">
+        <div class="c-properties__label" title="Printf formatting for the selected cell">
+          <label for="cellPrintfFormat">Format</label>
+        </div>
+        <div class="c-properties__value">
+          <input id="cellPrintfFormat" type="text" @change="formatCell" :value="cellFormat" />
+        </div>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <script>
@@ -23,7 +27,7 @@ export default {
     return {
       isEditing: this.openmct.editor.isEditing(),
       cellFormat: rowFormat[selection.context.column]
-    }
+    };
   },
   methods: {
     toggleEdit(isEditing) {
@@ -34,8 +38,10 @@ export default {
       let configuration = this.tableConfiguration.getConfiguration();
 
       configuration.cellFormat = configuration.cellFormat || {};
-      configuration.cellFormat[selection.context.row] = configuration.cellFormat[selection.context.row] || {};
-      configuration.cellFormat[selection.context.row][selection.context.column] = event.currentTarget.value;
+      configuration.cellFormat[selection.context.row] =
+        configuration.cellFormat[selection.context.row] || {};
+      configuration.cellFormat[selection.context.row][selection.context.column] =
+        event.currentTarget.value;
       this.tableConfiguration.updateConfiguration(configuration);
     }
   },
@@ -46,5 +52,5 @@ export default {
     this.tableConfiguration.destroy();
     this.openmct.editor.off('isEditing', this.toggleEdit);
   }
-}
+};
 </script>

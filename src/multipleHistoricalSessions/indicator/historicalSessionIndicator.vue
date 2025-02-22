@@ -1,20 +1,15 @@
 <template>
-    <div class="h-indicator">
-
-        <div class="c-indicator icon-session"
-            :class="{
-                's-status-on': sessionFilter.numbers,
-                's-status-available': availableSessions.length
-            }">
-
-            <span 
-                v-if="historicalSessionFilterDisabled" 
-                class="c-indicator__label"
-            >
-                <span class="angular-w">
-                    Historical Session Filtering Disabled in Config
-                </span>
-            </span>
+  <div class="h-indicator">
+    <div
+      class="c-indicator icon-session"
+      :class="{
+        's-status-on': sessionFilter.numbers,
+        's-status-available': availableSessions.length
+      }"
+    >
+      <span v-if="historicalSessionFilterDisabled" class="c-indicator__label">
+        <span class="angular-w"> Historical Session Filtering Disabled in Config </span>
+      </span>
 
             <span
                 v-else
@@ -38,42 +33,36 @@
                         </button>
                     </span>
 
-                    <span v-else
-                        class="angular-w">
-                        Filter by historical sessions
-                        <button @click="openSessionSelector">
-                            Select
-                        </button>
-                    </span>
-                </template>
+          <span v-else class="angular-w">
+            Filter by historical sessions
+            <button @click="openSessionSelector">Select</button>
+          </span>
+        </template>
 
-                <span v-else
-                      class="angular-w">
-                    No Historical Sessions Available
-                    <button :class="{disabled: isRequestingSessions}"
-                            @click="checkForHistoricalSessions">
-                        {{isRequestingSessions ? 'Requesting...' : 'Request'}}
-                    </button>
-                </span>
-            </span>
-        </div>
-
-        <historical-session-selector
-            v-if="showSessionSelector"
-            :sessionFilter="sessionFilter"
-            @update-available-sessions="setAvailableSessions"
-            @close-session-selector="closeSessionSelector"
-        />
+        <span v-else class="angular-w">
+          No Historical Sessions Available
+          <button :class="{ disabled: isRequestingSessions }" @click="checkForHistoricalSessions">
+            {{ isRequestingSessions ? 'Requesting...' : 'Request' }}
+          </button>
+        </span>
+      </span>
     </div>
+
+    <historical-session-selector
+      v-if="showSessionSelector"
+      :sessionFilter="sessionFilter"
+      @update-available-sessions="setAvailableSessions"
+      @close-session-selector="closeSessionSelector"
+    />
+  </div>
 </template>
 
-<style>
-</style>
+<style></style>
 
 <script>
 import HistoricalSessionSelector from '../sessionSelector/historicalSessionSelector.vue';
 import SessionService from 'services/session/SessionService';
-
+import { formatMultipleSessionNumbers } from '../../utils/strings';
 export default {
     inject: [
         'openmct',
@@ -94,7 +83,7 @@ export default {
             return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
         },
         filteredByTitleString() {
-            let sessionNumbers = this.formatMultipleSessionNumbers(this.sessionFilter.numbers);
+            let sessionNumbers = formatMultipleSessionNumbers(this.sessionFilter.numbers);
 
             return `Currently filtering on host ${this.sessionFilter.host} by: ${sessionNumbers}`;
         }
@@ -110,39 +99,6 @@ export default {
         }
     },
     methods: {
-        formatMultipleSessionNumbers(sessionNumbers) {
-            if (sessionNumbers.length === 2) {
-                return `${sessionNumbers[0]} and ${sessionNumbers[1]}`;
-            }
-
-            const sortedNumbers = sessionNumbers.map(Number).sort((a, b) => a - b);
-            let result = `${sortedNumbers[0]}`;
-            let rangeStart = sortedNumbers[0];
-            let rangeLength = 1;
-
-            for (let i = 1; i < sortedNumbers.length; i++) {
-                const current = sortedNumbers[i];
-                const prev = sortedNumbers[i - 1];
-
-                if (current === prev + 1) {
-                    rangeLength++;
-                } else {
-                    if (rangeLength > 2) {
-                        result += `...${prev}`;
-                    }
-                    result += `, ${current}`;
-                    rangeStart = current;
-                    rangeLength = 1;
-                }
-            }
-
-            // Handle the last range if it exists
-            if (rangeLength > 2) {
-                result += `...${sortedNumbers[sortedNumbers.length - 1]}`;
-            }
-
-            return result;
-        },
         setHistoricalSessionFilter(sessions) {
             if (sessions) {
                 this.sessionFilter = sessions;
@@ -172,16 +128,18 @@ export default {
         this.sessionService = SessionService();
         this.historicalSessionFilterDisabled = this.sessionService.historicalSessionFilterConfig.disable;
 
-        window.setTimeout(this.checkForHistoricalSessions, 2000);
+    window.setTimeout(this.checkForHistoricalSessions, 2000);
 
-        this.unsubscribeSessionListener = this.sessionService.listenForHistoricalChange(this.setHistoricalSessionFilter);
+    this.unsubscribeSessionListener = this.sessionService.listenForHistoricalChange(
+      this.setHistoricalSessionFilter
+    );
 
-        const sessionFilter = this.sessionService.getHistoricalSessionFilter();
-        this.setHistoricalSessionFilter(sessionFilter);
-    },
-    beforeUnmount() {
-        this.table.extendsDestroy();
-        this.unsubscribeSessionListener();
-    }
-}
+    const sessionFilter = this.sessionService.getHistoricalSessionFilter();
+    this.setHistoricalSessionFilter(sessionFilter);
+  },
+  beforeUnmount() {
+    this.table.extendsDestroy();
+    this.unsubscribeSessionListener();
+  }
+};
 </script>
