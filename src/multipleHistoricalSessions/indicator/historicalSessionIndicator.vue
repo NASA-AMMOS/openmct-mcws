@@ -84,7 +84,7 @@ export default {
     },
     computed: {
         filteredByMessageString() {
-            let sessionOrSessions;
+            let sessionOrSessions;            
 
             if (this.sessionFilter.numbers.length === 1) {
                 sessionOrSessions = `session: ${this.sessionFilter.numbers[0]}`;
@@ -94,9 +94,9 @@ export default {
             return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
         },
         filteredByTitleString() {
-            let sessionNumbers = this.sessionFilter.numbers.join(', ');
+            let sessionNumbers = this.formatMultipleSessionNumbers(this.sessionFilter.numbers);
 
-            return `Currently filtering by: ${sessionNumbers}`;
+            return `Currently filtering on host ${this.sessionFilter.host} by: ${sessionNumbers}`;
         }
     },
     data() {
@@ -110,6 +110,39 @@ export default {
         }
     },
     methods: {
+        formatMultipleSessionNumbers(sessionNumbers) {
+            if (sessionNumbers.length === 2) {
+                return `${sessionNumbers[0]} and ${sessionNumbers[1]}`;
+            }
+
+            const sortedNumbers = sessionNumbers.map(Number).sort((a, b) => a - b);
+            let result = `${sortedNumbers[0]}`;
+            let rangeStart = sortedNumbers[0];
+            let rangeLength = 1;
+
+            for (let i = 1; i < sortedNumbers.length; i++) {
+                const current = sortedNumbers[i];
+                const prev = sortedNumbers[i - 1];
+
+                if (current === prev + 1) {
+                    rangeLength++;
+                } else {
+                    if (rangeLength > 2) {
+                        result += `...${prev}`;
+                    }
+                    result += `, ${current}`;
+                    rangeStart = current;
+                    rangeLength = 1;
+                }
+            }
+
+            // Handle the last range if it exists
+            if (rangeLength > 2) {
+                result += `...${sortedNumbers[sortedNumbers.length - 1]}`;
+            }
+
+            return result;
+        },
         setHistoricalSessionFilter(sessions) {
             if (sessions) {
                 this.sessionFilter = sessions;
