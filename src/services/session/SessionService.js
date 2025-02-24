@@ -2,7 +2,7 @@ import mcws from 'services/mcws/mcws';
 import DatasetCache from 'services/dataset/DatasetCache';
 import SessionURLHandler from './SessionURLHandler';
 import SessionLocalStorageHander from './SessionLocalStorageHandler';
-
+import { formatNumberSequence } from '../../utils/strings';
 const ERROR_PREFIX = 'Error when notifying listener: ';
 
 /**
@@ -405,7 +405,10 @@ class SessionService {
     let notificationString = 'Historical queries not restricted by session.';
 
     if (model) {
-      notificationString = `Historical queries restricted to ${model.numbers.length} ${model.numbers.length > 1 ? "session's" : 'session'} on ${model.host}.`;
+      let hostString = model.host ? ` on host ${model.host}.` : '.';
+      let sessionString = model.numbers.length > 1 ? "session's" : 'session';
+
+      notificationString = `Historical queries restricted to ${model.numbers.length} ${sessionString} (${formatNumberSequence(model.numbers)})${hostString}`;
     }
 
     this.notificationService.info(notificationString);

@@ -11,13 +11,27 @@
         <span class="angular-w"> Historical Session Filtering Disabled in Config </span>
       </span>
 
-      <span v-else class="c-indicator__label" style="display: flex; flex-direction: column">
-        <template v-if="availableSessions.length">
-          <span v-if="sessionFilter.numbers" class="angular-w">
-            {{ filteredByMessageString }}
-            <button @click="openSessionSelector">Change</button>
-            <button @click="clearAllSessions">Clear</button>
-          </span>
+            <span
+                v-else
+                class="c-indicator__label"  
+                style="display:flex; flex-direction:column;"
+            >
+
+                <template v-if="availableSessions.length">
+
+                    <span 
+                        v-if="sessionFilter.numbers"
+                        :title="filteredByTitleString"
+                        class="angular-w"
+                    >
+                        {{filteredByMessageString}}
+                        <button @click="openSessionSelector">
+                            Change
+                        </button>
+                        <button @click="clearAllSessions">
+                            Clear
+                        </button>
+                    </span>
 
           <span v-else class="angular-w">
             Filter by historical sessions
@@ -48,64 +62,72 @@
 <script>
 import HistoricalSessionSelector from '../sessionSelector/historicalSessionSelector.vue';
 import SessionService from 'services/session/SessionService';
-
+import { formatNumberSequence } from '../../utils/strings';
 export default {
-  inject: ['openmct', 'table'],
-  components: {
-    HistoricalSessionSelector
-  },
-  computed: {
-    filteredByMessageString() {
-      let sessionOrSessions;
+    inject: [
+        'openmct',
+        'table'
+    ],
+    components: {
+        HistoricalSessionSelector
+    },
+    computed: {
+        filteredByMessageString() {
+            let sessionOrSessions;            
 
-      if (this.sessionFilter.numbers.length === 1) {
-        sessionOrSessions = 'session';
-      } else {
-        sessionOrSessions = 'sessions';
-      }
-      return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
-    }
-  },
-  data() {
-    return {
-      sessionFilter: {},
-      numFilteredSessions: 8,
-      availableSessions: [],
-      showSessionSelector: false,
-      isRequestingSessions: false,
-      historicalSessionFilterDisabled: false
-    };
-  },
-  methods: {
-    setHistoricalSessionFilter(sessions) {
-      if (sessions) {
-        this.sessionFilter = sessions;
-      } else {
-        this.sessionFilter = {};
-      }
+            if (this.sessionFilter.numbers.length === 1) {
+                sessionOrSessions = `session: ${this.sessionFilter.numbers[0]}`;
+            } else {
+                sessionOrSessions = 'sessions';
+            }
+            return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
+        },
+        filteredByTitleString() {
+            let sessionNumbers = formatNumberSequence(this.sessionFilter.numbers);
+            let hostString = this.sessionFilter.host ? `on host ${this.sessionFilter.host} ` : '';
+
+            return `Currently filtering ${hostString}by: ${sessionNumbers}`;
+        }
     },
-    setAvailableSessions(sessions) {
-      this.isRequestingSessions = false;
-      this.availableSessions = sessions;
+    data() {
+        return {
+            sessionFilter: {},
+            numFilteredSessions: 8,
+            availableSessions: [],
+            showSessionSelector: false,
+            isRequestingSessions: false,
+            historicalSessionFilterDisabled: false
+        }
     },
-    openSessionSelector() {
-      this.showSessionSelector = true;
+    methods: {
+        setHistoricalSessionFilter(sessions) {
+            if (sessions) {
+                this.sessionFilter = sessions;
+            } else {
+                this.sessionFilter = {};
+            }
+        },  
+        setAvailableSessions(sessions) {
+            this.isRequestingSessions = false;
+            this.availableSessions = sessions;
+        },
+        openSessionSelector() {
+            this.showSessionSelector = true;
+        },
+        closeSessionSelector() {
+            this.showSessionSelector = false;
+        },
+        clearAllSessions() {
+            this.sessionService.setHistoricalSessionFilter();
+        },
+        checkForHistoricalSessions() {
+            this.isRequestingSessions = true;
+            this.sessionService.getHistoricalSessions({}).then(this.setAvailableSessions);
+        }
     },
-    closeSessionSelector() {
-      this.showSessionSelector = false;
-    },
-    clearAllSessions() {
-      this.sessionService.setHistoricalSessionFilter();
-    },
-    checkForHistoricalSessions() {
-      this.isRequestingSessions = true;
-      this.sessionService.getHistoricalSessions({}).then(this.setAvailableSessions);
-    }
-  },
-  mounted() {
-    this.sessionService = SessionService();
-    this.historicalSessionFilterDisabled =
-      this.sessionService.historicalSessionFilterConfig.disable;
+    mounted() {
+        this.sessionService = SessionService();
+        this.historicalSessionFilterDisabled = this.sessionService.historicalSessionFilterConfig.disable;
 
     window.setTimeout(this.checkForHistoricalSessions, 2000);
 
