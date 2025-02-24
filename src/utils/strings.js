@@ -17,7 +17,7 @@ function snakeCaseToStartCase(str) {
  * [1,2,3,4,5] → "1...5"
  * [1,2,3,5,7,8,9] → "1...3, 5, 7...9"
  * [1,3,5,7] → "1, 3, 5, 7"
- * [1,2] → "1 and 2"
+ * [1,2] → "1,2"
  * @param {Array<number|string>} numbers - Array of numbers to format
  * @returns {string} Formatted string representation
  */
