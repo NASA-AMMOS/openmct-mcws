@@ -62,7 +62,7 @@
 <script>
 import HistoricalSessionSelector from '../sessionSelector/historicalSessionSelector.vue';
 import SessionService from 'services/session/SessionService';
-import { formatMultipleSessionNumbers } from '../../utils/strings';
+import { formatNumberSequence } from '../../utils/strings';
 export default {
     inject: [
         'openmct',
@@ -83,9 +83,10 @@ export default {
             return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
         },
         filteredByTitleString() {
-            let sessionNumbers = formatMultipleSessionNumbers(this.sessionFilter.numbers);
+            let sessionNumbers = formatNumberSequence(this.sessionFilter.numbers);
+            let hostString = this.sessionFilter.host ? `on host ${this.sessionFilter.host} ` : '';
 
-            return `Currently filtering on host ${this.sessionFilter.host} by: ${sessionNumbers}`;
+            return `Currently filtering ${hostString}by: ${sessionNumbers}`;
         }
     },
     data() {
