@@ -11,16 +11,18 @@ function snakeCaseToStartCase(str) {
 }
 
 /**
- * Formats multiple session numbers into a string
- * @param {Array<string>} sessionNumbers - Array of session numbers
- * @returns {string} Formatted string of session numbers
+ * Formats an array of numbers into a human-readable string, showing ranges with ellipsis
+ * and individual numbers with commas.
+ * Examples:
+ * [1,2,3,4,5] → "1...5"
+ * [1,2,3,5,7,8,9] → "1...3, 5, 7...9"
+ * [1,3,5,7] → "1, 3, 5, 7"
+ * [1,2] → "1 and 2"
+ * @param {Array<number|string>} numbers - Array of numbers to format
+ * @returns {string} Formatted string representation
  */
-function formatMultipleSessionNumbers(sessionNumbers) {
-  if (sessionNumbers.length === 2) {
-    return `${sessionNumbers[0]} and ${sessionNumbers[1]}`;
-  }
-
-  const sortedNumbers = sessionNumbers.map(Number).sort((a, b) => a - b);
+function formatNumberSequence(numbers) {
+  const sortedNumbers = numbers.map(Number).sort((a, b) => a - b);
   let result = `${sortedNumbers[0]}`;
   let rangeLength = 1;
 
@@ -33,7 +35,10 @@ function formatMultipleSessionNumbers(sessionNumbers) {
     } else {
       if (rangeLength > 2) {
         result += `...${prev}`;
+      } else if (rangeLength === 2) {
+        result += `, ${prev}`;
       }
+
       result += `, ${current}`;
       rangeLength = 1;
     }
@@ -42,9 +47,11 @@ function formatMultipleSessionNumbers(sessionNumbers) {
   // Handle the last range if it exists
   if (rangeLength > 2) {
     result += `...${sortedNumbers[sortedNumbers.length - 1]}`;
+  } else if (rangeLength === 2) {
+    result += `, ${sortedNumbers[sortedNumbers.length - 1]}`;
   }
 
   return result;
 }
 
-export { snakeCaseToStartCase, formatMultipleSessionNumbers };
+export { snakeCaseToStartCase, formatNumberSequence };
