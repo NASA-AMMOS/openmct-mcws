@@ -334,7 +334,7 @@
         enabled: true
       },
       BarChart: {
-        enabled: true
+        enabled: false
       }
     },
 
