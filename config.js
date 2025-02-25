@@ -306,13 +306,36 @@
     realtimeProductAPIDs: [],
 
     /**
-     * Plugin Support: true enables a plugin.
+     * Plugin Support 
+     * Example configuration:
+     * plugins: {        
+        // Simple enable
+        anotherPlugin: {
+          enabled: true
+        },
+        // Enable with options
+        configuredPlugin: {
+          enabled: true,
+          // these are passed as arguments to the plugin constructor
+          configuration: [
+            {
+              setting1: 'value1',
+              setting2: 'value2'
+            }
+          ]
+        }
+      }
      */
     plugins: {
       /**
        * Enable/disable summary widgets.  Added in R3.4.0.
        */
-      summaryWidgets: true
+      summaryWidgets: {
+        enabled: true
+      },
+      BarChart: {
+        enabled: false
+      }
     },
 
     /**
