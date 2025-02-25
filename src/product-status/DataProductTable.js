@@ -12,8 +12,11 @@ export default class DataProductTable extends TelemetryTable {
     super(domainObject, openmct, options);
 
     this.setAutoClearTimeout = this.setAutoClearTimeout.bind(this);
-    this.autoClearTimeoutObserver = this.openmct.objects.observe(this.domainObject,
-      'configuration.autoClearTimeout', this.setAutoClearTimeout);
+    this.autoClearTimeoutObserver = this.openmct.objects.observe(
+      this.domainObject,
+      'configuration.autoClearTimeout',
+      this.setAutoClearTimeout
+    );
 
     let autoClearTimeout = _.get(this.domainObject, 'configuration.autoClearTimeout');
     this.setAutoClearTimeout(autoClearTimeout);
@@ -39,17 +42,31 @@ export default class DataProductTable extends TelemetryTable {
       direction: 'asc'
     };
     this.tableRows.sortBy(sortOptions);
-    this.tableRows.on('update', function () {
-      this.emit('refresh');
-    }, this);
+    this.tableRows.on(
+      'update',
+      function () {
+        this.emit('refresh');
+      },
+      this
+    );
   }
 
   clearPartial() {
-    this.clearStatuses([DataProductRow.STATUS.PARTIAL, DataProductRow.STATUS.PARTIAL_CHECKSUM_FAIL]);
+    this.clearStatuses([
+      DataProductRow.STATUS.PARTIAL,
+      DataProductRow.STATUS.PARTIAL_CHECKSUM_FAIL
+    ]);
   }
 
   clearCompleted(olderThan) {
-    this.clearStatuses([DataProductRow.STATUS.COMPLETE, DataProductRow.STATUS.COMPLETE_CHECKSUM_PASS, DataProductRow.STATUS.COMPLETE_NO_CHECKSUM], olderThan);
+    this.clearStatuses(
+      [
+        DataProductRow.STATUS.COMPLETE,
+        DataProductRow.STATUS.COMPLETE_CHECKSUM_PASS,
+        DataProductRow.STATUS.COMPLETE_NO_CHECKSUM
+      ],
+      olderThan
+    );
   }
 
   clearStatuses(statuses, olderThan) {
@@ -61,7 +78,7 @@ export default class DataProductTable extends TelemetryTable {
       let shouldRemove = statuses.includes(row.datum[DataProductRow.STATUS.FIELD]);
       let timeSinceCompleted = now - row.timeCompleted;
 
-      if (shouldRemove && (olderThan !== undefined && timeSinceCompleted < olderThan)) {
+      if (shouldRemove && olderThan !== undefined && timeSinceCompleted < olderThan) {
         shouldRemove = false;
       }
 
@@ -78,10 +95,12 @@ export default class DataProductTable extends TelemetryTable {
   }
 
   isDatasetNode() {
-    return this.domainObject.type === 'vista.dataProducts'
+    return this.domainObject.type === 'vista.dataProducts';
   }
 
   createColumn(metadatum) {
+    let copyOfMetadatum;
+
     switch (metadatum.key) {
       //Create custom column types with links for EMD, DAT, and TXT files
       case 'emd_url':
@@ -96,7 +115,7 @@ export default class DataProductTable extends TelemetryTable {
       case 'scet':
       case 'sclk':
       case 'msl.sol':
-        let copyOfMetadatum = Object.assign({}, metadatum);
+        copyOfMetadatum = Object.assign({}, metadatum);
         copyOfMetadatum.name = 'Dvt ' + copyOfMetadatum.name;
         return super.createColumn(copyOfMetadatum);
     }
@@ -111,7 +130,7 @@ export default class DataProductTable extends TelemetryTable {
         return;
       }
 
-      telemetry.forEach(datum => {
+      telemetry.forEach((datum) => {
         const rowId = this.tableRows.createRowId(datum);
         if (this.tableRows.contains(rowId)) {
           this.tableRows.update(rowId, datum);
@@ -170,9 +189,10 @@ export default class DataProductTable extends TelemetryTable {
   }
 
   earliestTimeCompleted() {
-    return this.tableRows.getRows()
-      .filter(row => row.isComplete())
-      .map(row => row.timeCompleted)
+    return this.tableRows
+      .getRows()
+      .filter((row) => row.isComplete())
+      .map((row) => row.timeCompleted)
       .sort((a, b) => a - b)[0];
   }
 }

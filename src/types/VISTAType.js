@@ -1,10 +1,5 @@
-define([
-    'lodash'
-], function (
-    _
-) {
-
-    /**
+define(['lodash'], function (_) {
+  /**
      * A type for representing different types of VISTA objects and allowing
      * similar operations (such as making ids) to be shared between different
      * sections of code.
@@ -29,78 +24,75 @@ define([
 
      * @constructor
      */
-    function VISTAType(attrs) {
-        _.assignIn(this, attrs);
-        if (!this.pattern) {
-            this.pattern = {
-                test: function () {
-                    return false;
-                }
-            };
+  function VISTAType(attrs) {
+    _.assignIn(this, attrs);
+    if (!this.pattern) {
+      this.pattern = {
+        test: function () {
+          return false;
         }
+      };
     }
+  }
 
-    /**
-     * Determine if a given id is an instance of the given type.
-     *
-     * @param {String} id the id to test
-     * @returns {Boolean} true if the id is an instance of this type.
-     */
-    VISTAType.prototype.test = function (identifier) {
-        return this.pattern.test(identifier.key);
+  /**
+   * Determine if a given id is an instance of the given type.
+   *
+   * @param {String} id the id to test
+   * @returns {Boolean} true if the id is an instance of this type.
+   */
+  VISTAType.prototype.test = function (identifier) {
+    return this.pattern.test(identifier.key);
+  };
+
+  VISTAType.prototype.hasComposition = function () {
+    return !!this.getComposition;
+  };
+
+  /**
+   * Return the data contained within an id of this type.
+   *
+   * @param {String} id the id to extract data from.
+   * @returns {Object} the data extracted from the id.
+   */
+  VISTAType.prototype.data = function (identifier) {
+    return this.test(identifier) && this.transform(this.pattern.exec(identifier.key));
+  };
+
+  VISTAType.prototype.makeIdentifier = function () {
+    return {
+      key: this.makeId.apply(this, arguments),
+      namespace: 'vista'
     };
+  };
 
-    VISTAType.prototype.hasComposition = function () {
-        return !!this.getComposition;
+  VISTAType.prototype.getName = function (dataset, data) {
+    return data.name || this.name;
+  };
+
+  VISTAType.prototype.getLocation = function (dataset, data) {
+    return dataset.options.identifier;
+  };
+
+  VISTAType.prototype.makeObject = function (dataset, data) {
+    return Promise.resolve({
+      type: this.key,
+      name: this.getName(dataset, data),
+      location: this.getLocation(dataset, data)
+    });
+  };
+
+  VISTAType.toIdentifier = function (keyString) {
+    var identifierParts = keyString.split(':');
+    return {
+      namespace: identifierParts[0],
+      key: identifierParts[1]
     };
+  };
 
-    /**
-     * Return the data contained within an id of this type.
-     *
-     * @param {String} id the id to extract data from.
-     * @returns {Object} the data extracted from the id.
-     */
-    VISTAType.prototype.data = function (identifier) {
-        return this.test(identifier) && this.transform(this.pattern.exec(identifier.key));
-    };
+  VISTAType.toKeyString = function (identifier) {
+    return [identifier.namespace, identifier.key].join(':');
+  };
 
-    VISTAType.prototype.makeIdentifier = function () {
-        return {
-            key: this.makeId.apply(this, arguments),
-            namespace: 'vista'
-        };
-    };
-
-    VISTAType.prototype.getName = function (dataset, data) {
-        return data.name || this.name;
-    };
-
-    VISTAType.prototype.getLocation = function (dataset, data) {
-        return dataset.options.identifier;
-    };
-
-    VISTAType.prototype.makeObject = function (dataset, data) {
-        return Promise.resolve({
-            type: this.key,
-            name: this.getName(dataset, data),
-            location: this.getLocation(dataset, data)
-        });
-    }
-
-    VISTAType.toIdentifier = function (keyString) {
-        var identifierParts = keyString.split(':');
-        return {
-            namespace: identifierParts[0],
-            key: identifierParts[1]
-        };
-    };
-
-    VISTAType.toKeyString = function (identifier) {
-        return [
-             identifier.namespace,
-             identifier.key
-         ].join(':');
-    };
-
-    return VISTAType;
+  return VISTAType;
 });

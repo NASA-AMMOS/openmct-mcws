@@ -2,7 +2,9 @@
   <div class="c-session-selector__sessions">
     <div class="c-session-selector__sessions__hint">
       Select a session to use for all historical queries.
-      <span v-if="sessions.length >= 100">Showing first 100 results, use filters to narrow results</span>
+      <span v-if="sessions.length >= 100"
+        >Showing first 100 results, use filters to narrow results</span
+      >
     </div>
     <div class="c-session-selector__sessions__table-w">
       <table>
@@ -18,20 +20,23 @@
             <th>Downlink Stream Id</th>
           </tr>
           <tr>
-            <th><input type="text" v-model="filter.number"/></th>
-            <th><input type="text" v-model="filter.user"/></th>
-            <th><input type="text" v-model="filter.host"/></th>
-            <th><input type="text" v-model="filter.name"/></th>
-            <th><input type="text" v-model="filter.description"/></th>
-            <th><input type="text" v-model="filter.start_time"/></th>
-            <th><input type="text" v-model="filter.end_time"/></th>
-            <th><input type="text" v-model="filter.downlink_stream_id"/></th>
+            <th><input type="text" v-model="filter.number" /></th>
+            <th><input type="text" v-model="filter.user" /></th>
+            <th><input type="text" v-model="filter.host" /></th>
+            <th><input type="text" v-model="filter.name" /></th>
+            <th><input type="text" v-model="filter.description" /></th>
+            <th><input type="text" v-model="filter.start_time" /></th>
+            <th><input type="text" v-model="filter.end_time" /></th>
+            <th><input type="text" v-model="filter.downlink_stream_id" /></th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="session in sessions" :key="getSessionKey(session)"
-              :class="{ 'is-selected': isSelected(session) }"
-              @click="select(session)">
+          <tr
+            v-for="session in sessions"
+            :key="getSessionKey(session)"
+            :class="{ 'is-selected': isSelected(session) }"
+            @click="select(session)"
+          >
             <td>{{ session.number }}</td>
             <td>{{ session.user }}</td>
             <td>{{ session.host }}</td>
@@ -54,7 +59,7 @@ export default {
   props: {
     urls: {
       type: Array,
-      required: true,
+      required: true
     }
   },
   data() {
@@ -63,7 +68,7 @@ export default {
       filter: {},
       currentSelection: undefined,
       loading: false,
-      filterTimeout: null,
+      filterTimeout: null
     };
   },
   watch: {
@@ -74,8 +79,8 @@ export default {
           clearTimeout(this.filterTimeout);
         }
         this.filterTimeout = setTimeout(this.applyFilter, 250);
-      },
-    },
+      }
+    }
   },
   mounted() {
     this.sessionService = SessionService();
@@ -116,13 +121,13 @@ export default {
         }
         this.sessions = sessions;
       } catch (error) {
-        console.error("Failed to load sessions:", error);
+        console.error('Failed to load sessions:', error);
       } finally {
         if (loadTracker === this.loadTracker) {
           this.loading = false;
         }
       }
-    },
+    }
   }
 };
 </script>
