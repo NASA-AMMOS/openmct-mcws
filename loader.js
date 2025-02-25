@@ -29,6 +29,9 @@ define([
     IdentityProvider,
     MCWSPersistenceProviderPlugin
 ) {
+    const optionalPlugins = [
+        'BarChart',
+    ];
 
     function loader(config) {
         let persistenceLoaded;
@@ -79,7 +82,6 @@ define([
         openmct.install(DictionaryViewPlugin.default(config.tablePerformanceOptions));
         openmct.install(PacketSummaryPlugin.default(config.tablePerformanceOptions));
         openmct.install(ContainerViewPlugin.default());
-        openmct.install(openmct.plugins.BarChart());
         openmct.install(openmct.plugins.Clock(
             { useClockIndicator: false }
         ));
@@ -100,10 +102,24 @@ define([
             });
         }
 
+        // install optional plugins, summary widget is handled separately as it was added long ago
         if (config.plugins) {
             if (config.plugins.summaryWidgets) {
                 openmct.install(openmct.plugins.SummaryWidget());
             }
+
+            const pluginsToInstall = Object.keys(config.plugins)
+                .filter(plugin => plugin !== 'summaryWidgets' && optionalPlugins.includes(plugin));
+
+            pluginsToInstall.forEach(plugin => {
+                const pluginInfo = config.plugins[plugin];
+                
+                if (!pluginInfo.options) {
+                    openmct.install(openmct.plugins[plugin]());   
+                } else {
+                    // TODO: Add support for plugins with options
+                }
+            });
         }
 
         openmct.branding({

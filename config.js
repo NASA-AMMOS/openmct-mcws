@@ -311,13 +311,16 @@
         realtimeProductAPIDs: [],
 
         /**
-         * Plugin Support: true enables a plugin.
+         * Plugin Support: true enables a plugin without options.
+         * 
+         * TODO: Add support for plugins with options
          */
         plugins: {
             /**
              * Enable/disable summary widgets.  Added in R3.4.0.
              */
-            summaryWidgets: true
+            summaryWidgets: true,
+            BarChart: true
         },
 
         /**
