@@ -1,24 +1,21 @@
 import mount from 'ommUtils/mountVueComponent';
 import RealtimeIndicator from './RealtimeIndicator.vue';
 
-export default function plugin(vistaTime) {
+export default function plugin(vistaTime, format) {
   return function install(openmct) {
     const componentDefinition = {
       provide: {
         openmct,
-        vistaTime
+        vistaTime,
+        format
       },
       components: {
-          RealtimeIndicator
+        RealtimeIndicator
       },
       template: '<RealtimeIndicator />'
     };
 
-    const {
-      componentInstance,
-      destroy,
-      el
-    } = mount(componentDefinition);
+    const { destroy, el } = mount(componentDefinition);
 
     const indicator = {
       key: 'realtime-update-indicator',

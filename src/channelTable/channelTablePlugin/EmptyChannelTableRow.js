@@ -16,7 +16,7 @@ export default class EmptyLADRow extends HistoricalContextTableRow {
     return Object.keys(headers).reduce((formattedDatum, columnKey) => {
       formattedDatum[columnKey] = this.getFormattedValue(columnKey);
       return formattedDatum;
-    }, {}); 
+    }, {});
   }
 
   getFormattedValue(key) {
@@ -26,12 +26,11 @@ export default class EmptyLADRow extends HistoricalContextTableRow {
     } else if (this.columns[key] === undefined) {
       return '';
     } else {
-      return this.datum[key] || '--'
+      return this.datum[key] || '--';
     }
   }
 
-  getRowClass() {
-  }
+  getRowClass() {}
 
   getCellLimitClasses() {
     return {};

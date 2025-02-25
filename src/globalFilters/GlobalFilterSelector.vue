@@ -4,7 +4,10 @@
       <div class="c-overlay__dialog-title">Apply Global Filters</div>
     </div>
     <div class="c-overlay__dialog-hint">
-      <span>Apply Global Filters to all views. Will force re-query. Persisted filters on objects will override global filters.</span>
+      <span
+        >Apply Global Filters to all views. Will force re-query. Persisted filters on objects will
+        override global filters.</span
+      >
     </div>
 
     <ul class="c-inspect-properties">
@@ -29,12 +32,9 @@
       >
         Update Filters
       </button>
-      <button @click="cancel()" class="c-button">
-        Cancel
-      </button>
+      <button @click="cancel()" class="c-button">Cancel</button>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -42,10 +42,7 @@ import FilterField from './FilterField.vue';
 import { toRaw } from 'vue';
 
 export default {
-  inject: [
-    'openmct',
-    'filters'
-  ],
+  inject: ['openmct', 'filters'],
   props: {
     activeFilters: {
       type: Object,
@@ -70,7 +67,6 @@ export default {
     };
   },
   mounted() {
-
     this.updatedFilters = structuredClone(toRaw(this.activeFilters));
     this.openOverlay();
   },
@@ -110,5 +106,5 @@ export default {
       }
     }
   }
-}
+};
 </script>

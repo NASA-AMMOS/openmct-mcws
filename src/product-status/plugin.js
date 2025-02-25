@@ -4,38 +4,47 @@ import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationPr
 import DataProductViewActions from './DataProductViewActions.js';
 
 export default function install(options) {
-    return function ProductStatusPlugin(openmct) {
-        openmct.types.addType('vista.dataProductsView', {
-            name: "Data Product View",
-            description: "Shows data product status information",
-            cssClass: "icon-tabular-lad",
-            creatable: true,
-            initialize(domainObject) {
-                domainObject.composition = [];
-            }
-        });
-        openmct.objectViews.addProvider(new DataProductViewProvider(openmct, options));
-        openmct.inspectorViews.addProvider(new DataProductInspectorViewProvider(openmct, options));
+  return function ProductStatusPlugin(openmct) {
+    openmct.types.addType('vista.dataProductsView', {
+      name: 'Data Product View',
+      description: 'Shows data product status information',
+      cssClass: 'icon-tabular-lad',
+      creatable: true,
+      initialize(domainObject) {
+        domainObject.composition = [];
+      }
+    });
+    openmct.objectViews.addProvider(new DataProductViewProvider(openmct, options));
+    openmct.inspectorViews.addProvider(new DataProductInspectorViewProvider(openmct, options));
 
-        openmct.inspectorViews.addProvider(new VistaTableConfigurationProvider(
-            'vista.data-products-configuration', 
-            'Config',
-            'vista.dataProductsView',
-            options
-        ));
+    openmct.inspectorViews.addProvider(
+      new VistaTableConfigurationProvider(
+        'vista.data-products-configuration',
+        'Config',
+        'vista.dataProductsView',
+        openmct,
+        options
+      )
+    );
 
-        // Suppress new views via monkey-patching (for now)
-        let wrappedGet = openmct.objectViews.get;
-        openmct.objectViews.get = function (domainObject) {
-            const restrictedViews = ['plot-single', 'table'];
+    // Suppress new views via monkey-patching (for now)
+    let wrappedGet = openmct.objectViews.get;
+    openmct.objectViews.get = function (domainObject) {
+      const restrictedViews = ['plot-single', 'table'];
 
-            return wrappedGet.apply(this, arguments).filter(
-                viewProvider => !(domainObject.type === 'vista.dataProducts' && restrictedViews.includes(viewProvider.key))
-            );
-        };
-        
-        DataProductViewActions.forEach(action => {
-            openmct.actions.register(action);
-        });
-    }
+      return wrappedGet
+        .apply(this, arguments)
+        .filter(
+          (viewProvider) =>
+            !(
+              domainObject.type === 'vista.dataProducts' &&
+              restrictedViews.includes(viewProvider.key)
+            )
+        );
+    };
+
+    DataProductViewActions.forEach((action) => {
+      openmct.actions.register(action);
+    });
+  };
 }

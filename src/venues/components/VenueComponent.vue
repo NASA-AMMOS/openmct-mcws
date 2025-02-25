@@ -29,12 +29,12 @@ export default {
     return {
       name: '',
       isActive: false,
-      isLoading: false,
+      isLoading: false
     };
   },
   async created() {
     this.name = this.venue.domainObject.name;
-    
+
     if (this.venue.allowsRealtime()) {
       this.isLoading = true;
 

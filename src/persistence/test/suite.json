@@ -1,6 +1,6 @@
 [
-    "MCWSNamespaceModelProvider",
-    "MCWSNamespaceService",
-    "MCWSPersistenceProvider",
-    "MCWSRootModelDecorator"
+  "MCWSNamespaceModelProvider",
+  "MCWSNamespaceService",
+  "MCWSPersistenceProvider",
+  "MCWSRootModelDecorator"
 ]

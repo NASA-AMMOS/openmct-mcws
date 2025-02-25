@@ -1,29 +1,29 @@
 import { isEqual, isEmpty } from 'lodash';
 
-const GLOBAL_FILTER_PARAM_PREFIX = "global_filter_"
+const GLOBAL_FILTER_PARAM_PREFIX = 'global_filter_';
 
 export default class FilterURLHandler {
   constructor(filterService, openmct) {
-      this.filterService = filterService;
-      this.openmct = openmct;
-      this.params = {};
+    this.filterService = filterService;
+    this.openmct = openmct;
+    this.params = {};
 
-      this.filterService.on('update', this.updateURLFromFilters.bind(this));
-      openmct.router.on('change:params', this.updateFiltersFromURL.bind(this));
-      
-      this.updateFiltersFromURL();
+    this.filterService.on('update', this.updateURLFromFilters.bind(this));
+    openmct.router.on('change:params', this.updateFiltersFromURL.bind(this));
+
+    this.updateFiltersFromURL();
   }
 
-  getParams () {
+  getParams() {
     const params = {};
     const availableFilters = this.filterService.getAvailableFilters();
     const availableFiltersKeys = Object.keys(availableFilters);
 
-    availableFiltersKeys.forEach(key => {
+    availableFiltersKeys.forEach((key) => {
       const value = this.openmct.router.getSearchParam(`${GLOBAL_FILTER_PARAM_PREFIX}${key}`);
 
       if (value) {
-        params[key] = value
+        params[key] = value;
       }
     });
 
@@ -34,7 +34,7 @@ export default class FilterURLHandler {
     const params = this.getParams();
 
     if (!this.isChangedParams(params)) {
-        return;
+      return;
     }
 
     const filters = this.paramsToFilters(params);
@@ -43,7 +43,7 @@ export default class FilterURLHandler {
 
     this.params = params;
     this.updateAfterNavigation();
-  };
+  }
 
   paramsToFilters(params) {
     const filters = {};
@@ -54,26 +54,26 @@ export default class FilterURLHandler {
 
     return filters;
   }
-  
+
   updateAfterNavigation() {
-      const params = this.getParams();
-      const activeFilters = this.filterService.getActiveFilters();
-      
-      if (Object.keys(params).length !== Object.keys(activeFilters).length) {
-        this.updateURLFromFilters(activeFilters);
-      }
+    const params = this.getParams();
+    const activeFilters = this.filterService.getActiveFilters();
 
-      const isDifferent = Object.entries(params).some(([paramKey, paramValue]) => {
-        // shortcut for comparator
-        const filterValue = activeFilters[paramKey]['equals'];
+    if (Object.keys(params).length !== Object.keys(activeFilters).length) {
+      this.updateURLFromFilters(activeFilters);
+    }
 
-        return paramValue !== filterValue;
-      });
+    const isDifferent = Object.entries(params).some(([paramKey, paramValue]) => {
+      // shortcut for comparator
+      const filterValue = activeFilters[paramKey]['equals'];
 
-      if (isDifferent) {
-          this.updateURLFromFilters(activeFilters);
-      }
-  };
+      return paramValue !== filterValue;
+    });
+
+    if (isDifferent) {
+      this.updateURLFromFilters(activeFilters);
+    }
+  }
 
   isChangedParams(params) {
     return !isEqual(params, this.params);
@@ -84,7 +84,7 @@ export default class FilterURLHandler {
     const availableFilters = this.filterService.getAvailableFilters();
     const availableFiltersKeys = Object.keys(availableFilters);
 
-    availableFiltersKeys.forEach(filterKey => {
+    availableFiltersKeys.forEach((filterKey) => {
       const paramKey = `${GLOBAL_FILTER_PARAM_PREFIX}${filterKey}`;
       const filter = activeFilters[filterKey];
 
