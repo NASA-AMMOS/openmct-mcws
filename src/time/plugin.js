@@ -18,7 +18,7 @@ const SYSTEM_MAP = {
 };
 
 export default function TimePlugin(options) {
-  return function install (openmct) {
+  return function install(openmct) {
     var TODAY_BOUNDS = {
       start: moment.utc().startOf('day').valueOf(),
       end: moment.utc().endOf('day').valueOf()
@@ -33,30 +33,30 @@ export default function TimePlugin(options) {
       ert: TODAY_BOUNDS,
       scet: TODAY_BOUNDS,
       sclk: {
-          start: 1,
-          end: 10000
+        start: 1,
+        end: 10000
       },
       'msl.sol': {
-          start: solFormat.parse('SOL-' + sol),
-          end: solFormat.parse('SOL-' + (sol + 1))
+        start: solFormat.parse('SOL-' + sol),
+        end: solFormat.parse('SOL-' + (sol + 1))
       },
       lmst: {
-          start: lmstFormat.parse('SOL-' + sol),
-          end: lmstFormat.parse('SOL-' + (sol + 1))
+        start: lmstFormat.parse('SOL-' + sol),
+        end: lmstFormat.parse('SOL-' + (sol + 1))
       }
     };
 
     if (!options.timeSystems) {
-        console.error('Please specify one or more time systems to enable.');
+      console.error('Please specify one or more time systems to enable.');
     }
 
     if (options.lmstEpoch) {
-        var lmstFormatWithEpoch = new LMSTFormat(options.lmstEpoch);
+      var lmstFormatWithEpoch = new LMSTFormat(options.lmstEpoch);
 
-        BOUNDS_MAP.lmst = {
-            start: lmstFormatWithEpoch.parse('SOL-' + sol),
-            end: lmstFormatWithEpoch.parse('SOL-' + (sol + 1))
-        };
+      BOUNDS_MAP.lmst = {
+        start: lmstFormatWithEpoch.parse('SOL-' + sol),
+        end: lmstFormatWithEpoch.parse('SOL-' + (sol + 1))
+      };
     }
 
     install.ladClocks = {};
@@ -64,80 +64,82 @@ export default function TimePlugin(options) {
     let useUTCClock = false;
     let menuOptions = [];
 
-
     options.timeSystems.forEach(function (timeSystem) {
-        const key = timeSystem.key || timeSystem;
+      const key = timeSystem.key || timeSystem;
 
-        if (!SYSTEM_MAP[key]) {
-            console.error('Invalid timeSystem specified: ' + key);
-            return;
-        }
+      if (!SYSTEM_MAP[key]) {
+        console.error('Invalid timeSystem specified: ' + key);
+        return;
+      }
 
-        const system = new SYSTEM_MAP[key](options.utcFormat);
-        openmct.time.addTimeSystem(system);
+      const system = new SYSTEM_MAP[key](options.utcFormat);
+      openmct.time.addTimeSystem(system);
 
-        const systemOptions = {
-            timeSystem: system.key,
-            bounds: BOUNDS_MAP[key]
-        };
+      const systemOptions = {
+        timeSystem: system.key,
+        bounds: BOUNDS_MAP[key]
+      };
 
-        if (timeSystem.presets) {
-            systemOptions.presets = timeSystem.presets;
-        }
-        if (timeSystem.limit) {
-            systemOptions.limit = timeSystem.limit;
-        }
-        if (options.records) {
-            systemOptions.records = options.records;
-        }
+      if (timeSystem.presets) {
+        systemOptions.presets = timeSystem.presets;
+      }
+      if (timeSystem.limit) {
+        systemOptions.limit = timeSystem.limit;
+      }
+      if (options.records) {
+        systemOptions.records = options.records;
+      }
 
-        menuOptions.push(systemOptions);
-        
-        if (options.allowRealtime && system.isUTCBased) {
-            useUTCClock = true;
-            menuOptions.push({
-                timeSystem: system.key,
-                clock: 'utc.local',
-                clockOffsets: {
-                    start: -30 * 60 * 1000,
-                    end: 5 * 60 * 1000
-                }
-            });
-        }
-        if (options.allowRealtime && options.allowLAD) {
-            var ladClock = new LADClock(key);
-            install.ladClocks[key] = ladClock;
-            openmct.time.addClock(ladClock);
-            menuOptions.push({
-                timeSystem: system.key,
-                clock: ladClock.key,
-                clockOffsets: {
-                    start: -30 * 60 * 1000,
-                    end: 5 * 60 * 1000
-                }
-            });
-        }
+      menuOptions.push(systemOptions);
+
+      if (options.allowRealtime && system.isUTCBased) {
+        useUTCClock = true;
+        menuOptions.push({
+          timeSystem: system.key,
+          clock: 'utc.local',
+          clockOffsets: {
+            start: -30 * 60 * 1000,
+            end: 5 * 60 * 1000
+          }
+        });
+      }
+      if (options.allowRealtime && options.allowLAD) {
+        var ladClock = new LADClock(key);
+        install.ladClocks[key] = ladClock;
+        openmct.time.addClock(ladClock);
+        menuOptions.push({
+          timeSystem: system.key,
+          clock: ladClock.key,
+          clockOffsets: {
+            start: -30 * 60 * 1000,
+            end: 5 * 60 * 1000
+          }
+        });
+      }
     });
     if (options.defaultMode) {
-        let matchingConfigIndex = menuOptions.findIndex(menuOption => 
-            menuOption.clock === options.defaultMode);
+      let matchingConfigIndex = menuOptions.findIndex(
+        (menuOption) => menuOption.clock === options.defaultMode
+      );
 
-        if (matchingConfigIndex !== -1) {
-            let matchingConfig = menuOptions[matchingConfigIndex]; 
-            menuOptions.splice(matchingConfigIndex, 1);
-            menuOptions.unshift(matchingConfig);
-        } else {
-            console.warn(`Default mode '${options.defaultMode}' specified in configuration could not be applied. 
+      if (matchingConfigIndex !== -1) {
+        let matchingConfig = menuOptions[matchingConfigIndex];
+        menuOptions.splice(matchingConfigIndex, 1);
+        menuOptions.unshift(matchingConfig);
+      } else {
+        console.warn(`Default mode '${options.defaultMode}' specified in configuration could not be applied. 
                 Are LAD or realtime enabled? Does the defaultMode contain a typo?`);
-        }
+      }
     }
 
     if (useUTCClock) {
-        openmct.time.addClock(new UTCClock());
+      openmct.time.addClock(new UTCClock());
     }
 
-    openmct.install(openmct.plugins.Conductor({
+    openmct.install(
+      openmct.plugins.Conductor({
         menuOptions: menuOptions
-    }));
-  }
+      })
+    );
+  };
 }

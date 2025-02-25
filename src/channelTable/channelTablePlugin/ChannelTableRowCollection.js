@@ -17,10 +17,11 @@ export default class ChannelTableRowCollection extends TableRowCollection {
   }
 
   isLADRow(newRow) {
-    const isStaleData = this.rows.some(row =>
-      row.objectKeyString === newRow.objectKeyString
-      && !row.isDummyRow
-      && row.datum[this.timeColumn] > newRow.datum[this.timeColumn]
+    const isStaleData = this.rows.some(
+      (row) =>
+        row.objectKeyString === newRow.objectKeyString &&
+        !row.isDummyRow &&
+        row.datum[this.timeColumn] > newRow.datum[this.timeColumn]
     );
 
     return !isStaleData;
@@ -83,7 +84,7 @@ export default class ChannelTableRowCollection extends TableRowCollection {
 
   reorder(reorderPlan) {
     let oldRows = this.rows.slice();
-    reorderPlan.forEach(reorderEvent => {
+    reorderPlan.forEach((reorderEvent) => {
       let item = oldRows[reorderEvent.oldIndex];
       this.rows[reorderEvent.newIndex] = item;
       this.ladMap.set(item.objectKeyString, reorderEvent.newIndex);
@@ -97,7 +98,8 @@ export default class ChannelTableRowCollection extends TableRowCollection {
   isNewerThanLAD(item) {
     let rowIndex = this.ladMap.get(item.objectKeyString);
     let latestRow = this.rows[rowIndex];
-    let newerThanLatest = latestRow === undefined ||
+    let newerThanLatest =
+      latestRow === undefined ||
       item.datum[this.timeColumn] > latestRow.datum[this.timeColumn] ||
       latestRow.isDummyRow;
 
@@ -109,11 +111,9 @@ export default class ChannelTableRowCollection extends TableRowCollection {
   }
 
   clear() {
-    this.rows = this.rows.map(
-      row => new EmptyChannelTableRow(row.columns, row.objectKeyString)
-    );
+    this.rows = this.rows.map((row) => new EmptyChannelTableRow(row.columns, row.objectKeyString));
     this.rebuildLadMap();
   }
 
-  destroy() { }
+  destroy() {}
 }

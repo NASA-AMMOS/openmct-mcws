@@ -1,4 +1,4 @@
-import Clock from "./Clock.js";
+import Clock from './Clock.js';
 
 export default class LADClock extends Clock {
   initialize(source) {
@@ -7,4 +7,3 @@ export default class LADClock extends Clock {
     this.name = `Latest ${source}`;
   }
 }
-

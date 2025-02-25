@@ -2,66 +2,62 @@ import mount from 'ommUtils/mountVueComponent';
 import PacketQueryView from './components/PacketQueryView.vue';
 
 export default class PacketQueryViewProvider {
-    constructor(openmct) {
-        this.openmct = openmct;
+  constructor(openmct) {
+    this.openmct = openmct;
 
-        this.key = 'vista.packetQuery';
-        this.name = 'Packet Query';
-    }
+    this.key = 'vista.packetQuery';
+    this.name = 'Packet Query';
+  }
 
-    canView(domainObject) {
-        return domainObject.type === 'vista.packets';
-    }
+  canView(domainObject) {
+    return domainObject.type === 'vista.packets';
+  }
 
-    view(domainObject, objectPath) {
-        let _destroy = null;
+  view(domainObject, objectPath) {
+    let _destroy = null;
+    const self = this;
 
-        const view = {
-            show: function (element) {
-                const componentDefinition = {
-                    components: {
-                        PacketQueryView
-                    },
-                    data() {
-                        return {
-                            domainObject,
-                            view
-                        };
-                    },
-                    provide: {
-                        openmct,
-                        objectPath,
-                        currentView: view
-                    },
-                    template:
-                        `<packet-query-view
+    const view = {
+      show: function (element) {
+        const componentDefinition = {
+          components: {
+            PacketQueryView
+          },
+          data() {
+            return {
+              domainObject,
+              view
+            };
+          },
+          provide: {
+            openmct: self.openmct,
+            objectPath,
+            currentView: view
+          },
+          template: `<packet-query-view
                             ref="packetSummaryView"
                             :domain-object="domainObject"
                             :view="view"
                         />`
-                };
-
-                const componentOptions = {
-                    element
-                };
-                
-                const {
-                    componentInstance,
-                    destroy,
-                    el
-                } = mount(componentDefinition, componentOptions);
-
-                _destroy = destroy;
-            },
-            destroy: function () {
-                _destroy?.();
-            }
         };
 
-        return view;
-    }
+        const componentOptions = {
+          element
+        };
 
-    priority() {
-        return this.openmct.priority.LOW;
-    }
+        const { destroy } = mount(componentDefinition, componentOptions);
+
+        _destroy = destroy;
+      },
+      destroy: function () {
+        _destroy?.();
+      }
+    };
+
+    return view;
+  }
+
+  priority() {
+    return this.openmct.priority.LOW;
+  }
 }
