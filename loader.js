@@ -29,7 +29,7 @@ define([
   IdentityProvider,
   MCWSPersistenceProviderPlugin
 ) {
-  const optionalPlugins = ['BarChart'];
+  const ALLOWED_OPTIONAL_PLUGINS = ['BarChart'];
 
   function loader(config) {
     let persistenceLoaded;
@@ -127,7 +127,7 @@ define([
       const pluginErrors = [];
       const pluginsToInstall = Object.keys(config.plugins).filter((plugin) => {
         const isSummaryWidget = plugin === 'summaryWidgets';
-        const allowedPlugin = optionalPlugins.includes(plugin);
+        const allowedPlugin = ALLOWED_OPTIONAL_PLUGINS.includes(plugin);
         const pluginEnabled = config.plugins[plugin]?.enabled;
 
         if (!allowedPlugin && !isSummaryWidget) {
@@ -140,7 +140,7 @@ define([
       // Warn if any plugins are not supported
       if (pluginErrors.length > 0) {
         console.warn(
-          `Unable to install plugins: ${pluginErrors.join(', ')}. Please verify the plugin name is correct and is included in the supported plugins list. Available plugins: ${optionalPlugins.join(', ')}`
+          `Unable to install plugins: ${pluginErrors.join(', ')}. Please verify the plugin name is correct and is included in the supported plugins list. Available plugins: ${ALLOWED_OPTIONAL_PLUGINS.join(', ')}`
         );
       }
 
