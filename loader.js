@@ -125,10 +125,10 @@ define([
       }
 
       const pluginErrors = [];
-      const pluginsToInstall = Object.keys(config.plugins).filter((plugin) => {
+      const pluginsToInstall = Object.entries(config.plugins).filter(([plugin, pluginConfig]) => {
         const isSummaryWidget = plugin === 'summaryWidgets';
         const allowedPlugin = ALLOWED_OPTIONAL_PLUGINS.includes(plugin);
-        const pluginEnabled = config.plugins[plugin]?.enabled;
+        const pluginEnabled = pluginConfig?.enabled;
 
         if (!allowedPlugin && !isSummaryWidget) {
           pluginErrors.push(plugin);
@@ -144,8 +144,8 @@ define([
         );
       }
 
-      pluginsToInstall.forEach((plugin) => {
-        const { configuration = [] } = config.plugins[plugin];
+      pluginsToInstall.forEach(([plugin, pluginConfig]) => {
+        const { configuration = [] } = pluginConfig;
 
         openmct.install(openmct.plugins[plugin](...configuration));
       });
