@@ -117,18 +117,37 @@ define([
 
     // install optional plugins, summary widget is handled separately as it was added long ago
     if (config.plugins) {
-      if (config.plugins.summaryWidgets) {
+      if (
+        config.plugins.summaryWidgets === true ||
+        config.plugins.summaryWidgets?.enabled === true
+      ) {
         openmct.install(openmct.plugins.SummaryWidget());
       }
 
-      const pluginsToInstall = Object.keys(config.plugins).filter(
-        (plugin) => plugin !== 'summaryWidgets' && optionalPlugins.includes(plugin)
-      );
+      const pluginErrors = [];
+      const pluginsToInstall = Object.keys(config.plugins).filter((plugin) => {
+        const isSummaryWidget = plugin === 'summaryWidgets';
+        const allowedPlugin = optionalPlugins.includes(plugin);
+        const pluginEnabled = config.plugins[plugin]?.enabled;
+
+        if (!allowedPlugin && !isSummaryWidget) {
+          pluginErrors.push(plugin);
+        }
+
+        return allowedPlugin && pluginEnabled && !isSummaryWidget;
+      });
+
+      // Warn if any plugins are not supported
+      if (pluginErrors.length > 0) {
+        console.warn(
+          `Unable to install plugins: ${pluginErrors.join(', ')}. Please verify the plugin name is correct and is included in the supported plugins list. Available plugins: ${optionalPlugins.join(', ')}`
+        );
+      }
 
       pluginsToInstall.forEach((plugin) => {
-        const { options = [] } = config.plugins[plugin];
+        const { configuration = [] } = config.plugins[plugin];
 
-        openmct.install(openmct.plugins[plugin](...options));
+        openmct.install(openmct.plugins[plugin](...configuration));
       });
     }
 
