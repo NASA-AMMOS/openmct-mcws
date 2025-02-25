@@ -126,13 +126,9 @@ define([
       );
 
       pluginsToInstall.forEach((plugin) => {
-        const pluginInfo = config.plugins[plugin];
+        const { options = [] } = config.plugins[plugin];
 
-        if (!pluginInfo.options) {
-          openmct.install(openmct.plugins[plugin]());
-        } else {
-          // TODO: Add support for plugins with options
-        }
+        openmct.install(openmct.plugins[plugin](...options));
       });
     }
 
