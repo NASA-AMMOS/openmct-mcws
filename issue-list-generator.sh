@@ -16,7 +16,7 @@
 
 # Change as needed
 REPO="NASA-AMMOS/openmct-mcws"
-MILESTONE_NUMBERS=("11")
+MILESTONE_NUMBERS=("11" "12")
 MILESTONE_TITLES=() # will be populated with titles mapped to milestone nnumbers
 LABELS=("commitment" "improvement" "defect" "sustaining" "other")
 
@@ -73,13 +73,13 @@ get_heading() {
 get_release() {
     case $1 in
         "11")
-            echo "MC 2512 Point Release 1"
+            echo "MC 2512.01"
             ;;
         "12")
-            echo "MC 2512 Point Release 2"
+            echo "MC 2512.02"
             ;;
         "13")
-            echo "MC 2512 Point Release 3"
+            echo "MC 2512.03"
             ;;
         *)
             echo "Uknown"
