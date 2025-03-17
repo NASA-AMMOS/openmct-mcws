@@ -4,6 +4,15 @@
 
     var worker;
 
+    // Add debug logging helper
+    function debugLog(message, data) {
+        self.postMessage({
+            debug: true,
+            message: message,
+            data: data
+        });
+    }
+
     /**
      * Represents a subscription to streaming channel data for
      * a specific EVR or Channel.
@@ -42,8 +51,10 @@
      * @private
      */
     MCWSConnection.prototype.subscribe = function (key) {
+        debugLog('MCWSConnection.subscribe', { url: this.url, key: key });
         this.subscribers[key] = (this.subscribers[key] || 0) + 1;
         if (this.subscribers[key] === 1) {
+            debugLog('First subscription for key, scheduling reconnect', { key: key });
             this.scheduleReconnect();
         }
     };
@@ -57,9 +68,11 @@
      * @private
      */
     MCWSConnection.prototype.unsubscribe = function (key) {
+        debugLog('MCWSConnection.unsubscribe', { url: this.url, key: key });
         this.subscribers[key] = (this.subscribers[key] || 0) - 1;
         if (this.subscribers[key] < 1) {
             delete this.subscribers[key];
+            debugLog('No more subscriptions for key, scheduling reconnect', { key: key });
             this.scheduleReconnect();
         }
     };
@@ -90,6 +103,7 @@
         if (this.globalFilters) {
           Object.entries(this.globalFilters).forEach(([key, value]) => {
             if (filter[key]) {
+              debugLog('Global filter not applied for existing persisted filter', { key: key });
               console.warn(`Global filter not applied for existing persisted filter for ${key}.`);
             } else {
               filter[key] = value;
@@ -97,11 +111,19 @@
           });
         }
 
-        return 'filter=(' + Object.keys(filter).filter(function (key) {
+        var queryString = 'filter=(' + Object.keys(filter).filter(function (key) {
             return !!filter[key];
         }).map(function (key) {
             return key + '=' + filter[key];
         }).join(',') + ')';
+        
+        debugLog('Generated query string', { 
+            url: this.url, 
+            queryString: queryString,
+            subscribers: Object.keys(this.subscribers)
+        });
+        
+        return queryString;
     };
 
     /**
@@ -152,24 +174,39 @@
             subscribers = this.subscribers,
             property = this.property;
 
+        debugLog('MCWSConnection.reconnect', { 
+            url: url, 
+            subscriberCount: Object.keys(subscribers).length,
+            hasTopic: !!this.topic
+        });
+
         if (Object.keys(subscribers).length < 1 || !this.topic) {
             if (oldSocket) {
+                debugLog('Closing socket - no subscribers or no topic', { url: url });
                 oldSocket.close();
                 delete this.socket;
             }
             return;
         }
 
-        this.socket = new WebSocket(this.url + "?" + this.query());
+        var fullUrl = this.url + "?" + this.query();
+        debugLog('Creating new WebSocket', { fullUrl: fullUrl });
+        this.socket = new WebSocket(fullUrl);
 
         this.socket.onopen = function () {
+            debugLog('WebSocket opened', { url: url });
             if (oldSocket) {
+                debugLog('Closing old socket', { url: url });
                 oldSocket.close();
             }
         };
 
         this.socket.onmessage = function (message) {
             var data = JSON.parse(message.data);
+            debugLog('WebSocket message received', { 
+                url: url, 
+                dataLength: data.length 
+            });
 
             data.forEach(function (datum) {
                 var key = datum[property];
@@ -184,6 +221,11 @@
         };
 
         this.socket.onclose = function (message) {
+            debugLog('WebSocket closed', { 
+                url: url, 
+                code: message.code, 
+                reason: message.reason 
+            });
             self.postMessage({
                 onclose: true,
                 code: message.code,
@@ -192,11 +234,16 @@
         };
 
         this.socket.onerror = function (error) {
+            debugLog('WebSocket error', { 
+                url: url, 
+                code: error.code, 
+                reason: error.reason 
+            });
             self.postMessage({
                 onerror: true,
                 code: error.code,
                 reason: error.reason
-          });
+            });
         };
     };
 
@@ -238,7 +285,16 @@
         const extraFilterTerms = subscription.extraFilterTerms;
         const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
+        debugLog('MCWSStreamWorker.subscribe', { 
+            url: url, 
+            key: key, 
+            property: property,
+            cacheKey: cacheKey,
+            hasExtraFilters: !!extraFilterTerms
+        });
+
         if (!this.connections[cacheKey]) {
+            debugLog('Creating new connection', { cacheKey: cacheKey });
             this.connections[cacheKey] = new MCWSConnection(
                 url,
                 property,
@@ -274,8 +330,19 @@
             extraFilterTerms = subscription.extraFilterTerms,
             cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
+        debugLog('MCWSStreamWorker.unsubscribe', { 
+            url: url, 
+            key: key, 
+            property: property,
+            cacheKey: cacheKey
+        });
+
         if (this.connections[cacheKey]) {
             this.connections[cacheKey].unsubscribe(key);
+        } else {
+            debugLog('Warning: Tried to unsubscribe from non-existent connection', { 
+                cacheKey: cacheKey 
+            });
         }
     };
 
@@ -305,9 +372,27 @@
     self.onmessage = function (messageEvent) {
         var data = messageEvent.data,
             method = worker[data.key];
+        
+        debugLog('Worker received message', { 
+            key: data.key, 
+            hasMethod: !!method,
+            valueType: typeof data.value
+        });
+        
         if (method) {
             method.call(worker, data.value);
+        } else {
+            debugLog('Warning: Unknown method called on worker', { key: data.key });
         }
     };
+
+    // Add handler in main thread to display debug logs
+    if (typeof window !== 'undefined') {
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.debug) {
+                console.log('[MCWSStreamWorker]', event.data.message, event.data.data);
+            }
+        });
+    }
 
 }(self, WebSocket));
