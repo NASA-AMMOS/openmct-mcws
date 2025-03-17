@@ -84,6 +84,15 @@ export default {
       require: true
     }
   },
+  data() {
+    return {
+      queryModel: {
+        useSession: undefined,
+        sessionId: undefined,
+        useTimeConductor: undefined
+      }
+    };
+  },
   computed: {
     filterRows() {
       return FILTER_OPTIONS.map((key) => {
@@ -132,15 +141,6 @@ export default {
         this.validateForm();
       }
     }
-  },
-  data() {
-    return {
-      queryModel: {
-        useSession: undefined,
-        sessionId: undefined,
-        useTimeConductor: undefined
-      }
-    };
   },
   mounted() {
     this.formElement = this.$refs.form;

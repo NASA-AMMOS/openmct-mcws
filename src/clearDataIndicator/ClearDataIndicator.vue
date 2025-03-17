@@ -26,6 +26,12 @@ export default {
       globalStalenessMessage: ''
     };
   },
+  mounted() {
+    if (this.globalStalenessMs) {
+      let formattedTimestamp = this.formatTimestamp(this.globalStalenessMs);
+      this.globalStalenessMessage = `Data stale after ${formattedTimestamp}`;
+    }
+  },
   methods: {
     formatTimestamp(ms) {
       let duration = Moment.duration(ms, 'milliseconds');
@@ -46,12 +52,6 @@ export default {
     clearData() {
       this.openmct.objectViews.emit('clearData');
       this.openmct.notifications.info('Data Cleared On All Displays');
-    }
-  },
-  mounted() {
-    if (this.globalStalenessMs) {
-      let formattedTimestamp = this.formatTimestamp(this.globalStalenessMs);
-      this.globalStalenessMessage = `Data stale after ${formattedTimestamp}`;
     }
   }
 };

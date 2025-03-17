@@ -6,8 +6,8 @@
       'is-selected': isSelected,
       'is-active': isActive
     }"
-    @click="selectVenue(venue)"
     :disabled="!isActive"
+    @click="selectVenue(venue)"
   >
     <span class="c-venue-button__label">{{ name }}</span>
   </div>

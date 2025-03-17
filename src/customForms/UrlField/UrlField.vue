@@ -11,6 +11,7 @@
       />
     </span>
     <span
+      v-if="warn"
       style="
         display: flex;
         flex: 0 1 auto;
@@ -22,7 +23,6 @@
       class="icon-alert-triangle hint"
       alt="Unable to connect"
       title="Unable to connect"
-      v-if="warn"
     ></span>
   </span>
 </template>
@@ -37,10 +37,11 @@ export default {
       required: true
     }
   },
-  watch: {
-    testUrl() {
-      this.checkUrl();
-    }
+  data() {
+    return {
+      field: this.model.value,
+      warn: false
+    };
   },
   computed: {
     testUrl() {
@@ -61,11 +62,10 @@ export default {
       return result;
     }
   },
-  data() {
-    return {
-      field: this.model.value,
-      warn: false
-    };
+  watch: {
+    testUrl() {
+      this.checkUrl();
+    }
   },
   mounted() {
     this.updateText = throttle(this.updateText, 500);

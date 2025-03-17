@@ -71,7 +71,7 @@
         >
           Connect
         </button>
-        <button @click="cancel()" class="c-button">Cancel</button>
+        <button class="c-button" @click="cancel()">Cancel</button>
       </div>
     </template>
   </div>

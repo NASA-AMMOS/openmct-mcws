@@ -9,11 +9,11 @@
             <div class="c-tree__item" :class="{ 'is-selected': isSelected(topic.model) }">
               <span
                 class="c-disclosure-triangle c-tree__item__view-control"
-                @click="topic.expanded = !topic.expanded"
                 :class="{
                   'c-disclosure-triangle--expanded': topic.expanded,
                   'is-enabled': topic.model.sessions.length
                 }"
+                @click="topic.expanded = !topic.expanded"
               >
               </span>
               <div class="c-object-label c-tree__item__label" @click="selectSession(topic.model)">
@@ -23,7 +23,7 @@
                 </div>
               </div>
             </div>
-            <span class="c-tree__item__subtree" v-if="topic.expanded">
+            <span v-if="topic.expanded" class="c-tree__item__subtree">
               <ul class="c-tree">
                 <li
                   v-for="session in topic.model.sessions"

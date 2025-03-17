@@ -14,6 +14,9 @@
 import VenueComponent from './VenueComponent.vue';
 
 export default {
+  components: {
+    VenueComponent
+  },
   inject: ['venueService'],
   props: {
     venue: {
@@ -23,9 +26,6 @@ export default {
         return {};
       }
     }
-  },
-  components: {
-    VenueComponent
   },
   data() {
     return {

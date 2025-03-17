@@ -57,12 +57,6 @@ export default {
       showFilterSelector: false
     };
   },
-  mounted() {
-    this.filterService = filterService(this.openmct, this.filters);
-    this.filterService.on('update', this.updateActiveFilters);
-
-    this.updateActiveFilters();
-  },
   computed: {
     hasFilters() {
       return this.filters?.length;
@@ -73,6 +67,12 @@ export default {
     hasMultipleActiveFilters() {
       return Object.keys(this.activeFilters)?.length > 1;
     }
+  },
+  mounted() {
+    this.filterService = filterService(this.openmct, this.filters);
+    this.filterService.on('update', this.updateActiveFilters);
+
+    this.updateActiveFilters();
   },
   methods: {
     updateFilters(filters) {
