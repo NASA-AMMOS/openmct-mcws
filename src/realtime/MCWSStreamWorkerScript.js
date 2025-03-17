@@ -13,6 +13,9 @@
         });
     }
 
+    // Connection pool configuration
+    const CONNECTION_POOL_TIMEOUT = 10000; // 10 seconds before closing unused connections
+
     /**
      * Represents a subscription to streaming channel data for
      * a specific EVR or Channel.
@@ -41,6 +44,7 @@
         this.property = property;
         this.extraFilterTerms = extraFilterTerms;
         this.globalFilters = globalFilters;
+        this.poolTimeout = null;
     }
 
     /**
@@ -52,6 +56,14 @@
      */
     MCWSConnection.prototype.subscribe = function (key) {
         debugLog('MCWSConnection.subscribe', { url: this.url, key: key });
+        
+        // Clear any pending pool timeout
+        if (this.poolTimeout) {
+            debugLog('Clearing pool timeout - connection reused', { url: this.url });
+            clearTimeout(this.poolTimeout);
+            this.poolTimeout = null;
+        }
+        
         this.subscribers[key] = (this.subscribers[key] || 0) + 1;
         if (this.subscribers[key] === 1) {
             debugLog('First subscription for key, scheduling reconnect', { key: key });
@@ -131,7 +143,13 @@
      * @private
      */
     MCWSConnection.prototype.destroy = function () {
+        if (this.poolTimeout) {
+            clearTimeout(this.poolTimeout);
+            this.poolTimeout = null;
+        }
+        
         if (this.socket) {
+            debugLog('Destroying connection', { url: this.url });
             this.socket.close();
             delete this.socket;
         }
@@ -180,9 +198,26 @@
             hasTopic: !!this.topic
         });
 
-        if (Object.keys(subscribers).length < 1 || !this.topic) {
+        // If no subscribers, don't immediately close - add to connection pool
+        if (Object.keys(subscribers).length < 1) {
+            if (!this.poolTimeout) {
+                debugLog('No subscribers, adding connection to pool', { url: url });
+                this.poolTimeout = setTimeout(function() {
+                    debugLog('Connection pool timeout reached, closing socket', { url: url });
+                    if (this.socket) {
+                        this.socket.close();
+                        delete this.socket;
+                    }
+                    this.poolTimeout = null;
+                }.bind(this), CONNECTION_POOL_TIMEOUT);
+            }
+            return;
+        }
+
+        // No topic, close connection
+        if (!this.topic) {
             if (oldSocket) {
-                debugLog('Closing socket - no subscribers or no topic', { url: url });
+                debugLog('Closing socket - no topic', { url: url });
                 oldSocket.close();
                 delete this.socket;
             }
@@ -194,18 +229,25 @@
         this.socket = new WebSocket(fullUrl);
 
         this.socket.onopen = function () {
-            debugLog('WebSocket opened', { url: url });
-            if (oldSocket) {
-                debugLog('Closing old socket', { url: url });
+            debugLog('WebSocket opened', { 
+                url: url,
+                timestamp: Date.now()
+            });
+            if (oldSocket && oldSocket !== this.socket) {
+                debugLog('Closing old socket', { 
+                    url: url,
+                    timestamp: Date.now()
+                });
                 oldSocket.close();
             }
-        };
+        }.bind(this);
 
         this.socket.onmessage = function (message) {
             var data = JSON.parse(message.data);
             debugLog('WebSocket message received', { 
                 url: url, 
-                dataLength: data.length 
+                dataLength: data.length,
+                timestamp: Date.now()
             });
 
             data.forEach(function (datum) {
@@ -224,20 +266,28 @@
             debugLog('WebSocket closed', { 
                 url: url, 
                 code: message.code, 
-                reason: message.reason 
+                reason: message.reason,
+                timestamp: Date.now(),
+                isPooled: !!this.poolTimeout
             });
-            self.postMessage({
-                onclose: true,
-                code: message.code,
-                reason: message.reason
-            });
-        };
+            
+            // Only notify if this isn't a pooled connection being closed
+            if (!this.poolTimeout) {
+                self.postMessage({
+                    onclose: true,
+                    url: url,
+                    code: message.code,
+                    reason: message.reason
+                });
+            }
+        }.bind(this);
 
         this.socket.onerror = function (error) {
             debugLog('WebSocket error', { 
                 url: url, 
                 code: error.code, 
-                reason: error.reason 
+                reason: error.reason,
+                timestamp: Date.now()
             });
             self.postMessage({
                 onerror: true,
