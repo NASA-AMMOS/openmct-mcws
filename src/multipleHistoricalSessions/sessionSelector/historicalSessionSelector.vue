@@ -80,7 +80,12 @@ export default {
     TelemetryTable
   },
   inject: ['openmct', 'table'],
-  props: ['sessionFilter'],
+  props: {
+    sessionFilter: {
+      type: Object,
+      required: true
+    }
+  },
   data() {
     return {
       hosts: [],

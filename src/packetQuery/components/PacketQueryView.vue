@@ -81,7 +81,7 @@ export default {
   props: {
     domainObject: {
       type: Object,
-      require: true
+      required: true
     }
   },
   data() {

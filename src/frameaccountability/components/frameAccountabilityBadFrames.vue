@@ -33,7 +33,7 @@ export default {
     },
     badFrames: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
   data() {

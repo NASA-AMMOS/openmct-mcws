@@ -10,7 +10,7 @@ export default defineComponent({
     },
     columnKey: {
       type: String,
-      require: true
+      required: true
     },
     objectPath: {
       type: Array,
