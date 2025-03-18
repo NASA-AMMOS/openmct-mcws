@@ -205,10 +205,26 @@
      * @private
      */
     MCWSConnection.prototype.reconnect = function () {
-        var oldSocket = this.socket,
-            url = this.url,
+        var url = this.url,
+            property = this.property,
             subscribers = this.subscribers,
-            property = this.property;
+            topic = this.topic,
+            extraFilterTerms = this.extraFilterTerms,
+            globalFilters = this.globalFilters,
+            self = this,
+            oldSocket = this.socket;
+
+        // If we have a pooled connection and it's still open, just reuse it
+        if (this.poolTimeout && oldSocket && oldSocket.readyState === WebSocket.OPEN) {
+            debugLog('Reusing pooled WebSocket connection', {
+                url: url,
+                timestamp: Date.now(),
+                socketId: oldSocket.id
+            });
+            clearTimeout(this.poolTimeout);
+            this.poolTimeout = null;
+            return;
+        }
 
         debugLog('MCWSConnection.reconnect', { 
             url: url, 
