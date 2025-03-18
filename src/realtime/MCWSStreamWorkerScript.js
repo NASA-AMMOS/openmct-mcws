@@ -4,13 +4,19 @@
 
     var worker;
 
-    // Add debug logging helper
+    // Add debug logging helper - only log connection pool related events
     function debugLog(message, data) {
-        self.postMessage({
-            debug: true,
-            message: message,
-            data: data
-        });
+        // Only log messages related to connection pooling
+        if (message.includes('pool') || 
+            message.includes('WebSocket') || 
+            message.includes('connection') ||
+            message.includes('reconnect')) {
+            self.postMessage({
+                debug: true,
+                message: message,
+                data: data
+            });
+        }
     }
 
     // Connection pool configuration
@@ -55,18 +61,24 @@
      * @private
      */
     MCWSConnection.prototype.subscribe = function (key) {
-        debugLog('MCWSConnection.subscribe', { url: this.url, key: key });
+        // Only log first subscription and pool-related events
+        if (!this.subscribers[key]) {
+            debugLog('MCWSConnection.subscribe - first subscription', { url: this.url, key: key });
+        }
         
         // Clear any pending pool timeout
         if (this.poolTimeout) {
-            debugLog('Clearing pool timeout - connection reused', { url: this.url });
+            debugLog('Clearing pool timeout - connection reused', { 
+                url: this.url, 
+                key: key,
+                timestamp: Date.now()
+            });
             clearTimeout(this.poolTimeout);
             this.poolTimeout = null;
         }
         
         this.subscribers[key] = (this.subscribers[key] || 0) + 1;
         if (this.subscribers[key] === 1) {
-            debugLog('First subscription for key, scheduling reconnect', { key: key });
             this.scheduleReconnect();
         }
     };
@@ -80,11 +92,9 @@
      * @private
      */
     MCWSConnection.prototype.unsubscribe = function (key) {
-        debugLog('MCWSConnection.unsubscribe', { url: this.url, key: key });
         this.subscribers[key] = (this.subscribers[key] || 0) - 1;
         if (this.subscribers[key] < 1) {
             delete this.subscribers[key];
-            debugLog('No more subscriptions for key, scheduling reconnect', { key: key });
             this.scheduleReconnect();
         }
     };
@@ -144,12 +154,20 @@
      */
     MCWSConnection.prototype.destroy = function () {
         if (this.poolTimeout) {
+            debugLog('Destroying pooled connection - clearing timeout', { 
+                url: this.url,
+                timestamp: Date.now()
+            });
             clearTimeout(this.poolTimeout);
             this.poolTimeout = null;
         }
         
         if (this.socket) {
-            debugLog('Destroying connection', { url: this.url });
+            debugLog('Destroying connection', { 
+                url: this.url,
+                timestamp: Date.now(),
+                socketId: this.socket.id
+            });
             this.socket.close();
             delete this.socket;
         }
@@ -195,15 +213,25 @@
         debugLog('MCWSConnection.reconnect', { 
             url: url, 
             subscriberCount: Object.keys(subscribers).length,
-            hasTopic: !!this.topic
+            hasTopic: !!this.topic,
+            timestamp: Date.now(),
+            oldSocketId: oldSocket ? oldSocket.id : null
         });
 
         // If no subscribers, don't immediately close - add to connection pool
         if (Object.keys(subscribers).length < 1) {
             if (!this.poolTimeout) {
-                debugLog('No subscribers, adding connection to pool', { url: url });
+                debugLog('No subscribers, adding connection to pool', { 
+                    url: url,
+                    timestamp: Date.now(),
+                    socketId: this.socket ? this.socket.id : null
+                });
                 this.poolTimeout = setTimeout(function() {
-                    debugLog('Connection pool timeout reached, closing socket', { url: url });
+                    debugLog('Connection pool timeout reached, closing socket', { 
+                        url: url,
+                        timestamp: Date.now(),
+                        socketId: this.socket ? this.socket.id : null
+                    });
                     if (this.socket) {
                         this.socket.close();
                         delete this.socket;
@@ -217,7 +245,11 @@
         // No topic, close connection
         if (!this.topic) {
             if (oldSocket) {
-                debugLog('Closing socket - no topic', { url: url });
+                debugLog('Closing socket - no topic', { 
+                    url: url,
+                    timestamp: Date.now(),
+                    socketId: oldSocket.id
+                });
                 oldSocket.close();
                 delete this.socket;
             }
@@ -225,18 +257,28 @@
         }
 
         var fullUrl = this.url + "?" + this.query();
-        debugLog('Creating new WebSocket', { fullUrl: fullUrl });
+        var socketId = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+        debugLog('Creating new WebSocket', { 
+            fullUrl: fullUrl, 
+            socketId: socketId,
+            timestamp: Date.now()
+        });
+        
         this.socket = new WebSocket(fullUrl);
+        this.socket.id = socketId;  // Add ID to socket object
 
         this.socket.onopen = function () {
             debugLog('WebSocket opened', { 
                 url: url,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                socketId: socketId
             });
             if (oldSocket && oldSocket !== this.socket) {
                 debugLog('Closing old socket', { 
                     url: url,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
+                    oldSocketId: oldSocket.id,
+                    newSocketId: this.socket.id
                 });
                 oldSocket.close();
             }
@@ -244,11 +286,6 @@
 
         this.socket.onmessage = function (message) {
             var data = JSON.parse(message.data);
-            debugLog('WebSocket message received', { 
-                url: url, 
-                dataLength: data.length,
-                timestamp: Date.now()
-            });
 
             data.forEach(function (datum) {
                 var key = datum[property];
@@ -268,6 +305,7 @@
                 code: message.code, 
                 reason: message.reason,
                 timestamp: Date.now(),
+                socketId: socketId,
                 isPooled: !!this.poolTimeout
             });
             
@@ -287,7 +325,8 @@
                 url: url, 
                 code: error.code, 
                 reason: error.reason,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                socketId: socketId
             });
             self.postMessage({
                 onerror: true,
@@ -423,11 +462,14 @@
         var data = messageEvent.data,
             method = worker[data.key];
         
-        debugLog('Worker received message', { 
-            key: data.key, 
-            hasMethod: !!method,
-            valueType: typeof data.value
-        });
+        // Only log specific worker messages to reduce noise
+        if (data.key === 'subscribe' || data.key === 'unsubscribe') {
+            debugLog('Worker received ' + data.key + ' message', { 
+                url: data.value.url,
+                key: data.value.key,
+                timestamp: Date.now()
+            });
+        }
         
         if (method) {
             method.call(worker, data.value);
