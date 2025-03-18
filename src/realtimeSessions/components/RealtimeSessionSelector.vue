@@ -20,7 +20,7 @@
 
       <div class="l-topics-tree-wrapper selector-list">
         <ul class="c-tree l-topics-tree">
-          <li v-for="(topic, index) in topics" :key="index" class="c-tree__item-h">
+          <li v-for="(topic, topicIndex) in topics" :key="topicIndex" class="c-tree__item-h">
             <div class="c-tree__item" :class="{ 'is-selected': topic.selected }">
               <span
                 class="c-disclosure-triangle c-tree__item__view-control"
@@ -41,7 +41,11 @@
 
             <span v-show="topic.expanded" class="c-tree__item__subtree">
               <ul class="c-tree">
-                <li v-for="(session, index) in topic.sessions" :key="index" class="c-tree__item-h">
+                <li
+                  v-for="(session, sessionIndex) in topic.sessions"
+                  :key="sessionIndex"
+                  class="c-tree__item-h"
+                >
                   <span
                     :class="{ 'is-selected': session.selected }"
                     class="c-tree__item"

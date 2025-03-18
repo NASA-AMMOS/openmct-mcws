@@ -19,7 +19,7 @@ export default {
   },
   inject: ['venueService'],
   props: {
-    venue: {
+    selectedVenue: {
       type: Object,
       required: false,
       default: () => {
@@ -52,7 +52,7 @@ export default {
       }
     },
     isSelected(venue) {
-      return this.venue === venue;
+      return this.selectedVenue === venue;
     },
     selectVenue(venue) {
       this.$emit('venue-selected', venue);

@@ -26,21 +26,22 @@
             <span v-if="topic.expanded" class="c-tree__item__subtree">
               <ul class="c-tree">
                 <li
-                  v-for="session in topic.model.sessions"
-                  :key="session.id"
+                  v-for="sessionSelection in topic.model.sessions"
+                  :key="sessionSelection.id"
                   class="c-tree__item-h"
                 >
                   <span
                     class="c-tree__item"
-                    :class="{ 'is-selected': isSelected(session) }"
-                    @click="selectSession(session)"
+                    :class="{ 'is-selected': isSelected(sessionSelection) }"
+                    @click="selectSession(sessionSelection)"
                   >
                     <div class="c-object-label c-tree__item__label">
                       <span
                         class="c-tree__item__type-icon c-object-label__type-icon icon-session"
                       ></span>
                       <div class="c-tree__item__name c-object-label__name">
-                        {{ session.number }} {{ session.name }} on {{ session.host }}
+                        {{ sessionSelection.number }} {{ sessionSelection.name }} on
+                        {{ sessionSelection.host }}
                       </div>
                     </div>
                   </span>
