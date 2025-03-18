@@ -67,6 +67,7 @@ export default {
       default: () => {}
     }
   },
+  emits: ['session-selected'],
   data() {
     return {
       topics: [],

@@ -52,6 +52,7 @@ export default {
       required: true
     }
   },
+  emits: ['close-filter-selector', 'update-filters'],
   data() {
     return {
       updatedFilters: {},

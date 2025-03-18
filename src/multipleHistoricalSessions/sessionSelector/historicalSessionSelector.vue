@@ -86,6 +86,7 @@ export default {
       required: true
     }
   },
+  emits: ['close-session-selector', 'update-available-sessions'],
   data() {
     return {
       hosts: [],

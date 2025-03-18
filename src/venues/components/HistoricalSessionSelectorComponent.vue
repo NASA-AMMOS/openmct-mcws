@@ -62,6 +62,7 @@ export default {
       required: true
     }
   },
+  emits: ['session-selected'],
   data() {
     return {
       sessions: [],
@@ -90,10 +91,10 @@ export default {
     select(session) {
       if (this.isSelected(session)) {
         this.currentSelection = undefined;
-        this.$emit('sessionSelected', undefined);
+        this.$emit('session-selected', undefined);
       } else {
         this.currentSelection = session;
-        this.$emit('sessionSelected', session);
+        this.$emit('session-selected', session);
       }
     },
     getSessionKey(session) {

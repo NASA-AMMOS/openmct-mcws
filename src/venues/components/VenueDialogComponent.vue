@@ -99,6 +99,7 @@ export default {
     HistoricalSessionSelectorComponent
   },
   inject: ['venueService'],
+  emits: ['submit'],
   data() {
     return {
       isActiveVenueSelect: true,

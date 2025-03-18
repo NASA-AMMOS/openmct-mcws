@@ -25,6 +25,7 @@ export default {
       required: true
     }
   },
+  emits: ['venue-selected'],
   data() {
     return {
       name: '',

@@ -64,6 +64,7 @@ export default {
       required: true
     }
   },
+  emits: ['on-change'],
   data() {
     return {
       mapping: {}
@@ -139,7 +140,7 @@ export default {
     onChange(event) {
       this.validate();
 
-      this.$emit('onChange', this.data);
+      this.$emit('on-change', this.data);
     },
     validate() {
       this.model.validate(this.data, () => {

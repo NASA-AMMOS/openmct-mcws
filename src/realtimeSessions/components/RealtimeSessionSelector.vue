@@ -83,6 +83,7 @@ import SessionService from 'services/session/SessionService';
 
 export default {
   inject: ['openmct'],
+  emits: ['close-session-selector'],
   data() {
     return {
       isLoading: true,

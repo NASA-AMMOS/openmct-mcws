@@ -27,6 +27,7 @@ export default {
       }
     }
   },
+  emits: ['venue-selected'],
   data() {
     return {
       venues: [],

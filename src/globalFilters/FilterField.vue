@@ -48,6 +48,7 @@ export default {
       }
     }
   },
+  emits: ['clear-filter', 'filter-single-selected'],
   data() {
     return {};
   },
