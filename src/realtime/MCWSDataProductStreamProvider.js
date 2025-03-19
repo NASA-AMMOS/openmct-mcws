@@ -1,41 +1,31 @@
-/*global define*/
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-define([
-    './MCWSStreamProvider'
-], function (
-    MCWSStreamProvider
-) {
-    'use strict';
+/**
+ * Provides real-time streaming DataProduct data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSDataProductStreamProvider extends MCWSStreamProvider {
+    constructor(openmct, vistaTime, options) {
+        super(openmct, vistaTime);
+        this.options = options;
+    }
 
-    /**
-     * Provides real-time streaming DataProduct data.
-     * @constructor
-     * @augments {MCWSStreamProvider}
-     * @memberof {vista/telemetry}
-     */
-    var MCWSDataProductStreamProvider = MCWSStreamProvider.extend({
-        constructor: function (openmct, vistaTime, options) {
-            this.options = options;
-            MCWSStreamProvider.call(this, openmct, vistaTime);
-        }
-    });
+    getUrl(domainObject) {
+        return domainObject.telemetry?.dataProductStreamUrl;
+    }
 
-    MCWSDataProductStreamProvider.prototype.getUrl = function (domainObject) {
-        return domainObject.telemetry && domainObject.telemetry.dataProductStreamUrl;
-    };
-
-    MCWSDataProductStreamProvider.prototype.getKey = function (domainObject) {
+    getKey() {
         // We return undefined so that we can match on undefined properties.
         return undefined;
-    };
+    }
 
-    MCWSDataProductStreamProvider.prototype.getProperty = function () {
+    getProperty() {
         // We just want something that returns undefined so it matches the
         // key above.  Hacky.
         return 'some_undefined_property';
-    };
+    }
 
-    MCWSDataProductStreamProvider.prototype.subscribe = function (domainObject, callback, options) {
+    subscribe(domainObject, callback, options) {
         function wrappedCallback(datum) {
             let sessionId = datum.session_id;
 
@@ -53,18 +43,18 @@ define([
             callback(datum);
         }
 
-        return MCWSStreamProvider.prototype.subscribe.call(this, domainObject, wrappedCallback, options);   
+        return super.subscribe(domainObject, wrappedCallback, options);   
     }
 
-    MCWSDataProductStreamProvider.prototype.notifyWorker = function (key, value) {
+    notifyWorker(key, value) {
         if (key === 'subscribe' && this.options.realtimeProductAPIDs
             && value.mcwsVersion === 3.2) {
             value.extraFilterTerms = {
                 apid: '(' + this.options.realtimeProductAPIDs.join(',') + ')'
             };
         }
-        MCWSStreamProvider.prototype.notifyWorker.call(this, key, value);
-    };
+        super.notifyWorker(key, value);
+    }
+}
 
-    return MCWSDataProductStreamProvider;
-});
+export default MCWSDataProductStreamProvider;

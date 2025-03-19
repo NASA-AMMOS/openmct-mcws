@@ -1,33 +1,36 @@
-/*global define*/
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-define([
-    './MCWSStreamProvider',
-    'lodash'
-], function (
-    MCWSStreamProvider,
-    _
-) {
-    'use strict';
-
+/**
+ * Provides real-time streaming EVR data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSEVRStreamProvider extends MCWSStreamProvider {
     /**
-     * Provides real-time streaming EVR data.
-     * @constructor
-     * @augments {MCWSStreamProvider}
-     * @memberof {vista/telemetry}
+     * Get the URL for streaming data for this domain object
+     * @param {Object} domainObject The domain object
+     * @returns {String} The URL to use for streaming
      */
-    var MCWSEVRStreamProvider = MCWSStreamProvider.extend({});
-
-    MCWSEVRStreamProvider.prototype.getUrl = function (domainObject) {
+    getUrl(domainObject) {
         if (domainObject.telemetry && !domainObject.telemetry.level) {
             return domainObject.telemetry.evrStreamUrl;
         }
-    };
+    }
 
-    MCWSEVRStreamProvider.prototype.getProperty = function (domainObject) {
+    /**
+     * Get the property to use for this stream
+     * @param {Object} domainObject The domain object
+     * @returns {String} The property name
+     */
+    getProperty() {
         return 'module';
-    };
+    }
 
-    MCWSEVRStreamProvider.prototype.getKey = function (domainObject) {
+    /**
+     * Get the key to use for this stream
+     * @param {Object} domainObject The domain object
+     * @returns {String} The key
+     */
+    getKey(domainObject) {
         // Can subscribe only by EVR module even if subscribing by EVR
         let module = domainObject.telemetry
             && domainObject.telemetry.definition
@@ -44,46 +47,57 @@ define([
         }
 
         return module;
-    };
+    }
 
-    MCWSEVRStreamProvider.prototype.subscribe = function (domainObject, callback, options) {
+    /**
+     * Subscribe to real-time updates for this domain object
+     * @param {Object} domainObject The domain object
+     * @param {Function} callback The callback to invoke with new data
+     * @param {Object} options Additional options
+     * @returns {Function} A function that will unsubscribe when called
+     */
+    subscribe(domainObject, callback, options) {
         // EVR Source subscription
         if (domainObject.telemetry.modules) {
             return this.multiSubscribe(domainObject, callback, options);
         }
 
         if (domainObject.telemetry.evr_name) {
-            var wrappedCallback = function (value) {
+            const wrappedCallback = (value) => {
                 if (value.name === domainObject.telemetry.evr_name) {
                     callback(value);
-                };
-            }
-            return MCWSStreamProvider.prototype.subscribe
-                .call(this, domainObject, wrappedCallback, options);
+                }
+            };
+            return super.subscribe(domainObject, wrappedCallback, options);
         }
-        return MCWSStreamProvider.prototype.subscribe
-                .call(this, domainObject, callback, options);
-    };
+        return super.subscribe(domainObject, callback, options);
+    }
 
-    MCWSEVRStreamProvider.prototype.multiSubscribe = function (domainObject, callback, options) {
-        var unsubscribes = domainObject.telemetry.modules.map(function (module) {
-            var moduleObject = {
+    /**
+     * Subscribe to multiple modules
+     * @param {Object} domainObject The domain object
+     * @param {Function} callback The callback to invoke with new data
+     * @param {Object} options Additional options
+     * @returns {Function} A function that will unsubscribe when called
+     */
+    multiSubscribe(domainObject, callback, options) {
+        const unsubscribes = domainObject.telemetry.modules.map((module) => {
+            const moduleObject = {
                 telemetry: {
                     evrStreamUrl: domainObject.telemetry.evrStreamUrl,
                     module: module
                 }
             };
 
-            return MCWSStreamProvider.prototype
-                .subscribe.call(this, moduleObject, callback, options);
-            }, this);
+            return super.subscribe(moduleObject, callback, options);
+        });
 
-        return function () {
-            unsubscribes.forEach(function (unsubscribe) {
+        return () => {
+            unsubscribes.forEach((unsubscribe) => {
                 unsubscribe();
             });
         };
-    };
+    }
+}
 
-    return MCWSEVRStreamProvider;
-});
+export default MCWSEVRStreamProvider;

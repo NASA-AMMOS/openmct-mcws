@@ -96,7 +96,7 @@ define([
             openmct.install(RealtimeSessions.default());
 
             openmct.install(new HistoricalTelemetryPlugin(options));
-            openmct.install(new RealtimeTelemetryPlugin(vistaTime, options));
+            openmct.install(new RealtimeTelemetryPlugin.default(vistaTime, options));
             openmct.install(new TypePlugin.default());
             openmct.install(new TaxonomyPlugin(options.taxonomy));
             openmct.install(new LinkPlugin(options));
