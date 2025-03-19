@@ -73,32 +73,11 @@ define([
 
     MCWSStreamProvider.prototype.onmessage = function (message) {
         var data = message.data;
-        
-        // Skip debug messages to avoid noise
-        if (data.debug) {
-            return;
-        }
-        
         var url = data.url;
         var key = data.key;
         var values = data.values;
         var subscriptions = (this.subscriptions[url] || {})[key] || [];
         var timestamp = Date.now();
-
-        // Only log connection-related messages
-        if (data.onclose || data.onerror) {
-            console.log('[MCWSStreamProvider] Message received:', { 
-                url: url, 
-                key: key, 
-                hasValues: !!values,
-                valueCount: values ? values.length : 0,
-                subscriptionCount: subscriptions.length,
-                onclose: !!data.onclose,
-                onerror: !!data.onerror,
-                code: data.code,
-                reason: data.reason
-            });
-        }
 
         this.processGlobalStaleness(values || [], timestamp);
 
@@ -121,13 +100,6 @@ define([
         const worker = runMCWSStreamWorker.default();
 
         worker.onmessage = this.onmessage.bind(this);
-        
-        // Add debug message listener
-        worker.addEventListener('message', function(event) {
-            if (event.data && event.data.debug) {
-                console.log('[MCWSStreamProvider]', event.data.message, event.data.data);
-            }
-        });
 
         this.worker = function () {
             return worker;
@@ -135,12 +107,7 @@ define([
 
         // topic
         const updateTopic = function (newValue) {
-            // Only log if topic is changing
-            if (this.currentTopic !== newValue) {
-                console.log('[MCWSStreamProvider] Updating topic:', newValue);
-                this.currentTopic = newValue;
-                this.notifyWorker('topic', newValue);
-            }
+            this.notifyWorker('topic', newValue);
         }.bind(this);
 
         updateTopic(this.sessions.getActiveTopicOrSession());
@@ -157,6 +124,7 @@ define([
           updateGlobalFilters(this.filterService.getActiveFilters());
   
           this.filterService.on('update', updateGlobalFilters);
+
         }
 
         return worker;
@@ -169,13 +137,6 @@ define([
      * @private
      */
     MCWSStreamProvider.prototype.notifyWorker = function (key, value) {
-        // Only log subscribe/unsubscribe messages
-        if (key === 'subscribe' || key === 'unsubscribe') {
-            console.log('[MCWSStreamProvider] Sending message to worker:', key, {
-                url: value.url,
-                key: value.key
-            });
-        }
         this.worker().postMessage({ key: key, value: value });
     };
 
@@ -189,18 +150,12 @@ define([
         var url = this.getUrl(domainObject),
             key = this.getKey(domainObject),
             subscriptions = this.subscriptions;
-        
+
         subscriptions[url] = subscriptions[url] || {};
         subscriptions[url][key] = subscriptions[url][key] || [];
         subscriptions[url][key].push({
             callback: callback,
             domainObject: domainObject
-        });
-        
-        console.log('[MCWSStreamProvider] Added callback:', { 
-            url: url, 
-            key: key, 
-            count: subscriptions[url][key].length 
         });
     };
 
@@ -214,22 +169,12 @@ define([
         var url = this.getUrl(domainObject),
             key = this.getKey(domainObject),
             subscriptions = this.subscriptions;
-        
+
         subscriptions[url] = subscriptions[url] || {};
         subscriptions[url][key] = subscriptions[url][key] || [];
-        
-        var beforeLength = subscriptions[url][key].length;
         subscriptions[url][key] = subscriptions[url][key].filter(
             function (c) { return c.callback !== callback; }
         );
-        var afterLength = subscriptions[url][key].length;
-        
-        console.log('[MCWSStreamProvider] Removed callback:', { 
-            url: url, 
-            key: key, 
-            before: beforeLength, 
-            after: afterLength 
-        });
 
         if (subscriptions[url][key].length < 1) {
             delete subscriptions[url][key];
@@ -262,20 +207,8 @@ define([
                 this.serializeFilters(options.filters)
         };
 
-        console.log('[MCWSStreamProvider] Subscribe:', {
-            url: message.url,
-            key: message.key
-        });
-
         function unsubscribe() {
-            console.log('[MCWSStreamProvider] Unsubscribe:', {
-                url: message.url,
-                key: message.key,
-                active: active
-            });
-            
             if (!active) {
-                console.error('[MCWSStreamProvider] Tried to unsubscribe more than once.');
                 throw new Error("Tried to unsubscribe more than once.");
             }
 
