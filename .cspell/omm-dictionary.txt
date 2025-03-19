@@ -1,0 +1,55 @@
+# openmct
+openmct
+metadatas
+metadatum
+unlisten
+unlisteners
+persistable
+Persistable
+timesystem
+TIMESYSTEM
+frameaccountability
+DDDTHH
+DDDDTHH
+
+# dependencies
+printj
+
+# testing
+xdescribe
+
+# ammos
+mcws
+MCWSEVR
+mcwsurl
+ampcs
+mpcs # root_topic was hardcoded as mpcs before name change to ampcs
+atlo
+rfsw
+spsc
+apid
+apids
+scid
+vcid
+vcids
+vcfc
+evrs
+scmf
+cltus
+insync
+datatable
+
+# time
+scet
+lmst
+sclk
+mslsol
+
+# names
+dsanto
+peterr
+smap
+
+# TODO fix
+# remove dismissable when implementing https://github.com/NASA-AMMOS/openmct-mcws/issues/209
+dismissable
