@@ -25,37 +25,37 @@ define(['./VISTAType'], function (VISTAType) {
       {
         name: 'MCWS Root URL',
         key: 'mcwsRootUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Channel Dictionary URL',
         key: 'channelDictionaryUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Channel Enumeration Dictionary URL',
         key: 'channelEnumerationDictionaryUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Channel Historical URL',
         key: 'channelHistoricalUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Channel MinMax URL',
         key: 'channelMinMaxUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Channel LAD URL',
         key: 'channelLADUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
@@ -74,31 +74,31 @@ define(['./VISTAType'], function (VISTAType) {
       {
         name: 'Session URL',
         key: 'sessionUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Session LAD URL',
         key: 'sessionLADUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Event Record Dictionary URL',
         key: 'eventRecordDictionaryUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'EVR Historical URL',
         key: 'evrHistoricalUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'EVR LAD URL',
         key: 'evrLADUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
@@ -110,13 +110,13 @@ define(['./VISTAType'], function (VISTAType) {
       {
         name: 'Data Product URL',
         key: 'dataProductUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Data Product Content URL',
         key: 'dataProductContentUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
@@ -128,13 +128,13 @@ define(['./VISTAType'], function (VISTAType) {
       {
         name: 'Packet URL',
         key: 'packetUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
         name: 'Packet Content URL',
         key: 'packetContentUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {
@@ -146,7 +146,7 @@ define(['./VISTAType'], function (VISTAType) {
       {
         name: 'Command Event Historical URL',
         key: 'commandEventUrl',
-        control: 'urlfield',
+        control: 'url-field',
         cssClass: 'l-input-lg'
       },
       {

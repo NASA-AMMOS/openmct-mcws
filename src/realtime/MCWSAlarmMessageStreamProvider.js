@@ -68,12 +68,12 @@ define(['./MCWSStreamProvider'], function (MCWSStreamProvider) {
       object.telemetry.values = domainObject.telemetry.values;
     });
 
-    let unsubscribers = objects.map((object) =>
+    let unsubscribes = objects.map((object) =>
       MCWSStreamProvider.prototype.subscribe.call(this, object, callback, options)
     );
 
     return () => {
-      unsubscribers.forEach((unsubscribe) => unsubscribe());
+      unsubscribes.forEach((unsubscribe) => unsubscribe());
     };
   };
 

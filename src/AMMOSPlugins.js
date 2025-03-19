@@ -13,12 +13,12 @@ define([
   './venues/plugin',
   'services/mcws/MCWSClient',
   './formats/UTCDayOfYearFormat',
-  './framesummary/plugin',
+  './frameSummary/plugin',
   './frameEventFilterView/plugin',
   './channelTable/channelTablePlugin/plugin',
   './channelTable/channelTableSetPlugin/plugin',
   './channelLimits/plugin',
-  './frameaccountability/plugin',
+  './frameAccountability/plugin',
   './alarmsView/plugin',
   './messageStreamProcessor/plugin',
   './evrView/plugin',
@@ -69,7 +69,7 @@ define([
 ) {
   function AMMOSPlugins(options) {
     return function install(openmct) {
-      // initialze session service, datasetCache service, global staleness
+      // initialize session service, datasetCache service, global staleness
       SessionService.default(openmct, options);
       DatasetCache.default(openmct);
       GlobalStaleness.default(openmct, options.globalStalenessInterval);

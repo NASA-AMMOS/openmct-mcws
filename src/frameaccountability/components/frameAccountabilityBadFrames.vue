@@ -36,7 +36,7 @@ export default {
       default: () => []
     }
   },
-  emits: ['destroy-badframes'],
+  emits: ['destroy-bad-frames'],
   data() {
     return {
       headers: undefined,
@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     hideBadFrames() {
-      this.$emit('destroy-badframes', undefined);
+      this.$emit('destroy-bad-frames', undefined);
     }
   }
 };

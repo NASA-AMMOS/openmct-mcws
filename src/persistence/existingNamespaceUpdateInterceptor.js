@@ -16,14 +16,14 @@ export default function existingNamespaceUpdateInterceptor(openmct, usersNamespa
       if (object.composition?.length) {
         let updatedComposition = false;
 
-        object.composition = object.composition.map((keystring) => {
-          if (typeof keystring === 'string') {
+        object.composition = object.composition.map((keyString) => {
+          if (typeof keyString === 'string') {
             updatedComposition = true;
 
-            return openmct.objects.parseKeyString(keystring);
+            return openmct.objects.parseKeyString(keyString);
           }
 
-          return keystring;
+          return keyString;
         });
 
         if (updatedComposition) {

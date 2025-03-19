@@ -44,7 +44,7 @@ class Venue {
     return this.sessionService.getActiveSessions(this.domainObject.sessionLADUrl);
   }
 
-  getdomainObject() {
+  getDomainObject() {
     const domainObject = JSON.parse(JSON.stringify(this.domainObject));
     domainObject.name += ' Dataset';
 
