@@ -57,7 +57,8 @@ class MCWSStreamProvider {
     }
 
     onmessage(message) {
-        const { data, url, key, values } = message;
+        const data = message.data;
+        const { url, key, values } = data;
         const subscriptions = (this.subscriptions[url] ?? {})[key] ?? [];
         const timestamp = Date.now();
 
