@@ -207,7 +207,7 @@
         console.log('scheduleReconnectsetTimeout');
         this.pending = undefined;
         this.reconnect();
-      }, 10);
+      }, 100);
     }
 
     /**
