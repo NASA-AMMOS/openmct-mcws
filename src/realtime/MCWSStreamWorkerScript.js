@@ -124,27 +124,29 @@
      */
     async closeSocket(socket) {
       if (socket) {
+        // Define custom close code and reason
+        const closeCode = 1000; // Normal closure
+        const closeReason = "Connection closed by client due to subscription changes";
+        
         // Check socket readiness state before closing
         if (socket.readyState === WebSocket.CONNECTING) {
           // For connecting sockets, we need to wait for the connection to establish or fail
-          // before closing to avoid the "WebSocket is closed before the connection is established" warning
           return new Promise(resolve => {
-            socket.addEventListener('close', () => {
-              resolve();
-            });
-
             socket.addEventListener('open', () => {
-              socket.close();
+              socket.close(closeCode, closeReason);
+              resolve();
             });
             
             socket.addEventListener('error', () => {
-              socket.close();
+              socket.close(closeCode, closeReason);
+              resolve();
             });
             
             // Add a timeout in case the socket gets stuck in connecting state
             setTimeout(() => {
               if (socket.readyState === WebSocket.CONNECTING) {
-                socket.close();
+                socket.close(closeCode, closeReason);
+                resolve();
               }
             }, 1000);
           });
@@ -154,7 +156,7 @@
             socket.addEventListener('close', () => {
               resolve();
             });
-            socket.close();
+            socket.close(closeCode, closeReason);
           });
         } else {
           // Socket is already closing or closed
@@ -254,10 +256,13 @@
       };
 
       this.socket.onerror = (error) => {
+        // Log the URL that failed to connect for better debugging
         self.postMessage({
           onerror: true,
-          code: error.code,
-          reason: error.reason
+          url: this.url,
+          query: this.query(),
+          code: error.code || 'unavailable',
+          reason: error.reason || 'WebSocket error occurred, but browser did not provide detailed error information'
         });
       };
     }
