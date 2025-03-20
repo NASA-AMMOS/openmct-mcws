@@ -126,10 +126,28 @@
       if (socket) {
         // Check socket readiness state before closing
         if (socket.readyState === WebSocket.CONNECTING) {
-          // For connecting sockets, we can just close immediately
-          socket.close();
+          // For connecting sockets, we need to wait for the connection to establish or fail
+          // before closing to avoid the "WebSocket is closed before the connection is established" warning
+          return new Promise(resolve => {
+            socket.addEventListener('close', () => {
+              resolve();
+            });
 
-          return;
+            socket.addEventListener('open', () => {
+              socket.close();
+            });
+            
+            socket.addEventListener('error', () => {
+              socket.close();
+            });
+            
+            // Add a timeout in case the socket gets stuck in connecting state
+            setTimeout(() => {
+              if (socket.readyState === WebSocket.CONNECTING) {
+                socket.close();
+              }
+            }, 1000);
+          });
         } else if (socket.readyState === WebSocket.OPEN) {
           // For open sockets, return a promise that resolves when the socket is closed
           return new Promise(resolve => {
