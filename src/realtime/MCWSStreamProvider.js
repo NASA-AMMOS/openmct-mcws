@@ -77,8 +77,8 @@ class MCWSStreamProvider {
             console.log('onclose', data);
         } else if (data.onerror) {
             console.log('onerror', data);
-            this.openmct.notifications.error('Websocket Error, please see console for details');
-            console.error(`Websocket Error - Code:${data.code}, Error:${data.reason}`);
+            this.openmct.notifications.error(`Websocket Error for ${url}?${data.query}, please see console for details`);
+            console.error(`Websocket Error - Code: ${data.code}, Error: ${data.reason}`);
         }
     }
 

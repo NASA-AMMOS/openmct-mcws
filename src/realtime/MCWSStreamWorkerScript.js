@@ -44,6 +44,7 @@
      * @private
      */
     subscribe(key) {
+      console.log('subscribe', key);
       this.subscribers[key] = (this.subscribers[key] ?? 0) + 1;
 
       if (this.subscribers[key] === 1) {
@@ -133,11 +134,13 @@
           // For connecting sockets, we need to wait for the connection to establish or fail
           return new Promise(resolve => {
             socket.addEventListener('open', () => {
+              console.log('open');
               socket.close(closeCode, closeReason);
               resolve();
             });
             
             socket.addEventListener('error', () => {
+              console.log('error');
               socket.close(closeCode, closeReason);
               resolve();
             });
@@ -145,6 +148,7 @@
             // Add a timeout in case the socket gets stuck in connecting state
             setTimeout(() => {
               if (socket.readyState === WebSocket.CONNECTING) {
+                console.log('timeout');
                 socket.close(closeCode, closeReason);
                 resolve();
               }
@@ -154,6 +158,7 @@
           // For open sockets, return a promise that resolves when the socket is closed
           return new Promise(resolve => {
             socket.addEventListener('close', () => {
+              console.log('close');
               resolve();
             });
             socket.close(closeCode, closeReason);
@@ -192,11 +197,14 @@
      * @private
      */
     scheduleReconnect() {
+      console.log('scheduleReconnect');
       if (this.pending) {
+        console.log('scheduleReconnect clearTimeout');
         clearTimeout(this.pending);
       }
 
       this.pending = setTimeout(() => {
+        console.log('scheduleReconnectsetTimeout');
         this.pending = undefined;
         this.reconnect();
       }, 10);
@@ -210,6 +218,7 @@
     async reconnect() {
       let oldSocket = this.socket;
       const { url, subscribers, property } = this;
+      console.log('reconnect', url, subscribers, property);
 
       // If there are no subscribers, or no topic,
       // close the socket (if it exists) and return
@@ -226,6 +235,7 @@
       this.socket = new WebSocket(`${this.url}?${this.query()}`);
 
       this.socket.onopen = async () => {
+        console.log('reconnect open');
         if (oldSocket) {
           await this.closeSocket(oldSocket);
           oldSocket = undefined;
@@ -248,6 +258,7 @@
       };
 
       this.socket.onclose = (message) => {
+        console.log('reconnect onclose');
         self.postMessage({
           onclose: true,
           code: message.code,
@@ -256,6 +267,7 @@
       };
 
       this.socket.onerror = (error) => {
+        console.log('reconnect onerror');
         // Log the URL that failed to connect for better debugging
         self.postMessage({
           onerror: true,
@@ -286,7 +298,7 @@
      * Release all active WebSocket connections.
      */
     async reset() {
-      console.log('reset');
+      console.log('streamWorker reset');
       const urls = Object.keys(this.connections);
       await Promise.all(urls.map(async (url) => {
         await this.connections[url].destroy();
@@ -301,6 +313,7 @@
      * @param {MCWSStreamSubscription} subscription the subscription to obtain
      */
     subscribe(subscription) {
+      console.log('streamWorker subscribe', subscription);
       const { url, key, property, extraFilterTerms } = subscription;
       const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
@@ -336,6 +349,7 @@
      * @param {MCWSStreamSubscription} subscription the subscription to release
      */
     unsubscribe(subscription) {
+      console.log('streamWorker unsubscribe', subscription);
       const { url, key, property, extraFilterTerms } = subscription;
       const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
@@ -349,6 +363,7 @@
      * @param {Object} topic metadata about the selected topic
      */
     topic(topic) {
+      console.log('streamWorker topic', topic);
       this.activeTopic = topic;
       Object.keys(this.connections).forEach((cacheKey) => {
         this.connections[cacheKey].setTopic(topic);
@@ -360,6 +375,7 @@
      * @param {Object} filters metadata about the filters
      */
     globalFilters(filters) {
+      console.log('streamWorker globalFilters', filters);
       this.activeGlobalFilters = filters;
       Object.keys(this.connections).forEach((cacheKey) => {
         this.connections[cacheKey].setGlobalFilters(filters);
