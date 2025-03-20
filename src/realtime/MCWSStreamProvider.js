@@ -215,7 +215,7 @@ class MCWSStreamProvider {
             key: this.getKey(domainObject),
             property: this.getProperty(domainObject),
             mcwsVersion: domainObject.telemetry.mcwsVersion,
-            extraFilterTerms: options?.filters ?? this.serializeFilters(options.filters)
+            extraFilterTerms: options?.filters ? this.serializeFilters(options.filters) : undefined
         };
 
         function unsubscribe() {
