@@ -37,29 +37,31 @@
     }
 
     /**
-     * Notify the connection of a new subscription to the specified channel.
+     * Notify the connection of a new subscription to the specified endpoint.
      * MCWSConnection keeps a count of active subscriptions in order to
      * adjust filtering parameters as necessary.
-     * @param {string} key the channel or module to subscribe to
+     * @param {string} key the endpoint to subscribe to
      * @private
      */
     subscribe(key) {
-      this.subscribers[key] = (this.subscribers[key] || 0) + 1;
+      this.subscribers[key] = (this.subscribers[key] ?? 0) + 1;
+
       if (this.subscribers[key] === 1) {
         this.scheduleReconnect();
       }
     }
 
     /**
-     * Notify the connection that a subscription to the specified channel
+     * Notify the connection that a subscription to the specified endpoint
      * has ended.
      * MCWSConnection keeps a count of active subscriptions in order to
      * adjust filtering parameters as necessary.
-     * @param {string} key the channel or module to unsubscribe to
+     * @param {string} key the endpoint to unsubscribe to
      * @private
      */
     unsubscribe(key) {
-      this.subscribers[key] = (this.subscribers[key] || 0) - 1;
+      this.subscribers[key] = (this.subscribers[key] ?? 0) - 1;
+
       if (this.subscribers[key] < 1) {
         delete this.subscribers[key];
         this.scheduleReconnect();
@@ -74,19 +76,18 @@
      */
     query() {
       const filter = {
-        session_id: this.topic && this.topic.number,
-        topic: this.topic && this.topic.topic
+        session_id: this.topic?.number,
+        topic: this.topic?.topic
       };
 
       if (this.property !== 'some_undefined_property') {
-        filter[this.property] =
-          '(' + Object.keys(this.subscribers).join(',') + ')';
+        filter[this.property] = `(${Object.keys(this.subscribers).join(',')})`;
       }
 
       if (this.extraFilterTerms) {
-        Object.keys(this.extraFilterTerms).forEach(function (k) {
-          filter[k] = this.extraFilterTerms[k];
-        }, this);
+        Object.keys(this.extraFilterTerms).forEach((term) => {
+          filter[term] = this.extraFilterTerms[term];
+        });
       }
 
       if (this.globalFilters) {
@@ -99,28 +100,55 @@
         });
       }
 
-      return 'filter=(' + Object.keys(filter).filter(function (key) {
-        return !!filter[key];
-      }).map(function (key) {
-        return key + '=' + filter[key];
-      }).join(',') + ')';
+      return `filter=(${Object.keys(filter)
+        .filter((key) => Boolean(filter[key]))
+        .map((key) => `${key}=${filter[key]}`)
+        .join(',')})`;
     }
 
     /**
      * Close any active WebSocket associated with this connection.
+     * Handles pending messages and different socket states.
      * @private
      */
-    destroy() {
-      if (this.socket) {
-        this.socket.close();
-        delete this.socket;
+    async destroy() {
+      console.log('destroy');
+      await this.closeSocket(this.socket);
+      delete this.socket;
+    }
+
+    /**
+     * Close the WebSocket if it exists.
+     * @param {WebSocket} socket the WebSocket to close
+     * @private
+     */
+    async closeSocket(socket) {
+      if (socket) {
+        // Check socket readiness state before closing
+        if (socket.readyState === WebSocket.CONNECTING) {
+          // For connecting sockets, we can just close immediately
+          socket.close();
+
+          return;
+        } else if (socket.readyState === WebSocket.OPEN) {
+          // For open sockets, return a promise that resolves when the socket is closed
+          return new Promise(resolve => {
+            socket.addEventListener('close', () => {
+              resolve();
+            });
+            socket.close();
+          });
+        } else {
+          // Socket is already closing or closed
+          return;
+        }
       }
     }
 
     /**
      * Set the topic for the active session.
      * @param {Object} topic metadata for the selected topic, as provided
-     *        by MCWS
+     * by MCWS
      * @private
      */
     setTopic(topic) {
@@ -128,15 +156,26 @@
       this.scheduleReconnect();
     }
 
+    /**
+     * Set the global filters for the active session.
+     * @param {Object} filters metadata for the selected filters, as provided
+     * by MCWS
+     * @private
+     */
     setGlobalFilters(filters) {
       this.globalFilters = filters;
       this.scheduleReconnect();
     }
 
+    /**
+     * Schedule a reconnection to the WebSocket.
+     * @private
+     */
     scheduleReconnect() {
       if (this.pending) {
         clearTimeout(this.pending);
       }
+
       this.pending = setTimeout(() => {
         this.pending = undefined;
         this.reconnect();
@@ -148,32 +187,35 @@
      * filtering parameters have changed.)
      * @private
      */
-    reconnect() {
-      const oldSocket = this.socket;
-      const url = this.url;
-      const subscribers = this.subscribers;
-      const property = this.property;
+    async reconnect() {
+      let oldSocket = this.socket;
+      const { url, subscribers, property } = this;
 
+      // If there are no subscribers, or no topic,
+      // close the socket (if it exists) and return
       if (Object.keys(subscribers).length < 1 || !this.topic) {
         if (oldSocket) {
-          oldSocket.close();
-          delete this.socket;
+          await this.closeSocket(oldSocket);
+          oldSocket = undefined;
         }
+
         return;
       }
 
-      this.socket = new WebSocket(this.url + "?" + this.query());
+      // Create a new WebSocket connection with the updated query parameters
+      this.socket = new WebSocket(`${this.url}?${this.query()}`);
 
-      this.socket.onopen = function () {
+      this.socket.onopen = async () => {
         if (oldSocket) {
-          oldSocket.close();
+          await this.closeSocket(oldSocket);
+          oldSocket = undefined;
         }
       };
 
-      this.socket.onmessage = function (message) {
+      this.socket.onmessage = (message) => {
         const data = JSON.parse(message.data);
 
-        data.forEach(function (datum) {
+        data.forEach((datum) => {
           const key = datum[property];
           if (subscribers[key] > 0) {
             self.postMessage({
@@ -185,7 +227,7 @@
         });
       };
 
-      this.socket.onclose = function (message) {
+      this.socket.onclose = (message) => {
         self.postMessage({
           onclose: true,
           code: message.code,
@@ -193,7 +235,7 @@
         });
       };
 
-      this.socket.onerror = function (error) {
+      this.socket.onerror = (error) => {
         self.postMessage({
           onerror: true,
           code: error.code,
@@ -220,11 +262,13 @@
     /**
      * Release all active WebSocket connections.
      */
-    reset() {
-      Object.keys(this.connections).forEach((url) => {
-        this.connections[url].destroy();
+    async reset() {
+      console.log('reset');
+      const urls = Object.keys(this.connections);
+      await Promise.all(urls.map(async (url) => {
+        await this.connections[url].destroy();
         delete this.connections[url];
-      });
+      }));
       delete this.activeTopic;
       delete this.activeGlobalFilters;
     }
@@ -234,10 +278,7 @@
      * @param {MCWSStreamSubscription} subscription the subscription to obtain
      */
     subscribe(subscription) {
-      const url = subscription.url;
-      const key = subscription.key;
-      const property = subscription.property;
-      const extraFilterTerms = subscription.extraFilterTerms;
+      const { url, key, property, extraFilterTerms } = subscription;
       const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
       if (!this.connections[cacheKey]) {
@@ -256,12 +297,14 @@
     generateCacheKey(url, property, extraFilterTerms) {
       let filterComponent = extraFilterTerms && Object.keys(extraFilterTerms)
         .sort()
-        .map(filterKey => filterKey + '=' + extraFilterTerms[filterKey])
+        .map(filterKey => `${filterKey}=${extraFilterTerms[filterKey]}`)
         .join('&');
-      let cacheKey = url + '__' + property;
-      if (filterComponent && filterComponent.length > 0) {
-        cacheKey += '__' + filterComponent
+      let cacheKey = `${url}__${property}`;
+
+      if (filterComponent?.length > 0) {
+        cacheKey += `__${filterComponent}`;
       }
+
       return cacheKey;
     }
 
@@ -270,10 +313,7 @@
      * @param {MCWSStreamSubscription} subscription the subscription to release
      */
     unsubscribe(subscription) {
-      const url = subscription.url;
-      const key = subscription.key;
-      const property = subscription.property;
-      const extraFilterTerms = subscription.extraFilterTerms;
+      const { url, key, property, extraFilterTerms } = subscription;
       const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
       if (this.connections[cacheKey]) {
@@ -308,6 +348,7 @@
   self.onmessage = function (messageEvent) {
     const data = messageEvent.data;
     const method = worker[data.key];
+
     if (method) {
       method.call(worker, data.value);
     }
