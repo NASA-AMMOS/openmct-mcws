@@ -127,7 +127,7 @@
       if (socket) {
         // Define custom close code and reason
         const closeCode = 1000; // Normal closure
-        const closeReason = "Connection closed by client due to subscription changes";
+        const closeReason = 'Connection closed by client due to subscription changes or no subscribers';
         
         // Check socket readiness state before closing
         if (socket.readyState === WebSocket.CONNECTING) {
@@ -204,10 +204,10 @@
       }
 
       this.pending = setTimeout(() => {
-        console.log('scheduleReconnectsetTimeout');
+        console.log('scheduleReconnect reconnecting');
         this.pending = undefined;
         this.reconnect();
-      }, 250); // Keep the 250ms timeout for better batching
+      }, 100); // Keep the 250ms timeout for better batching
     }
 
     /**
@@ -215,115 +215,77 @@
      * filtering parameters have changed.)
      * @private
      */
-    async reconnect() {
-      // Cancel any in-progress reconnection
-      if (this.reconnecting) {
-        console.log('canceling in-progress reconnection for newer request');
-        if (this.pendingSocket) {
-          // Close the socket that's in the process of connecting without waiting
-          try {
-            this.pendingSocket.onopen = null;
-            this.pendingSocket.onclose = null;
-            this.pendingSocket.onerror = null;
-            this.pendingSocket.close();
-          } catch (e) {
-            // Suppress any errors from closing the pending socket
-            console.log('error closing pending socket:', e);
-          }
-          this.pendingSocket = null;
-        }
-      }
-      
-      this.reconnecting = true;
-      
-      try {
-        let oldSocket = this.socket;
-        const { url, subscribers, property } = this;
-        console.log('reconnect', url, subscribers, property);
-
-        // If there are no subscribers, or no topic,
-        // close the socket (if it exists) and return
-        if (Object.keys(subscribers).length < 1 || !this.topic) {
-          if (oldSocket) {
-            await this.closeSocket(oldSocket);
-            oldSocket = undefined;
-          }
-          
-          this.socket = undefined;
-          return;
-        }
-
-        // Create a new WebSocket connection with the updated query parameters
-        const newSocket = new WebSocket(`${this.url}?${this.query()}`);
-        this.pendingSocket = newSocket;
-
-        newSocket.onopen = async () => {
-          console.log('reconnect open');
-          // Only proceed if this is still the current pending socket
-          if (this.pendingSocket === newSocket) {
-            this.socket = newSocket;
-            this.pendingSocket = null;
+    reconnect() {
+      let oldSocket = this.socket;
+      const { url, subscribers, property } = this;
+      console.log('reconnect', url, subscribers, property);
             
-            if (oldSocket) {
-              await this.closeSocket(oldSocket);
-              oldSocket = undefined;
-            }
-          } else {
-            // This socket was superseded by a newer request
-            console.log('socket connection completed but was superseded, closing');
-            try {
-              newSocket.close();
-            } catch (e) {
-              // Suppress errors
-            }
-          }
-        };
+      // no subscribers or no topic close existing socket
+      // suppress errors as they are not useful
+      if (oldSocket && (Object.keys(subscribers).length < 1 || !this.topic)) {
+        try {
+          oldSocket.close();
+        } catch (e) {
+            // Suppress errors
+        }
 
-        newSocket.onmessage = (message) => {
-          // Only process messages if this is the current socket
-          if (this.socket === newSocket) {
-            const data = JSON.parse(message.data);
-            data.forEach((datum) => {
-              const key = datum[property];
-              if (subscribers[key] > 0) {
-                self.postMessage({
-                  url: url,
-                  key: key,
-                  values: [datum]
-                });
-              }
-            });
-          }
-        };
-
-        newSocket.onclose = (message) => {
-          // Only report closure if this is the current socket
-          if (this.socket === newSocket) {
-            console.log('reconnect onclose');
-            self.postMessage({
-              onclose: true,
-              code: message.code,
-              reason: message.reason
-            });
-          }
-        };
-
-        newSocket.onerror = (error) => {
-          // Only report errors if this is the current socket or pending socket
-          if (this.socket === newSocket || this.pendingSocket === newSocket) {
-            console.log('reconnect onerror');
-            self.postMessage({
-              onerror: true,
-              url: this.url,
-              query: this.query(),
-              code: error.code || 'unavailable',
-              reason: error.reason || 'WebSocket error occurred, but browser did not provide detailed error information'
-            });
-          }
-        };
-      } finally {
-        this.reconnecting = false;
+        oldSocket = undefined;
+        this.socket = undefined;
+        return;
       }
+
+      // Create a new WebSocket connection with the updated query parameters
+      this.socket = new WebSocket(`${this.url}?${this.query()}`);
+
+      // close old socket in new socket open to ensure
+      // no data is lost
+      this.socket.onopen = async () => {
+        console.log('reconnect open');
+        if (oldSocket) {
+          try {
+            oldSocket.close();
+          } catch (e) {
+            // Suppress errors
+          }
+          oldSocket = undefined;
+        }
+      };
+
+      this.socket.onmessage = (message) => {
+        const data = JSON.parse(message.data);
+
+        data.forEach((datum) => {
+          const key = datum[property];
+
+          if (subscribers[key] > 0) {
+            self.postMessage({
+              url: url,
+              key: key,
+              values: [datum]
+            });
+          }
+        });
+      };
+
+      this.socket.onclose = (message) => {
+        console.log('reconnect onclose');
+        self.postMessage({
+          onclose: true,
+          code: message.code,
+          reason: message.reason
+        });
+      };
+
+      this.socket.onerror = (error) => {
+        console.log('reconnect onerror', error);
+        self.postMessage({
+          onerror: true,
+          url: this.url,
+          query: this.query(),
+          code: error.code || 'unavailable',
+          reason: error.reason || 'WebSocket error occurred, but browser did not provide detailed error information'
+        });
+      };
     }
   }
 
