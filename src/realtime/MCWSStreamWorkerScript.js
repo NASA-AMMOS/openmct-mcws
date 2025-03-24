@@ -47,7 +47,6 @@
       this.subscribers[key] = (this.subscribers[key] ?? 0) + 1;
 
       if (this.subscribers[key] === 1) {
-        this.subscribeTime = Date.now();
         this.scheduleReconnect();
       }
     }
@@ -108,69 +107,6 @@
     }
 
     /**
-     * Close any active WebSocket associated with this connection.
-     * Handles pending messages and different socket states.
-     * @private
-     */
-    // async destroy() {
-    //   console.log('destroy');
-    //   await this.closeSocket(this.socket);
-    //   delete this.socket;
-    // }
-
-    /**
-     * Close the WebSocket if it exists.
-     * @param {WebSocket} socket the WebSocket to close
-     * @private
-     */
-    // async closeSocket(socket) {
-    //   if (socket) {
-    //     // Define custom close code and reason
-    //     const closeCode = 1000; // Normal closure
-    //     const closeReason = 'Connection closed by client due to subscription changes or no subscribers';
-        
-    //     // Check socket readiness state before closing
-    //     if (socket.readyState === WebSocket.CONNECTING) {
-    //       // For connecting sockets, we need to wait for the connection to establish or fail
-    //       return new Promise(resolve => {
-    //         socket.addEventListener('open', () => {
-    //           console.log('open');
-    //           socket.close(closeCode, closeReason);
-    //           resolve();
-    //         });
-            
-    //         socket.addEventListener('error', () => {
-    //           console.log('error');
-    //           socket.close(closeCode, closeReason);
-    //           resolve();
-    //         });
-            
-    //         // Add a timeout in case the socket gets stuck in connecting state
-    //         setTimeout(() => {
-    //           if (socket.readyState === WebSocket.CONNECTING) {
-    //             console.log('timeout');
-    //             socket.close(closeCode, closeReason);
-    //             resolve();
-    //           }
-    //         }, 1000);
-    //       });
-    //     } else if (socket.readyState === WebSocket.OPEN) {
-    //       // For open sockets, return a promise that resolves when the socket is closed
-    //       return new Promise(resolve => {
-    //         socket.addEventListener('close', () => {
-    //           console.log('close');
-    //           resolve();
-    //         });
-    //         socket.close(closeCode, closeReason);
-    //       });
-    //     } else {
-    //       // Socket is already closing or closed
-    //       return;
-    //     }
-    //   }
-    // }
-
-    /**
      * Set the topic for the active session.
      * @param {Object} topic metadata for the selected topic, as provided
      * by MCWS
@@ -197,16 +133,19 @@
      * @private
      */
     scheduleReconnect() {
+      const oldScheduleReconnectTime = this.scheduleReconnectTime ?? 0;
+      this.scheduleReconnectTime = Date.now();
+      const timeDifference = this.scheduleReconnectTime - oldScheduleReconnectTime;
+      console.log('scheduleReconnect time difference:', timeDifference, 'ms');
+
       if (this.pending) {
         clearTimeout(this.pending);
       }
 
       this.pending = setTimeout(() => {
         this.pending = undefined;
-        const connectionTime = Date.now() - this.subscribeTime;
-        console.log('reconnect open - connection time:', connectionTime, 'ms');
         this.reconnect();
-      }, 150);
+      }, 100);
     }
 
     /**
@@ -303,20 +242,6 @@
     constructor() {
       this.connections = {};
     }
-
-    /**
-     * Release all active WebSocket connections.
-     */
-    // async reset() {
-    //   console.log('streamWorker reset');
-    //   const urls = Object.keys(this.connections);
-    //   await Promise.all(urls.map(async (url) => {
-    //     await this.connections[url].destroy();
-    //     delete this.connections[url];
-    //   }));
-    //   delete this.activeTopic;
-    //   delete this.activeGlobalFilters;
-    // }
 
     /**
      * Add a new active subscription.
