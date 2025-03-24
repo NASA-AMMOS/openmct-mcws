@@ -224,6 +224,8 @@
       // suppress errors as they are not useful
       if (oldSocket && (Object.keys(subscribers).length < 1 || !this.topic)) {
         try {
+          oldSocket.onclose = null;
+          oldSocket.onerror = null;
           oldSocket.close();
         } catch (e) {
             // Suppress errors
@@ -243,6 +245,8 @@
         console.log('reconnect open');
         if (oldSocket) {
           try {
+            oldSocket.onclose = null;
+            oldSocket.onerror = null;
             oldSocket.close();
           } catch (e) {
             // Suppress errors
