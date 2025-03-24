@@ -47,6 +47,7 @@
       this.subscribers[key] = (this.subscribers[key] ?? 0) + 1;
 
       if (this.subscribers[key] === 1) {
+        this.subscribeTime = Date.now();
         this.scheduleReconnect();
       }
     }
@@ -200,9 +201,10 @@
         clearTimeout(this.pending);
       }
 
-      this.reconnectStartTime = Date.now();
       this.pending = setTimeout(() => {
         this.pending = undefined;
+        const connectionTime = Date.now() - this.subscribeTime;
+        console.log('reconnect open - connection time:', connectionTime, 'ms');
         this.reconnect();
       }, 100); // Keep the 250ms timeout for better batching
     }
@@ -238,8 +240,6 @@
       // close old socket in new socket open to ensure
       // no data is lost
       this.socket.onopen = async () => {
-        const connectionTime = Date.now() - this.reconnectStartTime;
-        console.log('reconnect open - connection time:', connectionTime, 'ms');
         if (oldSocket) {
           try {
             oldSocket.onclose = null;
