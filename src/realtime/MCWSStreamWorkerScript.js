@@ -206,7 +206,7 @@
         const connectionTime = Date.now() - this.subscribeTime;
         console.log('reconnect open - connection time:', connectionTime, 'ms');
         this.reconnect();
-      }, 100); // Keep the 250ms timeout for better batching
+      }, 150);
     }
 
     /**
