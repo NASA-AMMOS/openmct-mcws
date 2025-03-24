@@ -75,7 +75,7 @@
      * @returns {string} the query string
      * @private
      */
-    query() {
+    getQueryString() {
       const filter = {
         session_id: this.topic?.number,
         topic: this.topic?.topic
@@ -235,7 +235,7 @@
       }
 
       // Create a new WebSocket connection with the updated query parameters
-      this.socket = new WebSocket(`${this.url}?${this.query()}`);
+      this.socket = new WebSocket(`${this.url}?${this.getQueryString()}`);
 
       // close old socket in new socket open to ensure
       // no data is lost
@@ -281,7 +281,7 @@
         self.postMessage({
           onerror: true,
           url: this.url,
-          query: this.query(),
+          query: this.getQueryString(),
           code: error.code || 'unavailable',
           reason: error.reason || 'WebSocket error occurred, but browser did not provide detailed error information'
         });
