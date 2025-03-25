@@ -154,17 +154,20 @@
             
       // no subscribers or no topic close existing socket
       // suppress errors as they are not useful
-      if (oldSocket && (Object.keys(subscribers).length < 1 || !this.topic)) {
-        try {
-          oldSocket.onclose = null;
-          oldSocket.onerror = null;
-          oldSocket.close();
-        } catch (e) {
-            // Suppress errors
+      if (Object.keys(subscribers).length < 1 || !this.topic) {
+        if (oldSocket) {
+          try {
+            oldSocket.onclose = null;
+            oldSocket.onerror = null;
+            oldSocket.close();
+          } catch (e) {
+              // Suppress errors
+          }
+
+          oldSocket = undefined;
+          this.socket = undefined;
         }
 
-        oldSocket = undefined;
-        this.socket = undefined;
         return;
       }
 
