@@ -133,11 +133,6 @@
      * @private
      */
     scheduleReconnect() {
-      const oldScheduleReconnectTime = this.scheduleReconnectTime ?? 0;
-      this.scheduleReconnectTime = Date.now();
-      const timeDifference = this.scheduleReconnectTime - oldScheduleReconnectTime;
-      console.log(`scheduleReconnect for ${this.getQueryString()} time difference: ${timeDifference}ms`);
-
       if (this.pending) {
         clearTimeout(this.pending);
       }
@@ -145,7 +140,7 @@
       this.pending = setTimeout(() => {
         this.pending = undefined;
         this.reconnect();
-      }, 100);
+      }, 10);
     }
 
     /**
@@ -208,7 +203,6 @@
       };
 
       this.socket.onclose = (message) => {
-        console.log('reconnect onclose');
         self.postMessage({
           onclose: true,
           code: message.code,
@@ -217,7 +211,6 @@
       };
 
       this.socket.onerror = (error) => {
-        console.log('reconnect onerror', error);
         self.postMessage({
           onerror: true,
           url: this.url,
