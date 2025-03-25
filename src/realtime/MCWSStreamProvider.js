@@ -72,11 +72,10 @@ class MCWSStreamProvider {
 
         //Communicate websocket timeout and errors to users
         if (data.onclose && data.code === 1006) {
-            this.openmct.notifications.error('Real-time data connection lost - data may not be displayed as expected. Code: 1006');
-            console.error(`Real-time data connection lost - data may not be displayed as expected.`);
-            console.log('onclose', data);
+            const message = `Real-time data connection lost - data may not be displayed as expected. Code: 1006`;
+            this.openmct.notifications.error(message);
+            console.error(message);
         } else if (data.onerror) {
-            console.log('onerror', data);
             this.openmct.notifications.error(`Websocket Error for ${url}?${data.query}, please see console for details`);
             console.error(`Websocket Error - Code: ${data.code}, Error: ${data.reason}`);
         }

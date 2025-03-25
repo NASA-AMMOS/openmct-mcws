@@ -222,8 +222,8 @@
           onerror: true,
           url: this.url,
           query: this.getQueryString(),
-          code: error.code || 'unavailable',
-          reason: error.reason || 'WebSocket error occurred, but browser did not provide detailed error information'
+          code: error.code ?? 'unavailable',
+          reason: error.reason ?? 'WebSocket error occurred, but browser did not provide detailed error information'
         });
       };
     }
