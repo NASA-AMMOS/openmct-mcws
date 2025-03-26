@@ -140,7 +140,7 @@
       this.pending = setTimeout(() => {
         this.pending = undefined;
         this.reconnect();
-      }, 10);
+      }, 100);
     }
 
     /**
