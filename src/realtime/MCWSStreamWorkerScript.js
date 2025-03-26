@@ -133,10 +133,11 @@
      * @private
      */
     scheduleReconnect() {
-      const oldScheduleReconnectTime = this.scheduleReconnectTime ?? 0;
-      this.scheduleReconnectTime = Date.now();
+      const now = Date.now();
+      const oldScheduleReconnectTime = this.scheduleReconnectTime ?? now;
+      this.scheduleReconnectTime = now;
       const timeDifference = this.scheduleReconnectTime - oldScheduleReconnectTime;
-      console.log(`scheduleReconnect for ${this.getQueryString()} time difference: ${timeDifference}ms`);
+      console.log(`scheduleReconnect for ${this.getQueryString()} time difference (ms):`,timeDifference);
 
       if (this.pending) {
         clearTimeout(this.pending);
