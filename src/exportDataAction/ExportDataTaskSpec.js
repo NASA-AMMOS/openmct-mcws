@@ -62,9 +62,8 @@ define([
 
         describe('when invoked', () => {
 
-            beforeEach(async (done) => {
+            beforeEach(async () => {
                 await task.invoke();
-                done();
             });
 
             it('requests comprehensive telemetry for all objects', () => {
