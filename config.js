@@ -214,16 +214,30 @@
              * * * * clockOffsets: object, optional. Start and end relative to active clock. 
              * * * * start: and end: numbers relative to active clock's 0. Start is negative, end is positive. 
              * *advanced** example configuration below 
-             
+             */
+            /*
             timeSystems: [
              {
                 key:'scet',
                 modeSettings:{
                   fixed:{
                     bounds:{
-                            start: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() - 2)).setUTCHours(0, 0, 0, 0),
-                            end: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())).setUTCHours(23,59, 59, 999)                       
-                            },
+                        // 2 days ago
+                        start: new Date(
+                            Date.UTC(
+                                new Date().getUTCFullYear(),
+                                new Date().getUTCMonth(),
+                                new Date().getUTCDate()
+                            ) - 2 * 864e5
+                            ).getTime(),
+                        end: new Date(
+                            Date.UTC(
+                                new Date().getUTCFullYear(),
+                                new Date().getUTCMonth(),
+                                new Date().getUTCDate()
+                            ) + 864e5 - 1
+                            ).getTime()                  
+                        },
                     presets:[
                       {
                         label: 'Last 2 hours (SCET Recorded)',
@@ -263,9 +277,23 @@
               modeSettings:{
                 fixed:{
                   bounds:{
-                          start: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate() - 4)).setUTCHours(0, 0, 0, 0),
-                          end: new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate())).setUTCHours(23,59, 59, 999)                       
-                          },
+                    // 4 days ago
+                    start: new Date(
+                    Date.UTC(
+                        new Date().getUTCFullYear(),
+                        new Date().getUTCMonth(),
+                        new Date().getUTCDate()
+                    ) - 4 * 864e5
+                    ).getTime(),
+                    // today
+                    end: new Date(
+                    Date.UTC(
+                        new Date().getUTCFullYear(),
+                        new Date().getUTCMonth(),
+                        new Date().getUTCDate()
+                    ) + 864e5 - 1
+                    ).getTime()
+                },
                   presets:[
                     {
                       label: 'Last 2 hours (ERT Recorded)',
@@ -301,7 +329,8 @@
               limit: 1000 * 60 * 60 * 60
            }
           ],
-            */
+          */
+            
             /**
              * allowRealtime: whether or not to allow utc-relative time conductor.
              */
