@@ -230,8 +230,8 @@
                       {
                         label: 'Last 2 hours (SCET Recorded)',
                         bounds: {
-                            start: Date.now() - 1000 * 60 * 60 * 2,
-                            end: Date.now()
+                            start: () => Date.now() - 1000 * 60 * 60 * 2,
+                            end:  () => Date.now()
                         }
                       },
                     ]
