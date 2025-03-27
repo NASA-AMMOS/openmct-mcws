@@ -257,7 +257,7 @@
                       {
                         label: 'Last 2 hours (SCET Realtime)',
                         bounds: {
-                            start: -60 * 60 * 1000,
+                            start: -60 * 60 * 1000 * 2,
                             end: 5 * 60 * 1000
                         }
                       }
@@ -313,7 +313,7 @@
                     {
                       label: 'Last 2 hours (ERT Realtime)',
                       bounds: {
-                          start: -60 * 60 * 1000,
+                          start: -60 * 60 * 1000 * 2,
                           end: 5 * 60 * 1000
                       }
                     }
