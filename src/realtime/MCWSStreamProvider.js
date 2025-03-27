@@ -15,8 +15,6 @@ import GlobalStaleness from 'services/globalStaleness/globalStaleness';
  * @memberof vista/telemetry
  */
 
-const BENIGN_ERRORS = [1000, 1005];
-
 class MCWSStreamProvider {
     constructor(openmct, vistaTime) {
         this.openmct = openmct;
