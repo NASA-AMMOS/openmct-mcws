@@ -82,7 +82,6 @@ export default function TimePlugin(options) {
 
         if(timeSystem.modeSettings?.fixed?.bounds){
             systemOptions.bounds = timeSystem.modeSettings.fixed.bounds;
-
         } else {
             systemOptions.bounds = BOUNDS_MAP[key];
         }
@@ -161,7 +160,7 @@ export default function TimePlugin(options) {
             console.warn(`Default mode '${options.defaultMode}' specified in configuration could not be applied. Are LAD or realtime enabled? Does the defaultMode contain a typo?`);
         }
     }
-    
+
     if (useUTCClock) {
         openmct.time.addClock(new UTCClock());
     }
