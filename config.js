@@ -222,13 +222,13 @@
                 modeSettings:{
                   fixed:{
                     bounds:{
-                        // 2 days ago
+                        // 1 day ago
                         start: new Date(
                             Date.UTC(
                                 new Date().getUTCFullYear(),
                                 new Date().getUTCMonth(),
                                 new Date().getUTCDate()
-                            ) - 2 * 864e5
+                            ) - 1 * 864e5
                             ).getTime(),
                         end: new Date(
                             Date.UTC(
@@ -277,13 +277,13 @@
               modeSettings:{
                 fixed:{
                   bounds:{
-                    // 4 days ago
+                    // 1 day ago
                     start: new Date(
                     Date.UTC(
                         new Date().getUTCFullYear(),
                         new Date().getUTCMonth(),
                         new Date().getUTCDate()
-                    ) - 4 * 864e5
+                    ) - 1 * 864e5
                     ).getTime(),
                     // today
                     end: new Date(
