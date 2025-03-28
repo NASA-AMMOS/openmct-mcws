@@ -147,8 +147,9 @@ export default function TimePlugin(options) {
     });
 
     if (options.defaultMode) {
+        const isFixedMode = options.defaultMode === 'fixed';
         const matchingConfigIndex = menuOptions.findIndex(
-            (menuOption) => menuOption.clock === options.defaultMode
+            (menuOption) => isFixedMode ? !menuOption.clock : menuOption.clock === options.defaultMode
         );
 
         if (matchingConfigIndex !== -1) {

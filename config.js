@@ -162,7 +162,7 @@
              *                  available when allowLAD is true and mslsol
              *                  timeSystem is enabled.
              */
-            defaultMode: 'fixed',
+            defaultMode: '',
 
             /**
              * utcFormat: available options
