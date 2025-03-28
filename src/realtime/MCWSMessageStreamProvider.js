@@ -1,30 +1,23 @@
-/*global define*/
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-define([
-    './MCWSStreamProvider'
-], function (
-    MCWSStreamProvider
-) {
-    'use strict';
-
+/**
+ * Provides real-time streaming DataProduct data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSMessageStreamProvider extends MCWSStreamProvider {
     /**
-     * Provides real-time streaming DataProduct data.
-     * @constructor
-     * @augments {MCWSStreamProvider}
-     * @memberof {vista/telemetry}
+     * Subscribe to real-time updates for this domain object
+     * @param {Object} domainObject The domain object
+     * @param {Function} callback The callback to invoke with new data
+     * @param {Object} options Additional options
+     * @returns {Function} A function that will unsubscribe when called
      */
-    var MCWSMessageStreamProvider = MCWSStreamProvider.extend({
-        constructor: function (openmct, vistaTime) {
-            MCWSStreamProvider.call(this, openmct, vistaTime);
-        }
-    });
-
-    MCWSMessageStreamProvider.prototype.subscribe = function (domainObject, callback, options) {
-        var messageType = domainObject.identifier.key.split(':')[0];
+    subscribe(domainObject, callback, options) {
+        const messageType = domainObject.identifier.key.split(':')[0];
         options.filters = options.filters || {};
 
         if (messageType === 'CommandMessages') {
-            options.filters.message_type =  {'equals': [
+            options.filters.message_type = {'equals': [
                 'HardwareCommand',
                 'FlightSoftwareCommand',
                 'SequenceDirective',
@@ -36,33 +29,44 @@ define([
             ]};
         }
 
-        return MCWSStreamProvider.prototype.subscribe.call(this, domainObject, callback, options);
-    };
+        return super.subscribe(domainObject, callback, options);
+    }
 
-    MCWSMessageStreamProvider.prototype.getUrl = function (domainObject) {
-        return domainObject.telemetry && domainObject.telemetry.messageStreamUrl;
-    };
+    /**
+     * Get the URL for streaming data for this domain object
+     * @param {Object} domainObject The domain object
+     * @returns {String} The URL to use for streaming
+     */
+    getUrl(domainObject) {
+        return domainObject.telemetry?.messageStreamUrl;
+    }
 
-    MCWSMessageStreamProvider.prototype.getKey = function (domainObject) {
+    /**
+     * Get the key to use for this stream
+     * @param {Object} domainObject The domain object
+     * @returns {String|undefined} The key
+     */
+    getKey(domainObject) {
         //if it is the mock domainObject used in ClearDataOnMessage.js
         if (domainObject.identifier.key === 'message::clear-data-static-object') {
             return domainObject.telemetry.key;
         } else {
             return undefined;
         }
-    };
+    }
 
-    MCWSMessageStreamProvider.prototype.getProperty = function (domainObject) {
+    /**
+     * Get the property to use for this stream
+     * @param {Object} domainObject The domain object
+     * @returns {String} The property name
+     */
+    getProperty(domainObject) {
         if (domainObject.identifier.key === 'message::clear-data-static-object') {
             return domainObject.telemetry.property;
         } else {
             return 'some_undefined_property';
         }
-    };
+    }
+}
 
-    MCWSMessageStreamProvider.prototype.notifyWorker = function (key, value) {
-        MCWSStreamProvider.prototype.notifyWorker.call(this, key, value);
-    };
-
-    return MCWSMessageStreamProvider;
-});
+export default MCWSMessageStreamProvider;
