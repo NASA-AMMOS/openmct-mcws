@@ -48,15 +48,6 @@ class MCWSFrameEventStreamProvider extends MCWSStreamProvider {
             return 'some_undefined_property';
         }
     }
-
-    /**
-     * Notify the worker about a new value
-     * @param {String} key The key
-     * @param {*} value The value
-     */
-    notifyWorker(key, value) {
-        super.notifyWorker(key, value);
-    }
 }
 
 export default MCWSFrameEventStreamProvider;

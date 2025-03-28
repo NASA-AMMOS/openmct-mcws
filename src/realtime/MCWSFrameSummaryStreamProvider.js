@@ -6,14 +6,6 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  */
 class MCWSFrameSummaryStreamProvider extends MCWSStreamProvider {
     /**
-     * @param {Object} openmct The Open MCT API
-     * @param {Object} vistaTime The Vista time API
-     */
-    constructor(openmct, vistaTime) {
-        super(openmct, vistaTime);
-    }
-
-    /**
      * Get the URL for streaming data for this domain object
      * @param {Object} domainObject The domain object
      * @returns {String} The URL to use for streaming
@@ -40,15 +32,6 @@ class MCWSFrameSummaryStreamProvider extends MCWSStreamProvider {
         // We just want something that returns undefined so it matches the
         // key above. Hacky.
         return 'some_undefined_property';
-    }
-
-    /**
-     * Notify the worker about a new value
-     * @param {String} key The key
-     * @param {*} value The value
-     */
-    notifyWorker(key, value) {
-        super.notifyWorker(key, value);
     }
 }
 

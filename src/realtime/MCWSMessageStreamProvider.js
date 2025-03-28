@@ -6,14 +6,6 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  */
 class MCWSMessageStreamProvider extends MCWSStreamProvider {
     /**
-     * @param {Object} openmct The Open MCT API
-     * @param {Object} vistaTime The Vista time API
-     */
-    constructor(openmct, vistaTime) {
-        super(openmct, vistaTime);
-    }
-
-    /**
      * Subscribe to real-time updates for this domain object
      * @param {Object} domainObject The domain object
      * @param {Function} callback The callback to invoke with new data
@@ -74,15 +66,6 @@ class MCWSMessageStreamProvider extends MCWSStreamProvider {
         } else {
             return 'some_undefined_property';
         }
-    }
-
-    /**
-     * Notify the worker about a new value
-     * @param {String} key The key
-     * @param {*} value The value
-     */
-    notifyWorker(key, value) {
-        super.notifyWorker(key, value);
     }
 }
 

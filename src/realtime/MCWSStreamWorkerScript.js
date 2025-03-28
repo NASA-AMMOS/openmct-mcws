@@ -85,8 +85,8 @@
       }
 
       if (this.extraFilterTerms) {
-        Object.keys(this.extraFilterTerms).forEach((term) => {
-          filter[term] = this.extraFilterTerms[term];
+        Object.keys(this.extraFilterTerms).forEach((key) => {
+          filter[key] = this.extraFilterTerms[key];
         });
       }
 

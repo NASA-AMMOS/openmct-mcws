@@ -5,10 +5,6 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  * @memberof {vista/telemetry}
  */
 class MCWSAlarmMessageStreamProvider extends MCWSStreamProvider {
-    constructor(openmct, vistaTime) {
-        super(openmct, vistaTime);
-    }
-
     getUrl(domainObject) {
         return domainObject.telemetry?.alarmMessageStreamUrl;
     }
@@ -19,10 +15,6 @@ class MCWSAlarmMessageStreamProvider extends MCWSStreamProvider {
 
     getProperty(domainObject) {
         return domainObject.telemetry.property;
-    }
-
-    notifyWorker(key, value) {
-        super.notifyWorker(key, value);
     }
 
     subscribe(domainObject, callback, options) {
