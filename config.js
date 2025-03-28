@@ -214,8 +214,7 @@
              * * * * clockOffsets: object, optional. Start and end relative to active clock. 
              * * * * start: and end: numbers relative to active clock's 0. Start is negative, end is positive. 
              * *advanced** example configuration below 
-             */
-            /*
+             *
             timeSystems: [
              {
                 key:'scet',
