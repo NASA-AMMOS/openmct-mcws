@@ -26,16 +26,15 @@
      * @param {Object} topic metadata about the topic to listen on
      * @param {Object} extraFilterTerms additional filter terms
      * @param {Object} globalFilters global filters to apply
-     * @param {Number} [connectionBatchingDelay=100] delay in milliseconds to batch filters
      */
-    constructor(url, property, topic, extraFilterTerms, globalFilters, connectionBatchingDelay = 100) {
+    constructor(url, property, topic, extraFilterTerms, globalFilters) {
       this.url = url;
       this.topic = topic;
       this.subscribers = {};
       this.property = property;
       this.extraFilterTerms = extraFilterTerms;
       this.globalFilters = globalFilters;
-      this.connectionBatchingDelay = connectionBatchingDelay;
+      this.connectionBatchingDelay = 100;
     }
 
     /**
