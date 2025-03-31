@@ -5,11 +5,6 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  * @memberof {vista/telemetry}
  */
 class MCWSDataProductStreamProvider extends MCWSStreamProvider {
-    constructor(openmct, vistaTime, options) {
-        super(openmct, vistaTime, options);
-        this.options = options;
-    }
-
     getUrl(domainObject) {
         return domainObject.telemetry?.dataProductStreamUrl;
     }

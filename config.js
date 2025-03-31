@@ -184,10 +184,12 @@
             lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0),
 
             /*
-             * connectionBatchingDelay: delay in milliseconds for batching filters for the same 
-             * endpoint connection
+             * subscriptionMCWSFilterDelay: delay in milliseconds for batching filters for the same 
+             * endpoint connection. Smaller value = quicker display of realtime data (ex, 10ms in a
+             *  low latency environment), higher value = more efficient use of network bandwidth 
+             * (ex, 100ms+ in a high latency environment)
             */
-            connectionBatchingDelay: 100,
+            subscriptionMCWSFilterDelay: 100,
 
             /**
              * timeSystems: specify the time systems to use.
