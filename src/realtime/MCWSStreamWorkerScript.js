@@ -26,14 +26,16 @@
      * @param {Object} topic metadata about the topic to listen on
      * @param {Object} extraFilterTerms additional filter terms
      * @param {Object} globalFilters global filters to apply
+     * @param {Number} [connectionBatchingDelay=100] delay in milliseconds to batch filters
      */
-    constructor(url, property, topic, extraFilterTerms, globalFilters) {
+    constructor(url, property, topic, extraFilterTerms, globalFilters, connectionBatchingDelay = 100) {
       this.url = url;
       this.topic = topic;
       this.subscribers = {};
       this.property = property;
       this.extraFilterTerms = extraFilterTerms;
       this.globalFilters = globalFilters;
+      this.connectionBatchingDelay = connectionBatchingDelay;
     }
 
     /**
@@ -140,7 +142,7 @@
       this.pending = setTimeout(() => {
         this.pending = undefined;
         this.reconnect();
-      }, 100);
+      }, this.connectionBatchingDelay);
     }
 
     /**
@@ -237,6 +239,7 @@
   class MCWSStreamWorker {
     constructor() {
       this.connections = {};
+      this.batchingDelay = 100; // Initialize with default value
     }
 
     /**
@@ -253,7 +256,8 @@
           property,
           this.activeTopic,
           extraFilterTerms,
-          this.activeGlobalFilters
+          this.activeGlobalFilters,
+          this.batchingDelay
         );
       }
 
@@ -285,6 +289,15 @@
       if (this.connections[cacheKey]) {
         this.connections[cacheKey].unsubscribe(key);
       }
+    }
+
+    /**
+     * Set the connection batching delay for all connections
+     * This should be called before any subscriptions are created
+     * @param {Number} delay in milliseconds
+     */
+    connectionBatchingDelay(delay) {
+      this.batchingDelay = delay; // Store the delay for future connections
     }
 
     /**

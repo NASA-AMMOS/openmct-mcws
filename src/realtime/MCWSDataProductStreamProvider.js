@@ -6,7 +6,7 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  */
 class MCWSDataProductStreamProvider extends MCWSStreamProvider {
     constructor(openmct, vistaTime, options) {
-        super(openmct, vistaTime);
+        super(openmct, vistaTime, options);
         this.options = options;
     }
 

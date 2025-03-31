@@ -183,6 +183,12 @@
              */
             lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0),
 
+            /*
+             * connectionBatchingDelay: delay in milliseconds for batching filters for the same 
+             * endpoint connection
+            */
+            connectionBatchingDelay: 100,
+
             /**
              * timeSystems: specify the time systems to use.
              * Options are 'scet', 'ert', 'sclk', 'msl.sol' and 'lmst'.

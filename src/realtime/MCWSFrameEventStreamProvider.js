@@ -6,14 +6,6 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  */
 class MCWSFrameEventStreamProvider extends MCWSStreamProvider {
     /**
-     * @param {Object} openmct The Open MCT API
-     * @param {Object} vistaTime The Vista time API
-     */
-    constructor(openmct, vistaTime) {
-        super(openmct, vistaTime);
-    }
-
-    /**
      * Get the URL for streaming data for this domain object
      * @param {Object} domainObject The domain object
      * @returns {String} The URL to use for streaming

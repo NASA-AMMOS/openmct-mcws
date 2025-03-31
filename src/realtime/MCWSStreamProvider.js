@@ -16,7 +16,7 @@ import GlobalStaleness from 'services/globalStaleness/globalStaleness';
  */
 
 class MCWSStreamProvider {
-    constructor(openmct, vistaTime) {
+    constructor(openmct, vistaTime, options) {
         this.openmct = openmct;
         this.vistaTime = function () {
             return vistaTime;
@@ -27,6 +27,8 @@ class MCWSStreamProvider {
 
         this.subscriptions = {};
         this.requests = {};
+
+        this.connectionBatchingDelay = options.time.connectionBatchingDelay || 100;
     }
 
     processGlobalStaleness(data, latestTimestamp) {
@@ -89,6 +91,9 @@ class MCWSStreamProvider {
         this.worker = function () {
             return worker;
         }
+
+        // send connectionBatchingDelay to worker
+        this.notifyWorker('connectionBatchingDelay', this.connectionBatchingDelay);
 
         // topic
         const updateTopic = function (newValue) {
