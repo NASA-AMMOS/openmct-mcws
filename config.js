@@ -183,6 +183,14 @@
              */
             lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0),
 
+            /*
+             * subscriptionMCWSFilterDelay: delay in milliseconds for combining filters for the same subscription
+             * endpoint connection. Smaller value = quicker display of realtime data (ex, 10ms in a
+             *  low latency environment), higher value = avoids potentially creating and subsequently tearing down new websocket connections if filter changes are happening faster than server response times
+             * (ex, 100ms+ in a high latency environment)
+            */
+            subscriptionMCWSFilterDelay: 100,
+
             /**
              * timeSystems: specify the time systems to use.
              * Options are 'scet', 'ert', 'sclk', 'msl.sol' and 'lmst'.

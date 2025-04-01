@@ -27,13 +27,14 @@
      * @param {Object} extraFilterTerms additional filter terms
      * @param {Object} globalFilters global filters to apply
      */
-    constructor(url, property, topic, extraFilterTerms, globalFilters) {
+    constructor(url, property, topic, extraFilterTerms, globalFilters, subscriptionMCWSFilterDelay) {
       this.url = url;
       this.topic = topic;
       this.subscribers = {};
       this.property = property;
       this.extraFilterTerms = extraFilterTerms;
       this.globalFilters = globalFilters;
+      this.subscriptionMCWSFilterDelay = subscriptionMCWSFilterDelay ?? 100;
     }
 
     /**
@@ -140,7 +141,7 @@
       this.pending = setTimeout(() => {
         this.pending = undefined;
         this.reconnect();
-      }, 100);
+      }, this.subscriptionMCWSFilterDelay);
     }
 
     /**
@@ -244,7 +245,7 @@
      * @param {MCWSStreamSubscription} subscription the subscription to obtain
      */
     subscribe(subscription) {
-      const { url, key, property, extraFilterTerms } = subscription;
+      const { url, key, property, extraFilterTerms, subscriptionMCWSFilterDelay } = subscription;
       const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
       if (!this.connections[cacheKey]) {
@@ -253,7 +254,8 @@
           property,
           this.activeTopic,
           extraFilterTerms,
-          this.activeGlobalFilters
+          this.activeGlobalFilters,
+          subscriptionMCWSFilterDelay
         );
       }
 
