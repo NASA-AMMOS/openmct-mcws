@@ -29,7 +29,7 @@ class MCWSStreamProvider {
         this.subscriptions = {};
         this.requests = {};
 
-        this.subscriptionMCWSFilterDelay = options.time?.subscriptionMCWSFilterDelay ?? 100;
+        this.subscriptionMCWSFilterDelay = options?.time?.subscriptionMCWSFilterDelay ?? 100;
     }
 
     processGlobalStaleness(data, latestTimestamp) {
