@@ -238,7 +238,6 @@
   class MCWSStreamWorker {
     constructor() {
       this.connections = {};
-      this.subscriptionMCWSFilterDelay = 100; // Initialize with default value
     }
 
     /**
@@ -246,7 +245,7 @@
      * @param {MCWSStreamSubscription} subscription the subscription to obtain
      */
     subscribe(subscription) {
-      const { url, key, property, extraFilterTerms } = subscription;
+      const { url, key, property, extraFilterTerms, subscriptionMCWSFilterDelay } = subscription;
       const cacheKey = this.generateCacheKey(url, property, extraFilterTerms);
 
       if (!this.connections[cacheKey]) {
@@ -256,7 +255,7 @@
           this.activeTopic,
           extraFilterTerms,
           this.activeGlobalFilters,
-          this.subscriptionMCWSFilterDelay
+          subscriptionMCWSFilterDelay
         );
       }
 
