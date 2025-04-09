@@ -1,20 +1,15 @@
 <template>
-    <div class="h-indicator">
-
-        <div class="c-indicator icon-session"
-            :class="{
-                's-status-on': sessionFilter.numbers,
-                's-status-available': availableSessions.length
-            }">
-
-            <span 
-                v-if="historicalSessionFilterDisabled" 
-                class="c-indicator__label"
-            >
-                <span class="angular-w">
-                    Historical Session Filtering Disabled in Config
-                </span>
-            </span>
+  <div class="h-indicator">
+    <div
+      class="c-indicator icon-session"
+      :class="{
+        's-status-on': sessionFilter.numbers,
+        's-status-available': availableSessions.length
+      }"
+    >
+      <span v-if="historicalSessionFilterDisabled" class="c-indicator__label">
+        <span class="angular-w"> Historical Session Filtering Disabled in Config </span>
+      </span>
 
             <span
                 v-else
@@ -24,8 +19,11 @@
 
                 <template v-if="availableSessions.length">
 
-                    <span v-if="sessionFilter.numbers"
-                        class="angular-w">
+                    <span 
+                        v-if="sessionFilter.numbers"
+                        :title="filteredByTitleString"
+                        class="angular-w"
+                    >
                         {{filteredByMessageString}}
                         <button @click="openSessionSelector">
                             Change
@@ -35,42 +33,36 @@
                         </button>
                     </span>
 
-                    <span v-else
-                        class="angular-w">
-                        Filter by historical sessions
-                        <button @click="openSessionSelector">
-                            Select
-                        </button>
-                    </span>
-                </template>
+          <span v-else class="angular-w">
+            Filter by historical sessions
+            <button @click="openSessionSelector">Select</button>
+          </span>
+        </template>
 
-                <span v-else
-                      class="angular-w">
-                    No Historical Sessions Available
-                    <button :class="{disabled: isRequestingSessions}"
-                            @click="checkForHistoricalSessions">
-                        {{isRequestingSessions ? 'Requesting...' : 'Request'}}
-                    </button>
-                </span>
-            </span>
-        </div>
-
-        <historical-session-selector
-            v-if="showSessionSelector"
-            :sessionFilter="sessionFilter"
-            @update-available-sessions="setAvailableSessions"
-            @close-session-selector="closeSessionSelector"
-        />
+        <span v-else class="angular-w">
+          No Historical Sessions Available
+          <button :class="{ disabled: isRequestingSessions }" @click="checkForHistoricalSessions">
+            {{ isRequestingSessions ? 'Requesting...' : 'Request' }}
+          </button>
+        </span>
+      </span>
     </div>
+
+    <historical-session-selector
+      v-if="showSessionSelector"
+      :sessionFilter="sessionFilter"
+      @update-available-sessions="setAvailableSessions"
+      @close-session-selector="closeSessionSelector"
+    />
+  </div>
 </template>
 
-<style>
-</style>
+<style></style>
 
 <script>
 import HistoricalSessionSelector from '../sessionSelector/historicalSessionSelector.vue';
 import SessionService from 'services/session/SessionService';
-
+import { formatNumberSequence } from '../../utils/strings';
 export default {
     inject: [
         'openmct',
@@ -81,14 +73,20 @@ export default {
     },
     computed: {
         filteredByMessageString() {
-            let sessionOrSessions;
+            let sessionOrSessions;            
 
             if (this.sessionFilter.numbers.length === 1) {
-                sessionOrSessions = 'session'
+                sessionOrSessions = `session: ${this.sessionFilter.numbers[0]}`;
             } else {
-                sessionOrSessions = 'sessions'
+                sessionOrSessions = 'sessions';
             }
             return `Historical queries filtered by ${this.sessionFilter.numbers.length} ${sessionOrSessions}`;
+        },
+        filteredByTitleString() {
+            let sessionNumbers = formatNumberSequence(this.sessionFilter.numbers);
+            let hostString = this.sessionFilter.host ? `on host ${this.sessionFilter.host} ` : '';
+
+            return `Currently filtering ${hostString}by: ${sessionNumbers}`;
         }
     },
     data() {
@@ -131,16 +129,18 @@ export default {
         this.sessionService = SessionService();
         this.historicalSessionFilterDisabled = this.sessionService.historicalSessionFilterConfig.disable;
 
-        window.setTimeout(this.checkForHistoricalSessions, 2000);
+    window.setTimeout(this.checkForHistoricalSessions, 2000);
 
-        this.unsubscribeSessionListener = this.sessionService.listenForHistoricalChange(this.setHistoricalSessionFilter);
+    this.unsubscribeSessionListener = this.sessionService.listenForHistoricalChange(
+      this.setHistoricalSessionFilter
+    );
 
-        const sessionFilter = this.sessionService.getHistoricalSessionFilter();
-        this.setHistoricalSessionFilter(sessionFilter);
-    },
-    beforeUnmount() {
-        this.table.extendsDestroy();
-        this.unsubscribeSessionListener();
-    }
-}
+    const sessionFilter = this.sessionService.getHistoricalSessionFilter();
+    this.setHistoricalSessionFilter(sessionFilter);
+  },
+  beforeUnmount() {
+    this.table.extendsDestroy();
+    this.unsubscribeSessionListener();
+  }
+};
 </script>

@@ -18,7 +18,11 @@ export default class ChannelTable extends TelemetryTable {
   }
 
   initialize() {
-    this.filterObserver = this.openmct.objects.observe(this.domainObject, 'configuration.filters', this.updateFilters);
+    this.filterObserver = this.openmct.objects.observe(
+      this.domainObject,
+      'configuration.filters',
+      this.updateFilters
+    );
     this.filters = this.domainObject.configuration && this.domainObject.configuration.filters;
     this.loadComposition();
     this.tableComposition.on('reorder', this.reorder);
@@ -56,7 +60,11 @@ export default class ChannelTable extends TelemetryTable {
 
   updateConfiguration(newConfiguration) {
     let cellFormatConfiguration = newConfiguration.cellFormat || {};
-    this.tableRows.rows.forEach(row => row.updateRowConfiguration && row.updateRowConfiguration(cellFormatConfiguration[row.objectKeyString]));
+    this.tableRows.rows.forEach(
+      (row) =>
+        row.updateRowConfiguration &&
+        row.updateRowConfiguration(cellFormatConfiguration[row.objectKeyString])
+    );
     this.emit('refresh');
   }
 
@@ -67,7 +75,7 @@ export default class ChannelTable extends TelemetryTable {
         return;
       }
 
-      telemetry.forEach(datum => {
+      telemetry.forEach((datum) => {
         const row = this.createRow(datum, columnMap, keyString, limitEvaluator);
 
         if (this.paused) {
@@ -93,17 +101,21 @@ export default class ChannelTable extends TelemetryTable {
     requestOptions.strategy = 'latest';
     requestOptions.size = 1;
 
-    return this.openmct.telemetry.request(telemetryObject, requestOptions)
-      .then(telemetryData => {
+    return this.openmct.telemetry
+      .request(telemetryObject, requestOptions)
+      .then((telemetryData) => {
         let keyString = this.openmct.objects.makeKeyString(telemetryObject.identifier);
         let columnMap = this.getColumnMapForObject(keyString);
         let limitEvaluator = this.openmct.telemetry.limitEvaluator(telemetryObject);
         this.processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator);
-      }).finally(() => this.decrementOutstandingRequests());
+      })
+      .finally(() => this.decrementOutstandingRequests());
   }
 
   processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator) {
-    let telemetryRows = telemetryData.map(datum => this.createRow(datum, columnMap, keyString, limitEvaluator));
+    let telemetryRows = telemetryData.map((datum) =>
+      this.createRow(datum, columnMap, keyString, limitEvaluator)
+    );
     this.tableRows.addRows(telemetryRows);
   }
 
@@ -117,7 +129,13 @@ export default class ChannelTable extends TelemetryTable {
 
   createRow(datum, columnMap, keyString, limitEvaluator) {
     let cellFormatConfiguration = this.configuration.getConfiguration().cellFormat || {};
-    return new ChannelTableRow(datum, columnMap, keyString, limitEvaluator, cellFormatConfiguration[keyString]);
+    return new ChannelTableRow(
+      datum,
+      columnMap,
+      keyString,
+      limitEvaluator,
+      cellFormatConfiguration[keyString]
+    );
   }
 
   reorder(reorderPlan) {

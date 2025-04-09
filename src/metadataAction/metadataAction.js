@@ -22,20 +22,12 @@ export default class MetadataAction {
         attributes
       },
       components: {
-          MetadataListView
+        MetadataListView
       },
       template: '<MetadataListView />'
     };
 
-    const componentOptions = {
-      element
-    };
-
-    const {
-        componentInstance,
-        destroy,
-        el
-    } = mount(componentDefinition, componentOptions);
+    const { destroy, el } = mount(componentDefinition);
 
     this.openmct.overlays.overlay({
       element: el,
@@ -48,8 +40,10 @@ export default class MetadataAction {
   }
 
   appliesTo(objectPath) {
-      let contextualDomainObject = objectPath[0];
+    let contextualDomainObject = objectPath[0];
 
-      return contextualDomainObject.type === 'vista.evr' || contextualDomainObject.type === 'vista.channel';
+    return (
+      contextualDomainObject.type === 'vista.evr' || contextualDomainObject.type === 'vista.channel'
+    );
   }
 }
