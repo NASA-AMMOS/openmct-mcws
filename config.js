@@ -288,6 +288,24 @@
     },
 
     /**
+     * Data Product Temporary Workaround:
+     *
+     * If you want to view real-time product data, you must specify all
+     * product APIDs that you want to see in the below array.  This config
+     * is only required for MCWS R3.2, and will not be required for
+     * MCWS R3.3.
+     *
+     * This list can be quickly extracted from apid.xml with the following
+     * python code:
+     *
+     * import xml.etree.ElementTree as ET
+     * tree = ET.parse('apid.xml')
+     * apids = [int(a.attrib['number']) for a in tree.getroot() if a.tag == 'apid']
+     *
+     */
+    realtimeProductAPIDs: [],
+
+    /**
      * Plugin Support 
      * Example configuration:
      * plugins: {        
