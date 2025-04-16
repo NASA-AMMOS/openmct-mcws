@@ -177,6 +177,7 @@
             oldSocket.onclose = null;
             oldSocket.onerror = null;
             oldSocket.close();
+            // eslint-disable-next-line no-unused-vars
           } catch (e) {
             // Suppress errors
           }
@@ -199,6 +200,7 @@
             oldSocket.onclose = null;
             oldSocket.onerror = null;
             oldSocket.close();
+            // eslint-disable-next-line no-unused-vars
           } catch (e) {
             // Suppress errors
           }
