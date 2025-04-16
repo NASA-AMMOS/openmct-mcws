@@ -1,5 +1,5 @@
 (function (self, WebSocket) {
-  "use strict";
+  'use strict';
 
   let worker;
 
@@ -36,7 +36,14 @@
      * @param {Object} extraFilterTerms additional filter terms
      * @param {Object} globalFilters global filters to apply
      */
-    constructor(url, property, topic, extraFilterTerms, globalFilters, subscriptionMCWSFilterDelay) {
+    constructor(
+      url,
+      property,
+      topic,
+      extraFilterTerms,
+      globalFilters,
+      subscriptionMCWSFilterDelay
+    ) {
       this.url = url;
       this.topic = topic;
       this.subscribers = {};
@@ -161,7 +168,7 @@
     reconnect() {
       let oldSocket = this.socket;
       const { url, subscribers, property } = this;
-            
+
       // no subscribers or no topic close existing socket
       // suppress errors as they are not useful
       if (Object.keys(subscribers).length < 1 || !this.topic) {
@@ -171,7 +178,7 @@
             oldSocket.onerror = null;
             oldSocket.close();
           } catch (e) {
-              // Suppress errors
+            // Suppress errors
           }
 
           oldSocket = undefined;
@@ -229,7 +236,9 @@
           url: this.url,
           query: this.getQueryString(),
           code: error.code ?? 'unavailable',
-          reason: error.reason ?? 'WebSocket error occurred, but browser did not provide detailed error information'
+          reason:
+            error.reason ??
+            'WebSocket error occurred, but browser did not provide detailed error information'
         });
       };
     }
@@ -272,10 +281,12 @@
     }
 
     generateCacheKey(url, property, extraFilterTerms) {
-      let filterComponent = extraFilterTerms && Object.keys(extraFilterTerms)
-        .sort()
-        .map(filterKey => `${filterKey}=${extraFilterTerms[filterKey]}`)
-        .join('&');
+      let filterComponent =
+        extraFilterTerms &&
+        Object.keys(extraFilterTerms)
+          .sort()
+          .map((filterKey) => `${filterKey}=${extraFilterTerms[filterKey]}`)
+          .join('&');
       let cacheKey = `${url}__${property}`;
 
       if (filterComponent?.length > 0) {
@@ -330,5 +341,4 @@
       method.call(worker, data.value);
     }
   };
-
-}(self, WebSocket));
+})(self, WebSocket);

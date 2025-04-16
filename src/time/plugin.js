@@ -18,7 +18,7 @@ const SYSTEM_MAP = {
 };
 
 export default function TimePlugin(options) {
-  return function install (openmct) {
+  return function install(openmct) {
     const TODAY_BOUNDS = {
       start: moment.utc().startOf('day').valueOf(),
       end: moment.utc().endOf('day').valueOf()
@@ -49,7 +49,7 @@ export default function TimePlugin(options) {
     }
 
     if (options.lmstEpoch) {
-        const lmstFormatWithEpoch = new LMSTFormat(options.lmstEpoch);
+      const lmstFormatWithEpoch = new LMSTFormat(options.lmstEpoch);
 
       BOUNDS_MAP.lmst = {
         start: lmstFormatWithEpoch.parse('SOL-' + sol),
@@ -64,101 +64,103 @@ export default function TimePlugin(options) {
     let menuOptions = [];
 
     options.timeSystems.forEach(function (timeSystem) {
-        const key = timeSystem.key ?? timeSystem;
+      const key = timeSystem.key ?? timeSystem;
 
-        if (!SYSTEM_MAP[key]) {
-            console.error('Invalid timeSystem specified: ' + key);
+      if (!SYSTEM_MAP[key]) {
+        console.error('Invalid timeSystem specified: ' + key);
 
-            return;
+        return;
+      }
+
+      const system = new SYSTEM_MAP[key](options.utcFormat);
+      const systemOptions = {
+        timeSystem: system.key,
+        name: 'fixed'
+      };
+
+      openmct.time.addTimeSystem(system);
+
+      if (timeSystem.modeSettings?.fixed?.bounds) {
+        systemOptions.bounds = timeSystem.modeSettings.fixed.bounds;
+      } else {
+        systemOptions.bounds = BOUNDS_MAP[key];
+      }
+
+      if (timeSystem.modeSettings?.fixed?.presets) {
+        systemOptions.presets = timeSystem.modeSettings.fixed.presets;
+      }
+
+      if (timeSystem.limit) {
+        systemOptions.limit = timeSystem.limit;
+      }
+
+      if (options.records) {
+        systemOptions.records = options.records;
+      }
+
+      menuOptions.push(systemOptions);
+
+      const DEFAULT_OFFSET_CONFIG = {
+        start: -30 * 60 * 1000,
+        end: 5 * 60 * 1000
+      };
+
+      if (options.allowRealtime && system.isUTCBased) {
+        let offsetConfig = DEFAULT_OFFSET_CONFIG;
+        let presetConfig = [];
+
+        if (timeSystem.modeSettings?.realtime?.clockOffsets) {
+          offsetConfig = timeSystem.modeSettings.realtime.clockOffsets;
         }
 
-        const system = new SYSTEM_MAP[key](options.utcFormat);
-        const systemOptions = {
-            timeSystem: system.key,
-            name: 'fixed'
-        };
-
-        openmct.time.addTimeSystem(system);
-
-        if(timeSystem.modeSettings?.fixed?.bounds){
-            systemOptions.bounds = timeSystem.modeSettings.fixed.bounds;
-        } else {
-            systemOptions.bounds = BOUNDS_MAP[key];
+        if (timeSystem.modeSettings?.realtime?.presets) {
+          presetConfig = timeSystem.modeSettings.realtime.presets;
         }
 
-        if (timeSystem.modeSettings?.fixed?.presets) {
-            systemOptions.presets = timeSystem.modeSettings.fixed.presets;
+        useUTCClock = true;
+        menuOptions.push({
+          name: 'realtime',
+          timeSystem: system.key,
+          clock: 'utc.local',
+          clockOffsets: offsetConfig,
+          presets: presetConfig
+        });
+      }
+
+      if (options.allowRealtime && options.allowLAD) {
+        const ladClock = new LADClock(key);
+        let offsetConfig = DEFAULT_OFFSET_CONFIG;
+
+        if (timeSystem.modeSettings?.lad?.clockOffsets) {
+          offsetConfig = timeSystem.modeSettings.lad.clockOffsets;
         }
 
-        if (timeSystem.limit) {
-            systemOptions.limit = timeSystem.limit;
-        }
-
-        if (options.records) {
-            systemOptions.records = options.records;
-        }
-
-        menuOptions.push(systemOptions);
-        
-        const DEFAULT_OFFSET_CONFIG = {
-            start: -30 * 60 * 1000,
-            end: 5 * 60 * 1000
-        }
-
-        if (options.allowRealtime && system.isUTCBased) {
-            let offsetConfig = DEFAULT_OFFSET_CONFIG;
-            let presetConfig = [];
-
-            if (timeSystem.modeSettings?.realtime?.clockOffsets){
-                offsetConfig = timeSystem.modeSettings.realtime.clockOffsets
-            }
-
-            if (timeSystem.modeSettings?.realtime?.presets){
-                presetConfig = timeSystem.modeSettings.realtime.presets
-            }
-
-            useUTCClock = true;
-            menuOptions.push({
-                name:'realtime',
-                timeSystem: system.key,
-                clock: 'utc.local',
-                clockOffsets: offsetConfig,
-                presets: presetConfig            
-            });
-        }
-
-        if (options.allowRealtime && options.allowLAD) {
-            const ladClock = new LADClock(key);
-            let offsetConfig = DEFAULT_OFFSET_CONFIG;
-
-            if (timeSystem.modeSettings?.lad?.clockOffsets){
-                offsetConfig = timeSystem.modeSettings.lad.clockOffsets
-            }
-
-            install.ladClocks[key] = ladClock;
-            openmct.time.addClock(ladClock);
-            menuOptions.push({
-                timeSystem: system.key,
-                clock: ladClock.key,
-                clockOffsets: offsetConfig,
-            });
-        }
+        install.ladClocks[key] = ladClock;
+        openmct.time.addClock(ladClock);
+        menuOptions.push({
+          timeSystem: system.key,
+          clock: ladClock.key,
+          clockOffsets: offsetConfig
+        });
+      }
     });
 
     if (options.defaultMode) {
-        const isFixedMode = options.defaultMode === 'fixed';
-        const matchingConfigIndex = menuOptions.findIndex(
-            (menuOption) => isFixedMode ? !menuOption.clock : menuOption.clock === options.defaultMode
+      const isFixedMode = options.defaultMode === 'fixed';
+      const matchingConfigIndex = menuOptions.findIndex((menuOption) =>
+        isFixedMode ? !menuOption.clock : menuOption.clock === options.defaultMode
+      );
+
+      if (matchingConfigIndex !== -1) {
+        const matchingConfig = menuOptions[matchingConfigIndex];
+
+        menuOptions.splice(matchingConfigIndex, 1);
+        menuOptions.unshift(matchingConfig);
+      } else {
+        console.warn(
+          `Default mode '${options.defaultMode}' specified in configuration could not be applied. Are LAD or realtime enabled? Does the defaultMode contain a typo?`
         );
-
-        if (matchingConfigIndex !== -1) {
-            const matchingConfig = menuOptions[matchingConfigIndex];
-
-            menuOptions.splice(matchingConfigIndex, 1);
-            menuOptions.unshift(matchingConfig);
-        } else {
-            console.warn(`Default mode '${options.defaultMode}' specified in configuration could not be applied. Are LAD or realtime enabled? Does the defaultMode contain a typo?`);
-        }
+      }
     }
 
     if (useUTCClock) {

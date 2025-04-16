@@ -5,20 +5,20 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  * @memberof {vista/telemetry}
  */
 class MCWSCommandStreamProvider extends MCWSStreamProvider {
-    getUrl(domainObject) {
-        return domainObject.telemetry?.commandEventStreamUrl;
-    }
+  getUrl(domainObject) {
+    return domainObject.telemetry?.commandEventStreamUrl;
+  }
 
-    getKey() {
-        // We return undefined so that we can match on undefined properties.
-        return undefined;
-    }
+  getKey() {
+    // We return undefined so that we can match on undefined properties.
+    return undefined;
+  }
 
-    getProperty() {
-        // We just want something that returns undefined so it matches the
-        // key above.  Hacky.
-        return 'some_undefined_property';
-    }
+  getProperty() {
+    // We just want something that returns undefined so it matches the
+    // key above.  Hacky.
+    return 'some_undefined_property';
+  }
 }
 
 export default MCWSCommandStreamProvider;

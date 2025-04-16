@@ -5,17 +5,17 @@ import MCWSStreamProvider from './MCWSStreamProvider';
  * @memberof {vista/telemetry}
  */
 class MCWSChannelStreamProvider extends MCWSStreamProvider {
-    getUrl(domainObject) {
-        return domainObject.telemetry?.channelStreamUrl;
-    }
+  getUrl(domainObject) {
+    return domainObject.telemetry?.channelStreamUrl;
+  }
 
-    getKey(domainObject) {
-        return domainObject.telemetry.channel_id;
-    }
+  getKey(domainObject) {
+    return domainObject.telemetry.channel_id;
+  }
 
-    getProperty() {
-        return 'channel_id';
-    }
+  getProperty() {
+    return 'channel_id';
+  }
 }
 
 export default MCWSChannelStreamProvider;
