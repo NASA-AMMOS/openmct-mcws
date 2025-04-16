@@ -55,14 +55,5 @@ define(['./MCWSStreamProvider'], function (MCWSStreamProvider) {
     );
   };
 
-  MCWSDataProductStreamProvider.prototype.notifyWorker = function (key, value) {
-    if (key === 'subscribe' && this.options.realtimeProductAPIDs && value.mcwsVersion === 3.2) {
-      value.extraFilterTerms = {
-        apid: '(' + this.options.realtimeProductAPIDs.join(',') + ')'
-      };
-    }
-    MCWSStreamProvider.prototype.notifyWorker.call(this, key, value);
-  };
-
   return MCWSDataProductStreamProvider;
 });
