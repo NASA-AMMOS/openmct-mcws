@@ -11,7 +11,7 @@ class MCWSEVRLevelStreamProvider extends MCWSStreamProvider {
    * @returns {String} The URL to use for streaming
    */
   getUrl(domainObject) {
-    if (domainObject.telemetry?.evrStreamUrl) {
+    if (domainObject.telemetry?.evrStreamUrl && domainObject.telemetry?.level) {
       return domainObject.telemetry.evrStreamUrl;
     }
   }
