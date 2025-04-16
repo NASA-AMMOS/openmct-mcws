@@ -171,15 +171,23 @@
        */
       utcFormat: 'utc.day-of-year',
 
-      /**
-       * optional
-       *
-       * lmstEpoch: Epoch date for LMST Time System
-       *
-       * It has to be a Date.UTC instance as follows:
-       *   lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0)
-       */
-      lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0),
+            /**
+             * optional
+             *
+             * lmstEpoch: Epoch date for LMST Time System
+             *
+             * It has to be a Date.UTC instance as follows:
+             *   lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0)
+             */
+            lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0),
+
+            /*
+             * subscriptionMCWSFilterDelay: delay in milliseconds for combining filters for the same subscription
+             * endpoint connection. Smaller value = quicker display of realtime data (ex, 10ms in a
+             *  low latency environment), higher value = avoids potentially creating and subsequently tearing down new websocket connections if filter changes are happening faster than server response times
+             * (ex, 100ms+ in a high latency environment)
+            */
+            subscriptionMCWSFilterDelay: 100,
 
       /**
        * timeSystems: specify the time systems to use.

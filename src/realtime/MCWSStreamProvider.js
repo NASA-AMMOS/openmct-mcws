@@ -16,18 +16,21 @@ import GlobalStaleness from 'services/globalStaleness/globalStaleness';
  */
 
 class MCWSStreamProvider {
-    constructor(openmct, vistaTime) {
+    constructor(openmct, vistaTime, options) {
         this.openmct = openmct;
         this.vistaTime = function () {
             return vistaTime;
         };
+        this.options = options;
 
         this.sessions = sessionService();
         this.filterService = filterService();
 
-    this.subscriptions = {};
-    this.requests = {};
-  }
+        this.subscriptions = {};
+        this.requests = {};
+
+        this.subscriptionMCWSFilterDelay = options?.time?.subscriptionMCWSFilterDelay;
+    }
 
     processGlobalStaleness(data, latestTimestamp) {
         const globalStaleness = GlobalStaleness();
@@ -214,7 +217,8 @@ class MCWSStreamProvider {
             key: this.getKey(domainObject),
             property: this.getProperty(domainObject),
             mcwsVersion: domainObject.telemetry.mcwsVersion,
-            extraFilterTerms: options?.filters ? this.serializeFilters(options.filters) : undefined
+            extraFilterTerms: options?.filters ? this.serializeFilters(options.filters) : undefined,
+            subscriptionMCWSFilterDelay: this.subscriptionMCWSFilterDelay
         };
 
     function unsubscribe() {
