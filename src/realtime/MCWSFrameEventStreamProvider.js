@@ -1,42 +1,53 @@
-define(['./MCWSStreamProvider'], function (MCWSStreamProvider) {
-  'use strict';
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-  /**
-   * Provides real-time streaming DataProduct data.
-   * @constructor
-   * @augments {MCWSStreamProvider}
-   * @memberof {vista/telemetry}
-   */
-  var MCWSFrameEventStreamProvider = MCWSStreamProvider.extend({
-    constructor: function (openmct, vistaTime) {
-      MCWSStreamProvider.call(this, openmct, vistaTime);
+/**
+ * Provides real-time streaming DataProduct data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSFrameEventStreamProvider extends MCWSStreamProvider {
+    /**
+     * @param {Object} openmct The Open MCT API
+     * @param {Object} vistaTime The Vista time API
+     */
+    constructor(openmct, vistaTime) {
+        super(openmct, vistaTime);
     }
-  });
 
-  MCWSFrameEventStreamProvider.prototype.getUrl = function (domainObject) {
-    return domainObject.telemetry && domainObject.telemetry.frameEventStreamUrl;
-  };
-
-  MCWSFrameEventStreamProvider.prototype.getKey = function (domainObject) {
-    if (domainObject.type === 'vista.frame-event-filter') {
-      var frameEventType = domainObject.identifier.key.split(':')[0];
-      return frameEventType;
-    } else {
-      return undefined;
+    /**
+     * Get the URL for streaming data for this domain object
+     * @param {Object} domainObject The domain object
+     * @returns {String} The URL to use for streaming
+     */
+    getUrl(domainObject) {
+        return domainObject.telemetry?.frameEventStreamUrl;
     }
-  };
 
-  MCWSFrameEventStreamProvider.prototype.getProperty = function (domainObject) {
-    if (domainObject.type === 'vista.frame-event-filter') {
-      return 'message_type';
-    } else {
-      return 'some_undefined_property';
+    /**
+     * Get the key to use for this stream
+     * @param {Object} domainObject The domain object
+     * @returns {String} The key
+     */
+    getKey(domainObject) {
+        if (domainObject.type === 'vista.frame-event-filter') {
+            const frameEventType = domainObject.identifier.key.split(':')[0];
+            return frameEventType;
+        } else {
+            return undefined;
+        }
     }
-  };
 
-  MCWSFrameEventStreamProvider.prototype.notifyWorker = function (key, value) {
-    MCWSStreamProvider.prototype.notifyWorker.call(this, key, value);
-  };
+    /**
+     * Get the property to use for this stream
+     * @param {Object} domainObject The domain object
+     * @returns {String} The property name
+     */
+    getProperty(domainObject) {
+        if (domainObject.type === 'vista.frame-event-filter') {
+            return 'message_type';
+        } else {
+            return 'some_undefined_property';
+        }
+    }
+}
 
-  return MCWSFrameEventStreamProvider;
-});
+export default MCWSFrameEventStreamProvider;
