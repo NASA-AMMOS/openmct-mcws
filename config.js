@@ -206,7 +206,7 @@
              * * modeSettings: object, optional - presets for convenience. 
              * * * fixed: object, optional - valid objects are bounds objects and presets array. 
              * * * realtime: object, optional - valid objects are clockOffsets and presets array. 
-             * * * lad:object, optional - valid objects are clockoffsets. 
+             * * * lad:object, optional - valid objects are clockOffsets. 
              * * * * 
              * * * * Optional objects: 
              * * * * bounds: start and end bounds for preset as numbers
@@ -360,9 +360,12 @@
      * This list can be quickly extracted from apid.xml with the following
      * python code:
      *
+     * temporarily disable spellcheck, to be removed in https://github.com/NASA-AMMOS/openmct-mcws/issues/303
+     * cspell:disable
      * import xml.etree.ElementTree as ET
      * tree = ET.parse('apid.xml')
      * apids = [int(a.attrib['number']) for a in tree.getroot() if a.tag == 'apid']
+     * cspell:enable
      *
      */
     realtimeProductAPIDs: [],
