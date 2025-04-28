@@ -1,44 +1,30 @@
-define([
-  'services/filtering/FilterService',
-  './MCWSChannelStreamProvider',
-  './MCWSEVRStreamProvider',
-  './MCWSEVRLevelStreamProvider',
-  './MCWSCommandStreamProvider',
-  './MCWSPacketSummaryEventProvider',
-  './MCWSDataProductStreamProvider',
-  './MCWSMessageStreamProvider',
-  './MCWSFrameSummaryStreamProvider',
-  './MCWSFrameEventStreamProvider',
-  './MCWSAlarmMessageStreamProvider'
-], function (
-  filterServiceDefault,
-  MCWSChannelStreamProvider,
-  MCWSEVRStreamProvider,
-  MCWSEVRLevelStreamProvider,
-  MCWSCommandStreamProvider,
-  MCWSPacketSummaryEventProvider,
-  MCWSDataProductStreamProvider,
-  MCWSMessageStreamProvider,
-  MCWSFrameSummaryStreamProvider,
-  MCWSFrameEventStreamProvider,
-  MCWSAlarmMessageStreamProvider
-) {
-  function RealtimeTelemetryPlugin(vistaTime, options) {
-    return function install(openmct) {
-      filterServiceDefault.default(openmct, options.globalFilters);
+import filterService from 'services/filtering/FilterService';
+import MCWSChannelStreamProvider from './MCWSChannelStreamProvider';
+import MCWSEVRStreamProvider from './MCWSEVRStreamProvider';
+import MCWSEVRLevelStreamProvider from './MCWSEVRLevelStreamProvider';
+import MCWSCommandStreamProvider from './MCWSCommandStreamProvider';
+import MCWSPacketSummaryEventProvider from './MCWSPacketSummaryEventProvider';
+import MCWSDataProductStreamProvider from './MCWSDataProductStreamProvider';
+import MCWSMessageStreamProvider from './MCWSMessageStreamProvider';
+import MCWSFrameSummaryStreamProvider from './MCWSFrameSummaryStreamProvider';
+import MCWSFrameEventStreamProvider from './MCWSFrameEventStreamProvider';
+import MCWSAlarmMessageStreamProvider from './MCWSAlarmMessageStreamProvider';
 
-      openmct.telemetry.addProvider(new MCWSChannelStreamProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSEVRStreamProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSEVRLevelStreamProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSCommandStreamProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSPacketSummaryEventProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSDataProductStreamProvider(openmct, vistaTime, options));
-      openmct.telemetry.addProvider(new MCWSMessageStreamProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSFrameSummaryStreamProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSFrameEventStreamProvider(openmct, vistaTime));
-      openmct.telemetry.addProvider(new MCWSAlarmMessageStreamProvider(openmct, vistaTime));
-    };
-  }
+function RealtimeTelemetryPlugin(vistaTime, options) {
+  return function install(openmct) {
+    filterService(openmct, options.globalFilters);
 
-  return RealtimeTelemetryPlugin;
-});
+    openmct.telemetry.addProvider(new MCWSChannelStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSEVRStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSEVRLevelStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSCommandStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSPacketSummaryEventProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSDataProductStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSMessageStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSFrameSummaryStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSFrameEventStreamProvider(openmct, vistaTime, options));
+    openmct.telemetry.addProvider(new MCWSAlarmMessageStreamProvider(openmct, vistaTime, options));
+  };
+}
+
+export default RealtimeTelemetryPlugin;

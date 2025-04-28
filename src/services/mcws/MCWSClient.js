@@ -59,7 +59,7 @@ class MCWSClient {
 
       delete options.params;
     }
-    
+
     // Keepalive
     options.keepalive = true;
 
