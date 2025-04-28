@@ -1,28 +1,38 @@
-define(['./MCWSStreamProvider'], function (MCWSStreamProvider) {
-  'use strict';
+import MCWSStreamProvider from './MCWSStreamProvider';
+
+/**
+ * Provides real-time streaming PacketSummaryEvent data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSPacketSummaryEventProvider extends MCWSStreamProvider {
+  /**
+   * Get the URL for streaming data for this domain object
+   * @param {Object} domainObject The domain object
+   * @returns {String} The URL to use for streaming
+   */
+  getUrl(domainObject) {
+    return domainObject.telemetry?.packetSummaryEventStreamUrl;
+  }
 
   /**
-   * Provides real-time streaming PacketSummaryEvent data.
-   * @constructor
-   * @augments {MCWSStreamProvider}
-   * @memberof {vista/telemetry}
+   * Get the key to use for this stream
+   * @param {Object} domainObject The domain object
+   * @returns {undefined} Always returns undefined to match on undefined properties
    */
-  var MCWSPacketSummaryEventProvider = MCWSStreamProvider.extend({});
-
-  MCWSPacketSummaryEventProvider.prototype.getUrl = function (domainObject) {
-    return domainObject.telemetry && domainObject.telemetry.packetSummaryEventStreamUrl;
-  };
-
-  MCWSPacketSummaryEventProvider.prototype.getKey = function (domainObject) {
+  getKey() {
     // We return undefined so that we can match on undefined properties.
     return undefined;
-  };
+  }
 
-  MCWSPacketSummaryEventProvider.prototype.getProperty = function () {
+  /**
+   * Get the property to use for this stream
+   * @returns {String} The property name
+   */
+  getProperty() {
     // We just want something that returns undefined so it matches the
     // key above.  Hacky.
     return 'some_undefined_property';
-  };
+  }
+}
 
-  return MCWSPacketSummaryEventProvider;
-});
+export default MCWSPacketSummaryEventProvider;

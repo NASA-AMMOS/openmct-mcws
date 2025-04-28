@@ -1,28 +1,24 @@
-define(['./MCWSStreamProvider'], function (MCWSStreamProvider) {
-  'use strict';
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-  /**
-   * Provides real-time streaming CommandEvent data.
-   * @constructor
-   * @augments {MCWSStreamProvider}
-   * @memberof {vista/telemetry}
-   */
-  var MCWSCommandStreamProvider = MCWSStreamProvider.extend({});
+/**
+ * Provides real-time streaming CommandEvent data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSCommandStreamProvider extends MCWSStreamProvider {
+  getUrl(domainObject) {
+    return domainObject.telemetry?.commandEventStreamUrl;
+  }
 
-  MCWSCommandStreamProvider.prototype.getUrl = function (domainObject) {
-    return domainObject.telemetry && domainObject.telemetry.commandEventStreamUrl;
-  };
-
-  MCWSCommandStreamProvider.prototype.getKey = function (domainObject) {
+  getKey() {
     // We return undefined so that we can match on undefined properties.
     return undefined;
-  };
+  }
 
-  MCWSCommandStreamProvider.prototype.getProperty = function () {
+  getProperty() {
     // We just want something that returns undefined so it matches the
     // key above.  Hacky.
     return 'some_undefined_property';
-  };
+  }
+}
 
-  return MCWSCommandStreamProvider;
-});
+export default MCWSCommandStreamProvider;
