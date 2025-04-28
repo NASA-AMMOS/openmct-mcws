@@ -38,7 +38,7 @@ export default class ChannelTableRowCollection extends TableRowCollection {
     if (this.isNewerThanLAD(item)) {
       let rowIndex = this.ladMap.get(item.objectKeyString);
       this.rows[rowIndex] = item;
-      this.removeExistingByKeystring(item.objectKeyString);
+      this.removeExistingByKeyString(item.objectKeyString);
       this.emit('add', [item]);
       return true;
     }
@@ -59,7 +59,7 @@ export default class ChannelTableRowCollection extends TableRowCollection {
     this.rebuildLadMap();
   }
 
-  removeExistingByKeystring(keyString) {
+  removeExistingByKeyString(keyString) {
     let removed = [];
 
     this.rows.forEach((row) => {

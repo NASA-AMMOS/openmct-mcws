@@ -20,14 +20,14 @@
             <th>Downlink Stream Id</th>
           </tr>
           <tr>
-            <th><input type="text" v-model="filter.number" /></th>
-            <th><input type="text" v-model="filter.user" /></th>
-            <th><input type="text" v-model="filter.host" /></th>
-            <th><input type="text" v-model="filter.name" /></th>
-            <th><input type="text" v-model="filter.description" /></th>
-            <th><input type="text" v-model="filter.start_time" /></th>
-            <th><input type="text" v-model="filter.end_time" /></th>
-            <th><input type="text" v-model="filter.downlink_stream_id" /></th>
+            <th><input v-model="filter.number" type="text" /></th>
+            <th><input v-model="filter.user" type="text" /></th>
+            <th><input v-model="filter.host" type="text" /></th>
+            <th><input v-model="filter.name" type="text" /></th>
+            <th><input v-model="filter.description" type="text" /></th>
+            <th><input v-model="filter.start_time" type="text" /></th>
+            <th><input v-model="filter.end_time" type="text" /></th>
+            <th><input v-model="filter.downlink_stream_id" type="text" /></th>
           </tr>
         </thead>
         <tbody>
@@ -62,6 +62,7 @@ export default {
       required: true
     }
   },
+  emits: ['session-selected'],
   data() {
     return {
       sessions: [],
@@ -90,10 +91,10 @@ export default {
     select(session) {
       if (this.isSelected(session)) {
         this.currentSelection = undefined;
-        this.$emit('sessionSelected', undefined);
+        this.$emit('session-selected', undefined);
       } else {
         this.currentSelection = session;
-        this.$emit('sessionSelected', session);
+        this.$emit('session-selected', session);
       }
     },
     getSessionKey(session) {

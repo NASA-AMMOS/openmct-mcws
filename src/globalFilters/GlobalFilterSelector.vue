@@ -32,7 +32,7 @@
       >
         Update Filters
       </button>
-      <button @click="cancel()" class="c-button">Cancel</button>
+      <button class="c-button" @click="cancel()">Cancel</button>
     </div>
   </div>
 </template>
@@ -42,6 +42,9 @@ import FilterField from './FilterField.vue';
 import { toRaw } from 'vue';
 
 export default {
+  components: {
+    FilterField
+  },
   inject: ['openmct', 'filters'],
   props: {
     activeFilters: {
@@ -49,8 +52,12 @@ export default {
       required: true
     }
   },
-  components: {
-    FilterField
+  emits: ['close-filter-selector', 'update-filters'],
+  data() {
+    return {
+      updatedFilters: {},
+      hasFiltersChanged: true
+    };
   },
   watch: {
     updatedFilters: {
@@ -59,12 +66,6 @@ export default {
       },
       deep: true
     }
-  },
-  data() {
-    return {
-      updatedFilters: {},
-      hasFiltersChanged: true
-    };
   },
   mounted() {
     this.updatedFilters = structuredClone(toRaw(this.activeFilters));

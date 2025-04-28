@@ -12,7 +12,7 @@ const FLAG_COLORS = {
 export default class FrameAccountabilityViewProvider {
   constructor(domainObject, openmct, options) {
     this.domainObject = domainObject;
-    this.keystring = openmct.objects.makeKeyString(this.domainObject.identifier);
+    this.keyString = openmct.objects.makeKeyString(this.domainObject.identifier);
     this.openmct = openmct;
     this.expectedVcidList = options.frameAccountabilityExpectedVcidList;
     this.tablePerformanceOptions = options.tablePerformanceOptions;
@@ -23,7 +23,7 @@ export default class FrameAccountabilityViewProvider {
   instantiateBadFramesTable() {
     const domainObject = {
       identifier: {
-        key: `bad-frames-${this.keystring}`,
+        key: `bad-frames-${this.keyString}`,
         namespace: ''
       },
       name: 'Bad Frames Accountability',

@@ -8,10 +8,10 @@
         </div>
         <div class="c-inspect-properties__value">
           <input
-            type="number"
             v-if="isEditing"
-            v-model="autoClearTimeout"
             id="autoClearTimeout"
+            v-model="autoClearTimeout"
+            type="number"
             @input="setAutoClearTimeout"
           />
           <span v-else id="autoClearTimeout">{{ autoClearTimeout }}</span>
@@ -30,18 +30,6 @@ export default {
       autoClearTimeout: undefined
     };
   },
-  methods: {
-    toggleEdit(isEditing) {
-      this.isEditing = isEditing;
-    },
-    setAutoClearTimeout() {
-      this.openmct.objects.mutate(
-        this.domainObject,
-        'configuration.autoClearTimeout',
-        this.autoClearTimeout
-      );
-    }
-  },
   mounted() {
     this.domainObject = this.openmct.selection.get()[0][0].context.item;
     if (this.domainObject.configuration && this.domainObject.configuration.autoClearTimeout) {
@@ -53,6 +41,18 @@ export default {
   beforeUnmount() {
     this.openmct.editor.off('isEditing', this.toggleEdit);
     this.unlisteners.forEach((unlisten) => unlisten());
+  },
+  methods: {
+    toggleEdit(isEditing) {
+      this.isEditing = isEditing;
+    },
+    setAutoClearTimeout() {
+      this.openmct.objects.mutate(
+        this.domainObject,
+        'configuration.autoClearTimeout',
+        this.autoClearTimeout
+      );
+    }
   }
 };
 </script>

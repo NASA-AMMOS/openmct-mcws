@@ -41,7 +41,7 @@ describe('Historical Provider', function () {
     beforeEach(function () {
       mockDomainObject = {
         identifier: {
-          namespace: 'test-namesapce',
+          namespace: 'test-namespace',
           key: 'test-key'
         },
         type: 'vista.channel',
@@ -70,7 +70,7 @@ describe('Historical Provider', function () {
       });
       it('when filters are empty', function () {
         options.filters = {
-          somekey: {}
+          someKey: {}
         };
         historicalProvider.request(mockDomainObject, options).then(resolveCallback, rejectCallback);
         expect(mockOpenMct.notifications.alert).not.toHaveBeenCalled();
@@ -81,7 +81,7 @@ describe('Historical Provider', function () {
     beforeEach(function () {
       mockDomainObject = {
         identifier: {
-          namespace: 'test-namesapce',
+          namespace: 'test-namespace',
           key: 'test-key'
         },
         type: 'vista.channel',

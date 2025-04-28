@@ -1,0 +1,32 @@
+{
+  "version": "0.2",
+  "language": "en,en-us",
+  "dictionaries": [
+    "npm",
+    "softwareTerms",
+    "node",
+    "html",
+    "css",
+    "bash",
+    "en_US",
+    "en-gb",
+    "misc",
+    "omm"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "omm",
+      "path": ".cspell/omm-dictionary.txt",
+      "description": "Open MCT for MCWS dictionary"
+    }
+  ],
+  "ignorePaths": [
+    "package.json",
+    "dist/**",
+    "package-lock.json",
+    "node_modules",
+    "*.log",
+    "test_data/**",
+    "target/**"
+  ]
+}

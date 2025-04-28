@@ -56,10 +56,10 @@ class MCWSAlarmMessageStreamProvider extends MCWSStreamProvider {
       object.telemetry.values = domainObject.telemetry.values;
     });
 
-    let unsubscribers = objects.map((object) => super.subscribe(object, callback, options));
+    let unsubscribes = objects.map((object) => super.subscribe(object, callback, options));
 
     return () => {
-      unsubscribers.forEach((unsubscribe) => unsubscribe());
+      unsubscribes.forEach((unsubscribe) => unsubscribe());
     };
   }
 }

@@ -23,7 +23,7 @@ class NamespaceMIO extends MIO {
 
   /**
    * Create the namespace.  Returns a promise from the underlying
-   * AbstractMIO's `request` method.
+   * AbstractMIOs `request` method.
    * @memberof NamespaceMIO
    * @returns {Promise} a promise that is resolved when the namespace
    *     is created, or rejected if there is an error.

@@ -27,7 +27,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       return result;
     } catch (error) {
-      console.warn('MCWSPersistneceProvider:get', error);
+      console.warn('MCWSPersistenceProvider:get', error);
 
       return;
     }
@@ -51,7 +51,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       return true;
     } catch (error) {
-      console.warn('MCWSPersistneceProvider:create', error);
+      console.warn('MCWSPersistenceProvider:create', error);
 
       return false;
     }
@@ -75,7 +75,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       return result;
     } catch (error) {
-      console.warn('MCWSPersistneceProvider:update', error);
+      console.warn('MCWSPersistenceProvider:update', error);
 
       return false;
     }

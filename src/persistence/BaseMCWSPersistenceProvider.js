@@ -9,10 +9,10 @@ const USERNAME_FROM_PATH_REGEX = new RegExp('.*/(.*?)$');
  *
  * @typedef {Object} NamespaceDefinition
  * @property {Boolean} containsNamespaces true if this namespace has
- *     subnamespaces.
+ *     sub-namespaces.
  * @property {string} id an persistence identifier for the namespace root.
  *     Should include a unique persistence space prefix.
- * @property {string} key the machine-readable presistence space identifier
+ * @property {string} key the machine-readable persistence space identifier
  *     for this namespace.
  * @property {string} name the human readable name of the namespace.
  * @property {string} url the url to the MCWS namespace.

@@ -23,21 +23,21 @@ describe('the channel limits provider', () => {
   const redAlarmDatum = {
     ert: 'mock ert time',
     scet: 'mock scet time',
-    sclk: 'moct sclk time',
+    sclk: 'mock sclk time',
     dn_alarm_state: 'RED',
     eu_alarm_state: 'RED'
   };
   const yellowAlarmDatum = {
     ert: 'mock ert time',
     scet: 'mock scet time',
-    sclk: 'moct sclk time',
+    sclk: 'mock sclk time',
     dn_alarm_state: 'YELLOW',
     eu_alarm_state: 'YELLOW'
   };
   const noAlarmDatum = {
     ert: 'mock ert time',
     scet: 'mock scet time',
-    sclk: 'moct sclk time',
+    sclk: 'mock sclk time',
     dn_alarm_state: 'NONE',
     eu_alarm_state: 'NONE'
   };
@@ -104,7 +104,7 @@ describe('the channel limits provider', () => {
         });
     });
 
-    it('does not evalute with no key', function () {
+    it('does not evaluate with no key', function () {
       const datums = [redAlarmDatum, yellowAlarmDatum, noAlarmDatum];
 
       datums.forEach((datum) => {

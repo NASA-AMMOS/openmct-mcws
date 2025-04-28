@@ -19,7 +19,7 @@ export default function UrlFieldFormController(openmct) {
             onChange
           };
         },
-        template: `<UrlField :model="model" @onChange="onChange" />`
+        template: `<UrlField :model="model" @on-change="onChange" />`
       };
 
       const componentOptions = {
