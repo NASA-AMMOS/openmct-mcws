@@ -1,85 +1,96 @@
 import FrameEventFilterTable from './FrameEventFilterTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class FrameEventFilterViewProvider {
-    constructor(openmct) {
-        this.openmct = openmct;
+  constructor(openmct, options) {
+    this.openmct = openmct;
+    this.options = options;
 
-        this.key = 'vista.frameEventFilterView';
-        this.name = 'Frame Events Filtered View';
-        this.cssClass = 'icon-tabular-realtime';
-    }
+    this.key = 'vista.frameEventFilterView';
+    this.name = 'Frame Events Filtered View';
+    this.cssClass = 'icon-tabular-realtime';
+  }
 
-    canView(domainObject) {
-        return domainObject.type === 'vista.frame-event-filter';
-    }
+  canView(domainObject) {
+    return domainObject.type === 'vista.frame-event-filter';
+  }
 
-    view(domainObject, objectPath) {
-        let table = new FrameEventFilterTable(domainObject, openmct);
-        let component;
-        let markingProp = {
-            enable: true,
-            useAlternateControlBar: false,
-            rowName: '',
-            rowNamePlural: ''
-        };
-        const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
-                    components: {
-                        TableComponent
-                    },
-                    data() {
-                        return {
-                            isEditing: editMode,
-                            markingProp,
-                            view
-                        };
-                    },
-                    provide: {
-                        openmct,
-                        table,
-                        objectPath,
-                        currentView: view
-                    },
-                    template: `
+  view(domainObject, objectPath) {
+    let component;
+    let _destroy = null;
+    const self = this;
+
+    let table = new FrameEventFilterTable(domainObject, this.openmct, this.options);
+    let markingProp = {
+      enable: true,
+      useAlternateControlBar: false,
+      rowName: '',
+      rowNamePlural: ''
+    };
+
+    const view = {
+      show: function (element, editMode, { renderWhenVisible }) {
+        const componentDefinition = {
+          components: {
+            TableComponent
+          },
+          data() {
+            return {
+              isEditing: editMode,
+              markingProp
+            };
+          },
+          provide: {
+            openmct: self.openmct,
+            table,
+            objectPath,
+            currentView: view,
+            renderWhenVisible
+          },
+          template: `
                         <table-component
                             ref="tableComponent"
                             class="v-data-products"
                             :allowSorting="true"
                             :isEditing="isEditing"
                             :marking="markingProp"
-                            :view="view"
                         >
                             <template slot="buttons">
                             </template>
                         </table-component>
                     `
-                });
-            },
-            onEditModeChange(editMode) {
-                component.isEditing = editMode;
-            },
-            onClearData() {
-                table.clearData();
-            },
-            getViewContext() {
-                if (component) {
-                    return component.$refs.tableComponent.getViewContext();
-                } else {
-                    return {
-                        type: 'telemetry-table'
-                    };
-                }
-            },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
-            }
         };
 
-        return view;
-    }
+        const componentOptions = {
+          element
+        };
+
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
+
+        component = componentInstance;
+        _destroy = destroy;
+      },
+      onEditModeChange(editMode) {
+        component.isEditing = editMode;
+      },
+      onClearData() {
+        table.clearData();
+      },
+      getViewContext() {
+        if (component) {
+          return component.$refs.tableComponent.getViewContext();
+        } else {
+          return {
+            type: 'telemetry-table'
+          };
+        }
+      },
+      destroy: function () {
+        _destroy?.();
+      }
+    };
+
+    return view;
+  }
 }

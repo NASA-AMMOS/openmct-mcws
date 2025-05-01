@@ -1,26 +1,27 @@
-import Vue from 'vue';
+import mount from 'ommUtils/mountVueComponent';
 import RealtimeSessionIndicator from './components/RealtimeSessionIndicator.vue';
 
-export default function plugin(vistaTime) {
-    return function install(openmct) {
-        let indicator = {
-            element: document.createElement('div'),
-            priority: -4
-        };
-
-        openmct.indicators.add(indicator);
-        openmct.on('start', () => {
-            let component  = new Vue ({
-                el: indicator.element,
-                provide: {
-                    openmct
-                },
-                components: {
-                    RealtimeSessionIndicator
-                },
-                template: '<RealtimeSessionIndicator />'
-            });
-        });
+export default function plugin() {
+  return function install(openmct) {
+    const componentDefinition = {
+      provide: {
+        openmct
+      },
+      components: {
+        RealtimeSessionIndicator
+      },
+      template: '<RealtimeSessionIndicator />'
     };
-}
 
+    const { destroy, el } = mount(componentDefinition);
+
+    const indicator = {
+      key: 'realtime-session-indicator',
+      element: el,
+      priority: -4,
+      destroy
+    };
+
+    openmct.indicators.add(indicator);
+  };
+}

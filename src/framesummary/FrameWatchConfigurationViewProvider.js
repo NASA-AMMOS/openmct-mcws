@@ -1,52 +1,65 @@
-import Vue from 'vue';
+import mount from 'ommUtils/mountVueComponent';
 import FrameWatchTableConfiguration from './FrameWatchTableConfiguration';
 import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
 
 export default class FrameWatchConfigurationViewProvider {
-    constructor(openmct, key, name, type) {
-        this.key = key;
-        this.name = name;
-        this.type = type;
-    }
+  constructor(openmct, key, name, type) {
+    this.key = key;
+    this.name = name;
+    this.type = type;
 
-    canView(selection) {
-        if (selection.length === 0) {
-            return false;
-        }
-        let object = selection[0][0].context.item;
-        return object && object.type === this.type;
-    }
+    this.openmct = openmct;
+    this._destroy = null;
+  }
 
-    view(selection) {
-        let component;
-        let domainObject = selection[0][0].context.item;
-        const tableConfiguration = new FrameWatchTableConfiguration(domainObject, openmct, this.type);
-
-        return {
-            show: function (element) {
-                component = new Vue({
-                    provide: {
-                        openmct,
-                        tableConfiguration
-                    },
-                    components: {
-                        TableConfiguration: TableConfigurationComponent
-                    },
-                    template: '<table-configuration></table-configuration>',
-                    el: element
-                });
-            },
-            priority: function () {
-                return openmct.priority.HIGH + 1;
-            },
-            destroy: function () {
-                component.$destroy();
-                component = undefined;
-            }
-        }
+  canView(selection) {
+    if (selection.length === 0) {
+      return false;
     }
+    let object = selection[0][0].context.item;
+    return object && object.type === this.type;
+  }
 
-    priority() {
-        return 1;
-    }
+  view(selection) {
+    const self = this;
+    const domainObject = selection[0][0].context.item;
+    const tableConfiguration = new FrameWatchTableConfiguration(
+      domainObject,
+      this.openmct,
+      this.type
+    );
+
+    return {
+      show: function (element) {
+        const componentDefinition = {
+          provide: {
+            openmct: self.openmct,
+            tableConfiguration
+          },
+          components: {
+            TableConfiguration: TableConfigurationComponent
+          },
+          template: '<table-configuration></table-configuration>'
+        };
+
+        const componentOptions = {
+          element
+        };
+
+        const { destroy } = mount(componentDefinition, componentOptions);
+
+        this._destroy = destroy;
+      },
+      priority: function () {
+        return self.openmct.priority.HIGH + 1;
+      },
+      destroy: function () {
+        this._destroy?.();
+      }
+    };
+  }
+
+  priority() {
+    return 1;
+  }
 }

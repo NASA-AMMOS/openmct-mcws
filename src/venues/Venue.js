@@ -1,62 +1,55 @@
-define([
-    'services/session/SessionService'
-], function (
-    sessionServiceDefault
-) {
-    const SessionService = sessionServiceDefault.default;
-    const DATASET_FIELDS = [
-        "prefix",
-        "mcwsRootUrl",
-        "channelDictionaryUrl",
-        "channelEnumerationDictionaryUrl",
-        "channelHistoricalUrl",
-        "channelMinMaxUrl",
-        "channelLADUrl",
-        "channelStreamUrl",
-        "sessionUrl",
-        "sessionLADUrl",
-        "eventRecordDictionaryUrl",
-        "evrHistoricalUrl",
-        "evrLADUrl",
-        "evrStreamUrl",
-        "dataProductUrl",
-        "dataProductContentUrl",
-        "dataProductStreamUrl",
-        "packetUrl",
-        "packetContentUrl",
-        "packetSummaryEventStreamUrl",
-        "commandEventUrl",
-        "commandEventStreamUrl",
-        "messageStreamUrl",
-        "frameSummaryStreamUrl",
-    ];
+import SessionService from 'services/session/SessionService';
+import constants from '../constants';
 
-    function Venue(configuration, openmct) {
-        this.host = configuration.host;
-        this.model = DATASET_FIELDS.reduce(function (m, field) {
-            if (configuration.hasOwnProperty(field)) {
-                m[field] = configuration[field];
-            }
-            return m;
-        }, {});
-        this.model.type = 'vista.dataset';
-        this.model.name = configuration.name;
-        this.sessionService = SessionService();
-    }
+const ADDITIONAL_FIELDS = [
+  'prefix',
+  'mcwsRootUrl',
+  'sessionUrl',
+  'sessionLADUrl',
+  'packetSummaryEventStreamUrl',
+  'commandEventUrl',
+  'commandEventStreamUrl'
+];
+const DATASET_FIELDS = [
+  ...ADDITIONAL_FIELDS,
+  ...constants.DICTIONARY_PROPERTIES,
+  ...constants.EVR_PROPERTIES,
+  ...constants.CHANNEL_PROPERTIES,
+  ...constants.CHANNEL_TAXONOMY_PROPERTIES,
+  ...constants.DATA_PRODUCT_PROPERTIES,
+  ...constants.PACKET_PROPERTIES,
+  ...constants.WEBSOCKET_STREAM_URL_KEYS
+];
 
-    Venue.prototype.allowsRealtime = function () {
-        return !!this.model.sessionLADUrl;
-    }
+class Venue {
+  constructor(configuration) {
+    this.host = configuration.host;
+    this.domainObject = DATASET_FIELDS.reduce((domainObject, field) => {
+      if (Object.hasOwn(configuration, field)) {
+        domainObject[field] = configuration[field];
+      }
 
-    Venue.prototype.getActiveSessions = function () {
-        return this.sessionService.getActiveSessions(this.model.sessionLADUrl);
-    }
+      return domainObject;
+    }, {});
+    this.domainObject.type = 'vista.dataset';
+    this.domainObject.name = configuration.name;
+    this.sessionService = new SessionService();
+  }
 
-    Venue.prototype.getModel = function () {
-        var model = JSON.parse(JSON.stringify(this.model));
-        model.name = model.name + ' Dataset';
-        return model;
-    }
+  allowsRealtime() {
+    return Boolean(this.domainObject.sessionLADUrl);
+  }
 
-    return Venue;
-});
+  getActiveSessions() {
+    return this.sessionService.getActiveSessions(this.domainObject.sessionLADUrl);
+  }
+
+  getDomainObject() {
+    const domainObject = JSON.parse(JSON.stringify(this.domainObject));
+    domainObject.name += ' Dataset';
+
+    return domainObject;
+  }
+}
+
+export default Venue;

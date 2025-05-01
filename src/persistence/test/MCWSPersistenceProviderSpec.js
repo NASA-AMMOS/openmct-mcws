@@ -1,189 +1,156 @@
-/*global define,Promise,describe,it,expect,beforeEach,jasmine*/
+import MCWSPersistenceProvider from '../MCWSPersistenceProvider';
+import mcws from 'services/mcws/mcws';
 
-define([
-    // "../src/MCWSPersistenceProvider",
-    // '../../../services/mcws/mcws'
-], function (
-    // MCWSPersistenceProvider,
-    // mcwsDefault
-) {
-    "use strict";
+describe('The MCWS Persistence Provider', () => {
+  let mockNamespaceService;
+  let persistenceNamespaces;
+  let mockNamespace;
+  let mockOpaqueFile;
+  let openmct;
+  let mcwsPersistenceProvider;
 
-    // const mcws = mcwsDefault.default;
+  beforeEach(() => {
+    openmct = {
+      user: {
+        getCurrentUser: () => Promise.resolve({ id: 'myUser' })
+      }
+    };
 
-    xdescribe("The MCWS Persistence Provider", function () {
-        var mockQ,
-            mockNamespaceService,
-            persistenceNamespaces,
-            mockNamespace,
-            mockOpaqueFile,
-            persistence;
+    spyOn(mcws, 'namespace');
+    mockNamespaceService = jasmine.createSpyObj('namespaceService', ['getPersistenceNamespaces']);
 
-        beforeEach(function () {
-            mockQ = jasmine.createSpyObj("$q", ["when"]);
-            spyOn(mcws, 'namespace');
-            mockNamespaceService = jasmine.createSpyObj(
-                "namespaceService",
-                ["getPersistenceNamespaces"]
-            );
-            persistenceNamespaces = [
-                {
-                    key: "testSpace",
-                    url: "/test/namespace"
-                },
-                {
-                    key: "testSpace2",
-                    url: "/test/namespace2"
-                }
-            ];
+    persistenceNamespaces = [
+      {
+        key: 'testSpace',
+        url: '/test/namespace'
+      },
+      {
+        key: 'testSpace2',
+        url: '/test/namespace2'
+      }
+    ];
 
-            mockNamespaceService
-                .getPersistenceNamespaces
-                .and.returnValue(Promise.resolve(persistenceNamespaces));
+    mockNamespaceService.getPersistenceNamespaces.and.returnValue(
+      Promise.resolve(persistenceNamespaces)
+    );
 
+    mockNamespace = jasmine.createSpyObj('namespace', ['opaqueFile', 'read']);
+    mockOpaqueFile = jasmine.createSpyObj('opaqueFile', ['read', 'replace', 'remove', 'create']);
 
-            mockNamespace =
-                jasmine.createSpyObj("namespace", ["opaqueFile", "read"]);
-            mockOpaqueFile = jasmine.createSpyObj("opaqueFile", [
-                "read",
-                "replace",
-                "remove",
-                "create"
-            ]);
+    mcws.namespace.and.returnValue(mockNamespace);
+    mockNamespace.opaqueFile.and.returnValue(mockOpaqueFile);
 
-            mockQ.when.and.callFake(function (resolver) {
-                return Promise.resolve(resolver);
-            });
+    mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, persistenceNamespaces);
+  });
 
-            mcws.namespace.and.returnValue(mockNamespace);
-            mockNamespace.opaqueFile.and.returnValue(mockOpaqueFile);
+  it('provides a promise for available namespaces', async () => {
+    const spaces = await mcwsPersistenceProvider.getPersistenceNamespaces();
+    expect(spaces).toEqual(persistenceNamespaces);
+  });
 
-            persistence = new MCWSPersistenceProvider(
-                mockQ,
-                mockNamespaceService
-            );
-        });
+  // DO WE DELETE THIS TEST? I don't think we use this functionality anymore.
+  xit('provides a listing of namespaces when provided a namespace definition', async () => {
+    const namespaceTriples = [
+      {
+        Subject: '/test/namespace/a',
+        Predicate: 'has MIO type',
+        Object: 'opaque_file'
+      },
+      {
+        Subject: '/test/namespace/b',
+        Predicate: 'has MIO type',
+        Object: 'namespace'
+      },
+      {
+        Subject: '/test/namespace/c',
+        Predicate: 'something else',
+        Object: 'opaque_file'
+      },
+      {
+        Subject: '/some/namespace/xyz',
+        Predicate: 'has MIO type',
+        Object: 'opaque_file'
+      },
+      {
+        Subject: '/some/namespace/123-ABC',
+        Predicate: 'has MIO type',
+        Object: 'opaque_file'
+      }
+    ];
+    mockNamespace.read.and.returnValue(Promise.resolve(namespaceTriples));
 
-        it("provides a promise for available spaces", function (done) {
-            persistence.listSpaces()
-                .then(function (spaces) {
-                    expect(spaces).toEqual(['testSpace', 'testSpace2']);
-                    done();
-                })
-        });
+    const objects = await mcwsPersistenceProvider.getNamespacesFromMCWS({ url: '/test/namespace' });
+    expect(objects).toEqual(namespaceTriples);
+  });
 
-        it("provides a listing of identifiers", function (done) {
-            mockNamespace.read.and.returnValue(Promise.resolve([
-                {
-                    Subject: "/test/namespace/a",
-                    Predicate: "has MIO type",
-                    Object: "opaque_file"
-                },
-                {
-                    Subject: "/test/namespace/b",
-                    Predicate: "has MIO type",
-                    Object: "namespace"
-                },
-                {
-                    Subject: "/test/namespace/c",
-                    Predicate: "something else",
-                    Object: "opaque_file"
-                },
-                {
-                    Subject: "/some/namespace/xyz",
-                    Predicate: "has MIO type",
-                    Object: "opaque_file"
-                },
-                {
-                    Subject: "/some/namespace/123-ABC",
-                    Predicate: "has MIO type",
-                    Object: "opaque_file"
-                }
-            ]));
-            persistence
-                .listObjects("testSpace")
-                .then(function (objects) {
-                    expect(objects).toEqual(["a", "xyz", "123-ABC"]);
-                    done();
-                });
-        });
+  it('allows objects to be created', async () => {
+    mockOpaqueFile.create.and.returnValue(Promise.resolve(true));
+    const domainObject = {
+      identifier: {
+        key: 'testKey',
+        namespace: 'testSpace'
+      },
+      someKey: 'some value'
+    };
+    const result = await mcwsPersistenceProvider.create(domainObject);
 
-        it("allows objects to be created", function (done) {
-            mockOpaqueFile.create.and.returnValue(Promise.resolve(true));
-            persistence
-                .createObject(
-                    "testSpace",
-                    "testKey",
-                    { someKey: "some value" }
-                )
-                .then(function (result) {
-                    expect(result).toBe(true);
-                    expect(mockNamespace.opaqueFile)
-                        .toHaveBeenCalledWith("testKey");
-                    expect(mockOpaqueFile.create)
-                        .toHaveBeenCalledWith({ someKey: "some value" });
-                    done();
-                });
-        });
+    expect(result).toBe(true);
+    expect(mockNamespace.opaqueFile).toHaveBeenCalledWith('testKey');
+    expect(mockOpaqueFile.create).toHaveBeenCalledWith({ someKey: 'some value' });
+  });
 
-        it("allows objects to be read", function (done) {
-            mockOpaqueFile.read.and.returnValue(Promise.resolve("test object"));
-            persistence
-                .readObject("testSpace", "testKey")
-                .then(function (object) {
-                    expect(object).toBe("test object");
-                    expect(mcws.namespace)
-                        .toHaveBeenCalledWith("/test/namespace");
-                    expect(mockNamespace.opaqueFile)
-                        .toHaveBeenCalledWith("testKey");
-                    expect(mockOpaqueFile.read)
-                        .toHaveBeenCalled();
-                    done();
-                });
-        });
+  it('allows objects to be read', async () => {
+    const identifier = {
+      key: 'testKey',
+      namespace: 'testSpace'
+    };
+    const model = {
+      someKey: 'some value'
+    };
+    const domainObject = {
+      identifier,
+      ...model
+    };
+    mockOpaqueFile.read.and.returnValue(Promise.resolve({ json: () => Promise.resolve(model) }));
+    const object = await mcwsPersistenceProvider.get(identifier);
 
-        it("allows objects to be updated", function (done) {
-            mockOpaqueFile.replace.and.returnValue(Promise.resolve(true));
-            persistence
-                .updateObject(
-                    "testSpace",
-                    "testKey",
-                    { someKey: "some value" }
-                )
-                .then(function (result) {
-                    expect(result).toBe(true);
-                    expect(mcws.namespace)
-                        .toHaveBeenCalledWith("/test/namespace");
-                    expect(mockNamespace.opaqueFile)
-                        .toHaveBeenCalledWith("testKey");
-                    expect(mockOpaqueFile.replace)
-                        .toHaveBeenCalledWith({ someKey: "some value" });
-                    done();
-                })
-        });
+    expect(object).toEqual(domainObject);
+    expect(mcws.namespace).toHaveBeenCalledWith('/test/namespace');
+    expect(mockNamespace.opaqueFile).toHaveBeenCalledWith('testKey');
+    expect(mockOpaqueFile.read).toHaveBeenCalled();
+  });
 
-        it("allows objects to be deleted", function (done) {
-            mockOpaqueFile.remove.and.returnValue(Promise.resolve(true));
-            persistence
-                .deleteObject("testSpace", "testKey")
-                .then(function (result) {
-                    expect(mcws.namespace)
-                        .toHaveBeenCalledWith("/test/namespace");
-                    expect(mockNamespace.opaqueFile)
-                        .toHaveBeenCalledWith("testKey");
-                    expect(mockOpaqueFile.remove).toHaveBeenCalled();
-                    done();
-                })
-        });
+  it('allows objects to be updated', async () => {
+    mockOpaqueFile.replace.and.returnValue(Promise.resolve(true));
+    const domainObject = {
+      identifier: {
+        key: 'testKey',
+        namespace: 'testSpace'
+      },
+      someKey: 'some value'
+    };
+    const result = await mcwsPersistenceProvider.update(domainObject);
 
-        it("converts rejected promises to promises resolves to undefined", function (done) {
-            mockOpaqueFile.read.and.returnValue(Promise.reject("hello"));
-            persistence
-                .readObject("testSpace", "testKey")
-                .then(function (result) {
-                    expect(result).toBeUndefined();
-                    done();
-                })
-        });
-    });
+    expect(result).toBe(true);
+    expect(mcws.namespace).toHaveBeenCalledWith('/test/namespace');
+    expect(mockNamespace.opaqueFile).toHaveBeenCalledWith('testKey');
+    expect(mockOpaqueFile.replace).toHaveBeenCalledWith({ someKey: 'some value' });
+  });
+
+  // We don't allow delete in the core API, so we don't need this test.
+  xit('allows objects to be deleted', async () => {
+    mockOpaqueFile.remove.and.returnValue(Promise.resolve(true));
+    await mcwsPersistenceProvider.delete({ key: 'testKey', namespace: 'testSpace' });
+
+    expect(mcws.namespace).toHaveBeenCalledWith('/test/namespace');
+    expect(mockNamespace.opaqueFile).toHaveBeenCalledWith('testKey');
+    expect(mockOpaqueFile.remove).toHaveBeenCalled();
+  });
+
+  it('converts rejected promises to promises resolves to undefined', async () => {
+    mockOpaqueFile.read.and.returnValue(Promise.reject('hello'));
+    const result = await mcwsPersistenceProvider.get({ key: 'testKey', namespace: 'testSpace' });
+
+    expect(result).toBeUndefined();
+  });
 });

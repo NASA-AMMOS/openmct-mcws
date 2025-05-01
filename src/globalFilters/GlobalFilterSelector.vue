@@ -4,7 +4,10 @@
       <div class="c-overlay__dialog-title">Apply Global Filters</div>
     </div>
     <div class="c-overlay__dialog-hint">
-      <span>Apply Global Filters to all views. Will force re-query. Persisted filters on objects will override global filters.</span>
+      <span
+        >Apply Global Filters to all views. Will force re-query. Persisted filters on objects will
+        override global filters.</span
+      >
     </div>
 
     <ul class="c-inspect-properties">
@@ -29,29 +32,32 @@
       >
         Update Filters
       </button>
-      <button @click="cancel()" class="c-button">
-        Cancel
-      </button>
+      <button class="c-button" @click="cancel()">Cancel</button>
     </div>
   </div>
 </template>
 
 <script>
 import FilterField from './FilterField.vue';
+import { toRaw } from 'vue';
 
 export default {
-  inject: [
-    'openmct',
-    'filters'
-  ],
+  components: {
+    FilterField
+  },
+  inject: ['openmct', 'filters'],
   props: {
     activeFilters: {
       type: Object,
       required: true
     }
   },
-  components: {
-    FilterField
+  emits: ['close-filter-selector', 'update-filters'],
+  data() {
+    return {
+      updatedFilters: {},
+      hasFiltersChanged: true
+    };
   },
   watch: {
     updatedFilters: {
@@ -61,15 +67,8 @@ export default {
       deep: true
     }
   },
-  data() {
-    return {
-      updatedFilters: {},
-      hasFiltersChanged: true
-    };
-  },
   mounted() {
-    this.updatedFilters = structuredClone(this.activeFilters);
-
+    this.updatedFilters = structuredClone(toRaw(this.activeFilters));
     this.openOverlay();
   },
   methods: {
@@ -84,7 +83,7 @@ export default {
       this.updatedFilters[key][comparator] = value;
     },
     updateFilters() {
-      this.$emit('update-filters', this.updatedFilters);
+      this.$emit('update-filters', toRaw(this.updatedFilters));
 
       this.closeOverlay();
     },
@@ -94,7 +93,7 @@ export default {
     openOverlay() {
       this.overlay = this.openmct.overlays.overlay({
         element: this.$el,
-        size: 'small',
+        size: 'fit',
         dismissable: true,
         onDestroy: () => {
           this.$emit('close-filter-selector');
@@ -108,5 +107,5 @@ export default {
       }
     }
   }
-}
+};
 </script>

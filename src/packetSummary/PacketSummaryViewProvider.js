@@ -1,78 +1,92 @@
-import Vue from 'vue';
+import mount from 'ommUtils/mountVueComponent';
 import PacketSummaryTable from './PacketSummaryTable.js';
 import PacketSummaryViewComponent from './components/PacketSummaryViewComponent.vue';
 
 export default class ProductSummaryViewProvider {
-    constructor(openmct) {
-        this.openmct = openmct;
+  constructor(openmct, options) {
+    this.openmct = openmct;
+    this.options = options;
 
-        this.key = 'vista.packetSummaryViewProvider';
-        this.name = 'Packet Summary View';
-        this.cssClass = 'icon-tabular-realtime';
-    }
+    this.key = 'vista.packetSummaryViewProvider';
+    this.name = 'Packet Summary View';
+    this.cssClass = 'icon-tabular-realtime';
+  }
 
-    canView(domainObject) {
-        return domainObject.type === 'vista.packetSummaryEvents' || domainObject.type === 'vista.packetSummaryView';
-    }
+  canView(domainObject) {
+    return (
+      domainObject.type === 'vista.packetSummaryEvents' ||
+      domainObject.type === 'vista.packetSummaryView'
+    );
+  }
 
-    view(domainObject, objectPath) {
-        let table = new PacketSummaryTable(domainObject, openmct);
-        let component;
+  view(domainObject, objectPath) {
+    let component;
+    let _destroy = null;
+    const self = this;
 
-        const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
-                    components: {
-                        PacketSummaryViewComponent
-                    },
-                    data() {
-                        return {
-                            isEditing: editMode,
-                            view
-                        };
-                    },
-                    provide: {
-                        openmct,
-                        table,
-                        objectPath,
-                        currentView: view
-                    },
-                    template:
-                        `<packet-summary-view-component
+    const table = new PacketSummaryTable(domainObject, this.openmct, this.options);
+
+    const view = {
+      show: function (element, editMode, { renderWhenVisible }) {
+        const componentDefinition = {
+          components: {
+            PacketSummaryViewComponent
+          },
+          data() {
+            return {
+              isEditing: editMode,
+              view
+            };
+          },
+          provide: {
+            openmct: self.openmct,
+            table,
+            objectPath,
+            currentView: view,
+            renderWhenVisible
+          },
+          template: `<packet-summary-view-component
                             ref="packetSummaryViewComponent"
                             :view="view"
                             :isEditing="isEditing"
                         />`
-                });
-            },
-            onEditModeChange(editMode) {
-                component.isEditing = editMode;
-            },
-            onClearData() {
-                table.clearData();
-            },
-            getViewContext() {
-                if (component) {
-                    let context = component.$refs.packetSummaryViewComponent.getViewContext();
-
-                    return context;
-                } else {
-                    return {
-                        type: 'telemetry-table'
-                    };
-                }
-            },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
-            }
         };
 
-        return view;
-    }
-     
-    canEdit(domainObject) {
-        return domainObject.type === 'vista.packetSummaryView';
-    }
+        const componentOptions = {
+          element
+        };
+
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
+
+        component = componentInstance;
+        _destroy = destroy;
+      },
+      onEditModeChange(editMode) {
+        component.isEditing = editMode;
+      },
+      onClearData() {
+        table.clearData();
+      },
+      getViewContext() {
+        if (component) {
+          let context = component.$refs.packetSummaryViewComponent.getViewContext();
+
+          return context;
+        } else {
+          return {
+            type: 'telemetry-table'
+          };
+        }
+      },
+      destroy: function () {
+        _destroy?.();
+      }
+    };
+
+    return view;
+  }
+
+  canEdit(domainObject) {
+    return domainObject.type === 'vista.packetSummaryView';
+  }
 }

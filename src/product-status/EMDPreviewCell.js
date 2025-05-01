@@ -1,8 +1,8 @@
-import DataProductCell from './DataProductCell.js'
+import DataProductCell from './DataProductCell.js';
 
 export default {
-    extends: DataProductCell,
-    template: `
+  extends: DataProductCell,
+  template: `
         <td class="c-data-products-cell-content">
             <a
                 v-if="formattedValue"
@@ -15,4 +15,4 @@ export default {
             </a>
         </td>
     `
-}
+};

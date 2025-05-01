@@ -1,47 +1,50 @@
-import Vue from 'vue';
+import mount from 'ommUtils/mountVueComponent';
 import HistoricalSessionIndicator from './indicator/historicalSessionIndicator.vue';
 import SessionTable from './sessionTable/SessionTable';
 import HistoricalSessionMetadata from './HistoricalSessionMetadata';
 
-export default function HistoricalSessionsPlugin() {
-    return function install(openmct) {
-        let indicator = {
-                element: document.createElement('div'),
-                priority: -1
-            };
-
-        openmct.indicators.add(indicator);
-
-        openmct.on('start', () => {
-            let instantiate = openmct.$injector.get('instantiate'),
-                model = {
-                    identifier: {
-                        key: 'session-historical',
-                        namespace: ''
-                    },
-                    name: 'Historical Session',
-                    type: 'vista.channel'
-                };
-            
-            let oldStyleDomainObject = instantiate(model),
-                newStyleDomainObject = oldStyleDomainObject.useCapability('adapter');
-
-            let table = new SessionTable(newStyleDomainObject, openmct, HistoricalSessionMetadata),
-                objectPath = [model];
-
-            let component = new Vue ({
-                el: indicator.element,
-                provide: {
-                    openmct,
-                    table,
-                    objectPath,
-                    currentView: {}
-                },
-                components: {
-                    HistoricalSessionIndicator
-                },
-                template: '<HistoricalSessionIndicator></HistoricalSessionIndicator>'
-            });
-        });
+export default function HistoricalSessionsPlugin(options) {
+  return function install(openmct) {
+    const renderWhenVisible = (func) => {
+      window.requestAnimationFrame(func);
+      return true;
     };
+
+    const domainObject = {
+      identifier: {
+        key: 'session-historical',
+        namespace: ''
+      },
+      name: 'Historical Session',
+      type: 'vista.historical-session'
+    };
+
+    const table = new SessionTable(domainObject, openmct, options, HistoricalSessionMetadata);
+    const objectPath = [domainObject];
+
+    const componentDefinition = {
+      provide: {
+        openmct,
+        table,
+        objectPath,
+        currentView: {},
+        renderWhenVisible
+      },
+      components: {
+        HistoricalSessionIndicator
+      },
+      template: '<HistoricalSessionIndicator></HistoricalSessionIndicator>'
+    };
+
+    const { destroy, el } = mount(componentDefinition);
+
+    const indicator = {
+      key: 'historical-session-indicator',
+      element: el,
+      priority: -1,
+      destroy
+    };
+
+    openmct.indicators.add(indicator);
+  };
 }

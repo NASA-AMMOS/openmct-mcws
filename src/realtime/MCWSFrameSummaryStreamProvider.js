@@ -1,42 +1,38 @@
-/*global define*/
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-define([
-    './MCWSStreamProvider'
-], function (
-    MCWSStreamProvider
-) {
-    'use strict';
+/**
+ * Provides real-time streaming DataProduct data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSFrameSummaryStreamProvider extends MCWSStreamProvider {
+  /**
+   * Get the URL for streaming data for this domain object
+   * @param {Object} domainObject The domain object
+   * @returns {String} The URL to use for streaming
+   */
+  getUrl(domainObject) {
+    return domainObject.telemetry?.frameSummaryStreamUrl;
+  }
 
-    /**
-     * Provides real-time streaming DataProduct data.
-     * @constructor
-     * @augments {MCWSStreamProvider}
-     * @memberof {vista/telemetry}
-     */
-    var MCWSFrameSummaryStreamProvider = MCWSStreamProvider.extend({
-        constructor: function (openmct, vistaTime) {
-            MCWSStreamProvider.call(this, openmct, vistaTime);
-        }
-    });
+  /**
+   * Get the key to use for this stream
+   * @param {Object} domainObject The domain object
+   * @returns {undefined} Always returns undefined to match on undefined properties
+   */
+  getKey() {
+    // We return undefined so that we can match on undefined properties.
+    return undefined;
+  }
 
-    MCWSFrameSummaryStreamProvider.prototype.getUrl = function (domainObject) {
-        return domainObject.telemetry && domainObject.telemetry.frameSummaryStreamUrl;
-    };
+  /**
+   * Get the property to use for this stream
+   * @returns {String} The property name
+   */
+  getProperty() {
+    // We just want something that returns undefined so it matches the
+    // key above. Hacky.
+    return 'some_undefined_property';
+  }
+}
 
-    MCWSFrameSummaryStreamProvider.prototype.getKey = function (domainObject) {
-        // We return undefined so that we can match on undefined properties.
-        return undefined;
-    };
-
-    MCWSFrameSummaryStreamProvider.prototype.getProperty = function () {
-        // We just want something that returns undefined so it matches the
-        // key above.  Hacky.
-        return 'some_undefined_property';
-    };
-
-    MCWSFrameSummaryStreamProvider.prototype.notifyWorker = function (key, value) {
-        MCWSStreamProvider.prototype.notifyWorker.call(this, key, value);
-    };
-
-    return MCWSFrameSummaryStreamProvider;
-});
+export default MCWSFrameSummaryStreamProvider;

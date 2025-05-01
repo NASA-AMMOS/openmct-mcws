@@ -1,92 +1,104 @@
 import ChannelTable from './ChannelTable';
 import TableComponent from 'openmct.tables.components.Table';
-import Vue from 'vue';
+import mount from 'ommUtils/mountVueComponent';
 
-export default class ChannelTableViewProvider { 
-    constructor(openmct) {
-        this.openmct = openmct;
-        this.key = 'vista.channel-list';
-        this.name = 'Channel List';
-        this.cssClass = 'icon-tabular-realtime';
+export default class ChannelTableViewProvider {
+  constructor(openmct, options) {
+    this.openmct = openmct;
+    this.options = options;
 
-        this.view = this.view.bind(this);
-    }
-    
-    canView(domainObject) {
-        return domainObject.type === 'vista.chanTableGroup';
-    }
+    this.key = 'vista.channel-list';
+    this.name = 'Channel List';
+    this.cssClass = 'icon-tabular-realtime';
 
-    canEdit(domainObject) {
-        return domainObject.type === 'vista.chanTableGroup';
-    }
+    this.view = this.view.bind(this);
+  }
 
-    view(domainObject, objectPath) {
-        let component;
-        let markingProp = {
-            enable: true,
-            useAlternateControlBar: false,
-            rowName: '',
-            rowNamePlural: ''
-        };
+  canView(domainObject) {
+    return domainObject.type === 'vista.chanTableGroup';
+  }
 
-        const table = new ChannelTable(domainObject, this.openmct);
-        const view = {
-            show(element, isEditing) {
-                component = new Vue({
-                    data() {
-                        return {
-                            isEditing,
-                            markingProp,
-                            view
-                        }
-                    },
-                    components: {
-                        TableComponent
-                    },
-                    provide: {
-                        openmct,
-                        table,
-                        objectPath,
-                        currentView: view
-                    },
-                    el: element,
-                    template: `
+  canEdit(domainObject) {
+    return domainObject.type === 'vista.chanTableGroup';
+  }
+
+  view(domainObject, objectPath) {
+    let component;
+    let _destroy = null;
+    const self = this;
+
+    const markingProp = {
+      enable: true,
+      useAlternateControlBar: false,
+      rowName: '',
+      rowNamePlural: ''
+    };
+    const table = new ChannelTable(domainObject, this.openmct, this.options);
+
+    const view = {
+      show(element, isEditing, { renderWhenVisible }) {
+        const componentDefinition = {
+          data() {
+            return {
+              isEditing,
+              markingProp,
+              view
+            };
+          },
+          components: {
+            TableComponent
+          },
+          provide: {
+            openmct: self.openmct,
+            table,
+            objectPath,
+            currentView: view,
+            renderWhenVisible
+          },
+          template: `
                     <table-component
-                        class="js-channel-list-view"
+                        :class="'js-channel-list-view'"
                         ref="tableComponent"
                         :isEditing="isEditing"
                         :marking="markingProp"
                         :allowFiltering="false"
-                        :allowSorting="false"
+                        :allowSorting="true"
                         :view="view"
                     ></table-component>`
-                });
-            },
-            onEditModeChange(isEditing) {
-                component.isEditing = isEditing;
-            },
-            onClearData() {
-                table.clearData();
-            },
-            getViewContext() {
-                if (component) {
-                    return component.$refs.tableComponent.getViewContext();
-                } else {
-                    return {
-                        type: 'telemetry-table'
-                    };
-                }
-            },
-            destroy() {
-                component.$destroy();
-                component = undefined;
-            }
+        };
+        const componentOptions = {
+          element
+        };
+
+        const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
+
+        component = componentInstance;
+        _destroy = destroy;
+      },
+      onEditModeChange(isEditing) {
+        component.isEditing = isEditing;
+      },
+      onClearData() {
+        table.clearData();
+      },
+      getViewContext() {
+        if (component) {
+          return component.$refs.tableComponent.getViewContext();
+        } else {
+          return {
+            type: 'telemetry-table'
+          };
         }
+      },
+      destroy() {
+        _destroy?.();
+      }
+    };
 
-        return view;
-    }
+    return view;
+  }
 
-    priority() {
-        return 851;
-    }
-};
+  priority() {
+    return 851;
+  }
+}

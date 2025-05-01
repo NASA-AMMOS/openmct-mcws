@@ -1,45 +1,52 @@
 import FolderListViewComponent from 'openmct.views.FolderListViewComponent';
-import Vue from 'vue';
+import mount from 'ommUtils/mountVueComponent';
 
 export default class FolderListView {
-    constructor(openmct, types) {
-        this.openmct = openmct;
-        this.types = types;
+  constructor(openmct, types) {
+    this.openmct = openmct;
+    this.types = types;
 
-        this.key = 'vista.folderListView';
-        this.name = 'Folder List View';
-        this.cssClass = 'icon-folder';
-    }
+    this.key = 'vista.folderListView';
+    this.name = 'Folder List View';
+    this.cssClass = 'icon-folder';
+  }
 
-    canView(domainObject) {
-        return this.types.includes(domainObject.type);
-    }
+  canView(domainObject) {
+    return this.types.includes(domainObject.type);
+  }
 
-    view(domainObject, objectPath) {
-        let component;
+  view(domainObject, objectPath) {
+    let _destroy = null;
+    const self = this;
 
-        return {
-            show: function (element) {
-                component = new Vue({
-                    el: element,
-                    components: {
-                        listViewComponent: FolderListViewComponent
-                    },
-                    provide: {
-                        openmct,
-                        domainObject
-                    },
-                    template: '<list-view-component></list-view-component>'
-                });
-            },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
-            }
+    return {
+      show: function (element) {
+        const componentDefinition = {
+          components: {
+            listViewComponent: FolderListViewComponent
+          },
+          provide: {
+            openmct: self.openmct,
+            domainObject
+          },
+          template: '<list-view-component></list-view-component>'
         };
-    }
 
-    priority() {
-        return this.openmct.priority.LOW;
-    }
+        const componentOptions = {
+          element
+        };
+
+        const { destroy } = mount(componentDefinition, componentOptions);
+
+        _destroy = destroy;
+      },
+      destroy: function () {
+        _destroy?.();
+      }
+    };
+  }
+
+  priority() {
+    return this.openmct.priority.LOW;
+  }
 }

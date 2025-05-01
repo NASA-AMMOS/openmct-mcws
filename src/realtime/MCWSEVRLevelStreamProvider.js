@@ -1,35 +1,38 @@
-/*global define*/
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-define([
-    './MCWSStreamProvider',
-    'lodash'
-], function (
-    MCWSStreamProvider,
-    _
-) {
-    'use strict';
+/**
+ * Provides real-time streaming EVR data by level.
+ * @memberof {vista/telemetry}
+ */
+class MCWSEVRLevelStreamProvider extends MCWSStreamProvider {
+  /**
+   * Get the URL for streaming data for this domain object
+   * @param {Object} domainObject The domain object
+   * @returns {String} The URL to use for streaming
+   */
+  getUrl(domainObject) {
+    if (domainObject.telemetry?.evrStreamUrl && domainObject.telemetry?.level) {
+      return domainObject.telemetry.evrStreamUrl;
+    }
+  }
 
-    /**
-     * Provides real-time streaming EVR data by level.
-     * @constructor
-     * @augments {MCWSStreamProvider}
-     * @memberof {vista/telemetry}
-     */
-    var MCWSEVRLevelStreamProvider = MCWSStreamProvider.extend({});
+  /**
+   * Get the property to use for this stream
+   * @param {Object} domainObject The domain object
+   * @returns {String} The property name
+   */
+  getProperty() {
+    return 'level';
+  }
 
-    MCWSEVRLevelStreamProvider.prototype.getUrl = function (domainObject) {
-        if (domainObject.telemetry && domainObject.telemetry.level) {
-            return domainObject.telemetry.evrStreamUrl;
-        }
-    };
+  /**
+   * Get the key to use for this stream
+   * @param {Object} domainObject The domain object
+   * @returns {String} The key
+   */
+  getKey(domainObject) {
+    return domainObject.telemetry.level;
+  }
+}
 
-    MCWSEVRLevelStreamProvider.prototype.getProperty = function (domainObject) {
-        return 'level';
-    };
-
-    MCWSEVRLevelStreamProvider.prototype.getKey = function (domainObject) {
-        return domainObject.telemetry.level;
-    };
-
-    return MCWSEVRLevelStreamProvider;
-});
+export default MCWSEVRLevelStreamProvider;

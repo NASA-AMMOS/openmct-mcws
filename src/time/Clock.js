@@ -1,37 +1,25 @@
-define([
-    '../lib/extend',
-    'EventEmitter',
-    'lodash'
-], function (
-    extend,
-    EventEmitter,
-    _
-) {
+import { EventEmitter } from 'eventemitter3';
 
-    function Clock() {
-        this.value = 0;
-        if (this.initialize) {
-            this.initialize.apply(this, arguments);
-        }
+export default class Clock extends EventEmitter {
+  constructor() {
+    super();
+
+    this.value = 0;
+    this.cssClass = 'icon-clock';
+
+    if (this.initialize) {
+      this.initialize.apply(this, arguments);
     }
+  }
 
-    Clock.extend = extend;
+  currentValue() {
+    return this.value;
+  }
 
-    _.assignIn(Clock.prototype, EventEmitter.prototype);
-
-    Clock.prototype.cssClass = 'icon-clock';
-
-    Clock.prototype.currentValue = function () {
-        return this.value;
-    };
-
-    Clock.prototype.tick = function (value) {
-        if (value !== this.value) {
-            this.value = value;
-            this.emit('tick', value);
-        }
-    };
-
-    return Clock;
-
-});
+  tick(value) {
+    if (value !== this.value) {
+      this.value = value;
+      this.emit('tick', value);
+    }
+  }
+}

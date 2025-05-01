@@ -1,108 +1,129 @@
-import Vue from 'vue';
 import TableComponent from 'openmct.tables.components.Table';
 import DataProductTable from './DataProductTable.js';
+import DATDownloadCell from './DATDownloadCell.js';
+import EMDDownloadCell from './EMDDownloadCell.js';
+import EMDPreviewCell from './EMDPreviewCell.js';
+import TXTDownloadCell from './TXTDownloadCell.js';
 
+import { createApp, defineComponent } from 'vue';
 export default class DataProductViewProvider {
-    constructor(openmct) {
-        this.openmct = openmct;
+  constructor(openmct, options) {
+    this.openmct = openmct;
+    this.options = options;
 
-        this.key = 'vista.productStatus';
-        this.name = 'Data Product View';
-        this.cssClass = 'icon-tabular-realtime';
-    }
+    this.key = 'vista.productStatus';
+    this.name = 'Data Product View';
+    this.cssClass = 'icon-tabular-realtime';
+  }
 
-    canView(domainObject) {
-        return domainObject.type === 'vista.dataProducts' || domainObject.type === 'vista.dataProductsView';
-    }
+  canView(domainObject) {
+    return (
+      domainObject.type === 'vista.dataProducts' || domainObject.type === 'vista.dataProductsView'
+    );
+  }
 
-    view(domainObject, objectPath) {
-        let table = new DataProductTable(domainObject, openmct);
-        let component;
-        let markingProp = {
-            enable: true,
-            useAlternateControlBar: false,
-            rowName: '',
-            rowNamePlural: ''
-        };
-        const view = {
-            show: function (element, editMode) {
-                component = new Vue({
-                    el: element,
-                    components: {
-                        TableComponent
-                    },
-                    data() {
-                        return {
-                            isEditing: editMode,
-                            markingProp,
-                            view
-                        };
-                    },
-                    provide: {
-                        openmct,
-                        table,
-                        objectPath,
-                        currentView: view
-                    },
-                    methods: {
-                        clearCompleted() {
-                            table.clearCompleted();
-                        },
-                        clearPartial() {
-                            table.clearPartial();
-                        }
-                    },
-                    template:
-                        `<table-component
+  view(domainObject, objectPath) {
+    let component;
+    let _destroy = null;
+
+    const openmct = this.openmct;
+    const table = new DataProductTable(domainObject, openmct, this.options);
+    const markingProp = {
+      enable: true,
+      useAlternateControlBar: false,
+      rowName: '',
+      rowNamePlural: ''
+    };
+
+    const view = {
+      show(element, editMode, { renderWhenVisible }) {
+        const componentDefinition = {
+          components: {
+            TableComponent
+          },
+          data() {
+            return {
+              isEditing: editMode,
+              markingProp
+            };
+          },
+          provide: {
+            openmct,
+            table,
+            objectPath,
+            currentView: view,
+            renderWhenVisible
+          },
+          methods: {
+            clearCompleted() {
+              table.clearCompleted();
+            },
+            clearPartial() {
+              table.clearPartial();
+            }
+          },
+          template: `<table-component
                             ref="tableComponent"
-                            class="v-data-products"
                             :allowSorting="true"
                             :isEditing="isEditing"
                             :marking="markingProp"
-                            :view="view"
                         ></table-component>`
-                });
-            },
-            onEditModeChange(editMode) {
-                component.isEditing = editMode;
-            },
-            onClearData() {
-                table.clearData();
-            },
-            getViewContext() {
-                if (component) {
-                    let context = component.$refs.tableComponent.getViewContext();
-
-                    context.dataProductView = true;
-                    context.clearCompleted = () => {
-                        table.clearCompleted();
-                    };
-                    context.clearPartial = () => {
-                        table.clearPartial();
-                    };
-                
-                    return context;
-                } else {
-                    return {
-                        type: 'telemetry-table',
-                        dataProductView: true
-                    };
-                }
-            },
-            destroy: function (element) {
-                component.$destroy();
-                component = undefined;
-            }
         };
 
-        return view;
-    }
-     
-    canEdit(domainObject) {
-        return domainObject.type === 'vista.dataProductsView';
-    }
+        const mountingElement = element ?? document.createElement('div');
 
-    priority() {
-        return Number.MAX_SAFE_INTEGER;
-    }
+        const vueComponent = defineComponent(componentDefinition);
+        const app = createApp(vueComponent);
+
+        app.component('VistaTableDatCell', DATDownloadCell);
+        app.component('VistaTableEmdCell', EMDDownloadCell);
+        app.component('VistaTableEmdPreviewCell', EMDPreviewCell);
+        app.component('VistaTableTxtCell', TXTDownloadCell);
+
+        const componentInstance = app.mount(mountingElement);
+
+        component = componentInstance;
+        _destroy = () => app.unmount();
+      },
+      onEditModeChange(editMode) {
+        component.isEditing = editMode;
+      },
+      onClearData() {
+        table.clearData();
+      },
+      getViewContext() {
+        if (component) {
+          let context = component.$refs.tableComponent.getViewContext();
+
+          context.dataProductView = true;
+          context.clearCompleted = () => {
+            table.clearCompleted();
+          };
+          context.clearPartial = () => {
+            table.clearPartial();
+          };
+
+          return context;
+        } else {
+          return {
+            type: 'telemetry-table',
+            dataProductView: true
+          };
+        }
+      },
+      destroy: function () {
+        _destroy?.();
+      }
+    };
+
+    return view;
+  }
+
+  canEdit(domainObject) {
+    return domainObject.type === 'vista.dataProductsView';
+  }
+
+  priority() {
+    return Number.MAX_SAFE_INTEGER;
+  }
 }

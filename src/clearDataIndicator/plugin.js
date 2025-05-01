@@ -1,25 +1,27 @@
-import Vue from 'vue';
-import ClearDataIndicator from './indicator/clearDataIndicator.vue';
+import mount from 'ommUtils/mountVueComponent';
+import ClearDataIndicator from './ClearDataIndicator.vue';
 
 export default function plugin(globalStalenessMs) {
-    return function install(openmct) {
-        let indicator = {
-            element: document.createElement('div')
-        };
-
-        openmct.indicators.add(indicator);
-        openmct.on('start', () => {
-            let component  = new Vue ({
-                el: indicator.element,
-                provide: {
-                    openmct,
-                    globalStalenessMs
-                },
-                components: {
-                    ClearDataIndicator
-                },
-                template: '<ClearDataIndicator />'
-            });
-        });
+  return function install(openmct) {
+    const componentDefinition = {
+      provide: {
+        openmct,
+        globalStalenessMs
+      },
+      components: {
+        ClearDataIndicator
+      },
+      template: '<ClearDataIndicator />'
     };
+
+    const { destroy, el } = mount(componentDefinition);
+
+    const indicator = {
+      key: 'clear-data-indicator',
+      element: el,
+      destroy
+    };
+
+    openmct.indicators.add(indicator);
+  };
 }

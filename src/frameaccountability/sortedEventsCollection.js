@@ -1,25 +1,27 @@
 import TableRowCollection from 'openmct.tables.collections.TableRowCollection';
+import _ from 'lodash';
 
 export default class SortedEventsCollection extends TableRowCollection {
-    constructor() {
-        super();
+  constructor() {
+    super();
 
-        this.sortOptions = {
-            key: 'event_time',
-            direction: 'asc'
-        };
-    }
+    this.sortOptions = {
+      key: 'event_time',
+      direction: 'asc'
+    };
+  }
 
-    getValueForSortColumn(row) {
-        return row[this.sortOptions.key];
-    }
+  getValueForSortColumn(row) {
+    return row[this.sortOptions.key];
+  }
 
-    sortCollection(rows) {
-        const sortedRows = _.orderBy(
-            rows,
-            row => this.getValueForSortColumn(row), this.sortOptions.direction
-        );
+  sortCollection(rows) {
+    const sortedRows = _.orderBy(
+      rows,
+      (row) => this.getValueForSortColumn(row),
+      this.sortOptions.direction
+    );
 
-        return sortedRows;
-    }
+    return sortedRows;
+  }
 }

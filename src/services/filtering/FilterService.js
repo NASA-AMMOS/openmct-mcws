@@ -1,8 +1,6 @@
-import EventEmitter from 'EventEmitter';
+import { EventEmitter } from 'eventemitter3';
 import FilterURLHandler from './FilterUrlHandler';
-import isEqual from 'lodash/isequal';
-import pickBy from 'lodash/pickby';
-import isEmpty from 'lodash/isempty';
+import { isEqual, pickBy, isEmpty } from 'lodash';
 
 class FilterService extends EventEmitter {
   constructor(openmct, config) {
@@ -21,7 +19,7 @@ class FilterService extends EventEmitter {
   getAvailableFilters() {
     const filters = {};
 
-    this.filtersConfig.forEach(config => filters[config.key] = {});
+    this.filtersConfig.forEach((config) => (filters[config.key] = {}));
 
     return filters;
   }
@@ -42,8 +40,9 @@ class FilterService extends EventEmitter {
   }
 
   updateFilters(updatedFilters) {
-    const isChangedFilters = Object.entries(updatedFilters)
-      .some(([key, filter]) => !isEqual(filter, this.filters[key]));
+    const isChangedFilters = Object.entries(updatedFilters).some(
+      ([key, filter]) => !isEqual(filter, this.filters[key])
+    );
 
     if (isChangedFilters) {
       Object.assign(this.filters, updatedFilters);
@@ -73,21 +72,21 @@ class FilterService extends EventEmitter {
 
   clearFilters() {
     const clearedFilters = this.getAvailableFilters();
-    
+
     this.updateFilters(clearedFilters);
   }
 }
 
 let filterServiceInstance = null;
 
-export default function(openmct, config) {
-    if (filterServiceInstance) {
-      return filterServiceInstance;
-    }
-
-    if (config) {
-      filterServiceInstance = new FilterService(openmct, config);
-    }
-
+export default function (openmct, config) {
+  if (filterServiceInstance) {
     return filterServiceInstance;
+  }
+
+  if (config) {
+    filterServiceInstance = new FilterService(openmct, config);
+  }
+
+  return filterServiceInstance;
 }

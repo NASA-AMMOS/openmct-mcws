@@ -1,40 +1,38 @@
-define(['lib/HistoricalContextTableRow'], function (HistoricalContextTableRow) {
-    class EmptyLADRow extends HistoricalContextTableRow {
-        constructor(columns, objectKeyString) {
-            super({}, columns, objectKeyString);
-            this.isDummyRow = true;
-            this.columns = columns;
-            this.objectKeyString = objectKeyString;
-            this.datum = Object.keys(columns).reduce((datum, column) => {
-                datum[column] = undefined;
-                return datum;
-            }, {});
-        }
+import HistoricalContextTableRow from 'lib/HistoricalContextTableRow';
 
-        getFormattedDatum(headers) {
-            return Object.keys(headers).reduce((formattedDatum, columnKey) => {
-                formattedDatum[columnKey] = this.getFormattedValue(columnKey);
-                return formattedDatum;
-            }, {}); 
-        }
+export default class EmptyLADRow extends HistoricalContextTableRow {
+  constructor(columns, objectKeyString) {
+    super({}, columns, objectKeyString);
+    this.isDummyRow = true;
+    this.columns = columns;
+    this.objectKeyString = objectKeyString;
+    this.datum = Object.keys(columns).reduce((datum, column) => {
+      datum[column] = undefined;
+      return datum;
+    }, {});
+  }
 
-        getFormattedValue(key) {
-            if (key === 'vista-lad-name') {
-                let column = this.columns[key];
-                return column && column.getFormattedValue();
-            } else if (this.columns[key] === undefined) {
-                return '';
-            } else {
-                return this.datum[key] || '--'
-            }
-        }
+  getFormattedDatum(headers) {
+    return Object.keys(headers).reduce((formattedDatum, columnKey) => {
+      formattedDatum[columnKey] = this.getFormattedValue(columnKey);
+      return formattedDatum;
+    }, {});
+  }
 
-        getRowClass() {
-        }
-
-        getCellLimitClasses() {
-            return {};
-        }
+  getFormattedValue(key) {
+    if (key === 'vista-lad-name') {
+      let column = this.columns[key];
+      return column && column.getFormattedValue();
+    } else if (this.columns[key] === undefined) {
+      return '';
+    } else {
+      return this.datum[key] || '--';
     }
-    return EmptyLADRow;
-});
+  }
+
+  getRowClass() {}
+
+  getCellLimitClasses() {
+    return {};
+  }
+}

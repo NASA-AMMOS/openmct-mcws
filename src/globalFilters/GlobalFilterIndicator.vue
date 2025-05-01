@@ -9,14 +9,11 @@
     >
       <span class="c-indicator__label">
         <span v-if="hasActiveFilters">
-          Filtering by 
+          Filtering by
           <span v-if="hasMultipleActiveFilters">
             {{ `(` }}
           </span>
-          <span
-            v-for="(activeFilter, key, index) in activeFilters"
-            :key="key"
-          >
+          <span v-for="(activeFilter, key, index) in activeFilters" :key="key">
             <span v-if="hasMultipleActiveFilters && index !== 0">
               {{ `/` }}
             </span>
@@ -30,13 +27,9 @@
         </span>
         <span v-else-if="hasFilters">
           Not Filtering
-          <button @click="openFilterSelector()">
-            Select
-          </button>
+          <button @click="openFilterSelector()">Select</button>
         </span>
-        <span v-else>
-          Filters Not Configured
-        </span>
+        <span v-else> Filters Not Configured </span>
       </span>
     </div>
 
@@ -57,21 +50,12 @@ export default {
   components: {
     GlobalFilterSelector
   },
-  inject: [
-    'openmct',
-    'filters'
-  ],
+  inject: ['openmct', 'filters'],
   data() {
     return {
       activeFilters: {},
       showFilterSelector: false
-    }
-  },
-  mounted() {
-    this.filterService = filterService(this.openmct, this.filters);
-    this.filterService.on('update', this.updateActiveFilters);
-
-    this.updateActiveFilters();
+    };
   },
   computed: {
     hasFilters() {
@@ -84,6 +68,12 @@ export default {
       return Object.keys(this.activeFilters)?.length > 1;
     }
   },
+  mounted() {
+    this.filterService = filterService(this.openmct, this.filters);
+    this.filterService.on('update', this.updateActiveFilters);
+
+    this.updateActiveFilters();
+  },
   methods: {
     updateFilters(filters) {
       this.filterService.updateFilters(filters);
@@ -95,7 +85,7 @@ export default {
       this.activeFilters = this.filterService.getActiveFilters();
     },
     getFilterName(key) {
-      const match = this.filters.find(filter => filter.key === key);
+      const match = this.filters.find((filter) => filter.key === key);
 
       return match.name;
     },
@@ -104,7 +94,7 @@ export default {
     },
     closeFilterSelector() {
       this.showFilterSelector = false;
-    },
+    }
   }
-}
+};
 </script>

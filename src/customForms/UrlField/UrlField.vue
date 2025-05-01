@@ -1,13 +1,6 @@
 <template>
-  <span
-    style="display: flex;flex-direction: row;"
-    class="form-control shell"
-  >
-    <span
-      class="field control"
-      style="display: flex;flex: 1 1 auto;"
-      :class="model.cssClass"
-    >
+  <span style="display: flex; flex-direction: row" class="form-control shell">
+    <span class="field control" style="display: flex; flex: 1 1 auto" :class="model.cssClass">
       <input
         :id="`form-${model.key}`"
         v-model="field"
@@ -18,11 +11,18 @@
       />
     </span>
     <span
-      style="display: flex;flex: 0 1 auto;opacity: 0.7;font-size: 1em;padding: 5px;color: #FF8A0D;"
+      v-if="warn"
+      style="
+        display: flex;
+        flex: 0 1 auto;
+        opacity: 0.7;
+        font-size: 1em;
+        padding: 5px;
+        color: #ff8a0d;
+      "
       class="icon-alert-triangle hint"
       alt="Unable to connect"
       title="Unable to connect"
-      v-if="warn"
     ></span>
   </span>
 </template>
@@ -37,10 +37,12 @@ export default {
       required: true
     }
   },
-  watch: {
-    testUrl() {
-      this.checkUrl();
-    }
+  emits: ['on-change'],
+  data() {
+    return {
+      field: this.model.value,
+      warn: false
+    };
   },
   computed: {
     testUrl() {
@@ -57,15 +59,14 @@ export default {
       } else if (this.field.startsWith('/')) {
         result = `${window.openmctMCWSConfig.mcwsUrl}${this.field}`;
       }
-        
+
       return result;
     }
   },
-  data() {
-    return {
-      field: this.model.value,
-      warn: false
-    };
+  watch: {
+    testUrl() {
+      this.checkUrl();
+    }
   },
   mounted() {
     this.updateText = throttle(this.updateText, 500);
@@ -80,7 +81,7 @@ export default {
         value: this.field
       };
 
-      this.$emit('onChange', data);
+      this.$emit('on-change', data);
     },
     async checkUrl() {
       if (this.testUrl === '') {
@@ -92,11 +93,7 @@ export default {
       try {
         const response = await fetch(this.testUrl);
 
-        if (
-          response.status === 403
-          || response.status === 404
-          || response.status >= 500
-        ) {
+        if (response.status === 403 || response.status === 404 || response.status >= 500) {
           throw new Error(response.status);
         }
 

@@ -2,127 +2,98 @@ import TelemetryTable from 'openmct.tables.TelemetryTable';
 import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
 import mcws from 'services/mcws/mcws';
 
-export default class DictionaryViewTable extends TelemetryTable { 
-    constructor(domainObject, openmct, metadata = []) {
-        super(domainObject, openmct);
+export default class DictionaryViewTable extends TelemetryTable {
+  constructor(domainObject, openmct, options, metadata = []) {
+    super(domainObject, openmct, options);
 
-        this.metadata = metadata;
-        this.data = [];
+    this.metadata = metadata;
+    this.data = [];
 
-        this.url = domainObject.dataTablePath;
-        this.error = undefined;
+    this.url = domainObject.dataTablePath;
+    this.error = undefined;
 
-        this.processData = this.processData.bind(this);
-        this.processError = this.processError.bind(this);
-    }
+    this.processData = this.processData.bind(this);
+    this.processError = this.processError.bind(this);
+  }
 
-    // TODO telemetry and tables should be separate concerns
-    // SessionTables don't have traditional "telemetry" so don't load collections as a hack
-    // we won't have to do this hack if tables broken down
-    addTelemetryObject(telemetryObject) {
-        this.addColumnsForObject(telemetryObject, true);
+  // TODO telemetry and tables should be separate concerns
+  // SessionTables don't have traditional "telemetry" so don't load collections as a hack
+  // we won't have to do this hack if tables broken down
+  addTelemetryObject(telemetryObject) {
+    this.addColumnsForObject(telemetryObject, true);
 
-        const keyString = this.openmct.objects.makeKeyString(telemetryObject.identifier);
-        let requestOptions = this.buildOptionsFromConfiguration(telemetryObject);
-        let columnMap = this.getColumnMapForObject(keyString);
-        let limitEvaluator = this.openmct.telemetry.limitEvaluator(telemetryObject);
+    this.emit('object-added', telemetryObject);
+  }
 
-        const telemetryProcessor = this.getTelemetryProcessor(keyString, columnMap, limitEvaluator);
-        const telemetryRemover = this.getTelemetryRemover();
+  addColumnsForObject(telemetryObject) {
+    this.metadata.forEach((metadatum) => {
+      let column = this.createColumn(metadatum);
+      this.configuration.addSingleColumnForObject(telemetryObject, column);
+    });
+  }
 
-        this.removeTelemetryCollection(keyString);
+  requestDataFor(telemetryObject) {
+    return Promise.resolve(this.data).then((telemetryData) => {
+      let keyString = this.openmct.objects.makeKeyString(telemetryObject.identifier);
+      let columnMap = this.getColumnMapForObject(keyString);
+      let limitEvaluator = this.openmct.telemetry.limitEvaluator(telemetryObject);
 
-        this.telemetryCollections[keyString] = this.openmct.telemetry
-            .requestCollection(telemetryObject, requestOptions);
+      this.processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator);
+    });
+  }
 
-        this.telemetryCollections[keyString].on('requestStarted', this.incrementOutstandingRequests);
-        this.telemetryCollections[keyString].on('requestEnded', this.decrementOutstandingRequests);
-        this.telemetryCollections[keyString].on('remove', telemetryRemover);
-        this.telemetryCollections[keyString].on('add', telemetryProcessor);
-        this.telemetryCollections[keyString].on('clear', this.clearData);
-        // this.telemetryCollections[keyString].load();
+  processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator) {
+    let telemetryRows = telemetryData.map((datum) => {
+      return new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
+    });
 
-        this.telemetryObjects[keyString] = {
-            telemetryObject,
-            keyString,
-            requestOptions,
-            columnMap,
-            limitEvaluator
-        };
+    this.tableRows.addRows(telemetryRows);
+    this.emit('historical-rows-processed');
+  }
 
-        this.emit('object-added', telemetryObject);
-    }
+  processData(data) {
+    this.data = data;
+    this.metadata = this.processHeaders(data[0]);
+    this.requestDataFor(this.domainObject);
+    this.addColumnsForObject(this.domainObject);
+  }
 
-    addColumnsForObject(telemetryObject) {
-        this.metadata.forEach(metadatum => {
-            let column = this.createColumn(metadatum);
-            this.configuration.addSingleColumnForObject(telemetryObject, column);
-        });
-    }
+  processError(errorObject) {
+    this.error = {
+      statusText: errorObject.statusText,
+      status: errorObject.status
+    };
+  }
 
-    requestDataFor(telemetryObject) {
-        return Promise.resolve(this.data).then(telemetryData => {
-            let keyString = this.openmct.objects.makeKeyString(telemetryObject.identifier);
-            let columnMap = this.getColumnMapForObject(keyString);
-            let limitEvaluator = this.openmct.telemetry.limitEvaluator(telemetryObject);
+  loadDictionary() {
+    return mcws.dataTable(this.url).read().then(this.processData, this.processError);
+  }
 
-            this.processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator);
-        });
-    }
+  processHeaders(row) {
+    return Object.keys(row).map((key) => {
+      return {
+        name: key,
+        key: key,
+        source: key
+      };
+    });
+  }
 
-    processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator) {
-        let telemetryRows = telemetryData.map(datum => {
-            return new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
-        });
+  resetRowsFromAllData() {
+    let keyString = this.openmct.objects.makeKeyString(this.domainObject.identifier);
+    let columnMap = this.getColumnMapForObject(keyString);
+    let limitEvaluator = this.openmct.telemetry.limitEvaluator(this.domainObject);
 
-        this.tableRows.addRows(telemetryRows);
-        this.emit('historical-rows-processed');
-    }
+    let rows = this.data.map((datum) => {
+      let row = new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
 
-    processData(data) {
-        this.data = data;
-        this.metadata = this.processHeaders(data[0])
-        this.requestDataFor(this.domainObject);
-        this.addColumnsForObject(this.domainObject);
-    }
+      if (datum.marked) {
+        row.marked = true;
+      }
 
-    processError(errorObject) {
-        this.error = {
-            statusText: errorObject.statusText,
-            status: errorObject.status
-        };
-    }
+      return row;
+    });
 
-    loadDictionary() {
-        return mcws.dataTable(this.url).read()
-            .then(this.processData, this.processError);
-    }
-
-    processHeaders(row) {
-        return Object.keys(row).map((key => {
-            return {
-                name: key,
-                key: key,
-                source: key
-            }
-        }));
-    }
-
-    resetRowsFromAllData() {
-        let keyString = this.openmct.objects.makeKeyString(this.domainObject.identifier);
-        let columnMap = this.getColumnMapForObject(keyString);
-        let limitEvaluator = this.openmct.telemetry.limitEvaluator(this.domainObject);
-
-        let rows = this.data.map(datum => {
-            let row = new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
-
-            if (datum.marked) {
-                row.marked = true;
-            }
-
-            return row;
-        });
-
-        this.tableRows.clearRowsFromTableAndFilter(rows);
-    }
+    this.tableRows.clearRowsFromTableAndFilter(rows);
+  }
 }
