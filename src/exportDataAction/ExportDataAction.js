@@ -70,7 +70,12 @@ class ExportDataAction {
   }
 
   historicalFilterString(sessionFilter) {
-    return `${sessionFilter.host}_${formatNumberSequence(sessionFilter.numbers)}`;
+    let filterString = formatNumberSequence(sessionFilter.numbers);
+
+    filterString = filterString.replaceAll('...', '-');
+    filterString = filterString.replaceAll(', ', '_');
+
+    return `${sessionFilter.host}_${filterString}`;
   }
 
   runExportTask(domainObjects) {
@@ -78,12 +83,7 @@ class ExportDataAction {
     const sessionFilter = this.sessionService.getHistoricalSessionFilter();
 
     if (sessionFilter) {
-      let historicalFilterString = this.historicalFilterString(sessionFilter);
-
-      historicalFilterString = historicalFilterString.replaceAll('...', '-');
-      historicalFilterString = historicalFilterString.replaceAll(', ', '_');
-
-      filename = `${filename} - ${historicalFilterString}`;
+      filename = `${filename} - ${this.historicalFilterString(sessionFilter)}`;
     }
 
     return new ExportDataTask(this.openmct, filename, domainObjects).invoke();
