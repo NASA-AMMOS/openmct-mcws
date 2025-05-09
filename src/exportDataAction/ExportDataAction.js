@@ -1,6 +1,6 @@
 import ExportDataTask from './ExportDataTask';
 import SessionService from 'services/session/SessionService';
-import { formatNumberSequence } from '../utils/strings';
+import { formatNumberSequence } from 'ommUtils/strings';
 
 /**
  * Implements the "Export Data" action, allowing data for Channels, EVRs,
@@ -69,29 +69,24 @@ class ExportDataAction {
     }
   }
 
-  historicalFilterString() {
-    const sessionFilter = this.sessionService.getHistoricalSessionFilter();
-
-    if (!sessionFilter) {
-      return '';
-    }
-
-    const forFilename = true;
-
-    return `${sessionFilter.host}_${formatNumberSequence(sessionFilter.numbers, forFilename)}`;
+  historicalFilterString(sessionFilter) {
+    return `${sessionFilter.host}_${formatNumberSequence(sessionFilter.numbers)}`;
   }
 
   runExportTask(domainObjects) {
-    const historicalFilterString = this.historicalFilterString();
     let filename = domainObjects[0].name;
+    const sessionFilter = this.sessionService.getHistoricalSessionFilter();
 
-    if (historicalFilterString) {
+    if (sessionFilter) {
+      let historicalFilterString = this.historicalFilterString(sessionFilter);
+
+      historicalFilterString = historicalFilterString.replaceAll('...', '-');
+      historicalFilterString = historicalFilterString.replaceAll(', ', '_');
+
       filename = `${filename} - ${historicalFilterString}`;
     }
 
-    const task = new ExportDataTask(this.openmct, filename, domainObjects);
-
-    return task.invoke();
+    return new ExportDataTask(this.openmct, filename, domainObjects).invoke();
   }
 
   isValidType(domainObject) {

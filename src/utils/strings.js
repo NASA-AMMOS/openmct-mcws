@@ -21,10 +21,8 @@ function snakeCaseToStartCase(str) {
  * @param {Array<number|string>} numbers - Array of numbers to format
  * @returns {string} Formatted string representation
  */
-function formatNumberSequence(numbers, forFilename = false) {
+function formatNumberSequence(numbers) {
   const sortedNumbers = numbers.map(Number).sort((a, b) => a - b);
-  const rangeSeparator = forFilename ? '-' : '...';
-  const commaSeparator = forFilename ? '_' : ', ';
   let result = `${sortedNumbers[0]}`;
   let rangeLength = 1;
 
@@ -36,21 +34,21 @@ function formatNumberSequence(numbers, forFilename = false) {
       rangeLength++;
     } else {
       if (rangeLength > 2) {
-        result += `${rangeSeparator}${prev}`;
+        result += `...${prev}`;
       } else if (rangeLength === 2) {
-        result += `${commaSeparator}${prev}`;
+        result += `, ${prev}`;
       }
 
-      result += `${commaSeparator}${current}`;
+      result += `, ${current}`;
       rangeLength = 1;
     }
   }
 
   // Handle the last range if it exists
   if (rangeLength > 2) {
-    result += `${rangeSeparator}${sortedNumbers[sortedNumbers.length - 1]}`;
+    result += `...${sortedNumbers[sortedNumbers.length - 1]}`;
   } else if (rangeLength === 2) {
-    result += `${commaSeparator}${sortedNumbers[sortedNumbers.length - 1]}`;
+    result += `, ${sortedNumbers[sortedNumbers.length - 1]}`;
   }
 
   return result;
