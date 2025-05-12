@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws",
-  "version": "2512.01-next",
+  "version": "2512.02-next",
   "description": "Open MCT for MCWS",
   "devDependencies": {
     "@babel/eslint-parser": "7.26.8",
