@@ -1,7 +1,7 @@
 define(['./ExportDataAction'], (ExportDataActionModule) => {
   const ExportDataAction = ExportDataActionModule.default;
 
-  fdescribe('The Export Data action', () => {
+  describe('The Export Data action', () => {
     let mockOpenmct;
     let mockCompositionCollection;
     let mockComposition;
