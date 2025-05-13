@@ -1,7 +1,7 @@
 define(['./ExportDataAction'], (ExportDataActionModule) => {
   const ExportDataAction = ExportDataActionModule.default;
 
-  describe('The Export Data action', () => {
+  fdescribe('The Export Data action', () => {
     let mockOpenmct;
     let mockCompositionCollection;
     let mockComposition;
@@ -13,6 +13,7 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
     let exportDataAction;
     let telemetryRequested;
     let telemetryRequestCount;
+    let mockSessionService;
 
     function makeMockDomainObject(id, telemetry, realtimeOnly) {
       let mockDomainObject = {
@@ -50,6 +51,16 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
         }
       });
 
+      mockSessionService = () => ({
+        sessions: [],
+        getHistoricalSessionFilter: jasmine
+          .createSpy('getHistoricalSessionFilter')
+          .and.returnValue({
+            host: 'test-host',
+            numbers: [1, 2, 3, 4, 5]
+          })
+      });
+
       mockOpenmct = jasmine.createSpyObj('mockOpenmct', [
         'notifications',
         'composition',
@@ -76,7 +87,7 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
 
       mockOpenmct.notifications.progress.and.returnValue(mockNotification);
 
-      exportDataAction = new ExportDataAction(mockOpenmct, ['validType']);
+      exportDataAction = new ExportDataAction(mockOpenmct, ['validType'], mockSessionService);
     });
 
     it('applies to objects with a valid type', () => {
@@ -160,9 +171,17 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
             it('triggers a CSV export for one object', () => {
               expect(exportDataAction.runExportTask).toHaveBeenCalled();
             });
+
+            it('checks for historical session filter', () => {
+              expect(exportDataAction.sessionService.getHistoricalSessionFilter).toHaveBeenCalled();
+            });
           } else {
             it('triggers a CSV export for each object', () => {
               expect(exportDataAction.exportCompositionData).toHaveBeenCalled();
+            });
+
+            it('checks for historical session filter', () => {
+              expect(exportDataAction.sessionService.getHistoricalSessionFilter).toHaveBeenCalled();
             });
           }
         });

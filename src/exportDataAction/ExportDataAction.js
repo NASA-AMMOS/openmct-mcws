@@ -10,7 +10,7 @@ import { formatNumberSequence } from 'ommUtils/strings';
  * @memberof vista/export
  */
 class ExportDataAction {
-  constructor(openmct, validTypes) {
+  constructor(openmct, validTypes, sessionService) {
     this.name = 'Export Historical Data';
     this.key = 'vista.export';
     this.description = 'Export channel or EVR data as CSV';
@@ -18,7 +18,7 @@ class ExportDataAction {
     this.group = 'view';
     this.priority = 1;
     this.validTypes = validTypes;
-    this.sessionService = SessionService();
+    this.sessionService = sessionService?.() ?? SessionService();
 
     this.openmct = openmct;
   }
