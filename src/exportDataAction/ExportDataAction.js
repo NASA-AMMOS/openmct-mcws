@@ -10,7 +10,7 @@ import { formatNumberSequence } from 'ommUtils/strings';
  * @memberof vista/export
  */
 class ExportDataAction {
-  constructor(openmct, validTypes) {
+  constructor(openmct, validTypes, sessionService) {
     this.name = 'Export Historical Data';
     this.key = 'vista.export';
     this.description = 'Export channel or EVR data as CSV';
@@ -18,7 +18,7 @@ class ExportDataAction {
     this.group = 'view';
     this.priority = 1;
     this.validTypes = validTypes;
-    this.sessionService = SessionService();
+    this.sessionService = sessionService?.() ?? SessionService();
 
     this.openmct = openmct;
   }
@@ -49,7 +49,7 @@ class ExportDataAction {
 
   async exportData(domainObject) {
     if (this.hasHistoricalTelemetry(domainObject)) {
-      await this.runExportTask([domainObject]);
+      await this.runExportTask(domainObject.name, [domainObject]);
     } else {
       await this.exportCompositionData(domainObject);
     }
@@ -63,7 +63,7 @@ class ExportDataAction {
     );
 
     if (filteredComposition.length > 0) {
-      await this.runExportTask(filteredComposition);
+      await this.runExportTask(domainObject.name, filteredComposition);
     } else {
       this.openmct.notifications.info('No historical data to export');
     }
@@ -78,8 +78,8 @@ class ExportDataAction {
     return `${sessionFilter.host}_${filterString}`;
   }
 
-  runExportTask(domainObjects) {
-    let filename = domainObjects[0].name;
+  runExportTask(name, domainObjects) {
+    let filename = name;
     const sessionFilter = this.sessionService.getHistoricalSessionFilter();
 
     if (sessionFilter) {
