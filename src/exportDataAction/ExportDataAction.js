@@ -48,7 +48,7 @@ class ExportDataAction {
 
   async exportData(domainObject) {
     if (this.hasHistoricalTelemetry(domainObject)) {
-      await this.runExportTask(domainObject.name, [domainObject]);
+      await this.runExportTask([domainObject]);
     } else {
       await this.exportCompositionData(domainObject);
     }
@@ -62,7 +62,7 @@ class ExportDataAction {
     );
 
     if (filteredComposition.length > 0) {
-      await this.runExportTask(domainObject.name, filteredComposition);
+      await this.runExportTask(filteredComposition, domainObject.name);
     } else {
       this.openmct.notifications.info('No historical data to export');
     }
@@ -83,7 +83,6 @@ class ExportDataAction {
 
   runExportTask(domainObjects, name) {
     let filename = name ?? domainObjects[0].name;
-    let filename = name;
     const sessionFilter = this.getHistoricalSessionFilter();
 
     if (sessionFilter) {
