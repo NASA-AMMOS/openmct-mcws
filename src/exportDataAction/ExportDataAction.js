@@ -10,7 +10,7 @@ import { formatNumberSequence } from 'ommUtils/strings';
  * @memberof vista/export
  */
 class ExportDataAction {
-  constructor(openmct, validTypes, sessionService) {
+  constructor(openmct, validTypes) {
     this.name = 'Export Historical Data';
     this.key = 'vista.export';
     this.description = 'Export channel or EVR data as CSV';
@@ -18,7 +18,6 @@ class ExportDataAction {
     this.group = 'view';
     this.priority = 1;
     this.validTypes = validTypes;
-    this.sessionService = sessionService?.() ?? SessionService();
 
     this.openmct = openmct;
   }
@@ -69,6 +68,10 @@ class ExportDataAction {
     }
   }
 
+  getHistoricalSessionFilter() {
+    return SessionService().getHistoricalSessionFilter();
+  }
+
   historicalFilterString(sessionFilter) {
     let filterString = formatNumberSequence(sessionFilter.numbers);
 
@@ -80,7 +83,7 @@ class ExportDataAction {
 
   runExportTask(name, domainObjects) {
     let filename = name;
-    const sessionFilter = this.sessionService.getHistoricalSessionFilter();
+    const sessionFilter = this.getHistoricalSessionFilter();
 
     if (sessionFilter) {
       filename = `${filename} - ${this.historicalFilterString(sessionFilter)}`;
