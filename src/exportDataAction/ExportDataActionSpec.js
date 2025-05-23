@@ -77,6 +77,12 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
       mockOpenmct.notifications.progress.and.returnValue(mockNotification);
 
       exportDataAction = new ExportDataAction(mockOpenmct, ['validType']);
+      spyOn(exportDataAction, 'getHistoricalSessionFilter').and.callFake(() => {
+        return {
+          host: 'test-host',
+          numbers: [1, 2, 3, 4, 5]
+        };
+      });
     });
 
     it('applies to objects with a valid type', () => {
@@ -114,7 +120,6 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
               done();
             }
           };
-
           spyOn(exportDataAction, 'runExportTask').and.callThrough();
           spyOn(exportDataAction, 'exportCompositionData').and.callThrough();
           mockTarget = singular ? mockTelemetryObject : mockTelemetryObjectWithComposition;
@@ -160,9 +165,15 @@ define(['./ExportDataAction'], (ExportDataActionModule) => {
             it('triggers a CSV export for one object', () => {
               expect(exportDataAction.runExportTask).toHaveBeenCalled();
             });
+            it('checks for historical session filter', () => {
+              expect(exportDataAction.getHistoricalSessionFilter).toHaveBeenCalled();
+            });
           } else {
             it('triggers a CSV export for each object', () => {
               expect(exportDataAction.exportCompositionData).toHaveBeenCalled();
+            });
+            it('checks for historical session filter', () => {
+              expect(exportDataAction.getHistoricalSessionFilter).toHaveBeenCalled();
             });
           }
         });
