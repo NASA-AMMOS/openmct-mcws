@@ -81,7 +81,8 @@ class ExportDataAction {
     return `${sessionFilter.host}_${filterString}`;
   }
 
-  runExportTask(name, domainObjects) {
+  runExportTask(domainObjects, name) {
+    let filename = name ?? domainObjects[0].name;
     let filename = name;
     const sessionFilter = this.getHistoricalSessionFilter();
 
