@@ -4,21 +4,23 @@ import { formatNumberSequence } from 'ommUtils/strings';
 function imageExportModifier(openmct) {
   const PNGImageExportAction = openmct.actions._allActions['export-as-png'];
   const JPGImageExportAction = openmct.actions._allActions['export-as-jpg'];
-  const imageExportActions = [PNGImageExportAction, JPGImageExportAction].filter(Boolean);
+  const imageExportActions = [PNGImageExportAction, JPGImageExportAction];
   const sessionService = SessionService();
 
   imageExportActions.forEach((action) => {
     const invoke = action.invoke;
 
     action.invoke = (objectPath, view) => {
-      let filename = objectPath[0].name;
+      const domainObject = objectPath[0];
+      let filename = domainObject.name;
+      const type = domainObject.type;
       const sessionFilter = sessionService.getHistoricalSessionFilter();
 
       if (sessionFilter) {
         filename = `${filename} - ${historicalFilterString(sessionFilter)}`;
       }
 
-      filename = `${filename} - plot`;
+      filename = `${filename} - ${type}`;
 
       invoke(objectPath, view, filename);
     };
