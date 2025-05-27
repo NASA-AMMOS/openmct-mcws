@@ -41,11 +41,11 @@ define([
         }
       },
       removeEvents(identifier) {
-        let keystring = this.openmct.objects.makeKeyString(identifier);
+        const keyString = this.openmct.objects.makeKeyString(identifier);
 
-        if (this.subscriptions[keystring] && typeof this.subscriptions[keystring] === 'function') {
-          this.subscriptions[keystring]();
-          delete this.subscriptions[keystring];
+        if (this.subscriptions[keyString] && typeof this.subscriptions[keyString] === 'function') {
+          this.subscriptions[keyString]();
+          delete this.subscriptions[keyString];
         }
       },
       addCommandEvents(domainObject) {
@@ -55,13 +55,13 @@ define([
           this.commandEventValueMetadatas = this.commandEventMetadata.valueMetadatas;
         }
 
-        let unsubscribe = this.openmct.telemetry.subscribe(
+        const unsubscribe = this.openmct.telemetry.subscribe(
           domainObject,
           this.processRealtimeDatum('commandEvent')
         );
-        let keystring = this.openmct.objects.makeKeyString(domainObject.identifier);
+        const keyString = this.openmct.objects.makeKeyString(domainObject.identifier);
 
-        this.subscriptions[keystring] = unsubscribe;
+        this.subscriptions[keyString] = unsubscribe;
       },
       addFrameEvents(domainObject) {
         if (!this.frameEventMetadata || !this.frameEventFormats) {
@@ -73,13 +73,13 @@ define([
           this.table.addColumnsForObject(domainObject);
         }
 
-        let unsubscribe = this.openmct.telemetry.subscribe(
+        const unsubscribe = this.openmct.telemetry.subscribe(
           domainObject,
           this.processRealtimeDatum('frameEvent')
         );
-        let keystring = this.openmct.objects.makeKeyString(domainObject.identifier);
+        const keyString = this.openmct.objects.makeKeyString(domainObject.identifier);
 
-        this.subscriptions[keystring] = unsubscribe;
+        this.subscriptions[keyString] = unsubscribe;
       },
       processRealtimeDatum(eventType) {
         return (datum) => {

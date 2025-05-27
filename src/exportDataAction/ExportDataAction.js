@@ -1,4 +1,6 @@
 import ExportDataTask from './ExportDataTask';
+import SessionService from 'services/session/SessionService';
+import { formatNumberSequence } from 'ommUtils/strings';
 
 /**
  * Implements the "Export Data" action, allowing data for Channels, EVRs,
@@ -60,16 +62,43 @@ class ExportDataAction {
     );
 
     if (filteredComposition.length > 0) {
-      await this.runExportTask(filteredComposition);
+      await this.runExportTask(filteredComposition, domainObject.name);
     } else {
       this.openmct.notifications.info('No historical data to export');
     }
   }
 
-  runExportTask(domainObjects) {
-    const task = new ExportDataTask(this.openmct, domainObjects[0].name, domainObjects);
+  getHistoricalSessionFilter() {
+    return SessionService().getHistoricalSessionFilter();
+  }
 
-    return task.invoke();
+  historicalFilterString(sessionFilter) {
+    let filterString = formatNumberSequence(sessionFilter.numbers);
+
+    filterString = filterString.replaceAll('...', '-');
+    filterString = filterString.replaceAll(', ', '_');
+
+    return `${sessionFilter.host}_${filterString}`;
+  }
+
+  /**
+   * Runs the export task for the given domain objects with an optional name.
+   * If no name is provided, uses the name of the first domain object.
+   * Appends session filter information to the filename if a session filter exists.
+   *
+   * @param {Array<Object>} domainObjects - Array of domain objects to export
+   * @param {string} [name] - Optional name for the export file. If not provided, uses the name of the first domain object
+   * @returns {Promise} A promise that resolves when the export task is complete
+   */
+  runExportTask(domainObjects, name) {
+    let filename = name ?? domainObjects[0].name;
+    const sessionFilter = this.getHistoricalSessionFilter();
+
+    if (sessionFilter) {
+      filename = `${filename} - ${this.historicalFilterString(sessionFilter)}`;
+    }
+
+    return new ExportDataTask(this.openmct, filename, domainObjects).invoke();
   }
 
   isValidType(domainObject) {

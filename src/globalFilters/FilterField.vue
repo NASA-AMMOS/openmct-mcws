@@ -48,6 +48,10 @@ export default {
       }
     }
   },
+  emits: ['clear-filter', 'filter-single-selected'],
+  data() {
+    return {};
+  },
   computed: {
     name() {
       return this.filterName || this.filterKey;
@@ -55,9 +59,6 @@ export default {
     defaultLabel() {
       return this.filter.defaultLabel ?? 'None';
     }
-  },
-  data() {
-    return {};
   },
   mounted() {},
   beforeUnmount() {},

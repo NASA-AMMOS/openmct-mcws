@@ -149,7 +149,7 @@ function importWithDatasetsModifier(openmct) {
               hasImport: false
             };
           },
-          template: `<ImportWithDatasetsFormComponent ref="importComponent" :model="model" :datasets="datasets" :referenced-datasets="referencedDatasets" :has-import="hasImport" @onChange="onChange" />`,
+          template: `<ImportWithDatasetsFormComponent ref="importComponent" :model="model" :datasets="datasets" :referenced-datasets="referencedDatasets" :has-import="hasImport" @on-change="onChange" />`,
           methods: {
             updateData(updatedReferencedDatasets, updatedDatasets) {
               this.datasets = updatedDatasets;

@@ -29,6 +29,12 @@ const CONNECTION_STATES = {
 
 export default {
   inject: ['openmct'],
+  data() {
+    return {
+      state: CONNECTION_STATES.PENDING,
+      namespace: ''
+    };
+  },
   computed: {
     statusClass() {
       let mcwsState = this.state;
@@ -45,12 +51,6 @@ export default {
 
       return mcwsState.description;
     }
-  },
-  data() {
-    return {
-      state: CONNECTION_STATES.PENDING,
-      namespace: ''
-    };
   },
   beforeUnmount() {
     clearInterval(this.intervalId);

@@ -1,5 +1,6 @@
 const globals = require('globals');
 const js = require('@eslint/js');
+const vue = require('eslint-plugin-vue');
 const vueParser = require('vue-eslint-parser');
 const babelParser = require('@babel/eslint-parser');
 // eslint-plugin-prettier/recommended must be last in configuration
@@ -38,6 +39,7 @@ module.exports = [
     }
   },
   js.configs.recommended,
+  ...vue.configs['flat/recommended'],
   prettierRecommended,
   {
     rules: {

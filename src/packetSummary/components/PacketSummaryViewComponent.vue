@@ -8,14 +8,70 @@
     <div class="v-packet-summary-table">
       <table-component
         ref="tableComponent"
-        :allowSorting="true"
-        :isEditing="isEditing"
+        :allow-sorting="true"
+        :is-editing="isEditing"
         :marking="markingProp"
         :view="view"
       />
     </div>
   </div>
 </template>
+
+<script>
+import TableComponent from 'openmct.tables.components.Table';
+
+export default {
+  components: {
+    TableComponent
+  },
+  inject: ['openmct', 'table', 'objectPath'],
+  props: {
+    isEditing: {
+      type: Boolean,
+      required: true
+    },
+    view: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    let markingProp = {
+      enable: true,
+      useAlternateControlBar: false,
+      rowName: '',
+      rowNamePlural: ''
+    };
+
+    return {
+      markingProp,
+      fswValid: '--',
+      fswInvalid: '--',
+      fswFill: '--'
+    };
+  },
+  mounted() {
+    this.table.on('update-header', this.updateHeader);
+  },
+  beforeUnmount() {
+    this.table.off('update-header', this.updateHeader);
+  },
+  methods: {
+    getViewContext() {
+      let tableComponent = this.$refs.tableComponent;
+
+      if (tableComponent) {
+        return tableComponent.getViewContext();
+      }
+    },
+    updateHeader() {
+      this.fswValid = this.table.fswValid;
+      this.fswInvalid = this.table.fswInvalid;
+      this.fswFill = this.table.fswFill;
+    }
+  }
+};
+</script>
 
 <style lang="scss" scoped>
 .c-table {
@@ -34,59 +90,3 @@
   }
 }
 </style>
-
-<script>
-import TableComponent from 'openmct.tables.components.Table';
-
-export default {
-  inject: ['openmct', 'table', 'objectPath'],
-  components: {
-    TableComponent
-  },
-  props: {
-    isEditing: {
-      type: Boolean,
-      required: true
-    },
-    view: {
-      type: Object,
-      required: true
-    }
-  },
-  mounted() {
-    this.table.on('update-header', this.updateHeader);
-  },
-  beforeUnmount() {
-    this.table.off('update-header', this.updateHeader);
-  },
-  data() {
-    let markingProp = {
-      enable: true,
-      useAlternateControlBar: false,
-      rowName: '',
-      rowNamePlural: ''
-    };
-
-    return {
-      markingProp,
-      fswValid: '--',
-      fswInvalid: '--',
-      fswFill: '--'
-    };
-  },
-  methods: {
-    getViewContext() {
-      let tableComponent = this.$refs.tableComponent;
-
-      if (tableComponent) {
-        return tableComponent.getViewContext();
-      }
-    },
-    updateHeader() {
-      this.fswValid = this.table.fswValid;
-      this.fswInvalid = this.table.fswInvalid;
-      this.fswFill = this.table.fswFill;
-    }
-  }
-};
-</script>

@@ -20,7 +20,7 @@
           :key="ladRow.key"
           :domain-object="ladRow.domainObject"
           :path-to-table="ladTable.objectPath"
-          @rowContextClick="updateViewContext"
+          @row-context-click="updateViewContext"
         />
       </template>
     </tbody>

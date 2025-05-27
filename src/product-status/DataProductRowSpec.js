@@ -1,3 +1,4 @@
+/* cspell:ignore Mcam */
 import DataProductRow from './DataProductRow';
 
 describe('The Data Product Row', () => {

@@ -1,5 +1,5 @@
 <template>
-  <div class="c-properties" v-if="isEditing">
+  <div v-if="isEditing" class="c-properties">
     <div class="c-properties__header">Cell Format</div>
     <ul class="c-properties__section">
       <li class="c-properties__row">
@@ -7,7 +7,7 @@
           <label for="cellPrintfFormat">Format</label>
         </div>
         <div class="c-properties__value">
-          <input id="cellPrintfFormat" type="text" @change="formatCell" :value="cellFormat" />
+          <input id="cellPrintfFormat" type="text" :value="cellFormat" @change="formatCell" />
         </div>
       </li>
     </ul>
@@ -29,6 +29,13 @@ export default {
       cellFormat: rowFormat[selection.context.column]
     };
   },
+  mounted() {
+    this.openmct.editor.on('isEditing', this.toggleEdit);
+  },
+  beforeUnmount() {
+    this.tableConfiguration.destroy();
+    this.openmct.editor.off('isEditing', this.toggleEdit);
+  },
   methods: {
     toggleEdit(isEditing) {
       this.isEditing = isEditing;
@@ -44,13 +51,6 @@ export default {
         event.currentTarget.value;
       this.tableConfiguration.updateConfiguration(configuration);
     }
-  },
-  mounted() {
-    this.openmct.editor.on('isEditing', this.toggleEdit);
-  },
-  beforeUnmount() {
-    this.tableConfiguration.destroy();
-    this.openmct.editor.off('isEditing', this.toggleEdit);
   }
 };
 </script>

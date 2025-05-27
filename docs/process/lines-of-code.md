@@ -1,3 +1,4 @@
+<!-- cspell:words cloc  -->
 # Lines of code
 
 Per release, we report on total lines of code, plus the different in lines of 

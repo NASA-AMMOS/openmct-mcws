@@ -8,7 +8,7 @@
       </div>
     </div>
     <div class="l-preview-window__object-view l-preview-window__object-view-no-padding">
-      <telemetry-table ref="tableComponent" :marking="markingProp" :enableLegacyToolbar="true">
+      <telemetry-table ref="tableComponent" :marking="markingProp" :enable-legacy-toolbar="true">
       </telemetry-table>
     </div>
   </div>
@@ -18,6 +18,9 @@
 import TelemetryTable from 'openmct.tables.components.Table';
 
 export default {
+  components: {
+    TelemetryTable
+  },
   inject: ['openmct', 'table', 'objectPath'],
   props: {
     vcid: {
@@ -30,12 +33,10 @@ export default {
     },
     badFrames: {
       type: Array,
-      default: []
+      default: () => []
     }
   },
-  components: {
-    TelemetryTable
-  },
+  emits: ['destroy-bad-frames'],
   data() {
     return {
       headers: undefined,
@@ -52,11 +53,6 @@ export default {
       handler(newVal, oldVal) {
         this.table.addNewRow(newVal[newVal.length - 1]);
       }
-    }
-  },
-  methods: {
-    hideBadFrames() {
-      this.$emit('destroy:badframes', undefined);
     }
   },
   mounted() {
@@ -79,6 +75,11 @@ export default {
   },
   beforeUnmount() {
     this.table.sortBy({});
+  },
+  methods: {
+    hideBadFrames() {
+      this.$emit('destroy-bad-frames', undefined);
+    }
   }
 };
 </script>

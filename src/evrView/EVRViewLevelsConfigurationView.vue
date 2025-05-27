@@ -35,6 +35,11 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      isEditing: this.openmct.editor.isEditing()
+    };
+  },
   computed: {
     levels() {
       const existingLevels =
@@ -85,10 +90,11 @@ export default {
       return styles;
     }
   },
-  data() {
-    return {
-      isEditing: this.openmct.editor.isEditing()
-    };
+  mounted() {
+    this.openmct.editor.on('isEditing', this.toggleEdit);
+  },
+  beforeUnmount() {
+    this.openmct.editor.off('isEditing', this.toggleEdit);
   },
   methods: {
     toggleEdit(isEditing) {
@@ -100,12 +106,6 @@ export default {
 
       this.openmct.objects.mutate(this.domainObject, 'configuration.levels', levels);
     }
-  },
-  mounted() {
-    this.openmct.editor.on('isEditing', this.toggleEdit);
-  },
-  beforeUnmount() {
-    this.openmct.editor.off('isEditing', this.toggleEdit);
   }
 };
 </script>

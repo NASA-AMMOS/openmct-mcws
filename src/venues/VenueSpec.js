@@ -56,7 +56,7 @@ describe('Venue', () => {
   });
 
   it('returns a domain object', () => {
-    const domainObject = venue.getdomainObject();
+    const domainObject = venue.getDomainObject();
     expect(domainObject.name).toBe(`${configuration.name} Dataset`);
     expect(domainObject.host).not.toBeDefined();
     expect(domainObject.prefix).toBe(configuration.prefix);
