@@ -81,6 +81,15 @@ class ExportDataAction {
     return `${sessionFilter.host}_${filterString}`;
   }
 
+  /**
+   * Runs the export task for the given domain objects with an optional name.
+   * If no name is provided, uses the name of the first domain object.
+   * Appends session filter information to the filename if a session filter exists.
+   *
+   * @param {Array<Object>} domainObjects - Array of domain objects to export
+   * @param {string} [name] - Optional name for the export file. If not provided, uses the name of the first domain object
+   * @returns {Promise} A promise that resolves when the export task is complete
+   */
   runExportTask(domainObjects, name) {
     let filename = name ?? domainObjects[0].name;
     const sessionFilter = this.getHistoricalSessionFilter();
