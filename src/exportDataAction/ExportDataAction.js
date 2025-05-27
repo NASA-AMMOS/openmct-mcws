@@ -18,7 +18,6 @@ class ExportDataAction {
     this.group = 'view';
     this.priority = 1;
     this.validTypes = validTypes;
-    this.sessionService = SessionService();
 
     this.openmct = openmct;
   }
@@ -63,10 +62,14 @@ class ExportDataAction {
     );
 
     if (filteredComposition.length > 0) {
-      await this.runExportTask(filteredComposition);
+      await this.runExportTask(filteredComposition, domainObject.name);
     } else {
       this.openmct.notifications.info('No historical data to export');
     }
+  }
+
+  getHistoricalSessionFilter() {
+    return SessionService().getHistoricalSessionFilter();
   }
 
   historicalFilterString(sessionFilter) {
@@ -78,9 +81,18 @@ class ExportDataAction {
     return `${sessionFilter.host}_${filterString}`;
   }
 
-  runExportTask(domainObjects) {
-    let filename = domainObjects[0].name;
-    const sessionFilter = this.sessionService.getHistoricalSessionFilter();
+  /**
+   * Runs the export task for the given domain objects with an optional name.
+   * If no name is provided, uses the name of the first domain object.
+   * Appends session filter information to the filename if a session filter exists.
+   *
+   * @param {Array<Object>} domainObjects - Array of domain objects to export
+   * @param {string} [name] - Optional name for the export file. If not provided, uses the name of the first domain object
+   * @returns {Promise} A promise that resolves when the export task is complete
+   */
+  runExportTask(domainObjects, name) {
+    let filename = name ?? domainObjects[0].name;
+    const sessionFilter = this.getHistoricalSessionFilter();
 
     if (sessionFilter) {
       filename = `${filename} - ${this.historicalFilterString(sessionFilter)}`;
