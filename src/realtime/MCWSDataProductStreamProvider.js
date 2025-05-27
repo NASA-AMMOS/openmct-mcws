@@ -40,15 +40,6 @@ class MCWSDataProductStreamProvider extends MCWSStreamProvider {
 
     return super.subscribe(domainObject, wrappedCallback, options);
   }
-
-  notifyWorker(key, value) {
-    if (key === 'subscribe' && this.options.realtimeProductAPIDs && value.mcwsVersion === 3.2) {
-      value.extraFilterTerms = {
-        apid: '(' + this.options.realtimeProductAPIDs.join(',') + ')'
-      };
-    }
-    super.notifyWorker(key, value);
-  }
 }
 
 export default MCWSDataProductStreamProvider;

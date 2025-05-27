@@ -350,27 +350,6 @@
     },
 
     /**
-     * Data Product Temporary Workaround:
-     *
-     * If you want to view real-time product data, you must specify all
-     * product APIDs that you want to see in the below array.  This config
-     * is only required for MCWS R3.2, and will not be required for
-     * MCWS R3.3.
-     *
-     * This list can be quickly extracted from apid.xml with the following
-     * python code:
-     *
-     * temporarily disable spellcheck, to be removed in https://github.com/NASA-AMMOS/openmct-mcws/issues/303
-     * cspell:disable
-     * import xml.etree.ElementTree as ET
-     * tree = ET.parse('apid.xml')
-     * apids = [int(a.attrib['number']) for a in tree.getroot() if a.tag == 'apid']
-     * cspell:enable
-     *
-     */
-    realtimeProductAPIDs: [],
-
-    /**
      * Plugin Support 
      * Example configuration:
      * plugins: {        
