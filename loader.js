@@ -29,7 +29,7 @@ define([
   IdentityProvider,
   MCWSPersistenceProviderPlugin
 ) {
-  const ALLOWED_OPTIONAL_PLUGINS = ['BarChart'];
+  const ALLOWED_OPTIONAL_PLUGINS = ['BarChart', 'ScatterPlot', 'Timeline', 'Timelist', 'PlanLayout'];
 
   function loader(config) {
     let persistenceLoaded;
@@ -145,8 +145,8 @@ define([
       }
 
       pluginsToInstall.forEach(([plugin, pluginConfig]) => {
-        const { configuration = [] } = pluginConfig;
-
+        const configuration = pluginConfig.configuration ?? [];
+        console.log(plugin, configuration);
         openmct.install(openmct.plugins[plugin](...configuration));
       });
     }

@@ -374,19 +374,23 @@
      * Plugin Support 
      * Example configuration:
      * plugins: {        
-        // Simple enable
+        // Simple enable:
+        // openmct.plugins.anotherPlugin()
         anotherPlugin: {
           enabled: true
         },
-        // Enable with options
-        configuredPlugin: {
+        // Enable with options:
+        // openmct.plugins.ConfiguredPlugin({setting1: 'value1', setting2: 'value2'}, 1000)
+        // 1000 is passed as the second argument to the plugin constructor
+        ConfiguredPlugin: {
           enabled: true,
           // these are passed as arguments to the plugin constructor
           configuration: [
             {
               setting1: 'value1',
               setting2: 'value2'
-            }
+            },
+            1000
           ]
         }
       }
@@ -399,7 +403,26 @@
         enabled: true
       },
       BarChart: {
-        enabled: false
+        enabled: true
+      },
+      ScatterPlot: {
+        enabled: true
+      },
+      Timeline: {
+        enabled: true
+      },
+      Timelist: {
+        enabled: true
+      },
+      PlanLayout: {
+        enabled: true,
+        configuration: [
+          {
+            name: 'Gantt Chart',
+            creatable: true,
+            namespace: '' // namespace to use for the activity state object
+          }
+        ]
       }
     },
 
@@ -603,8 +626,8 @@
      * Developer Settings-- do not modify these unless you know what
      * they do!
      */
-    // proxyUrl: 'http://localhost:8080/',
-    // useDeveloperStorage: true,
+    proxyUrl: 'http://localhost:8080/',
+    useDeveloperStorage: true,
     assetPath: 'node_modules/openmct/dist'
   };
 
