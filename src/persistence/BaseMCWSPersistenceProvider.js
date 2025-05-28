@@ -202,6 +202,8 @@ export default class BaseMCWSPersistenceProvider {
 
           return;
         }
+      } else {
+        throw readError;
       }
     }
 
