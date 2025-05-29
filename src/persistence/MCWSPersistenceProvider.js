@@ -27,9 +27,15 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       return result;
     } catch (error) {
+      // we handle 404 errors and they don't propagate up to the user
+      // anything else we want to warn the user about and not return undefined
+      // so the old persistence interceptor isn't triggered erasing the object
       console.warn('MCWSPersistenceProvider:get', error);
 
-      return;
+      return {
+        identifier,
+        name: 'Error Reading Object'
+      };
     }
   }
 
