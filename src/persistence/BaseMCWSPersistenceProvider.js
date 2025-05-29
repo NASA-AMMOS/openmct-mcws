@@ -177,6 +177,7 @@ export default class BaseMCWSPersistenceProvider {
    */
   async createIfMissing(namespaceDefinition, userId) {
     const namespace = mcws.namespace(namespaceDefinition.url);
+    let non404Error;
 
     try {
       await namespace.read();
@@ -198,11 +199,18 @@ export default class BaseMCWSPersistenceProvider {
 
           return namespaceDefinition;
         } catch (e) {
-          console.error('Error creating namespace:', e);
-
-          return;
+          non404Error = e;
         }
+      } else {
+        non404Error = readError;
       }
+    }
+
+    if (non404Error) {
+      console.error('Error creating namespace:', non404Error);
+      this.openmct.notify.error(
+        `Error creating namespace: ${non404Error.message ?? 'Unknown error'}. Check network connection and try again.`
+      );
     }
 
     return;
