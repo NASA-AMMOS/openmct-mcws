@@ -32,7 +32,11 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       // so the old persistence interceptor isn't triggered erasing the object
       console.warn('MCWSPersistenceProvider:get', error);
 
-      return {};
+      return {
+        identifier,
+        type: 'unknown',
+        name: 'Error: ' + this.openmct.objects.makeKeyString(identifier)
+      };
     }
   }
 
