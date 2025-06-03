@@ -36,6 +36,15 @@ export default async function oldPersistenceFolderInterceptor(
       let userId = 'system';
       let namespaceDefinition;
 
+      // if the object is unknown and the name is an error message,
+      // we don't want to create a new object, this is a network error
+      if (
+        object.type === 'unknown' &&
+        object.name === 'Error: ' + openmct.objects.makeKeyString(identifier)
+      ) {
+        return object;
+      }
+
       if (
         isUserNamespace(usersNamespace, userKeyRegex, identifier) &&
         !identifier.namespace.includes('shared')
