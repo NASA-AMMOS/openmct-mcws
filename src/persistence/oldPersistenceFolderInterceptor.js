@@ -33,8 +33,6 @@ export default async function oldPersistenceFolderInterceptor(
       return isMissing && isNotUserRoot && (isUserFolderIdentifier || isRootFolder);
     },
     invoke: (identifier, object) => {
-      console.log('oldPersistenceFolderInterceptor', identifier, object);
-      console.log('namespaces', namespaces);
       let userId = 'system';
       let namespaceDefinition;
 
