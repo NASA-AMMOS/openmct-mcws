@@ -29,11 +29,16 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
     } catch (error) {
       console.warn('MCWSPersistenceProvider:get', error);
 
-      return {
-        identifier,
-        type: 'unknown',
-        name: 'Error: ' + this.openmct.objects.makeKeyString(identifier)
-      };
+      // it's a network error, we don't want to create a new object
+      if (error.status !== 404) {
+        return {
+          identifier,
+          type: 'unknown',
+          name: 'Error: ' + this.openmct.objects.makeKeyString(identifier)
+        };
+      }
+
+      return;
     }
   }
 
