@@ -176,6 +176,7 @@ export default class BaseMCWSPersistenceProvider {
    * @returns {Promise.<NamespaceDefinition>|Promise.<undefined>}
    */
   async createIfMissing(namespaceDefinition, userId) {
+    console.log('createIfMissing', namespaceDefinition, userId);
     const namespace = mcws.namespace(namespaceDefinition.url);
 
     try {
@@ -183,7 +184,9 @@ export default class BaseMCWSPersistenceProvider {
 
       return namespaceDefinition;
     } catch (readError) {
+      console.log('readError', readError);
       if (readError.status === 404) {
+        console.log('404');
         try {
           await namespace.create();
 
