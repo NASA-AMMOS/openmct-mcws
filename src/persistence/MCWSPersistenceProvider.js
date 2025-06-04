@@ -1,6 +1,9 @@
 import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider';
 import mcws from '../services/mcws/mcws';
 
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1 second
+
 export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider {
   /**
    * Read an existing object back from persistence.
@@ -19,26 +22,38 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
     }
 
     const persistenceNamespace = await this.#getNamespace(namespace, options);
+    let retryCount = 0;
 
-    try {
-      let result = await persistenceNamespace.opaqueFile(key).read();
+    while (retryCount <= MAX_RETRIES) {
+      try {
+        let result = await persistenceNamespace.opaqueFile(key).read();
+        result = await this.#fromPersistableModel(result, identifier);
+        return result;
+      } catch (error) {
+        console.warn(
+          `MCWSPersistenceProvider:get attempt ${retryCount + 1}/${MAX_RETRIES + 1}`,
+          error
+        );
 
-      result = await this.#fromPersistableModel(result, identifier);
+        // Don't retry 404s - they mean the object doesn't exist
+        if (error.status === 404) {
+          return;
+        }
 
-      return result;
-    } catch (error) {
-      console.warn('MCWSPersistenceProvider:get', error);
+        // If we've hit max retries, return the error object
+        if (retryCount === MAX_RETRIES) {
+          return {
+            identifier,
+            type: 'unknown',
+            name: 'Error: ' + this.openmct.objects.makeKeyString(identifier)
+          };
+        }
 
-      // it's a network error, we don't want to create a new object
-      if (error.status !== 404) {
-        return {
-          identifier,
-          type: 'unknown',
-          name: 'Error: ' + this.openmct.objects.makeKeyString(identifier)
-        };
+        // Wait with exponential backoff before retrying
+        const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        retryCount++;
       }
-
-      return;
     }
   }
 
