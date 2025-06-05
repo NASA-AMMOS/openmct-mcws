@@ -18,9 +18,8 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       options.signal = abortSignal;
     }
 
-    const persistenceNamespace = await this.#getNamespace(namespace, options);
-
     try {
+      const persistenceNamespace = await this.#getNamespace(namespace, options);
       let result = await persistenceNamespace.opaqueFile(key).read();
 
       result = await this.#fromPersistableModel(result, identifier);
