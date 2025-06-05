@@ -29,7 +29,7 @@ define([
   IdentityProvider,
   MCWSPersistenceProviderPlugin
 ) {
-  const ALLOWED_OPTIONAL_PLUGINS = ['BarChart', 'ScatterPlot', 'Timeline', 'Timelist', 'PlanLayout'];
+  const TESTED_OPTIONAL_PLUGINS = ['BarChart', 'ScatterPlot', 'Timeline', 'Timelist', 'PlanLayout'];
 
   function loader(config) {
     let persistenceLoaded;
@@ -125,28 +125,38 @@ define([
       }
 
       const pluginErrors = [];
+      const untestedPlugins = [];
       const pluginsToInstall = Object.entries(config.plugins).filter(([plugin, pluginConfig]) => {
-        const isSummaryWidget = plugin === 'summaryWidgets';
-        const allowedPlugin = ALLOWED_OPTIONAL_PLUGINS.includes(plugin);
+        const testedPlugin = TESTED_OPTIONAL_PLUGINS.includes(plugin);
+        const pluginExists = openmct.plugins[plugin] || openmct.plugins.example[plugin];
         const pluginEnabled = pluginConfig?.enabled;
+        const isSummaryWidget = plugin === 'summaryWidgets';
 
-        if (!allowedPlugin && !isSummaryWidget) {
-          pluginErrors.push(plugin);
+        // summary widget is handled separately
+        if (!isSummaryWidget) {
+          if (!pluginExists) {
+            pluginErrors.push(plugin);
+          } else if (!testedPlugin) {
+            untestedPlugins.push(plugin);
+          }
         }
 
-        return allowedPlugin && pluginEnabled && !isSummaryWidget;
+        return pluginExists && pluginEnabled && !isSummaryWidget;
       });
 
       // Warn if any plugins are not supported
       if (pluginErrors.length > 0) {
         console.warn(
-          `Unable to install plugins: ${pluginErrors.join(', ')}. Please verify the plugin name is correct and is included in the supported plugins list. Available plugins: ${ALLOWED_OPTIONAL_PLUGINS.join(', ')}`
+          `Unable to install plugins: ${pluginErrors.join(', ')}. Please verify the plugin name is correct.`
         );
+      }
+
+      if (untestedPlugins.length > 0) {
+        console.warn(`Untested plugins: ${untestedPlugins.join(', ')}. Use at your own risk.`);
       }
 
       pluginsToInstall.forEach(([plugin, pluginConfig]) => {
         const configuration = pluginConfig.configuration ?? [];
-        console.log(plugin, configuration);
         openmct.install(openmct.plugins[plugin](...configuration));
       });
     }
