@@ -30,7 +30,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       // it's a network error, we don't want to create a new object
       if (error.status !== 404) {
-        this.openmct.notify.error(
+        this.openmct.notifications.error(
           `Error: ${error.message ?? 'Unknown error'}. Check network connection and try again.`
         );
 
