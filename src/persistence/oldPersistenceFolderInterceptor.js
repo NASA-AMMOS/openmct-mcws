@@ -36,8 +36,7 @@ export default async function oldPersistenceFolderInterceptor(
       let userId = 'system';
       let namespaceDefinition;
 
-      // if the object is unknown and the name is an error message,
-      // we don't want to create a new object, this is a network error
+      // if the object is a network error object, we don't want to create a new object
       if (object.networkError === true) {
         return object;
       }
