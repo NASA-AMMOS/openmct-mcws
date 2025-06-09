@@ -30,8 +30,9 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       // it's a network error, we don't want to create a new object
       if (error.status !== 404) {
+        const userFolder = namespace.split(':')[0].split('-').pop();
         this.openmct.notifications.error(
-          `Error: ${error.message ?? 'Unknown error'}. Check network connection and try again.`
+          `Unable to open ${userFolder} folder. Error: ${error.message ?? 'Unknown error'}. Open and close the folder to try again. If issue persists, check network connection and try again.`
         );
 
         return {
