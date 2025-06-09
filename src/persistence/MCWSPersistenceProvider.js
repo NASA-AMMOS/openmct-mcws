@@ -38,7 +38,8 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
         return {
           identifier,
           type: 'unknown',
-          name: 'Error: ' + this.openmct.objects.makeKeyString(identifier)
+          name: 'Error: ' + this.openmct.objects.makeKeyString(identifier),
+          networkError: true
         };
       }
 

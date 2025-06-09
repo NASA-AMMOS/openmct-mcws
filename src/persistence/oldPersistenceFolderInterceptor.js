@@ -38,10 +38,7 @@ export default async function oldPersistenceFolderInterceptor(
 
       // if the object is unknown and the name is an error message,
       // we don't want to create a new object, this is a network error
-      if (
-        object.type === 'unknown' &&
-        object.name === 'Error: ' + openmct.objects.makeKeyString(identifier)
-      ) {
+      if (object.networkError === true) {
         return object;
       }
 
