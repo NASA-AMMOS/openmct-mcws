@@ -403,19 +403,19 @@
         enabled: true
       },
       BarChart: {
-        enabled: true
+        enabled: false
       },
       ScatterPlot: {
-        enabled: true
+        enabled: false
       },
       Timeline: {
-        enabled: true
+        enabled: false
       },
       Timelist: {
-        enabled: true
+        enabled: false
       },
       PlanLayout: {
-        enabled: true,
+        enabled: false,
         configuration: [
           {
             name: 'Gantt Chart',

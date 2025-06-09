@@ -29,8 +29,6 @@ define([
   IdentityProvider,
   MCWSPersistenceProviderPlugin
 ) {
-  const TESTED_OPTIONAL_PLUGINS = ['BarChart', 'ScatterPlot', 'Timeline', 'Timelist', 'PlanLayout'];
-
   function loader(config) {
     let persistenceLoaded;
     const persistenceLoadedPromise = new Promise((resolve) => {
@@ -124,40 +122,17 @@ define([
         openmct.install(openmct.plugins.SummaryWidget());
       }
 
-      const pluginErrors = [];
-      const untestedPlugins = [];
-      const pluginsToInstall = Object.entries(config.plugins).filter(([plugin, pluginConfig]) => {
-        const testedPlugin = TESTED_OPTIONAL_PLUGINS.includes(plugin);
+      Object.entries(config.plugins).forEach(([plugin, pluginConfig]) => {
         const pluginExists = openmct.plugins[plugin] || openmct.plugins.example[plugin];
         const pluginEnabled = pluginConfig?.enabled;
         const isSummaryWidget = plugin === 'summaryWidgets';
+        const installPlugin = pluginExists && pluginEnabled && !isSummaryWidget;
 
-        // summary widget is handled separately
-        if (!isSummaryWidget) {
-          if (!pluginExists) {
-            pluginErrors.push(plugin);
-          } else if (!testedPlugin) {
-            untestedPlugins.push(plugin);
-          }
+        if (installPlugin) {
+          openmct.install(openmct.plugins[plugin](...(pluginConfig.configuration ?? [])));
+        } else if (!pluginExists) {
+          console.warn(`Plugin ${plugin} does not exist. Check the plugin name and try again.`);
         }
-
-        return pluginExists && pluginEnabled && !isSummaryWidget;
-      });
-
-      // Warn if any plugins are not supported
-      if (pluginErrors.length > 0) {
-        console.warn(
-          `Unable to install plugins: ${pluginErrors.join(', ')}. Please verify the plugin name is correct.`
-        );
-      }
-
-      if (untestedPlugins.length > 0) {
-        console.warn(`Untested plugins: ${untestedPlugins.join(', ')}. Use at your own risk.`);
-      }
-
-      pluginsToInstall.forEach(([plugin, pluginConfig]) => {
-        const configuration = pluginConfig.configuration ?? [];
-        openmct.install(openmct.plugins[plugin](...configuration));
       });
     }
 
