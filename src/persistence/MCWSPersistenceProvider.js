@@ -32,7 +32,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       if (error.status !== 404) {
         const userFolder = namespace.split(':')[0].split('-').pop();
         this.openmct.notifications.error(
-          `Unable to open ${userFolder} folder. Error: ${error.message ?? 'Unknown error'}. Open and close the folder to try again. If issue persists, check network connection and try again.`
+          `Unable to open ${userFolder} folder. Close and open the folder to try again. If issue persists, check network connection and try again.`
         );
 
         return {
