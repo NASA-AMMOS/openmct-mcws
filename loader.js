@@ -29,8 +29,6 @@ define([
   IdentityProvider,
   MCWSPersistenceProviderPlugin
 ) {
-  const ALLOWED_OPTIONAL_PLUGINS = ['BarChart'];
-
   function loader(config) {
     let persistenceLoaded;
     const persistenceLoadedPromise = new Promise((resolve) => {
@@ -124,30 +122,17 @@ define([
         openmct.install(openmct.plugins.SummaryWidget());
       }
 
-      const pluginErrors = [];
-      const pluginsToInstall = Object.entries(config.plugins).filter(([plugin, pluginConfig]) => {
-        const isSummaryWidget = plugin === 'summaryWidgets';
-        const allowedPlugin = ALLOWED_OPTIONAL_PLUGINS.includes(plugin);
+      Object.entries(config.plugins).forEach(([plugin, pluginConfig]) => {
+        const pluginExists = openmct.plugins[plugin] || openmct.plugins.example[plugin];
         const pluginEnabled = pluginConfig?.enabled;
+        const isSummaryWidget = plugin === 'summaryWidgets';
+        const installPlugin = pluginExists && pluginEnabled && !isSummaryWidget;
 
-        if (!allowedPlugin && !isSummaryWidget) {
-          pluginErrors.push(plugin);
+        if (installPlugin) {
+          openmct.install(openmct.plugins[plugin](...(pluginConfig.configuration ?? [])));
+        } else if (!pluginExists) {
+          console.warn(`Plugin ${plugin} does not exist. Check the plugin name and try again.`);
         }
-
-        return allowedPlugin && pluginEnabled && !isSummaryWidget;
-      });
-
-      // Warn if any plugins are not supported
-      if (pluginErrors.length > 0) {
-        console.warn(
-          `Unable to install plugins: ${pluginErrors.join(', ')}. Please verify the plugin name is correct and is included in the supported plugins list. Available plugins: ${ALLOWED_OPTIONAL_PLUGINS.join(', ')}`
-        );
-      }
-
-      pluginsToInstall.forEach(([plugin, pluginConfig]) => {
-        const { configuration = [] } = pluginConfig;
-
-        openmct.install(openmct.plugins[plugin](...configuration));
       });
     }
 
