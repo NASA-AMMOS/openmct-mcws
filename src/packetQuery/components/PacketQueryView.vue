@@ -81,8 +81,17 @@ export default {
   props: {
     domainObject: {
       type: Object,
-      require: true
+      required: true
     }
+  },
+  data() {
+    return {
+      queryModel: {
+        useSession: undefined,
+        sessionId: undefined,
+        useTimeConductor: undefined
+      }
+    };
   },
   computed: {
     filterRows() {
@@ -132,15 +141,6 @@ export default {
         this.validateForm();
       }
     }
-  },
-  data() {
-    return {
-      queryModel: {
-        useSession: undefined,
-        sessionId: undefined,
-        useTimeConductor: undefined
-      }
-    };
   },
   mounted() {
     this.formElement = this.$refs.form;

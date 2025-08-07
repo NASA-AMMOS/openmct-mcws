@@ -75,10 +75,10 @@ export default class DataProductViewProvider {
         const vueComponent = defineComponent(componentDefinition);
         const app = createApp(vueComponent);
 
-        app.component('vista-table-dat-cell', DATDownloadCell);
-        app.component('vista-table-emd-cell', EMDDownloadCell);
-        app.component('vista-table-emd-preview-cell', EMDPreviewCell);
-        app.component('vista-table-txt-cell', TXTDownloadCell);
+        app.component('VistaTableDatCell', DATDownloadCell);
+        app.component('VistaTableEmdCell', EMDDownloadCell);
+        app.component('VistaTableEmdPreviewCell', EMDPreviewCell);
+        app.component('VistaTableTxtCell', TXTDownloadCell);
 
         const componentInstance = app.mount(mountingElement);
 

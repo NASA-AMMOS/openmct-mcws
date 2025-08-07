@@ -51,6 +51,11 @@ export default {
       realtimeSessionDisabled: undefined
     };
   },
+  computed: {
+    hasActiveSession() {
+      return this.activeSession !== undefined;
+    }
+  },
   mounted() {
     this.sessionService = SessionService();
     this.realtimeSessionDisabled = this.sessionService.realtimeSessionConfig.disable;
@@ -61,11 +66,6 @@ export default {
   },
   beforeUnmount() {
     this.stopListening?.();
-  },
-  computed: {
-    hasActiveSession() {
-      return this.activeSession !== undefined;
-    }
   },
   methods: {
     pollForSessions() {

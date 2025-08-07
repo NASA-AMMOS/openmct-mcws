@@ -14,6 +14,12 @@
   </div>
 </template>
 
+<script>
+export default {
+  inject: ['name', 'attributes']
+};
+</script>
+
 <style lang="scss">
 .c-attributes-view {
   display: flex;
@@ -46,9 +52,3 @@
   }
 }
 </style>
-
-<script>
-export default {
-  inject: ['name', 'attributes']
-};
-</script>

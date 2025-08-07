@@ -21,7 +21,7 @@ define(['./VISTAType', './EVRModuleType', '../constants', 'lodash'], function (
       };
     },
     getLocation: function (dataset, data) {
-      // FIXME: this works soley because the dataset must have loaded for
+      // FIXME: this works solely because the dataset must have loaded for
       // the EVRType to load.
       return EVRModuleType.makeIdentifier(
         dataset.evrs.byName[data.name].module,

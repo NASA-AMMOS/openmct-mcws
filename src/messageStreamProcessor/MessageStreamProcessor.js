@@ -114,7 +114,7 @@ class MessageStreamProcessor {
    * @param {String} suspectChannel  - Name of suspect channel
    * @param {Array} datasetsIdentifiers  - Array of dataset identifiers
    *
-   * @returns {Array} of suspect channel keystrings
+   * @returns {Array} of suspect channel keyStrings
    */
   buildSuspectKeyStrings(suspectChannel, datasetsIdentifiers) {
     let suspectKeyStrings = [];

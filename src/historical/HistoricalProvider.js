@@ -406,7 +406,7 @@ define([
       let minutes = padTime(Math.floor(duration.minutes()));
       let seconds = padTime(Math.floor(duration.seconds()));
 
-      this.formatedQueryTimespanLimit = `${hours}:${minutes}:${seconds} hrs`;
+      this.formattedQueryTimespanLimit = `${hours}:${minutes}:${seconds} hrs`;
     }
   }
 
@@ -494,10 +494,10 @@ define([
       return Promise.resolve([]);
     }
 
-    if (this.formatedQueryTimespanLimit && this.isTimespanLimitExceeded(provider, options)) {
+    if (this.formattedQueryTimespanLimit && this.isTimespanLimitExceeded(provider, options)) {
       const notificationMessage =
         'Time Conductor bounds exceed the limit of ' +
-        this.formatedQueryTimespanLimit +
+        this.formattedQueryTimespanLimit +
         ' - some views may not display data as expected.';
 
       this.openmct.notifications.error(notificationMessage);

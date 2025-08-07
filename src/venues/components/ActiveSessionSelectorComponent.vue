@@ -9,11 +9,11 @@
             <div class="c-tree__item" :class="{ 'is-selected': isSelected(topic.model) }">
               <span
                 class="c-disclosure-triangle c-tree__item__view-control"
-                @click="topic.expanded = !topic.expanded"
                 :class="{
                   'c-disclosure-triangle--expanded': topic.expanded,
                   'is-enabled': topic.model.sessions.length
                 }"
+                @click="topic.expanded = !topic.expanded"
               >
               </span>
               <div class="c-object-label c-tree__item__label" @click="selectSession(topic.model)">
@@ -23,24 +23,25 @@
                 </div>
               </div>
             </div>
-            <span class="c-tree__item__subtree" v-if="topic.expanded">
+            <span v-if="topic.expanded" class="c-tree__item__subtree">
               <ul class="c-tree">
                 <li
-                  v-for="session in topic.model.sessions"
-                  :key="session.id"
+                  v-for="sessionSelection in topic.model.sessions"
+                  :key="sessionSelection.id"
                   class="c-tree__item-h"
                 >
                   <span
                     class="c-tree__item"
-                    :class="{ 'is-selected': isSelected(session) }"
-                    @click="selectSession(session)"
+                    :class="{ 'is-selected': isSelected(sessionSelection) }"
+                    @click="selectSession(sessionSelection)"
                   >
                     <div class="c-object-label c-tree__item__label">
                       <span
                         class="c-tree__item__type-icon c-object-label__type-icon icon-session"
                       ></span>
                       <div class="c-tree__item__name c-object-label__name">
-                        {{ session.number }} {{ session.name }} on {{ session.host }}
+                        {{ sessionSelection.number }} {{ sessionSelection.name }} on
+                        {{ sessionSelection.host }}
                       </div>
                     </div>
                   </span>
@@ -67,6 +68,7 @@ export default {
       default: () => {}
     }
   },
+  emits: ['session-selected'],
   data() {
     return {
       topics: [],

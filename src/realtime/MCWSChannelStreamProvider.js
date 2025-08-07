@@ -1,25 +1,21 @@
-define(['./MCWSStreamProvider'], function (MCWSStreamProvider) {
-  'use strict';
+import MCWSStreamProvider from './MCWSStreamProvider';
 
-  /**
-   * Provides real-time streaming channel data.
-   * @constructor
-   * @augments {MCWSStreamProvider}
-   * @memberof {vista/telemetry}
-   */
-  var MCWSChannelStreamProvider = MCWSStreamProvider.extend({});
+/**
+ * Provides real-time streaming channel data.
+ * @memberof {vista/telemetry}
+ */
+class MCWSChannelStreamProvider extends MCWSStreamProvider {
+  getUrl(domainObject) {
+    return domainObject.telemetry?.channelStreamUrl;
+  }
 
-  MCWSChannelStreamProvider.prototype.getUrl = function (domainObject) {
-    return domainObject.telemetry && domainObject.telemetry.channelStreamUrl;
-  };
-
-  MCWSChannelStreamProvider.prototype.getKey = function (domainObject) {
+  getKey(domainObject) {
     return domainObject.telemetry.channel_id;
-  };
+  }
 
-  MCWSChannelStreamProvider.prototype.getProperty = function () {
+  getProperty() {
     return 'channel_id';
-  };
+  }
+}
 
-  return MCWSChannelStreamProvider;
-});
+export default MCWSChannelStreamProvider;

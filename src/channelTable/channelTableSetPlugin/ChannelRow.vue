@@ -12,7 +12,6 @@ const CONTEXT_MENU_ACTIONS = ['viewDatumAction', 'viewHistoricalData', 'remove']
 const BLANK_VALUE = '---';
 export default {
   inject: ['openmct', 'currentView'],
-  emits: ['rowContextClick'],
   props: {
     domainObject: {
       type: Object,
@@ -23,6 +22,7 @@ export default {
       required: true
     }
   },
+  emits: ['rowContextClick'],
   data() {
     return {
       datum: undefined,

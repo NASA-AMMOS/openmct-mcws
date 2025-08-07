@@ -14,9 +14,12 @@
 import VenueComponent from './VenueComponent.vue';
 
 export default {
+  components: {
+    VenueComponent
+  },
   inject: ['venueService'],
   props: {
-    venue: {
+    selectedVenue: {
       type: Object,
       required: false,
       default: () => {
@@ -24,9 +27,7 @@ export default {
       }
     }
   },
-  components: {
-    VenueComponent
-  },
+  emits: ['venue-selected'],
   data() {
     return {
       venues: [],
@@ -51,7 +52,7 @@ export default {
       }
     },
     isSelected(venue) {
-      return this.venue === venue;
+      return this.selectedVenue === venue;
     },
     selectVenue(venue) {
       this.$emit('venue-selected', venue);

@@ -4,7 +4,7 @@
       v-if="rowsLength"
       class="l-preview-window__object-view l-preview-window__object-view-no-padding"
     >
-      <telemetry-table :marking="markingProp" :enableLegacyToolbar="true">
+      <telemetry-table :marking="markingProp" :enable-legacy-toolbar="true">
         <div class="c-table-and-summary__summary">
           <div class="c-table-and-summary__summary-item">
             DataTable URL:
@@ -28,10 +28,10 @@
 import TelemetryTable from 'openmct.tables.components.Table';
 
 export default {
-  inject: ['openmct', 'domainObject', 'table', 'objectPath', 'currentView'],
   components: {
     TelemetryTable
   },
+  inject: ['openmct', 'domainObject', 'table', 'objectPath', 'currentView'],
   data() {
     return {
       headers: [],
@@ -47,6 +47,15 @@ export default {
       },
       error: undefined
     };
+  },
+  mounted() {
+    this.isLoading = true;
+
+    this.table.loadDictionary().then(() => {
+      this.rowsLength = this.table.tableRows.getRowsLength();
+      this.error = this.table.error;
+      this.isLoading = false;
+    });
   },
   methods: {
     processData(data) {
@@ -79,15 +88,6 @@ export default {
     processRows(data) {
       return data;
     }
-  },
-  mounted() {
-    this.isLoading = true;
-
-    this.table.loadDictionary().then(() => {
-      this.rowsLength = this.table.tableRows.getRowsLength();
-      this.error = this.table.error;
-      this.isLoading = false;
-    });
   }
 };
 </script>

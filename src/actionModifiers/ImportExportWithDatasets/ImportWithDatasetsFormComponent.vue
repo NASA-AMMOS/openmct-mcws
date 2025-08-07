@@ -1,6 +1,6 @@
 <template>
   <span class="form-control">
-    <span class="field control" :class="model.cssClass" v-if="hasImport">
+    <span v-if="hasImport" class="field control" :class="model.cssClass">
       <div v-if="!hasReferencedDatasets">
         {{ noDatasetMappingRequiredText }}
       </div>
@@ -24,8 +24,8 @@
             <label>{{ getDatasetName(referencedDataset) }}</label>
             <select
               v-model="mapping[makeKeyString(referencedDataset)]"
-              @change="onChange"
               class="field control select-field"
+              @change="onChange"
             >
               <option
                 v-for="option in datasetOptions"
@@ -64,6 +64,12 @@ export default {
       required: true
     }
   },
+  emits: ['on-change'],
+  data() {
+    return {
+      mapping: {}
+    };
+  },
   computed: {
     noDatasetMappingRequiredText() {
       return 'All set. The import does not need dataset mapping.';
@@ -94,11 +100,6 @@ export default {
     hasOneToOneMapping() {
       return this.datasets?.length === 1 && this.referencedDatasets?.length === 1;
     }
-  },
-  data() {
-    return {
-      mapping: {}
-    };
   },
   watch: {
     hasImport() {
@@ -139,7 +140,7 @@ export default {
     onChange(event) {
       this.validate();
 
-      this.$emit('onChange', this.data);
+      this.$emit('on-change', this.data);
     },
     validate() {
       this.model.validate(this.data, () => {

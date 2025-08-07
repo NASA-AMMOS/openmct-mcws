@@ -18,16 +18,30 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       options.signal = abortSignal;
     }
 
-    const persistenceNamespace = await this.#getNamespace(namespace, options);
-
     try {
+      const persistenceNamespace = await this.#getNamespace(namespace, options);
       let result = await persistenceNamespace.opaqueFile(key).read();
 
       result = await this.#fromPersistableModel(result, identifier);
 
       return result;
     } catch (error) {
-      console.warn('MCWSPersistneceProvider:get', error);
+      console.warn('MCWSPersistenceProvider:get', error);
+
+      // it's a network error, we don't want to create a new object
+      if (error.status !== 404) {
+        const userFolder = namespace.split(':')[0].split('-').pop();
+        this.openmct.notifications.error(
+          `Unable to open ${userFolder} folder. Close and open the folder to try again. If issue persists, check network connection and try again.`
+        );
+
+        return {
+          identifier,
+          type: 'unknown',
+          name: 'Error: ' + this.openmct.objects.makeKeyString(identifier),
+          networkError: true
+        };
+      }
 
       return;
     }
@@ -51,7 +65,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       return true;
     } catch (error) {
-      console.warn('MCWSPersistneceProvider:create', error);
+      console.warn('MCWSPersistenceProvider:create', error);
 
       return false;
     }
@@ -75,7 +89,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
 
       return result;
     } catch (error) {
-      console.warn('MCWSPersistneceProvider:update', error);
+      console.warn('MCWSPersistenceProvider:update', error);
 
       return false;
     }

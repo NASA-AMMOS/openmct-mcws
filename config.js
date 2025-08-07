@@ -84,11 +84,11 @@
       evrDefaultBackgroundColor: undefined,
 
       /**
-       * evrDefaultForegoundColor: default foreground color for EVRs.
+       * evrDefaultForegroundColor: default foreground color for EVRs.
        * Set to `undefined` to use the theme default.  Otherwise, specify
        * a hex string for an RGB color, e.g. `#ababab`.
        */
-      evrDefaultForegoundColor: undefined,
+      evrDefaultForegroundColor: undefined,
 
       /**
        * evrBackgroundColorByLevel: specify the background color of EVRs
@@ -181,6 +181,14 @@
        */
       lmstEpoch: Date.UTC(2020, 2, 18, 0, 0, 0),
 
+      /*
+       * subscriptionMCWSFilterDelay: delay in milliseconds for combining filters for the same subscription
+       * endpoint connection. Smaller value = quicker display of realtime data (ex, 10ms in a
+       *  low latency environment), higher value = avoids potentially creating and subsequently tearing down new websocket connections if filter changes are happening faster than server response times
+       * (ex, 100ms+ in a high latency environment)
+       */
+      subscriptionMCWSFilterDelay: 100,
+
       /**
        * timeSystems: specify the time systems to use.
        * Options are 'scet', 'ert', 'sclk', 'msl.sol' and 'lmst'.
@@ -193,83 +201,137 @@
              *
              * key property is required and other options are optional
              * timeSystem:
-             * * key: string, required
+             * * key: string, required. Time system. Options are 'scet', 'ert', 'sclk', 'msl.sol' and 'lmst'.
              * * limit: number, optional - maximum duration between start and end bounds allow
-             * * presets: array, optional - preset bounds for convenience
-             * * * preset:
-             * * * * label: string, descriptive label for preset
+             * * modeSettings: object, optional - presets for convenience. 
+             * * * fixed: object, optional - valid objects are bounds objects and presets array. 
+             * * * realtime: object, optional - valid objects are clockOffsets and presets array. 
+             * * * lad:object, optional - valid objects are clockOffsets. 
+             * * * * 
+             * * * * Optional objects: 
              * * * * bounds: start and end bounds for preset as numbers
-             * * * * * * * * start and end can be declared as a number or a function returning a number
-             * 
+             * * * * * * * * start: and end: can be declared as a number or a function returning a number
+             * * * * presets: array of objects consisting of: 
+             * * * * * bounds: - required. 
+             * * * * * label: - required, string
+             * * * * clockOffsets: object, optional. Start and end relative to active clock. 
+             * * * * start: and end: numbers relative to active clock's 0. Start is negative, end is positive. 
              * *advanced** example configuration below 
              *
             timeSystems: [
-                {
-                    key:'scet',
-                    presets: [
-                        {
-                            label: 'Last 2 hours',
-                            bounds: {
-                                start: Date.now() - 1000 * 60 * 60 * 2,
-                                end: Date.now()
-                            }
+             {
+                key:'scet',
+                modeSettings:{
+                  fixed:{
+                    bounds:{
+                        // 1 day ago
+                        start: new Date(
+                            Date.UTC(
+                                new Date().getUTCFullYear(),
+                                new Date().getUTCMonth(),
+                                new Date().getUTCDate()
+                            ) - 1 * 864e5
+                            ).getTime(),
+                        end: new Date(
+                            Date.UTC(
+                                new Date().getUTCFullYear(),
+                                new Date().getUTCMonth(),
+                                new Date().getUTCDate()
+                            ) + 864e5 - 1
+                            ).getTime()                  
                         },
-                        {
-                            label: 'Last 1 hour',
-                            bounds: {
-                                start: Date.now() - 1000 * 60 * 60,
-                                end: Date.now()
-                            }
+                    presets:[
+                      {
+                        label: 'Last 2 hours (SCET Recorded)',
+                        bounds: {
+                            start: () => Date.now() - 1000 * 60 * 60 * 2,
+                            end:  () => Date.now()
                         }
-                    ],
-                    limit: 1000 * 60 * 60 * 6
-                },
-                {
-                    key:'ert',
-                    presets: [
-                        {
-                            label: 'Last 2 hours',
-                            bounds: {
-                                start: Date.now() - 1000 * 60 * 60 * 2,
-                                end: Date.now()
-                            }
-                        },
-                        {
-                            label: 'Last 1 hour',
-                            bounds: {
-                                start: Date.now() - 1000 * 60 * 60,
-                                end: Date.now()
-                            }
+                      },
+                    ]
+                  },
+                  realtime:{
+                    clockOffsets:{
+                      start: -60 * 60 * 1000,
+                      end: 5 * 60 * 1000
+                    },
+                    presets:[
+                      {
+                        label: 'Last 2 hours (SCET Realtime)',
+                        bounds: {
+                            start: -60 * 60 * 1000 * 2,
+                            end: 5 * 60 * 1000
                         }
-                    ],
-                    limit: 1000 * 60 * 60 * 6
+                      }
+                    ]
+                  },
+                  lad:{
+                    clockOffsets:{
+                      start: -60 * 60 * 1000,
+                      end: 5 * 60 * 1000
+                    },
+                  },
+              },
+                limit: 1000 * 60 * 60 * 60
+            },
+            {
+              key:'ert',
+              modeSettings:{
+                fixed:{
+                  bounds:{
+                    // 1 day ago
+                    start: new Date(
+                    Date.UTC(
+                        new Date().getUTCFullYear(),
+                        new Date().getUTCMonth(),
+                        new Date().getUTCDate()
+                    ) - 1 * 864e5
+                    ).getTime(),
+                    // today
+                    end: new Date(
+                    Date.UTC(
+                        new Date().getUTCFullYear(),
+                        new Date().getUTCMonth(),
+                        new Date().getUTCDate()
+                    ) + 864e5 - 1
+                    ).getTime()
                 },
-                {
-                    key:'sclk',
-                    presets: [
-                        {
-                            label: 'Last 2 hours',
-                            bounds: {
-                                start: Date.now() - 1000 * 60 * 60 * 2,
-                                end: Date.now()
-                            }
-                        },
-                        {
-                            label: 'Last 1 hour',
-                            bounds: {
-                                start: Date.now() - 1000 * 60 * 60,
-                                end: Date.now()
-                            }
-                        }
-                    ],
-                    limit: 1000 / 5 * 60 * 60 * 6
+                  presets:[
+                    {
+                      label: 'Last 2 hours (ERT Recorded)',
+                      bounds: {
+                          start: Date.now() - 1000 * 60 * 60 * 2,
+                          end: Date.now()
+                      }
+                    },
+                  ]
                 },
-                {
-                    key:'lmst',
-                    presets: []
-                }
-            ],
-            */
+                realtime:{
+                  clockOffsets:{
+                    start: -60 * 60 * 1000,
+                    end: 5 * 60 * 1000
+                  },
+                  presets:[
+                    {
+                      label: 'Last 2 hours (ERT Realtime)',
+                      bounds: {
+                          start: -60 * 60 * 1000 * 2,
+                          end: 5 * 60 * 1000
+                      }
+                    }
+                  ]
+                },
+                lad:{
+                  clockOffsets:{
+                    start: -60 * 60 * 1000,
+                    end: 5 * 60 * 1000
+                  },
+                },
+            },
+              limit: 1000 * 60 * 60 * 60
+           }
+          ],
+          */
 
       /**
        * allowRealtime: whether or not to allow utc-relative time conductor.
@@ -288,40 +350,26 @@
     },
 
     /**
-     * Data Product Temporary Workaround:
-     *
-     * If you want to view real-time product data, you must specify all
-     * product APIDs that you want to see in the below array.  This config
-     * is only required for MCWS R3.2, and will not be required for
-     * MCWS R3.3.
-     *
-     * This list can be quickly extracted from apid.xml with the following
-     * python code:
-     *
-     * import xml.etree.ElementTree as ET
-     * tree = ET.parse('apid.xml')
-     * apids = [int(a.attrib['number']) for a in tree.getroot() if a.tag == 'apid']
-     *
-     */
-    realtimeProductAPIDs: [],
-
-    /**
      * Plugin Support 
      * Example configuration:
      * plugins: {        
-        // Simple enable
+        // Simple enable:
+        // openmct.plugins.anotherPlugin()
         anotherPlugin: {
           enabled: true
         },
-        // Enable with options
-        configuredPlugin: {
+        // Enable with options:
+        // openmct.plugins.ConfiguredPlugin({setting1: 'value1', setting2: 'value2'}, 1000)
+        // 1000 is passed as the second argument to the plugin constructor
+        ConfiguredPlugin: {
           enabled: true,
           // these are passed as arguments to the plugin constructor
           configuration: [
             {
               setting1: 'value1',
               setting2: 'value2'
-            }
+            },
+            1000
           ]
         }
       }
@@ -335,6 +383,25 @@
       },
       BarChart: {
         enabled: false
+      },
+      ScatterPlot: {
+        enabled: false
+      },
+      Timeline: {
+        enabled: false
+      },
+      Timelist: {
+        enabled: false
+      },
+      PlanLayout: {
+        enabled: false,
+        configuration: [
+          {
+            name: 'Gantt Chart',
+            creatable: true,
+            namespace: '' // namespace to use for the activity state object
+          }
+        ]
       }
     },
 

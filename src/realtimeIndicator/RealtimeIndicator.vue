@@ -17,6 +17,26 @@ export default {
       }
     };
   },
+  computed: {
+    cssClass() {
+      let className = this.currentValue['cssClass'];
+      let classObject = {};
+      classObject[className] = className.length > 0;
+      return classObject;
+    }
+  },
+  mounted() {
+    this.lastTimestamp = new Date();
+
+    if (this.vistaTime.ladClocks.ert) {
+      this.vistaTime.ladClocks.ert.on('tick', this.setTick.bind(this));
+    }
+  },
+  beforeUnmount() {
+    if (this.vistaTime.ladClocks.ert) {
+      this.vistaTime.ladClocks.ert.off('tick', this.setTick.bind(this));
+    }
+  },
   methods: {
     isRefreshRateNominal(newTimestamp, lastTimestamp) {
       if (newTimestamp - lastTimestamp <= 100) {
@@ -44,26 +64,6 @@ export default {
       } catch (e) {
         console.warn('Error setting tick', e);
       }
-    }
-  },
-  computed: {
-    cssClass() {
-      let className = this.currentValue['cssClass'];
-      let classObject = {};
-      classObject[className] = className.length > 0;
-      return classObject;
-    }
-  },
-  mounted() {
-    this.lastTimestamp = new Date();
-
-    if (this.vistaTime.ladClocks.ert) {
-      this.vistaTime.ladClocks.ert.on('tick', this.setTick.bind(this));
-    }
-  },
-  beforeUnmount() {
-    if (this.vistaTime.ladClocks.ert) {
-      this.vistaTime.ladClocks.ert.off('tick', this.setTick.bind(this));
     }
   }
 };

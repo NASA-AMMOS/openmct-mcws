@@ -1,48 +1,39 @@
-define([
-  '../lib/extend',
-  'lodash',
-  './MCWSStreamWorker',
-  'services/session/SessionService',
-  'services/filtering/FilterService',
-  'services/globalStaleness/globalStaleness'
-], function (
-  extend,
-  _,
-  runMCWSStreamWorker,
-  sessionServiceDefault,
-  filterServiceDefault,
-  GlobalStaleness
-) {
-  'use strict';
+import runMCWSStreamWorker from './MCWSStreamWorker';
+import sessionService from 'services/session/SessionService';
+import filterService from 'services/filtering/FilterService';
+import GlobalStaleness from 'services/globalStaleness/globalStaleness';
 
-  /**
-   * Provides real-time streaming telemetry for channels/EVRs with an
-   * associated WebSocket URL. Uses user selection from `sessionService`
-   * in order to filter down to an appropriate topic.
-   *
-   * @param {vista/sessions.SessionService} sessions service providing
-   *        information about user-selected topics/sessions
-   * @constructor
-   * @implements {TelemetryService}
-   * @memberof vista/telemetry
-   */
-  function MCWSStreamProvider(openmct, vistaTime) {
+/**
+ * Provides real-time streaming telemetry for channels/EVRs with an
+ * associated WebSocket URL. Uses user selection from `sessionService`
+ * in order to filter down to an appropriate topic.
+ *
+ * @param {vista/sessions.SessionService} sessions service providing
+ *        information about user-selected topics/sessions
+ * @constructor
+ * @implements {TelemetryService}
+ * @memberof vista/telemetry
+ */
+
+class MCWSStreamProvider {
+  constructor(openmct, vistaTime, options) {
     this.openmct = openmct;
     this.vistaTime = function () {
       return vistaTime;
     };
+    this.options = options;
 
-    this.sessions = sessionServiceDefault.default();
-    this.filterService = filterServiceDefault.default();
+    this.sessions = sessionService();
+    this.filterService = filterService();
 
     this.subscriptions = {};
     this.requests = {};
+
+    this.subscriptionMCWSFilterDelay = options?.time?.subscriptionMCWSFilterDelay;
   }
 
-  MCWSStreamProvider.extend = extend;
-
-  MCWSStreamProvider.prototype.processGlobalStaleness = function (data, latestTimestamp) {
-    const globalStaleness = GlobalStaleness.default();
+  processGlobalStaleness(data, latestTimestamp) {
+    const globalStaleness = GlobalStaleness();
 
     if (globalStaleness === null) {
       return;
@@ -64,40 +55,42 @@ define([
     }
 
     globalStaleness.updateLatestTimestamp(latestTimestamp);
-  };
+  }
 
-  MCWSStreamProvider.prototype.onmessage = function (message) {
-    var data = message.data;
-    var url = data.url;
-    var key = data.key;
-    var values = data.values;
-    var subscriptions = (this.subscriptions[url] || {})[key] || [];
-    var timestamp = Date.now();
+  onmessage(message) {
+    const data = message.data;
+    const { url, key, values } = data;
+    const subscriptions = (this.subscriptions[url] ?? {})[key] ?? [];
+    const timestamp = Date.now();
 
-    this.processGlobalStaleness(values || [], timestamp);
+    this.processGlobalStaleness(values ?? [], timestamp);
 
     subscriptions.forEach(function (subscription) {
+      // ticks the clock for ert, scet, and sclk if they are present
       this.vistaTime().update(values[0]);
       values.forEach(subscription.callback);
     }, this);
 
     //Communicate websocket timeout and errors to users
     if (data.onclose && data.code === 1006) {
-      this.openmct.notifications.error(
-        'Real-time data connection lost - data may not be displayed as expected.'
-      );
-      console.error(`Real-time data connection lost - data may not be displayed as expected.`);
-    } else if (data.onerror) {
-      this.openmct.notifications.error('Websocket Error, please see console for details');
-      console.error(`Websocket Error - Code:${data.code}, Error:${data.reason}`);
-    }
-  };
+      const message = `Real-time data connection lost - data may not be displayed as expected. Code: 1006`;
 
-  MCWSStreamProvider.prototype.worker = function () {
-    const worker = runMCWSStreamWorker.default();
+      this.openmct.notifications.error(message);
+      console.error(message);
+    } else if (data.onerror) {
+      this.openmct.notifications.error(
+        `Websocket Error for ${url}?${data.query}, please see console for details`
+      );
+      console.error(`Websocket Error - Code: ${data.code}, Error: ${data.reason}`);
+    }
+  }
+
+  worker() {
+    const worker = runMCWSStreamWorker();
 
     worker.onmessage = this.onmessage.bind(this);
 
+    // cache worker
     this.worker = function () {
       return worker;
     };
@@ -124,7 +117,7 @@ define([
     }
 
     return worker;
-  };
+  }
 
   /**
    * Post a message to the associated worker.
@@ -132,9 +125,24 @@ define([
    * @param {string} value data associated with the message
    * @private
    */
-  MCWSStreamProvider.prototype.notifyWorker = function (key, value) {
-    this.worker().postMessage({ key: key, value: value });
-  };
+  notifyWorker(key, value) {
+    this.worker().postMessage({ key, value });
+  }
+
+  /**
+   * Initialize the subscription for a given URL and key.
+   * @param {string} url the URL to initialize
+   * @param {string} key the key to initialize
+   * @private
+   */
+  initializeSubscription(url, key) {
+    if (!Object.hasOwn(this.subscriptions, url)) {
+      this.subscriptions[url] = {};
+    }
+    if (!Object.hasOwn(this.subscriptions[url], key)) {
+      this.subscriptions[url][key] = [];
+    }
+  }
 
   /**
    * Add a callback function associated with a specific domain object.
@@ -142,18 +150,17 @@ define([
    * @param {Function} callback the callback to add
    * @private
    */
-  MCWSStreamProvider.prototype.addCallback = function (domainObject, callback) {
-    var url = this.getUrl(domainObject),
-      key = this.getKey(domainObject),
-      subscriptions = this.subscriptions;
+  addCallback(domainObject, callback) {
+    const url = this.getUrl(domainObject);
+    const key = this.getKey(domainObject);
 
-    subscriptions[url] = subscriptions[url] || {};
-    subscriptions[url][key] = subscriptions[url][key] || [];
-    subscriptions[url][key].push({
-      callback: callback,
-      domainObject: domainObject
+    this.initializeSubscription(url, key);
+
+    this.subscriptions[url][key].push({
+      callback,
+      domainObject
     });
-  };
+  }
 
   /**
    * Remove a callback function associated with a specific domain object.
@@ -161,30 +168,44 @@ define([
    * @param {Function} callback the callback to remove
    * @private
    */
-  MCWSStreamProvider.prototype.removeCallback = function (domainObject, callback) {
-    var url = this.getUrl(domainObject),
-      key = this.getKey(domainObject),
-      subscriptions = this.subscriptions;
+  removeCallback(domainObject, callback) {
+    const url = this.getUrl(domainObject);
+    const key = this.getKey(domainObject);
 
-    subscriptions[url] = subscriptions[url] || {};
-    subscriptions[url][key] = subscriptions[url][key] || [];
-    subscriptions[url][key] = subscriptions[url][key].filter(function (c) {
-      return c.callback !== callback;
-    });
+    this.initializeSubscription(url, key);
 
-    if (subscriptions[url][key].length < 1) {
-      delete subscriptions[url][key];
-      if (Object.keys(subscriptions[url]).length < 1) {
-        delete subscriptions[url];
+    this.subscriptions[url][key] = this.subscriptions[url][key].filter(
+      (c) => c.callback !== callback
+    );
+
+    if (this.subscriptions[url][key].length < 1) {
+      delete this.subscriptions[url][key];
+
+      if (Object.keys(this.subscriptions[url]).length < 1) {
+        delete this.subscriptions[url];
       }
     }
-  };
+  }
 
-  MCWSStreamProvider.prototype.supportsSubscribe = function (domainObject) {
-    return !!this.getUrl(domainObject);
-  };
+  /**
+   * Check if the provider supports subscribing to a domain object.
+   * @param {DomainObject} domainObject the requested object
+   * @returns {boolean} true if the provider supports subscribing, false otherwise
+   * @private
+   */
+  supportsSubscribe(domainObject) {
+    return Boolean(this.getUrl(domainObject));
+  }
 
-  MCWSStreamProvider.prototype.subscribe = function (domainObject, callback, options) {
+  /**
+   * Subscribe to a domain object.
+   * @param {DomainObject} domainObject the requested object
+   * @param {Function} callback the callback to add
+   * @param {Object} options additional options
+   * @returns {Function} a function to unsubscribe
+   * @private
+   */
+  subscribe(domainObject, callback, options) {
     if (options) {
       options = { ...options };
       if (options.filters) {
@@ -198,7 +219,8 @@ define([
       key: this.getKey(domainObject),
       property: this.getProperty(domainObject),
       mcwsVersion: domainObject.telemetry.mcwsVersion,
-      extraFilterTerms: options && options.filters && this.serializeFilters(options.filters)
+      extraFilterTerms: options?.filters ? this.serializeFilters(options.filters) : undefined,
+      subscriptionMCWSFilterDelay: this.subscriptionMCWSFilterDelay
     };
 
     function unsubscribe() {
@@ -214,10 +236,17 @@ define([
     this.addCallback(domainObject, callback);
     this.notifyWorker('subscribe', message);
 
-    return _.bind(unsubscribe, this);
-  };
+    return unsubscribe.bind(this);
+  }
 
-  MCWSStreamProvider.prototype.removeFiltersIfAllSelected = function (domainObject, filters) {
+  /**
+   * Remove filters if all selected.
+   * @param {DomainObject} domainObject the requested object
+   * @param {Object} filters the filters to remove
+   * @returns {Object} the updated filters
+   * @private
+   */
+  removeFiltersIfAllSelected(domainObject, filters) {
     let valuesWithFilters = this.openmct.telemetry
       .getMetadata(domainObject)
       .values()
@@ -244,9 +273,9 @@ define([
     });
 
     return filters;
-  };
+  }
 
-  MCWSStreamProvider.prototype.serializeFilters = function (filters) {
+  serializeFilters(filters) {
     let attributeKeys = Object.keys(filters);
     let keysToFilterStringsMap = attributeKeys.reduce((extraFilterTerms, attributeKey) => {
       let filtersForAttribute = filters[attributeKey];
@@ -268,7 +297,7 @@ define([
       return extraFilterTerms;
     }, {});
     return keysToFilterStringsMap;
-  };
+  }
 
   /**
    * Get the WebSocket URL for streaming data associated with this request.
@@ -277,9 +306,9 @@ define([
    * @param {DomainObject} domainObject the requested object
    * @returns {string} the WebSocket URL
    */
-  MCWSStreamProvider.prototype.getUrl = function (domainObject) {
+  getUrl(domainObject) {
     throw new Error('getUrl not implemented.');
-  };
+  }
 
   /**
    * Get a key which identifies this request (relative to other requests
@@ -288,9 +317,9 @@ define([
    * @param {DomainObject} domainObject the requested object
    * @returns {string} the key
    */
-  MCWSStreamProvider.prototype.getKey = function (domainObject) {
+  getKey(domainObject) {
     throw new Error('getKey not implemented.');
-  };
+  }
 
   /**
    * Get the name of the property of telemetry data points which will
@@ -299,9 +328,9 @@ define([
    * @private
    * @returns {string} the property name
    */
-  MCWSStreamProvider.prototype.getProperty = function (domainObject) {
+  getProperty(domainObject) {
     throw new Error('getProperty not implemented.');
-  };
+  }
+}
 
-  return MCWSStreamProvider;
-});
+export default MCWSStreamProvider;

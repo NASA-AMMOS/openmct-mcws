@@ -70,95 +70,23 @@
   </div>
 </template>
 
-<style lang="scss">
-.c-historical-session-selector,
-.c-hss {
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-
-  > * {
-    flex: 0 0 auto;
-  }
-
-  &__view-wrapper {
-    display: flex;
-    flex: 1 1 auto !important;
-    flex-direction: row !important;
-    padding-right: 0 !important;
-
-    > * + * {
-      margin-left: 3px;
-    }
-
-    .c-table-control-bar {
-      margin: 0 0 2px 0;
-    }
-
-    .c-table {
-      margin-top: 0;
-    }
-
-    .paused {
-      border: none;
-    }
-    .wait-spinner {
-      width: 75px;
-      height: 75px;
-    }
-  }
-
-  &__section {
-    // hosts and sessions
-    display: flex;
-    flex-direction: column;
-
-    &__header {
-      flex: 0 0 auto !important;
-      &.c-tab {
-        // Yes, yes, this isn't good...
-        --notchSize: 0;
-        margin: 0 0 2px 0;
-        pointer-events: none;
-      }
-    }
-
-    &__content {
-      flex: 1 1 auto;
-    }
-  }
-
-  &__hosts {
-    flex: 0 0 auto;
-    min-width: 100px;
-    width: 10%;
-
-    &__content {
-      overflow: auto;
-    }
-
-    .c-tree__item {
-      border-radius: 0 !important;
-    }
-  }
-
-  &__sessions {
-    flex: 1 1 auto;
-  }
-}
-</style>
-
 <script>
 import TelemetryTable from 'openmct.tables.components.Table';
 import SessionService from 'services/session/SessionService';
 import { nextTick } from 'vue';
 
 export default {
-  inject: ['openmct', 'table'],
-  props: ['sessionFilter'],
   components: {
     TelemetryTable
   },
+  inject: ['openmct', 'table'],
+  props: {
+    sessionFilter: {
+      type: Object,
+      required: true
+    }
+  },
+  emits: ['close-session-selector', 'update-available-sessions'],
   data() {
     return {
       hosts: [],
@@ -176,6 +104,12 @@ export default {
   },
   beforeUnmount() {
     this.table.destroy();
+  },
+  mounted() {
+    this.sessionService = SessionService();
+
+    this.getAvailableSessions();
+    this.openOverlay();
   },
   methods: {
     getUniq(key, array) {
@@ -282,12 +216,84 @@ export default {
         }
       });
     }
-  },
-  mounted() {
-    this.sessionService = SessionService();
-
-    this.getAvailableSessions();
-    this.openOverlay();
   }
 };
 </script>
+
+<style lang="scss">
+.c-historical-session-selector,
+.c-hss {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  > * {
+    flex: 0 0 auto;
+  }
+
+  &__view-wrapper {
+    display: flex;
+    flex: 1 1 auto !important;
+    flex-direction: row !important;
+    padding-right: 0 !important;
+
+    > * + * {
+      margin-left: 3px;
+    }
+
+    .c-table-control-bar {
+      margin: 0 0 2px 0;
+    }
+
+    .c-table {
+      margin-top: 0;
+    }
+
+    .paused {
+      border: none;
+    }
+    .wait-spinner {
+      width: 75px;
+      height: 75px;
+    }
+  }
+
+  &__section {
+    // hosts and sessions
+    display: flex;
+    flex-direction: column;
+
+    &__header {
+      flex: 0 0 auto !important;
+      &.c-tab {
+        // Yes, yes, this isn't good...
+        --notchSize: 0;
+        margin: 0 0 2px 0;
+        pointer-events: none;
+      }
+    }
+
+    &__content {
+      flex: 1 1 auto;
+    }
+  }
+
+  &__hosts {
+    flex: 0 0 auto;
+    min-width: 100px;
+    width: 10%;
+
+    &__content {
+      overflow: auto;
+    }
+
+    .c-tree__item {
+      border-radius: 0 !important;
+    }
+  }
+
+  &__sessions {
+    flex: 1 1 auto;
+  }
+}
+</style>

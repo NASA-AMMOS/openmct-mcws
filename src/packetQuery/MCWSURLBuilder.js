@@ -41,7 +41,7 @@ define(['lodash'], function (_) {
 
   /**
    * Get a URL including all sort and filter parameters previously specified.
-   * @returns {string} the fully-paramaterized URL
+   * @returns {string} the fully-parameterized URL
    */
   MCWSURLBuilder.prototype.url = function () {
     var filterValue =

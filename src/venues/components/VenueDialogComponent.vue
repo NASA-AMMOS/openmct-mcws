@@ -79,7 +79,7 @@
       </div>
     </div>
     <div class="c-overlay__button-bar">
-      <button class="c-button c-button--major" @click="submit" :class="{ disabled: !canSubmit }">
+      <button class="c-button c-button--major" :class="{ disabled: !canSubmit }" @click="submit">
         Connect
       </button>
     </div>
@@ -99,15 +99,14 @@ export default {
     HistoricalSessionSelectorComponent
   },
   inject: ['venueService'],
-  watch: {
-    isActiveVenueSelect(newVal) {
-      this.selectedSession = null;
-      if (!newVal) {
-        this.fetchAndSetUrlsForHistoricalSessions();
-      } else {
-        this.urlsForHistoricalSessions = [];
-      }
-    }
+  emits: ['submit'],
+  data() {
+    return {
+      isActiveVenueSelect: true,
+      selectedVenue: null,
+      selectedSession: null,
+      urlsForHistoricalSessions: []
+    };
   },
   computed: {
     isSelectedVenue() {
@@ -122,13 +121,15 @@ export default {
         : Boolean(this.selectedSession);
     }
   },
-  data() {
-    return {
-      isActiveVenueSelect: true,
-      selectedVenue: null,
-      selectedSession: null,
-      urlsForHistoricalSessions: []
-    };
+  watch: {
+    isActiveVenueSelect(newVal) {
+      this.selectedSession = null;
+      if (!newVal) {
+        this.fetchAndSetUrlsForHistoricalSessions();
+      } else {
+        this.urlsForHistoricalSessions = [];
+      }
+    }
   },
   methods: {
     selectVenue(venue) {
