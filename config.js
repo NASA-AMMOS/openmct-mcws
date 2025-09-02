@@ -382,19 +382,22 @@
         enabled: true
       },
       BarChart: {
-        enabled: false
+        enabled: true
+      },
+      CorrelationTelemetry: {
+        enabled: true
       },
       ScatterPlot: {
-        enabled: false
+        enabled: true
       },
       Timeline: {
-        enabled: false
+        enabled: true
       },
       Timelist: {
-        enabled: false
+        enabled: true
       },
       PlanLayout: {
-        enabled: false,
+        enabled: true,
         configuration: [
           {
             name: 'Gantt Chart',
@@ -606,8 +609,8 @@
      * they do!
      */
     proxyUrl: 'http://localhost:8080/',
-    useDeveloperStorage: true,
-    assetPath: 'node_modules/openmct/dist'
+    // useDeveloperStorage: true,
+    // assetPath: 'node_modules/openmct/dist'
   };
 
   window.openmctMCWSConfig = openmctMCWSConfig;

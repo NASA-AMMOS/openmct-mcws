@@ -1,0 +1,222 @@
+# OpenMCT MCWS Configuration File
+# This file contains all configuration options for OpenMCT MCWS
+
+# Required Configuration
+camUrl: ''                    # URL to CAM server for authentication
+mcwsUrl: ''                   # URL for MCWS root
+
+# Basic Configuration
+theme: 'Snow'                 # Theme: 'Snow', 'Espresso', or 'Maelstrom'
+
+# Namespaces Configuration
+# Each entry adds a root folder
+namespaces:
+  - key: 'r50-dev'
+    name: 'R5.0 Shared'
+    url: ''                   # URL to MCWS namespace (REQUIRED)
+  
+  - userNamespace: true       # Creates per-user folders
+    key: 'r50-dev'
+    name: 'R5.0 Users'
+    url: ''                   # URL to MCWS namespace (REQUIRED)
+
+# Venue Aware Mode (R4.0+)
+# Pre-configures venues and datasets, disables manual dataset creation
+venueAware:
+  enabled: false
+  venues: 'ExampleVenueDefinitions.json'  # URL to venue definitions file
+
+# Taxonomy and EVR Styling
+# Configure how Event Records are displayed
+taxonomy:
+  # Default EVR colors (set to undefined for theme defaults)
+  evrDefaultBackgroundColor: null
+  evrDefaultForegroundColor: null
+  
+  # Background colors by EVR level
+  evrBackgroundColorByLevel:
+    # FSW (Flight Software) Specific
+    FATAL: '#ff0000'          # Red
+    WARNING_HI: '#ff7f24'     # Orange
+    WARNING_LO: '#ffff00'     # Yellow
+    COMMAND: '#00bfff'        # Blue
+    ACTIVITY_HI: '#6d6d6d'    # Dark Gray
+    ACTIVITY_LO: '#dcdcdc'    # Light Gray
+    DIAGNOSTIC: '#00ff00'     # Green
+    EVR_UNKNOWN: '#00ff00'    # Green
+    
+    # SSE (Space Support Equipment) Specific
+    FAULT: '#ff0000'          # Red
+    WARNING: '#ff7f24'        # Orange
+  
+  # Foreground colors by EVR level
+  evrForegroundColorByLevel:
+    # FSW Specific
+    FATAL: '#ffffff'          # White
+    WARNING_HI: '#000000'     # Black
+    WARNING_LO: '#000000'     # Black
+    COMMAND: '#ffffff'        # White
+    ACTIVITY_HI: '#ffffff'    # White
+    ACTIVITY_LO: '#000000'    # Black
+    DIAGNOSTIC: '#000000'     # Black
+    EVR_UNKNOWN: '#000000'    # Black
+    
+    # SSE Specific
+    FAULT: '#ffffff'          # White
+    WARNING: '#000000'        # Black
+
+# Time Configuration
+time:
+  # Default conductor mode
+  # Options: 'fixed', 'utc.local', 'scet.lad', 'ert.lad', 'sclk.lad', 'msl.sol.lad'
+  defaultMode: 'fixed'
+  
+  # UTC format options: 'utc.day-of-year' or 'utc'
+  utcFormat: 'utc.day-of-year'
+  
+  # LMST epoch (optional)
+  lmstEpoch: 1584576000000    # Date.UTC(2020, 2, 18, 0, 0, 0)
+  
+  # Filter delay for MCWS subscriptions (milliseconds)
+  # Lower values = quicker realtime data, higher values = better connection stability
+  subscriptionMCWSFilterDelay: 100
+  
+  # Time systems to use
+  # Options: 'scet', 'ert', 'sclk', 'msl.sol', 'lmst'
+  timeSystems: ['scet', 'ert']
+  
+  # Advanced time system configuration (commented out - see config.js for full example)
+  # timeSystems:
+  #   - key: 'scet'
+  #     limit: 3600000000
+  #     modeSettings:
+  #       fixed:
+  #         bounds:
+  #           start: 1584489600000
+  #           end: 1584575999999
+  #         presets:
+  #           - label: 'Last 2 hours (SCET Recorded)'
+  #             bounds:
+  #               start: 1584568800000
+  #               end: 1584576000000
+  
+  # Enable real-time mode
+  allowRealtime: true
+  
+  # Enable latest available data mode (requires allowRealtime: true)
+  allowLAD: true
+  
+  # Number of previous bounds to save in time conductor history
+  records: 10
+
+# Plugin Configuration
+plugins:
+  # Summary widgets (R3.4.0+)
+  summaryWidgets:
+    enabled: true
+  
+  # Visualization plugins
+  BarChart:
+    enabled: false
+  
+  ScatterPlot:
+    enabled: false
+  
+  Timeline:
+    enabled: false
+  
+  Timelist:
+    enabled: false
+  
+  # Plan layout with Gantt chart
+  PlanLayout:
+    enabled: false
+    configuration:
+      - name: 'Gantt Chart'
+        creatable: true
+        namespace: ''          # Namespace for activity state objects
+
+# Query and Performance Settings
+# maxResults: 10000                    # Historical query limit (commented out)
+sessionHistoricalMaxResults: 100       # Session query limit
+
+# Batch channel queries (use with caution - can overwhelm backend)
+batchHistoricalChannelQueries: false
+
+# Disable backend sorting (only set to true if you want to disable backend sort)
+disableSortParam: false
+
+# Message stream URL for session start/end messages
+messageStreamUrl: ''
+
+# Mission-specific message type filters
+# messageTypeFilters:
+#   - value: 'LossOfSync'
+#     label: 'Loss of Sync'
+#   - value: 'InSync'
+#     label: 'In Sync'
+
+# Expected VCIDs for frame event stream
+# Frame Accountability View highlights unexpected VCs in orange
+# frameAccountabilityExpectedVcidList:
+#   - 234223
+#   - 234234
+#   - 223423
+
+# Query timespan limit (milliseconds)
+# Warns/blocks queries exceeding this limit
+# Set to null to disable
+queryTimespanLimit: null
+
+# Global staleness interval (milliseconds)
+# Data older than this will be marked as stale
+# Set to null to disable
+globalStalenessInterval: null
+
+# Custom formatters for telemetry values
+# Access in Display Layout with '&formatter-key'
+# customFormatters:
+#   - key: 'hello-world'
+#     format: 'hello-world: ${value}'
+
+# Session configuration
+sessions:
+  historicalSessionFilter:
+    disable: false
+    maxRecords: 100
+    denyUnfilteredQueries: false
+  
+  realtimeSession:
+    disable: false
+
+# Global filters for telemetry requests
+# Modifies 'filter' field in MCWS queries
+# globalFilters:
+#   - name: 'VCID'
+#     key: 'vcid'
+#     icon: 'icon-flag'
+#     filter:
+#       comparator: 'equals'
+#       singleSelectionThreshold: true
+#       defaultLabel: 'A & B'
+#       possibleValues:
+#         - label: 'A Side'
+#           value: '1,2,3'
+#         - label: 'B Side'
+#           value: '4,5,6'
+
+# Table performance configuration
+tablePerformanceOptions:
+  # Performance mode: 'performance' or 'unlimited'
+  telemetryMode: 'unlimited'
+  
+  # Persist UI mode changes
+  persistModeChange: false
+  
+  # Maximum rows in performance mode
+  rowLimit: 50
+
+# Developer Settings (do not modify unless you know what they do)
+proxyUrl: 'http://localhost:8080/'
+useDeveloperStorage: true
+assetPath: 'node_modules/openmct/dist'
