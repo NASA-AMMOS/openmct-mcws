@@ -66,6 +66,11 @@ class MCWSClient {
     try {
       response = await fetch(url, options);
     } catch (error) {
+      if (error.name === 'AbortError') {
+        console.warn('Request aborted', error);
+        return;
+      }
+
       console.error('Error in base request', error);
       throw error;
     } finally {
