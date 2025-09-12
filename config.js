@@ -378,7 +378,7 @@
       /**
        * Enable/disable summary widgets.  Added in R3.4.0.
        */
-      summaryWidgets: {
+      summaryWidget: {
         enabled: true
       },
       BarChart: {

@@ -112,7 +112,7 @@ time:
 # Plugin Configuration
 plugins:
   # Summary widgets (R3.4.0+)
-  summaryWidgets:
+  summaryWidget:
     enabled: true
   
   # Visualization plugins
