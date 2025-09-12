@@ -51,10 +51,10 @@ describe('SessionService', () => {
     };
 
     openmct = jasmine.createSpyObj('openmct', ['time', 'objectViews', 'notifications', 'on']);
-    openmct.time = jasmine.createSpyObj('time', ['timeSystem', 'bounds', 'clock']);
+    openmct.time = jasmine.createSpyObj('time', ['getTimeSystem', 'getBounds', 'getClock']);
     openmct.objectViews = jasmine.createSpyObj('objectViews', ['emit']);
-    openmct.time.timeSystem.and.returnValue({ key: 'ert' });
-    openmct.time.clock.and.returnValue(true);
+    openmct.time.getTimeSystem.and.returnValue({ key: 'ert' });
+    openmct.time.getClock.and.returnValue(true);
     openmct.on.and.returnValue(Promise.resolve());
 
     openmct.notifications = jasmine.createSpyObj('notificationApi', ['info', 'alert']);

@@ -203,10 +203,10 @@ export default {
       }
 
       if (queryModel.useTimeConductor) {
-        const bounds = this.openmct.time.bounds();
+        const bounds = this.openmct.time.getBounds();
         const start = bounds.start;
         const end = bounds.end;
-        const timeSystem = this.openmct.time.timeSystem();
+        const timeSystem = this.openmct.time.getTimeSystem();
         const domain = timeSystem.key;
 
         const format = this.openmct.telemetry.getFormatter(timeSystem.timeFormat);
