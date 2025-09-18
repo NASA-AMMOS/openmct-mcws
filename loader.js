@@ -115,21 +115,23 @@ define([
 
     // install optional plugins, summary widget is handled separately as it was added long ago
     if (config.plugins) {
-      if (
-        config.plugins.summaryWidgets === true ||
-        config.plugins.summaryWidgets?.enabled === true
-      ) {
+      if (config.plugins.summaryWidget === true || config.plugins.summaryWidget?.enabled === true) {
         openmct.install(openmct.plugins.SummaryWidget());
       }
 
       Object.entries(config.plugins).forEach(([plugin, pluginConfig]) => {
-        const pluginExists = openmct.plugins[plugin] || openmct.plugins.example[plugin];
+        const examplePluginExists = openmct.plugins.example[plugin];
+        const pluginExists = openmct.plugins[plugin] || examplePluginExists;
         const pluginEnabled = pluginConfig?.enabled;
-        const isSummaryWidget = plugin === 'summaryWidgets';
+        const isSummaryWidget = plugin === 'summaryWidget';
         const installPlugin = pluginExists && pluginEnabled && !isSummaryWidget;
 
         if (installPlugin) {
-          openmct.install(openmct.plugins[plugin](...(pluginConfig.configuration ?? [])));
+          if (examplePluginExists) {
+            openmct.install(openmct.plugins.example[plugin](...(pluginConfig.configuration ?? [])));
+          } else {
+            openmct.install(openmct.plugins[plugin](...(pluginConfig.configuration ?? [])));
+          }
         } else if (!pluginExists) {
           console.warn(`Plugin ${plugin} does not exist. Check the plugin name and try again.`);
         }
