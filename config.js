@@ -378,26 +378,26 @@
       /**
        * Enable/disable summary widgets.  Added in R3.4.0.
        */
-      summaryWidget: {
-        enabled: true
+      SummaryWidget: {
+        enabled: false
       },
       BarChart: {
-        enabled: true
+        enabled: false
       },
       CorrelationTelemetry: {
-        enabled: true
+        enabled: false
       },
       ScatterPlot: {
-        enabled: true
+        enabled: false
       },
       Timeline: {
-        enabled: true
+        enabled: false
       },
       Timelist: {
-        enabled: true
+        enabled: false
       },
       PlanLayout: {
-        enabled: true,
+        enabled: false,
         configuration: [
           {
             name: 'Gantt Chart',
@@ -609,8 +609,8 @@
      * they do!
      */
     proxyUrl: 'http://localhost:8080/',
-    // useDeveloperStorage: true,
-    // assetPath: 'node_modules/openmct/dist'
+    useDeveloperStorage: true,
+    assetPath: 'node_modules/openmct/dist'
   };
 
   window.openmctMCWSConfig = openmctMCWSConfig;
