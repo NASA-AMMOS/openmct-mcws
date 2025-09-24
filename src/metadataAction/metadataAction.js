@@ -32,7 +32,7 @@ export default class MetadataAction {
     this.openmct.overlays.overlay({
       element: el,
       size: 'large',
-      dismissable: true,
+      dismissible: true,
       onDestroy: () => {
         destroy();
       }

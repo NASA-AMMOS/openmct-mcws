@@ -36,7 +36,7 @@ export default defineComponent({
       this.openmct.overlays.overlay({
         element,
         size: 'small',
-        dismissable: true
+        dismissible: true
       });
 
       try {

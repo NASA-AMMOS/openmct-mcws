@@ -210,7 +210,7 @@ export default {
       this.overlay = this.openmct.overlays.overlay({
         element: this.$el,
         size: 'large',
-        dismissable: true,
+        dismissible: true,
         onDestroy: () => {
           this.$emit('close-session-selector');
         }
