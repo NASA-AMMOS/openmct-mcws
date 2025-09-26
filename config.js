@@ -608,8 +608,8 @@
      * Developer Settings-- do not modify these unless you know what
      * they do!
      */
-    proxyUrl: 'http://localhost:8080/',
-    useDeveloperStorage: true,
+    // proxyUrl: 'http://localhost:8080/',
+    // useDeveloperStorage: true,
     assetPath: 'node_modules/openmct/dist'
   };
 
