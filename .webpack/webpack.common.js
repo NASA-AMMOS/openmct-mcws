@@ -114,8 +114,9 @@ const config = {
       __OMM_BUILD_DATE__: `'${new Date()}'`,
       __OMM_REVISION__: `'${gitRevision}'`,
       __OMM_BUILD_BRANCH__: `'${gitBranch}'`,
-      __VUE_OPTIONS_API__: true, // enable/disable Options API support, default: true
-      __VUE_PROD_DEVTOOLS__: true // enable/disable devtools support in production, default: false
+      __VUE_OPTIONS_API__: true,
+      __VUE_PROD_DEVTOOLS__: true,
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
