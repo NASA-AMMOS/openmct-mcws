@@ -75,7 +75,7 @@
     "url": "https://github.com/NASA-AMMOS/openmct-mcws"
   },
   "engines": {
-    "node": ">=18.18.0"
+    "node": ">=18.18.0 <23"
   },
   "overrides": {
     "core-js": "3.21.1"
