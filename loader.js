@@ -113,18 +113,13 @@ define([
       });
     }
 
-    // install optional plugins, summary widget is handled separately as it was added long ago
+    // install optional plugins
     if (config.plugins) {
-      if (config.plugins.summaryWidget === true || config.plugins.summaryWidget?.enabled === true) {
-        openmct.install(openmct.plugins.SummaryWidget());
-      }
-
       Object.entries(config.plugins).forEach(([plugin, pluginConfig]) => {
         const examplePluginExists = openmct.plugins.example[plugin];
         const pluginExists = openmct.plugins[plugin] || examplePluginExists;
         const pluginEnabled = pluginConfig?.enabled;
-        const isSummaryWidget = plugin === 'summaryWidget';
-        const installPlugin = pluginExists && pluginEnabled && !isSummaryWidget;
+        const installPlugin = pluginExists && pluginEnabled;
 
         if (installPlugin) {
           if (examplePluginExists) {
