@@ -81,6 +81,11 @@ export default class UTCDayOfYearFormat {
     return m.format(this.FORMAT);
   }
 
+  formatDate(value) {
+    const m = moment.utc(value);
+    return m.format('YYYY-DDD');
+  }
+
   endOfDay(value) {
     return moment.utc(value).endOf('day').valueOf();
   }

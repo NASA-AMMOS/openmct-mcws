@@ -73,6 +73,11 @@ export default class UTCFormat {
     ];
   }
 
+  formatDate(value) {
+    const m = moment.utc(value);
+    return m.format('YYYY-MM-DD');
+  }
+
   format(value, scale) {
     var m = moment.utc(value);
     if (typeof scale !== 'undefined') {
