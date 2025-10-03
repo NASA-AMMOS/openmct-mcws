@@ -55,7 +55,7 @@ export default class AlarmsTable extends TelemetryTable {
 
     //If no persisted sort order, default to sorting by time system, ascending.
     sortOptions = sortOptions || {
-      key: this.openmct.time.timeSystem().key,
+      key: this.openmct.time.getTimeSystem().key,
       direction: 'asc'
     };
 

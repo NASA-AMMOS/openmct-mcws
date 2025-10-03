@@ -66,8 +66,13 @@ class MCWSClient {
     try {
       response = await fetch(url, options);
     } catch (error) {
-      console.error('Error in base request', error);
-      throw error;
+      if (error.name === 'AbortError') {
+        console.warn('Request aborted', error);
+        return;
+      } else {
+        console.error('Error in base request', error);
+        throw error;
+      }
     } finally {
       this._updatePending();
     }

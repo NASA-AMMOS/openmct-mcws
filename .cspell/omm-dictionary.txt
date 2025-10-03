@@ -49,7 +49,3 @@ mslsol
 dsanto
 peterr
 smap
-
-# TODO fix
-# remove dismissable when implementing https://github.com/NASA-AMMOS/openmct-mcws/issues/209
-dismissable

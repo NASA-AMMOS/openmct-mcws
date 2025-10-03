@@ -61,7 +61,7 @@ class FilterService extends EventEmitter {
   // and then force a requery
   handleFilterChange() {
     this.openmct.objectViews.emit('clearData');
-    this.openmct.time.bounds(this.openmct.time.bounds());
+    this.openmct.time.setBounds(this.openmct.time.getBounds());
   }
 
   updateFiltersFromParams(params) {

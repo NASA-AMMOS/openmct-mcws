@@ -28,7 +28,7 @@ class VenueService {
       this.overlay = this.openmct.overlays.overlay({
         element,
         size: 'small',
-        dismissable: false,
+        dismissible: false,
         onDestroy: () => {
           this._destroy();
         }
