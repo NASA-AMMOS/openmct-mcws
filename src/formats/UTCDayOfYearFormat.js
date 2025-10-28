@@ -54,7 +54,7 @@ export default class UTCDayOfYearFormat {
     this.key = 'utc.day-of-year';
     this.FORMAT = 'YYYY-DDDDTHH:mm:ss.SSS';
     this.ACCEPTABLE_FORMATS = [
-      UTCDayOfYearFormat.prototype.FORMAT,
+      this.FORMAT,
       'YYYY-DDDTHH:mm:ss',
       'YYYY-DDDTHH:mm',
       'YYYY-DDDTHH',

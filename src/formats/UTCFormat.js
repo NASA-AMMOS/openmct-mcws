@@ -60,7 +60,7 @@ export default class UTCFormat {
     this.key = 'utc';
     this.FORMAT = 'YYYY-MM-DDTHH:mm:ss.SSS';
     this.ACCEPTABLE_FORMATS = [
-      UTCFormat.prototype.FORMAT,
+      this.FORMAT,
       'YYYY-MM-DDTHH:mm:ss',
       'YYYY-MM-DDTHH:mm',
       'YYYY-MM-DDTHH',
