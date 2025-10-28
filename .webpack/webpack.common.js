@@ -114,9 +114,9 @@ const config = {
       __OMM_BUILD_DATE__: `'${new Date()}'`,
       __OMM_REVISION__: `'${gitRevision}'`,
       __OMM_BUILD_BRANCH__: `'${gitBranch}'`,
-      __VUE_OPTIONS_API__: true,
-      __VUE_PROD_DEVTOOLS__: true,
-      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
+      __VUE_OPTIONS_API__: true, // Options API support, default: true
+      __VUE_PROD_DEVTOOLS__: false, // devtools support in production, default: false
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false // detailed hydration mismatch support when using esm-bundler, default: false
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
