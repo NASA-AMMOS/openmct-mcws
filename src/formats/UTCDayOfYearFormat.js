@@ -49,56 +49,60 @@ function getScaledFormat(m) {
  * @implements {Format}
  * @constructor
  */
-function UTCDayOfYearFormat() {
-  this.key = 'utc.day-of-year';
-}
-
-UTCDayOfYearFormat.prototype.FORMAT = 'YYYY-DDDDTHH:mm:ss.SSS';
-UTCDayOfYearFormat.prototype.ACCEPTABLE_FORMATS = [
-  UTCDayOfYearFormat.prototype.FORMAT,
-  'YYYY-DDDTHH:mm:ss',
-  'YYYY-DDDTHH:mm',
-  'YYYY-DDDTHH',
-  'YYYY-DDD',
-  'YYYY-MM-DDTHH:mm:ss.SSS',
-  'YYYY-MM-DDTHH:mm:ss',
-  'YYYY-MM-DDTHH:mm',
-  'YYYY-MM-DDTHH',
-  'YYYY-MM-DD'
-];
-
-UTCDayOfYearFormat.prototype.format = function (value, scale) {
-  if (value === undefined || value === '') {
-    return value;
+export default class UTCDayOfYearFormat {
+  constructor() {
+    this.key = 'utc.day-of-year';
+    this.FORMAT = 'YYYY-DDDDTHH:mm:ss.SSS';
+    this.ACCEPTABLE_FORMATS = [
+      this.FORMAT,
+      'YYYY-DDDTHH:mm:ss',
+      'YYYY-DDDTHH:mm',
+      'YYYY-DDDTHH',
+      'YYYY-DDD',
+      'YYYY-MM-DDTHH:mm:ss.SSS',
+      'YYYY-MM-DDTHH:mm:ss',
+      'YYYY-MM-DDTHH:mm',
+      'YYYY-MM-DDTHH',
+      'YYYY-MM-DD'
+    ];
   }
-  var m = moment.utc(value);
-  if (typeof scale !== 'undefined') {
-    var scaledFormat = getScaledFormat(m);
-    if (scaledFormat) {
-      return m.format(scaledFormat);
+
+  format(value, scale) {
+    if (value === undefined || value === '') {
+      return value;
     }
-  }
-  return m.format(this.FORMAT);
-};
-
-UTCDayOfYearFormat.prototype.endOfDay = function (value) {
-  return moment.utc(value).endOf('day').valueOf();
-};
-
-UTCDayOfYearFormat.prototype.parse = function (text) {
-  if (text === undefined || typeof text === 'number') {
-    return text;
+    var m = moment.utc(value);
+    if (typeof scale !== 'undefined') {
+      var scaledFormat = getScaledFormat(m);
+      if (scaledFormat) {
+        return m.format(scaledFormat);
+      }
+    }
+    return m.format(this.FORMAT);
   }
 
-  if (DOY_PATTERN.test(text)) {
-    return +inlineParseDOYString(text);
+  formatDate(value) {
+    const m = moment.utc(value);
+    return m.format('YYYY-DDD');
   }
 
-  return moment.utc(text, this.ACCEPTABLE_FORMATS, true).valueOf();
-};
+  endOfDay(value) {
+    return moment.utc(value).endOf('day').valueOf();
+  }
 
-UTCDayOfYearFormat.prototype.validate = function (text) {
-  return text !== undefined && moment.utc(text, this.ACCEPTABLE_FORMATS, true).isValid();
-};
+  parse = function (text) {
+    if (text === undefined || typeof text === 'number') {
+      return text;
+    }
 
-export default UTCDayOfYearFormat;
+    if (DOY_PATTERN.test(text)) {
+      return +inlineParseDOYString(text);
+    }
+
+    return moment.utc(text, this.ACCEPTABLE_FORMATS, true).valueOf();
+  };
+
+  validate(text) {
+    return text !== undefined && moment.utc(text, this.ACCEPTABLE_FORMATS, true).isValid();
+  }
+}
