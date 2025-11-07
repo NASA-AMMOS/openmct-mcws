@@ -2,6 +2,8 @@
   "name": "openmct-mcws",
   "version": "v5.4.0-rc3",
   "description": "Open MCT for MCWS",
+  "main": "dist/openmct-mcws.js",
+  "type": "module",
   "devDependencies": {
     "@babel/eslint-parser": "7.26.8",
     "@braintree/sanitize-url": "6.0.4",
@@ -40,7 +42,6 @@
     "mini-css-extract-plugin": "2.7.6",
     "moment": "2.30.1",
     "node-bourbon": "^4.2.3",
-    "openmct": "github:nasa/openmct#omm-r5.4.0-rc4",
     "prettier": "3.4.2",
     "printj": "1.3.1",
     "raw-loader": "^0.5.1",
@@ -56,6 +57,9 @@
     "webpack-cli": "5.1.1",
     "webpack-dev-server": "5.0.2",
     "webpack-merge": "5.10.0"
+  },
+  "peerDependencies": {
+    "openmct": "^4.1.0"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
