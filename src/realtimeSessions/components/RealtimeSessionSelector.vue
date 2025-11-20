@@ -83,7 +83,7 @@
 
 <script>
 import { toRaw } from 'vue';
-import SessionService from 'services/session/SessionService';
+import SessionService from 'services/session/SessionService.js';
 
 export default {
   inject: ['openmct'],

@@ -2,7 +2,7 @@
 Open Mission Control Technologies for Mission Control Web Services (Open MCT for MCWS) is a next-generation web-based mission control framework for visualization of data on desktop and mobile devices. Open MCT for MCWS is built on the [Open MCT Framework](https://github.com/nasa/openmct), and includes adapter code for using MCWS as a telemetry and persistence provider. Open MCT is developed at NASA Ames Research Center in Silicon Valley, in collaboration with NASA AMMOS and the Jet Propulsion Laboratory, California Institute of Technology (under its contract with NASA, 80NM0018D0004).
 
 ## Configuration
-Various configurations and customizations are available by editing `config.js`. Descriptions of each configuration reside with the configuration in the file.
+Various configurations and customizations are available by editing `default.yaml`.
 
 ### AMMOS configurations
 1. `camUrl`: The url to the CAM server, if CAM is to be used for authentication.

@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { DOY_PATTERN, inlineParseDOYString } from './utils/DOY';
+import { DOY_PATTERN, inlineParseDOYString } from './utils/DOY.js';
 
 /**
  * Returns an appropriate time format based on the provided value and

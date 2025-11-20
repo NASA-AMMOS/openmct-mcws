@@ -7,7 +7,7 @@
   </div>
 </template>
 <script>
-import MCWSURLBuilder from '../MCWSURLBuilder';
+import MCWSURLBuilder from '../MCWSURLBuilder.js';
 
 const FILTER_SUFFIX = 'Filter';
 const FILTER_OPTIONS = ['spsc', 'apid', 'vcid'];

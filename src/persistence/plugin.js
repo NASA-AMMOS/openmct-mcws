@@ -1,8 +1,8 @@
-import { createIdentifierFromNamespaceDefinition, createNamespace } from './utils';
-import existingNamespaceUpdateInterceptor from './existingNamespaceUpdateInterceptor';
-import MCWSPersistenceProvider from './MCWSPersistenceProvider';
-import MCWSUserContainerProvider from './MCWSUserContainerProvider';
-import oldPersistenceFolderInterceptor from './oldPersistenceFolderInterceptor';
+import { createIdentifierFromNamespaceDefinition, createNamespace } from './utils.js';
+import existingNamespaceUpdateInterceptor from './existingNamespaceUpdateInterceptor.js';
+import MCWSPersistenceProvider from './MCWSPersistenceProvider.js';
+import MCWSUserContainerProvider from './MCWSUserContainerProvider.js';
+import oldPersistenceFolderInterceptor from './oldPersistenceFolderInterceptor.js';
 
 export default function MCWSPersistenceProviderPlugin(configNamespaces) {
   return async function install(openmct) {

@@ -1,4 +1,4 @@
-import HistoricalProvider from './HistoricalProvider';
+import HistoricalProvider from './HistoricalProvider.js';
 
 describe('Historical Provider', function () {
   let historicalProvider;

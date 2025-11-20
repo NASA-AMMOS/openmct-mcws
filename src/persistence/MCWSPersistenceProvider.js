@@ -1,5 +1,5 @@
-import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider';
-import mcws from '../services/mcws/mcws';
+import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider.js';
+import mcws from '../services/mcws/mcws.js';
 
 export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider {
   /**

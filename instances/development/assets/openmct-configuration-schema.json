@@ -1,0 +1,111 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "OpenMct Configuration Schema",
+    "description": "Schema for OpenMCT configuration YAML",
+    "definitions": {
+        "pluginMap": {
+            "type": "object",
+            "patternProperties": {
+                "^.*$": {
+                  "$ref": "#/definitions/plugin"
+                }
+            }
+        },
+        "plugin": {
+            "type": "object",
+            "properties": {
+                "source": {
+                    "type": "string",
+                    "enum": ["npm", "builtin"],
+                    "default": "builtin"
+                },
+                "npmPackage": {
+                    "type": "string",
+                    "description": "NPM package that provides this plugin."
+                },
+                "installFunction": {
+                  "type": "string",
+                  "description": "Name of the function that is exported from the npm package and which provides this plugin."
+                },
+                "entryPoint": {
+                    "type": "string",
+                    "description": "Script that exports the install function(s)"
+                },
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether the plugin should be enabled. By setting this to false you can override default plugins"
+                },
+                "options": {
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "description": "Options to configure the plugin"
+                        },
+                        {
+                            "type": "array",
+                            "description": "Arguments to be provided to a plugin install function"
+                        }
+                    ],
+                    "description": "The options to be passed to the plugin at install time. Can be either an object or an array. If an array is provided, each member will be treated as an argument to the plugin install function."
+                }
+            },
+            "additionalProperties": true
+        }
+    },
+    "type": "object",
+    "required": ["openmct"],
+    "properties": {
+      "openmct": {
+        "type": "object",
+        "oneOf": [
+          {
+            "properties": {
+              "version": {
+                "type": "string",
+                "description": "Version of OpenMCT to use",
+                "default": "latest"
+              },
+              "plugins": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "description": "Plugin identifier (e.g., 'openmct.Plugins.LocalStorage')"
+                    },{
+                        "$ref": "#/definitions/pluginMap" 
+                    }
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": ["version"]
+          },
+          {
+            "properties": {
+              "npmPackage": {
+                "type": "string",
+                "description": "NPM package that provides Open MCT. If present this will override any Open MCT version specified."
+              },
+              "plugins": {
+                "type": "array",
+                "items": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "description": "Plugin identifier (e.g., 'openmct.Plugins.LocalStorage')"
+                    },{
+                        "$ref": "#/definitions/pluginMap" 
+                    }
+                  ]
+                }
+              }
+            },
+            "additionalProperties": false,
+            "required": ["npmPackage"]
+          }
+        ]
+      }
+    }
+  }

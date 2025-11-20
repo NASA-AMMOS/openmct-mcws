@@ -1,7 +1,7 @@
-import mount from 'ommUtils/mountVueComponent';
-import sessionService from '../services/session/SessionService';
+import mount from 'ommUtils/mountVueComponent.js';
+import sessionService from '../services/session/SessionService.js';
 import VenueDialogComponent from './components/VenueDialogComponent.vue';
-import Venue from './Venue';
+import Venue from './Venue.js';
 
 class VenueService {
   constructor(configuration, openmct) {
@@ -120,7 +120,7 @@ class VenueService {
   }
 
   async applyConfig(config) {
-    const sessions = sessionService.default();
+    const sessions = sessionService();
     this.activeConfig = config;
 
     if (config.session.number) {

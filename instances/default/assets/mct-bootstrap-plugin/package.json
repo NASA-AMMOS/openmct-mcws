@@ -1,0 +1,12 @@
+{
+  "name": "mct-bootstrap-plugin",
+  "version": "0.0.1",
+  "description": "Bootstraps and initializes Open MCT",
+  "main": "plugin.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "National Aeronautics and Space Administration",
+  "license": "UNLICENSED"
+}

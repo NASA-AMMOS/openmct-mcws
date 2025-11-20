@@ -1,4 +1,4 @@
-import ExportDataAction from './ExportDataAction';
+import ExportDataAction from './ExportDataAction.js';
 
 export default function (validTypes) {
   return function (openmct) {

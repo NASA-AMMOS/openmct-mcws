@@ -1,5 +1,5 @@
-import types from './types';
-import TypeCompositionPolicy from './TypeCompositionPolicy';
+import types from './types.js';
+import TypeCompositionPolicy from './TypeCompositionPolicy.js';
 
 export default function TypePlugin() {
   return (openmct) => {

@@ -1,8 +1,8 @@
-import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider';
+import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider.js';
 import {
   createIdentifierFromNamespaceDefinition,
   createModelFromNamespaceDefinitionWithPersisted
-} from './utils';
+} from './utils.js';
 
 export default class MCWSUserContainerProvider extends BaseMCWSPersistenceProvider {
   /**

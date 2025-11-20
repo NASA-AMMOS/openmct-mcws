@@ -1,8 +1,8 @@
 {
-  "name": "openmct-mcws",
+  "name": "openmct-mcws-plugin",
   "version": "v5.4.0-rc3",
   "description": "Open MCT for MCWS",
-  "main": "dist/openmct-mcws.js",
+  "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
   "devDependencies": {
     "@babel/eslint-parser": "7.26.8",
@@ -53,10 +53,12 @@
     "vue": "3.4.24",
     "vue-eslint-parser": "^9.4.3",
     "vue-loader": "16.8.3",
-    "webpack": "5.94.0",
+    "webpack": "^5.94.0",
     "webpack-cli": "5.1.1",
     "webpack-dev-server": "5.0.2",
-    "webpack-merge": "5.10.0"
+    "webpack-merge": "5.10.0",
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6"
   },
   "peerDependencies": {
     "openmct": "^4.1.0"
@@ -72,7 +74,8 @@
     "build:watch": "webpack --config ./.webpack/webpack.dev.js --watch",
     "test": "karma start --single-run",
     "jshint": "jshint src/**/*.js || exit 0",
-    "prepare": "npm run build:prod"
+    "serve": "node serve-instance.js",
+    "prepare": "node -e \"if (require('fs').existsSync('node_modules/webpack-cli')) { require('child_process').execSync('npm run build:prod', {stdio: 'inherit'}) }\" || true"
   },
   "repository": {
     "type": "git",

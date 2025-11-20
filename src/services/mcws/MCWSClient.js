@@ -18,17 +18,31 @@ class MCWSClient {
 
     if (this.config.proxyUrl) {
       const params = options.params;
+      let isJsonResponse = false;
 
       if (params && Object.keys(params).length > 0) {
+        // Check if this is a JSON response before we delete params
+        if (params.output === 'json') {
+          isJsonResponse = true;
+        }
+
         const paramKeys = Object.keys(params);
         const formattedParams = paramKeys
           .map((key) => `${key}=${encodeURIComponent(params[key])}`)
           .join('&');
 
         url += `?${formattedParams}`;
+        
+        // Delete params after using them to prevent baseRequest from adding them again
+        delete options.params;
       }
 
       url = `${this.config.proxyUrl}proxyUrl?url=${encodeURIComponent(url)}`;
+      
+      // Preserve the isJsonResponse flag for baseRequest
+      if (isJsonResponse) {
+        options.params = { output: 'json' };
+      }
     }
 
     options.url = url;

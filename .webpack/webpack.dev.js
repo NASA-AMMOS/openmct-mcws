@@ -2,19 +2,22 @@
 This configuration should be used for development purposes. It contains full source map, a
 devServer (which be invoked using by `npm start`), and a non-minified Vue.js distribution.
 */
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common');
-const path = require('path');
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import { merge } from 'webpack-merge';
+import common from './webpack.common.js';
+import { fileURLToPath } from 'url';
+import { parse, join, dirname } from 'path';
 
 const proxyUrl = process.env.PROXY_URL || 'http://localhost:8080';
 const apiUrl = process.env.API_URL ?? '';
 const proxyHeaders = {};
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 if (process.env.COOKIE) {
   proxyHeaders.Cookie = process.env.COOKIE;
 }
 
-module.exports = merge(common, {
+export default merge(common, {
   mode: 'development',
   entry: {
     config: './config.js'
@@ -48,7 +51,7 @@ module.exports = merge(common, {
   devServer: {
     devMiddleware: {
       writeToDisk: (filePathString) => {
-        const filePath = path.parse(filePathString);
+        const filePath = parse(filePathString);
         const shouldWrite = !filePath.base.includes('hot-update');
 
         return shouldWrite;
@@ -57,12 +60,12 @@ module.exports = merge(common, {
     watchFiles: ['src/**/*.css'],
     static: [
       {
-        directory: path.join(__dirname, '..', 'node_modules/openmct/dist'),
+        directory: join(__dirname, '..', 'node_modules/openmct/dist'),
         publicPath: '/node_modules/openmct/dist',
         watch: false
       },
       {
-        directory: path.join(__dirname, '..', 'test_data'),
+        directory: join(__dirname, '..', 'test_data'),
         publicPath: '/test_data',
         watch: false
       }
