@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gov.nasa.arc.wtd</groupId>
     <artifactId>openmct-client</artifactId>
-    <name>Open MCT for MCWS Client</name>
-    <version>v5.4.0-rc3</version>
+    <name>Open MCT for MCWS Plugin</name>
+    <version>v1.0.0</version>
     <packaging>war</packaging>
 
     <properties>
