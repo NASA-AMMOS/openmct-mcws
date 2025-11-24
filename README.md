@@ -75,6 +75,7 @@ Running the tests creates a code coverage report in `target/coverage`.
     npm run build:prod 
     mct build --recipe recipes/default.yaml --instance default
 
+TODO: UPDATE THIS sentence, possibly with compressing the necessary files into a war.
 This will create a deployable artifact, `openmct_client.war` in the `target` 
 directory.
 
