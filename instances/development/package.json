@@ -11,7 +11,7 @@
   "license": "ISC",
   "devDependencies": {
     "mct-bootstrap-plugin": "file:assets/mct-bootstrap-plugin",
-    "openmct": "^4.1.0",
+    "openmct": "github:nasa/openmct#omm-r5.4.0-rc4",
     "openmct-mcws": "file:../..",
     "openmct-mcws-plugin": "file:../.."
   }

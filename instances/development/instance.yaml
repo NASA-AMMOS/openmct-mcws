@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=assets/openmct-configuration-schema.json
 openmct:
-  version: latest
+  npmPackage: nasa/openmct#omm-r5.4.0-rc4
   plugins:
     - mct-bootstrap-plugin:
         npmPackage: file:./assets/mct-bootstrap-plugin

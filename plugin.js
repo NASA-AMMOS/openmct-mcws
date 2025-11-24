@@ -259,6 +259,12 @@ export default function openmctMCWSPlugin(options) {
       window.openmctMCWSConfig = config;
       // window.openmct = openmct;
     });
+
+    // load the css file
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `node_modules/openmct-mcws-plugin/dist/openmct-mcws-plugin.css`;
+    document.head.appendChild(link);
   }
     
   /**

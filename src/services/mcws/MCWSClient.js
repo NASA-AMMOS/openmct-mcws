@@ -41,8 +41,10 @@ class MCWSClient {
       
       // Preserve the isJsonResponse flag for baseRequest
       if (isJsonResponse) {
-        options.params = { output: 'json' };
+        options.isJsonResponse = true;
       }
+
+      delete options.params;
     }
 
     options.url = url;
@@ -58,13 +60,16 @@ class MCWSClient {
   async baseRequest(url, options) {
     let response;
     let isJsonResponse = false;
+
+    if (options?.isJsonResponse) {
+      isJsonResponse = true;
+      delete options.isJsonResponse;
+    }
+
+
     this.pending++;
 
     if (options?.params) {
-      if (options.params?.output === 'json') {
-        isJsonResponse = true;
-      }
-
       const params = new URLSearchParams(options.params);
 
       // append options params to url

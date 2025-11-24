@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../src/assets/openmct-configuration-schema.json
 openmct:
-  version: 'latest'
+  npmPackage: nasa/openmct#omm-r5.4.0-rc4
   plugins:
   - openmct.plugins.Snow # Theme: 'Snow', 'Espresso' or 'Maelstrom'
   - openmct.plugins.ObjectMigration
