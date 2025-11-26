@@ -18,33 +18,17 @@ class MCWSClient {
 
     if (this.config.proxyUrl) {
       const params = options.params;
-      let isJsonResponse = false;
 
       if (params && Object.keys(params).length > 0) {
-        // Check if this is a JSON response before we delete params
-        if (params.output === 'json') {
-          isJsonResponse = true;
-        }
-
         const paramKeys = Object.keys(params);
         const formattedParams = paramKeys
           .map((key) => `${key}=${encodeURIComponent(params[key])}`)
           .join('&');
 
         url += `?${formattedParams}`;
-        
-        // Delete params after using them to prevent baseRequest from adding them again
-        delete options.params;
       }
 
       url = `${this.config.proxyUrl}proxyUrl?url=${encodeURIComponent(url)}`;
-      
-      // Preserve the isJsonResponse flag for baseRequest
-      if (isJsonResponse) {
-        options.isJsonResponse = true;
-      }
-
-      delete options.params;
     }
 
     options.url = url;
@@ -60,16 +44,13 @@ class MCWSClient {
   async baseRequest(url, options) {
     let response;
     let isJsonResponse = false;
-
-    if (options?.isJsonResponse) {
-      isJsonResponse = true;
-      delete options.isJsonResponse;
-    }
-
-
     this.pending++;
 
     if (options?.params) {
+      if (options.params?.output === 'json') {
+        isJsonResponse = true;
+      }
+
       const params = new URLSearchParams(options.params);
 
       // append options params to url
@@ -85,13 +66,8 @@ class MCWSClient {
     try {
       response = await fetch(url, options);
     } catch (error) {
-      if (error.name === 'AbortError') {
-        console.warn('Request aborted', error);
-        return;
-      } else {
-        console.error('Error in base request', error);
-        throw error;
-      }
+      console.error('Error in base request', error);
+      throw error;
     } finally {
       this._updatePending();
     }
