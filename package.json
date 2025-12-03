@@ -61,7 +61,7 @@
     "webpack-merge": "5.10.0"
   },
   "peerDependencies": {
-    "openmct": "^4.1.0"
+    "openmct": "^4.1.0 || ^4.1.0-next"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
