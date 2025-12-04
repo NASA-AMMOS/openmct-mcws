@@ -1,3 +1,4 @@
+export default `
 (function (self, WebSocket) {
   'use strict';
 
@@ -98,7 +99,7 @@
       };
 
       if (this.property !== 'some_undefined_property') {
-        filter[this.property] = `(${Object.keys(this.subscribers).join(',')})`;
+        filter[this.property] = "(${Object.keys(this.subscribers).join(',')})";
       }
 
       if (this.extraFilterTerms) {
@@ -110,17 +111,17 @@
       if (this.globalFilters) {
         Object.entries(this.globalFilters).forEach(([key, value]) => {
           if (filter[key]) {
-            console.warn(`Global filter not applied for existing persisted filter for ${key}.`);
+            console.warn("Global filter not applied for existing persisted filter for ${key}.");
           } else {
             filter[key] = value;
           }
         });
       }
 
-      return `filter=(${Object.keys(filter)
+      return "filter=(${Object.keys(filter)
         .filter((key) => Boolean(filter[key]))
-        .map((key) => `${key}=${filter[key]}`)
-        .join(',')})`;
+        .map((key) => "${key}=${filter[key]}")
+        .join(',')})";
     }
 
     /**
@@ -190,7 +191,7 @@
       }
 
       // Create a new WebSocket connection with the updated query parameters
-      this.socket = new WebSocket(`${this.url}?${this.getQueryString()}`);
+      this.socket = new WebSocket("${this.url}?${this.getQueryString()}");
 
       // close old socket in new socket open to ensure
       // no data is lost
@@ -252,8 +253,8 @@
    * the set of subscriptions changes.
    *
    * Methods may be invoked by posting a message to the worker
-   * with an object containing `key` and `value` properties, where
-   * `key` is the method name and `value` is the argument to provide.
+   * with an object containing "key" and "value" properties, where
+   * "key" is the method name and "value" is the argument to provide.
    */
   class MCWSStreamWorker {
     constructor() {
@@ -287,12 +288,12 @@
         extraFilterTerms &&
         Object.keys(extraFilterTerms)
           .sort()
-          .map((filterKey) => `${filterKey}=${extraFilterTerms[filterKey]}`)
+          .map((filterKey) => "${filterKey}=${extraFilterTerms[filterKey]}")
           .join('&');
-      let cacheKey = `${url}__${property}`;
+      let cacheKey = "${url}__${property}";
 
       if (filterComponent?.length > 0) {
-        cacheKey += `__${filterComponent}`;
+        cacheKey += "__${filterComponent}";
       }
 
       return cacheKey;
@@ -344,3 +345,4 @@
     }
   };
 })(self, WebSocket);
+`;

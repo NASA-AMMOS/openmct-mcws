@@ -38,12 +38,6 @@ export function setMaxResults(domainObject, options, params) {
   }
 }
 
-export function setSortFilter(params) {
-  if (window.openmctMCWSConfig?.disableSortParam === true) {
-    delete params.sort;
-  }
-}
-
 // Helper function to replace lodash debounce
 export function debounce(func, wait = 0) {
   let timeout;
