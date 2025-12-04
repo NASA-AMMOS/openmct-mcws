@@ -21,10 +21,12 @@
     "eslint-plugin-prettier": "5.2.3",
     "eslint-plugin-vue": "9.32.0",
     "eventemitter3": "5.0.1",
+    "express": "^4.18.2",
     "file-saver": "2.0.5",
     "git-rev-sync": "3.0.2",
     "globals": "15.14.0",
     "html2canvas": "1.4.1",
+    "http-proxy-middleware": "^2.0.6",
     "imports-loader": "0.8.0",
     "jasmine-core": "5.1.1",
     "jshint": "^2.7.0",
@@ -54,14 +56,12 @@
     "vue-eslint-parser": "^9.4.3",
     "vue-loader": "16.8.3",
     "webpack": "^5.94.0",
-    "webpack-cli": "5.1.1",
+    "webpack-cli": "^5.1.1",
     "webpack-dev-server": "5.0.2",
-    "webpack-merge": "5.10.0",
-    "express": "^4.18.2",
-    "http-proxy-middleware": "^2.0.6"
+    "webpack-merge": "5.10.0"
   },
   "peerDependencies": {
-    "openmct": "^4.1.0"
+    "openmct": "^4.1.0 || ^4.1.0-next"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
@@ -74,7 +74,6 @@
     "build:watch": "webpack --config ./.webpack/webpack.dev.js --watch",
     "test": "karma start --single-run",
     "jshint": "jshint src/**/*.js || exit 0",
-    "serve": "node serve-instance.js",
     "prepare": "node -e \"if (require('fs').existsSync('node_modules/webpack-cli')) { require('child_process').execSync('npm run build:prod', {stdio: 'inherit'}) }\" || true"
   },
   "repository": {

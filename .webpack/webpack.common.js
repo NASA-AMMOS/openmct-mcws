@@ -23,7 +23,8 @@ try {
 const config = {
   context: join(__dirname, '..'),
   entry: {
-    'openmct-mcws-plugin': './plugin.js'
+    'openmct-mcws-plugin': './plugin.js',
+    'legacy-index': './legacy-index.js'
   },
   experiments: {
     outputModule: true, // Enables the feature
