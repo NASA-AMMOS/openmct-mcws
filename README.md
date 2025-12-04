@@ -10,6 +10,8 @@ Development configurations and customizations are available by editing `recipes/
 2. `mcwsUrl`: The url to the MCWS server.
 3. In the `namespaces` configuration, `url`, the path to the MCWS persistence spaces, are required.
 
+Further configuration documentation can be found in the `CONFIGURATION.md`.
+
 ## Development
 
 ### Prerequisite
