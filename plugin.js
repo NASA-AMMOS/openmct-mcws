@@ -112,7 +112,8 @@ export default function openmctMCWSPlugin(options) {
         persistModeChange: false,
         rowLimit: 50
       },
-      assetPath: 'node_modules/openmct/dist'
+      assetPath: 'node_modules/openmct/dist',
+      mcwsPluginAssetPath: 'node_modules/openmct-mcws-plugin/dist'
     };
         
     // Deep merge function
@@ -262,7 +263,7 @@ export default function openmctMCWSPlugin(options) {
     // load the css file
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `node_modules/openmct-mcws-plugin/dist/openmct-mcws-plugin.css`;
+    link.href = `${config.mcwsPluginAssetPath}/openmct-mcws-plugin.css`;
     document.head.appendChild(link);
   }
     
