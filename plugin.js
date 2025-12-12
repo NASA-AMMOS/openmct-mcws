@@ -115,13 +115,13 @@ export default function openmctMCWSPlugin(options) {
       assetPath: 'node_modules/openmct/dist',
       mcwsPluginAssetPath: 'node_modules/openmct-mcws-plugin/dist'
     };
-        
+
     // Deep merge function
     function deepMerge(target, source) {
       const output = Object.assign({}, target);
 
       if (isObject(target) && isObject(source)) {
-        Object.keys(source).forEach(key => {
+        Object.keys(source).forEach((key) => {
           if (isObject(source[key])) {
             if (!(key in target)) {
               Object.assign(output, { [key]: source[key] });
@@ -136,17 +136,12 @@ export default function openmctMCWSPlugin(options) {
 
       return output;
     }
-    
+
     function isObject(item) {
       return item && typeof item === 'object' && !Array.isArray(item);
     }
-    
-    const config = deepMerge(defaultConfig, options || {});
 
-    let persistenceLoaded;
-    const persistenceLoadedPromise = new Promise((resolve) => {
-      persistenceLoaded = resolve;
-    });
+    const config = deepMerge(defaultConfig, options || {});
 
     openmct.setAssetPath(config.assetPath);
     openmct.install(ClearDataIndicatorPlugin(config.globalStalenessInterval));
@@ -229,26 +224,14 @@ export default function openmctMCWSPlugin(options) {
     );
     openmct.install(ActionModifiersPlugin());
     openmct.install(new PacketQueryPlugin());
-    
+
     if (config.globalFilters) {
       openmct.install(new GlobalFilters(config.globalFilters));
     }
 
     openmct.user.setProvider(new IdentityProvider(openmct));
 
-    if (config.useDeveloperStorage) {
-      // plugins installed in recipe
-      persistenceLoaded();
-    } else {
-      const mcwsPersistenceProvider = MCWSPersistenceProviderPlugin(config.namespaces);
-
-      openmct.install(async (_openmct) => {
-        await mcwsPersistenceProvider(_openmct);
-        persistenceLoaded();
-      });
-    }
-
-    
+    openmct.install(MCWSPersistenceProviderPlugin(config.namespaces));
 
     openmct.branding({ aboutHtml: insertBuildInfo(AboutTemplate) });
 
@@ -256,17 +239,16 @@ export default function openmctMCWSPlugin(options) {
     // even if there is no new telemetry
     openmct.telemetry.greedyLAD(false);
 
-    persistenceLoadedPromise.then(() => {
-      window.openmctMCWSConfig = config;
-    });
+    // expose the config to the window
+    window.openmctMCWSConfig = config;
 
     // load the css file
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = `${config.mcwsPluginAssetPath}/openmct-mcws-plugin.css`;
     document.head.appendChild(link);
-  }
-    
+  };
+
   /**
    * Replaces placeholders in the HTML with build info provided by webpack.
    * Build info is defined in webpack config, and is exposed as global
@@ -275,9 +257,9 @@ export default function openmctMCWSPlugin(options) {
    */
   function insertBuildInfo(markup) {
     return markup
-    .replace(/\$\{project\.version\}/g, __OMM_VERSION__)
-    .replace(/\$\{timestamp\}/g, __OMM_BUILD_DATE__)
-    .replace(/\$\{buildNumber\}/g, __OMM_REVISION__)
-    .replace(/\$\{branch\}/g, __OMM_BUILD_BRANCH__);
+      .replace(/\$\{project\.version\}/g, __OMM_VERSION__)
+      .replace(/\$\{timestamp\}/g, __OMM_BUILD_DATE__)
+      .replace(/\$\{buildNumber\}/g, __OMM_REVISION__)
+      .replace(/\$\{branch\}/g, __OMM_BUILD_BRANCH__);
   }
 }
