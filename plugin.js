@@ -1,4 +1,5 @@
 import AboutTemplate from './about.html';
+// eslint-disable-next-line no-unused-vars
 import VistaStyles from './src/styles/sass/vista.scss'; /** Do not delete, needed for webpack to compile scss file*/
 import CommandEventsViewPlugin from './src/commandEventsView/plugin.js';
 import TaxonomyPlugin from './src/taxonomy/plugin.js';
@@ -39,6 +40,7 @@ import RealtimeIndicatorPlugin from './src/realtimeIndicator/plugin.js';
 import PacketQueryPlugin from './src/packetQuery/plugin.js';
 import MCWSIndicatorPlugin from './src/mcwsIndicator/plugin.js';
 import MultipleHistoricalSessions from './src/multipleHistoricalSessions/plugin.js';
+import MessageStreamProcessor from './src/messageStreamProcessor/MessageStreamProcessor.js';
 import RealtimeSessions from './src/realtimeSessions/plugin.js';
 import GlobalFilters from './src/globalFilters/plugin.js';
 import ExportDataAction from './src/exportDataAction/plugin.js';
