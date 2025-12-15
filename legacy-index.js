@@ -1,7 +1,9 @@
-import openmctMCWSPlugin from "./plugin.js";
-import openmct from "openmct";
+import openmctMCWSPlugin from './plugin.js';
+import openmct from 'openmct';
 
-document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener(
+  'DOMContentLoaded',
+  async () => {
     const config = window.openmctMCWSConfig;
     openmct.setAssetPath(config.assetPath || 'node_modules/openmct/dist');
 
@@ -88,4 +90,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     openmct.install(openmctMCWSPlugin(config));
     openmct.start();
-}, {once: true});
+  },
+  { once: true }
+);
