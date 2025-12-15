@@ -6,6 +6,16 @@ import {
 
 export default class MCWSUserContainerProvider extends BaseMCWSPersistenceProvider {
   /**
+   * Check if the identifier is a valid user folder namespace
+   *
+   * @param {module:openmct.ObjectAPI~Identifier} identifier An object identifier
+   * @returns {boolean} true if the identifier is a valid user folder namespace
+   */
+  appliesTo(identifier) {
+    return this.allowedNamespaceKeys.includes(identifier.namespace);
+  }
+
+  /**
    * Create and return a dynamically created parent user folder
    *
    * @param module:openmct.ObjectAPI~Identifier identifier An object identifier
