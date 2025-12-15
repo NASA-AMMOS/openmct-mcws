@@ -11,6 +11,8 @@ import commandEventsProvider from './providers/CommandEventsProvider.js';
 import headerChannelsHistoricalProvider from './providers/HeaderChannelsHistoricalProvider.js';
 import channelHistoricalProvider from './providers/ChannelHistoricalProvider.js';
 
+import { debounce } from '../utils/utils.js';
+
 const UTC_FORMAT_KEY = window.openmctMCWSConfig?.time?.utcFormat;
 
 // Combine all providers into array
