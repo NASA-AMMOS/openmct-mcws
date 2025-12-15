@@ -30,7 +30,6 @@ const config = {
     outputModule: true // Enables the feature
   },
   output: {
-    path: join(__dirname, '..', 'dist'),
     library: {
       type: 'module'
     },
