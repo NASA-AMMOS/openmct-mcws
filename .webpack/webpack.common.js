@@ -27,9 +27,10 @@ const config = {
     'legacy-index': './legacy-index.js'
   },
   experiments: {
-    outputModule: true, // Enables the feature
+    outputModule: true // Enables the feature
   },
   output: {
+    path: join(__dirname, '..', 'dist'),
     library: {
       type: 'module'
     },
@@ -44,11 +45,7 @@ const config = {
        * TODO FIXME these rely on openmct core source paths becase we extend core code directly
        */
       '@': join(__dirname, '..', 'node_modules/openmct/src'),
-      objectUtils: join(
-        __dirname,
-        '..',
-        'node_modules/openmct/src/api/objects/object-utils.js'
-      ),
+      objectUtils: join(__dirname, '..', 'node_modules/openmct/src/api/objects/object-utils.js'),
       utils: join(__dirname, '..', 'node_modules/openmct/src/utils'),
       'openmct.views.FolderGridViewComponent': join(
         __dirname,
