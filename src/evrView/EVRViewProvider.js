@@ -1,6 +1,6 @@
-import EVRTable from './EVRTable';
+import EVRTable from './EVRTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 
 const RESTRICTED_VIEWS = ['plot-single', 'table'];
 const EVR_SOURCES = ['evrHistoricalUrl', 'evrStreamUrl', 'evrLADUrl'];

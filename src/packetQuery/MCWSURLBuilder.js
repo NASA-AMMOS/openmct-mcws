@@ -1,15 +1,14 @@
-define(['lodash'], function (_) {
-  /**
-   * Used to build parameterized MCWS URLs (e.g. with filters, sort order,
-   * et cetera specified).
-   *
-   * TODO: This is a candidate for inclusion (in some form) in the
-   * MCWS adapter itself.
-   *
-   * @param baseUrl
-   * @constructor
-   */
-  function MCWSURLBuilder(baseUrl) {
+/**
+ * Used to build parameterized MCWS URLs (e.g. with filters, sort order,
+ * et cetera specified).
+ *
+ * TODO: This is a candidate for inclusion (in some form) in the
+ * MCWS adapter itself.
+ *
+ * @param baseUrl
+ */
+class MCWSURLBuilder {
+  constructor(baseUrl) {
     this.baseUrl = baseUrl;
     this.filters = [];
   }
@@ -22,38 +21,38 @@ define(['lodash'], function (_) {
    * @param {string} [operator] the operator to use for filtering;
    *        defaults to "="
    */
-  MCWSURLBuilder.prototype.filter = function (key, value, operator) {
+  filter(key, value, operator) {
     operator = operator || '=';
     this.filters.push({
       key: key,
       value: value,
       operator: operator
     });
-  };
+  }
 
   /**
    * Specify the sort order for this request.
    * @param {string} key the column to sort by
    */
-  MCWSURLBuilder.prototype.sort = function (key) {
+  sort(key) {
     this.sortValue = key;
-  };
+  }
 
   /**
    * Get a URL including all sort and filter parameters previously specified.
    * @returns {string} the fully-parameterized URL
    */
-  MCWSURLBuilder.prototype.url = function () {
-    var filterValue =
+  url() {
+    const filterValue =
       '(' +
       this.filters
-        .map(function (filter) {
+        .map((filter) => {
           return filter.key + filter.operator + filter.value;
         })
         .join(',') +
       ')';
 
-    var queryParameters = {};
+    const queryParameters = {};
 
     if (this.filters.length > 0) {
       queryParameters.filter = filterValue;
@@ -63,12 +62,14 @@ define(['lodash'], function (_) {
       queryParameters.sort = this.sortValue;
     }
 
-    var queryString = _.map(queryParameters, function (value, key) {
-      return key + '=' + value;
-    }).join('&');
+    const queryString = Object.entries(queryParameters)
+      .map(([key, value]) => {
+        return key + '=' + value;
+      })
+      .join('&');
 
     return encodeURI(this.baseUrl + '?' + queryString);
-  };
+  }
+}
 
-  return MCWSURLBuilder;
-});
+export default MCWSURLBuilder;

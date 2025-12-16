@@ -1,27 +1,26 @@
-define(['lodash'], function (_) {
-  /**
-   * Format embedded JavaScript objects as JSON strings for debugging
-   *
-   * @implements {Format}
-   * @constructor
-   */
-  function JSONStringFormat() {
+/**
+ * Format embedded JavaScript objects as JSON strings for debugging
+ *
+ * @implements {Format}
+ */
+class JSONStringFormat {
+  constructor() {
     this.key = 'jsonString';
   }
 
-  JSONStringFormat.prototype.format = function (value) {
+  format(value) {
     return JSON.stringify(value);
-  };
+  }
 
-  JSONStringFormat.prototype.parse = function (stringValue) {
+  parse(stringValue) {
     if (typeof stringValue === 'string') {
       return JSON.parse(stringValue);
     } else {
       return stringValue;
     }
-  };
+  }
 
-  JSONStringFormat.prototype.validate = function (stringValue) {
+  validate(stringValue) {
     try {
       JSON.parse(stringValue);
       return true;
@@ -29,7 +28,7 @@ define(['lodash'], function (_) {
       console.error('Failed to parse %s', stringValue, error);
       return false;
     }
-  };
+  }
+}
 
-  return JSONStringFormat;
-});
+export default JSONStringFormat;

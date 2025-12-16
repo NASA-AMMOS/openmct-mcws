@@ -54,8 +54,8 @@ export default {
     this.composition.on('add', this.addLadTable);
     this.composition.on('remove', this.removeLadTable);
     this.composition.on('reorder', this.reorderLadTables);
-    this.openmct.time.on('timeSystem', this.setTimesystem);
-    this.setTimesystem(this.openmct.time.timeSystem());
+    this.openmct.time.on('timeSystemChanged', this.setTimeSystem);
+    this.setTimeSystem(this.openmct.time.getTimeSystem());
     this.composition.load();
   },
   beforeUnmount() {
@@ -66,7 +66,7 @@ export default {
       c.composition.off('add', c.addCallback);
       c.composition.off('remove', c.removeCallback);
     });
-    this.openmct.time.off('timeSystem', this.setTimesystem);
+    this.openmct.time.off('timeSystemChanged', this.setTimeSystem);
   },
   methods: {
     addLadTable(domainObject) {
@@ -102,7 +102,7 @@ export default {
         this.ladTableObjects[reorderEvent.newIndex] = oldComposition[reorderEvent.oldIndex];
       });
     },
-    setTimesystem(timesystem) {
+    setTimeSystem(timesystem) {
       this.timesystem = timesystem.name;
     },
     addTelemetryObject(ladTable) {

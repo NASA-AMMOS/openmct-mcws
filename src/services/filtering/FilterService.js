@@ -1,5 +1,5 @@
 import { EventEmitter } from 'eventemitter3';
-import FilterURLHandler from './FilterUrlHandler';
+import FilterURLHandler from './FilterUrlHandler.js';
 import { isEqual, pickBy, isEmpty } from 'lodash';
 
 class FilterService extends EventEmitter {
@@ -61,7 +61,7 @@ class FilterService extends EventEmitter {
   // and then force a requery
   handleFilterChange() {
     this.openmct.objectViews.emit('clearData');
-    this.openmct.time.bounds(this.openmct.time.bounds());
+    this.openmct.time.setBounds(this.openmct.time.getBounds());
   }
 
   updateFiltersFromParams(params) {

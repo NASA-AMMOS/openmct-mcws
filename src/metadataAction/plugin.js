@@ -1,4 +1,4 @@
-import MetadataAction from './metadataAction';
+import MetadataAction from './metadataAction.js';
 
 export default function plugin() {
   return function install(openmct) {

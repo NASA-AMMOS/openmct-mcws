@@ -1,8 +1,8 @@
-import mcws from 'services/mcws/mcws';
-import DatasetCache from 'services/dataset/DatasetCache';
-import SessionURLHandler from './SessionURLHandler';
-import SessionLocalStorageHander from './SessionLocalStorageHandler';
-import { formatNumberSequence } from '../../utils/strings';
+import mcws from 'services/mcws/mcws.js';
+import DatasetCache from 'services/dataset/DatasetCache.js';
+import SessionURLHandler from './SessionURLHandler.js';
+import SessionLocalStorageHander from './SessionLocalStorageHandler.js';
+import { formatNumberSequence } from '../../utils/strings.js';
 const ERROR_PREFIX = 'Error when notifying listener: ';
 
 /**
@@ -376,8 +376,8 @@ class SessionService {
     if (
       model?.start_time &&
       model?.end_time &&
-      this.openmct.time.timeSystem().key === 'ert' &&
-      !this.openmct.time.clock()
+      this.openmct.time.getTimeSystem().key === 'ert' &&
+      !this.openmct.time.getClock()
     ) {
       const format = this.openmct.telemetry.getFormatter('utc.day-of-year');
       const start = format.parse(model.start_time);
@@ -387,7 +387,7 @@ class SessionService {
         end = format.endOfDay(end);
       }
 
-      this.openmct.time.bounds({
+      this.openmct.time.setBounds({
         start,
         end
       });
@@ -397,7 +397,7 @@ class SessionService {
 
     if (!boundsChanged) {
       //force a bounds change to trigger a requery for views
-      this.openmct.time.bounds(this.openmct.time.bounds());
+      this.openmct.time.setBounds(this.openmct.time.getBounds());
     }
   }
 

@@ -1,5 +1,5 @@
-import MCWSParameters from './MCWSParameters';
-import mcwsClient from './MCWSClient';
+import MCWSParameters from './MCWSParameters.js';
+import mcwsClient from './MCWSClient.js';
 
 /**
  * Abstract superclass for handles to specific MIOs.

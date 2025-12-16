@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue';
-import mcws from '../services/mcws/mcws';
+import mcws from '../services/mcws/mcws.js';
 
 export default defineComponent({
   inject: ['openmct'],
@@ -36,7 +36,7 @@ export default defineComponent({
       this.openmct.overlays.overlay({
         element,
         size: 'small',
-        dismissable: true
+        dismissible: true
       });
 
       try {

@@ -1,7 +1,7 @@
-import NamespaceMIO from './NamespaceMIO';
-import DataTableMIO from './DataTableMIO';
-import OpaqueFileMIO from './OpaqueFileMIO';
-import client from './MCWSClient';
+import NamespaceMIO from './NamespaceMIO.js';
+import DataTableMIO from './DataTableMIO.js';
+import OpaqueFileMIO from './OpaqueFileMIO.js';
+import client from './MCWSClient.js';
 
 class MCWS {
   constructor() {

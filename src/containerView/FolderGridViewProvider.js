@@ -1,5 +1,5 @@
 import FolderGridViewComponent from 'openmct.views.FolderGridViewComponent';
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 
 export default class FolderGridView {
   constructor(openmct, types) {

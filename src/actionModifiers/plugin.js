@@ -1,7 +1,7 @@
-import preventImportIntoDatasetModifier from './preventImportIntoDatasetModifier';
-import importWithDatasetsModifier from './ImportExportWithDatasets/importWithDatasetsModifier';
-import warnMultipleDatasetsOnDuplicateModifier from './MultipleDatasets/warnMultipleDatasetsOnDuplicateModifier';
-import imageExportModifier from './ImageExport/ImageExportModifier';
+import preventImportIntoDatasetModifier from './preventImportIntoDatasetModifier.js';
+import importWithDatasetsModifier from './ImportExportWithDatasets/importWithDatasetsModifier.js';
+import warnMultipleDatasetsOnDuplicateModifier from './MultipleDatasets/warnMultipleDatasetsOnDuplicateModifier.js';
+import imageExportModifier from './ImageExport/ImageExportModifier.js';
 
 /**
  * DEPENDENCY: These modifiers have a dependency on Open MCT action internals.

@@ -1,6 +1,6 @@
-import ExportDataTask from './ExportDataTask';
-import SessionService from 'services/session/SessionService';
-import { formatNumberSequence } from 'ommUtils/strings';
+import ExportDataTask from './ExportDataTask.js';
+import SessionService from 'services/session/SessionService.js';
+import { formatNumberSequence } from 'ommUtils/strings.js';
 
 /**
  * Implements the "Export Data" action, allowing data for Channels, EVRs,
