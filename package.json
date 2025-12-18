@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws-plugin",
-  "version": "v1.0.0",
+  "version": "v1.1.0-rc1",
   "description": "Open MCT for MCWS",
   "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
@@ -61,7 +61,7 @@
     "webpack-merge": "5.10.0"
   },
   "peerDependencies": {
-    "openmct": "nasa/openmct#dynamic-roots"
+    "openmct": "^4.3.0-rc1"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
