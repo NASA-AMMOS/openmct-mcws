@@ -48,7 +48,6 @@ import ExportDataAction from './src/exportDataAction/plugin.js';
 export default function openmctMCWSPlugin(options) {
   return function install(openmct) {
     const defaultConfig = {
-      useDeveloperStorage: true,
       venueAware: {
         enabled: false,
         venues: 'ExampleVenueDefinitions.json'
@@ -158,6 +157,13 @@ export default function openmctMCWSPlugin(options) {
     }
 
     const config = deepMerge(defaultConfig, options || {});
+
+    if (config.useDeveloperStorage === undefined) {
+      // Attempt to define a reasonable default for developer storage that supports Open MCT build tool
+      if (config.mcwsUrl === undefined || config.mcwsUrl.trim().length === 0) {
+        config.useDeveloperStorage = true;
+      }
+    }
 
     openmct.setAssetPath(config.assetPath);
     openmct.install(ClearDataIndicatorPlugin(config.globalStalenessInterval));
