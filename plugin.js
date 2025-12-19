@@ -162,6 +162,8 @@ export default function openmctMCWSPlugin(options) {
       // Attempt to define a reasonable default for developer storage that supports Open MCT build tool
       if (config.mcwsUrl === undefined || config.mcwsUrl.trim().length === 0) {
         config.useDeveloperStorage = true;
+      } else {
+        config.useDeveloperStorage = false;
       }
     }
 
