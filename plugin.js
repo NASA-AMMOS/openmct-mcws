@@ -233,7 +233,9 @@ export default function openmctMCWSPlugin(options) {
 
     openmct.user.setProvider(new IdentityProvider(openmct));
 
-    openmct.install(MCWSPersistenceProviderPlugin(config.namespaces));
+    if (!config.useDeveloperStorage) {
+      openmct.install(MCWSPersistenceProviderPlugin(config.namespaces));
+    }
 
     openmct.branding({ aboutHtml: insertBuildInfo(AboutTemplate) });
 
