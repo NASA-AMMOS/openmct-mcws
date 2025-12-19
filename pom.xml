@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>gov.nasa.arc.wtd</groupId>
     <artifactId>openmct-client</artifactId>
-    <name>Open MCT for MCWS Client</name>
-    <version>v5.4.0</version>
+    <name>Open MCT for MCWS Plugin</name>
+    <version>v1.0.0</version>
     <packaging>war</packaging>
 
     <properties>
@@ -19,9 +19,7 @@
     </scm>
 
     <build>
-
         <plugins>
-
             <!-- Assemble WAR file -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -30,23 +28,11 @@
                 <configuration>
                     <warName>openmct_client</warName>
                     <webResources>
-                        <!--<resource>
-                            <directory>node_modules/openmct/dist</directory>
-                            <includes>
-                                <include>**/*</include>
-                            </includes>
-                            <excludes>
-                                <exclude>index.html</exclude>
-                            </excludes>
-                            <targetPath>openmct</targetPath>
-                        </resource>-->
                         <resource>
                             <directory>.</directory>
                             <includes>
                                 <include>index.html</include>
-                                <include>openmct-mcws.js</include>
                                 <include>config.js</include>
-                                <include>loader.js</include>
                                 <include>ExampleVenueDefinitions.json</include>
                                 <include>src/**/*</include>
                                 <include>dist/**/*</include>
@@ -85,48 +71,6 @@
                     <revisionOnScmFailure>Unknown</revisionOnScmFailure>
                 </configuration>
             </plugin>
-
-            <!-- Run specs using npm -->
-            <!-- <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>0.0.26</version>
-                <configuration>
-                    <installDirectory>target</installDirectory>
-                    <nodeVersion>v0.12.2</nodeVersion>
-                    <npmVersion>2.7.6</npmVersion>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>install node and npm</id>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>npm install</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>javascript tests</id>
-                        <goals>
-                            <goal>karma</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>style checks</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <arguments>run jshint</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin> -->
 
             <!-- To start this WAR in an embedded Tomcat Servlet Container -->
             <plugin>

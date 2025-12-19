@@ -1,6 +1,6 @@
-import MIO from './MIO';
-import OpaqueFileMIO from './OpaqueFileMIO';
-import DataTableMIO from './DataTableMIO';
+import MIO from './MIO.js';
+import OpaqueFileMIO from './OpaqueFileMIO.js';
+import DataTableMIO from './DataTableMIO.js';
 
 /**
  * Handle for utilizing Namespace MIOs.

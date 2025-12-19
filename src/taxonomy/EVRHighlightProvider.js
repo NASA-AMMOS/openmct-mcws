@@ -1,17 +1,20 @@
-define(['./injectEVRStylesheet', '../types/types'], function (injectEVRStylesheet, types) {
-  var EVR_TYPES = [types.EVR, types.EVRModule, types.EVRSource];
+import injectEVRStylesheet from './injectEVRStylesheet.js';
+import types from '../types/types.js';
 
-  /**
-   * EVR Highlight Provider.
-   * Provides a limit evaluator for any EVR telemetry object which applies
-   * css classes based on the level of the EVR message.
-   */
-  function EVRHighlightProvider(definitions) {
+const EVR_TYPES = [types.EVR, types.EVRModule, types.EVRSource];
+
+/**
+ * EVR Highlight Provider.
+ * Provides a limit evaluator for any EVR telemetry object which applies
+ * css classes based on the level of the EVR message.
+ */
+class EVRHighlightProvider {
+  constructor(definitions) {
     this.definitions = definitions;
     injectEVRStylesheet(definitions);
     this.levelCache = {};
     this.evaluator = {
-      evaluate: function (datum, valueMetadata, levels) {
+      evaluate: (datum, valueMetadata, levels) => {
         const level = datum.level;
 
         if (!level) {
@@ -23,7 +26,7 @@ define(['./injectEVRStylesheet', '../types/types'], function (injectEVRStyleshee
         }
 
         return this.getLimitStateForLevel(level);
-      }.bind(this)
+      }
     };
   }
 
@@ -34,40 +37,40 @@ define(['./injectEVRStylesheet', '../types/types'], function (injectEVRStyleshee
    * @param domainObject the domain object to check for support.
    * @returns Boolean
    */
-  EVRHighlightProvider.prototype.supportsLimits = function (domainObject) {
+  supportsLimits(domainObject) {
     if (!types.hasTypeForKey(domainObject.type)) {
       return false;
     }
-    var vistaType = types.typeForKey(domainObject.type);
-    return EVR_TYPES.indexOf(vistaType) !== -1;
-  };
+    const vistaType = types.typeForKey(domainObject.type);
+    return EVR_TYPES.includes(vistaType);
+  }
 
   /**
    * Get an evaluator.  Returns the same evaluator for all domain objects.
    */
-  EVRHighlightProvider.prototype.getLimitEvaluator = function (domainObject) {
+  getLimitEvaluator(domainObject) {
     return this.evaluator;
-  };
+  }
 
   /**
    * Get the limit state for a given level.  Checks for state in cache, makes
    * a new state if one isn't found.
    * @private
    */
-  EVRHighlightProvider.prototype.getLimitStateForLevel = function (level) {
+  getLimitStateForLevel(level) {
     if (!Object.hasOwn(this.levelCache, level)) {
       this.levelCache[level] = this.makeLimitStateForLevel(level);
     }
     return this.levelCache[level];
-  };
+  }
 
   /**
    * Make the limit state for a given level.  If there is no matching rules,
    * return undefined.
    * @private
    */
-  EVRHighlightProvider.prototype.makeLimitStateForLevel = function (level) {
-    var classes = [];
+  makeLimitStateForLevel(level) {
+    const classes = [];
     if (this.definitions.evrBackgroundColorByLevel?.level) {
       classes.push('vista-evr-level-bg-' + level.toLowerCase());
     } else if (this.definitions.evrDefaultBackgroundColor) {
@@ -84,7 +87,7 @@ define(['./injectEVRStylesheet', '../types/types'], function (injectEVRStyleshee
       };
     }
     return undefined;
-  };
+  }
+}
 
-  return EVRHighlightProvider;
-});
+export default EVRHighlightProvider;

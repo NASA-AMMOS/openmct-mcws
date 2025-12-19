@@ -1,5 +1,5 @@
-import mount from 'ommUtils/mountVueComponent';
-import FrameWatchTableConfiguration from './FrameWatchTableConfiguration';
+import mount from 'ommUtils/mountVueComponent.js';
+import FrameWatchTableConfiguration from './FrameWatchTableConfiguration.js';
 import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
 
 export default class FrameWatchConfigurationViewProvider {

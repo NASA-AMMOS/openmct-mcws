@@ -1,7 +1,7 @@
-import AlarmsViewProvider from './AlarmsViewProvider';
-import AlarmsAutoclearViewProvider from './AlarmsAutoclearViewProvider';
-import AlarmsViewActions from './AlarmsViewActions';
-import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider';
+import AlarmsViewProvider from './AlarmsViewProvider.js';
+import AlarmsAutoclearViewProvider from './AlarmsAutoclearViewProvider.js';
+import AlarmsViewActions from './AlarmsViewActions.js';
+import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 
 export default function AlarmsViewPlugin(options) {
   return function install(openmct) {

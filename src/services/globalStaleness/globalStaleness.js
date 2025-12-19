@@ -1,4 +1,4 @@
-import SessionService from '../session/SessionService';
+import SessionService from '../session/SessionService.js';
 
 class GlobalStaleness {
   constructor(stalenessInterval) {

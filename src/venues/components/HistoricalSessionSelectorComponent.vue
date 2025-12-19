@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import SessionService from '../../services/session/SessionService';
+import SessionService from '../../services/session/SessionService.js';
 
 export default {
   props: {

@@ -72,7 +72,7 @@
 
 <script>
 import TelemetryTable from 'openmct.tables.components.Table';
-import SessionService from 'services/session/SessionService';
+import SessionService from 'services/session/SessionService.js';
 import { nextTick } from 'vue';
 
 export default {

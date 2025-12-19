@@ -1,5 +1,5 @@
-import SessionService from 'services/session/SessionService';
-import Venue from './Venue';
+import SessionService from 'services/session/SessionService.js';
+import Venue from './Venue.js';
 
 describe('Venue', () => {
   let configuration;

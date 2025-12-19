@@ -2,10 +2,13 @@
 This configuration should be used for development purposes. It contains full source map, a
 devServer (which be invoked using by `npm start`), and a non-minified Vue.js distribution.
 */
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common');
-const path = require('path');
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import { merge } from 'webpack-merge';
+import common from './webpack.common.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const proxyUrl = process.env.PROXY_URL || 'http://localhost:8080';
 const apiUrl = process.env.API_URL ?? '';
@@ -14,10 +17,10 @@ if (process.env.COOKIE) {
   proxyHeaders.Cookie = process.env.COOKIE;
 }
 
-module.exports = merge(common, {
+export default merge(common, {
   mode: 'development',
   entry: {
-    config: './config.js'
+    'legacy-index': './legacy-index.js'
   },
   plugins: [
     new CopyWebpackPlugin({
@@ -29,7 +32,8 @@ module.exports = merge(common, {
             return content.toString().replace(/"dist\//g, '"');
           }
         },
-        { from: './ExampleVenueDefinitions.json', to: 'ExampleVenueDefinitions.json' }
+        { from: './ExampleVenueDefinitions.json', to: 'ExampleVenueDefinitions.json' },
+        { from: './config.js', to: 'config.js' }
       ]
     })
   ],
@@ -59,6 +63,11 @@ module.exports = merge(common, {
       {
         directory: path.join(__dirname, '..', 'node_modules/openmct/dist'),
         publicPath: '/node_modules/openmct/dist',
+        watch: false
+      },
+      {
+        directory: path.join(__dirname, '..', 'dist'),
+        publicPath: '/node_modules/openmct-mcws-plugin/dist',
         watch: false
       },
       {

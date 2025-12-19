@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import TelemetryTable from 'openmct.tables.TelemetryTable';
-import AlarmsViewRowCollection from './AlarmsViewRowCollection';
-import AlarmsViewHistoricalContextTableRow from './AlarmsViewHistoricalContextTableRow';
+import AlarmsViewRowCollection from './AlarmsViewRowCollection.js';
+import AlarmsViewHistoricalContextTableRow from './AlarmsViewHistoricalContextTableRow.js';
 
 export default class AlarmsTable extends TelemetryTable {
   initialize() {

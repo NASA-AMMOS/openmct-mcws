@@ -1,3 +1,10 @@
+import {
+  USER_NAMESPACE_SUFFIX,
+  SHARED_NAMESPACE_SUFFIX,
+  USER_CONTAINER_ID_SUFFIX,
+  ROOT_NAMESPACE_SUFFIX
+} from './constants.js';
+
 export function createIdentifierFromNamespaceDefinition(namespaceDefinition) {
   return {
     key: namespaceDefinition.containsNamespaces ? 'container' : 'root',
@@ -34,13 +41,13 @@ export function createModelFromNamespaceDefinitionWithPersisted(
 export function createNamespace(namespace) {
   if (namespace.userNamespace) {
     return {
-      id: namespace.key + '-users:container',
-      key: namespace.key + '-users',
+      id: `${namespace.key}${USER_NAMESPACE_SUFFIX}${USER_CONTAINER_ID_SUFFIX}`,
+      key: `${namespace.key}${USER_NAMESPACE_SUFFIX}`,
       name: namespace?.name || namespace.key.toUpperCase() + ' Users',
       url: namespace.url,
       containsNamespaces: true,
       childTemplate: {
-        id: namespace.key + '-${USER}:root',
+        id: namespace.key + '-${USER}' + ROOT_NAMESPACE_SUFFIX,
         key: namespace.key + '-${USER}',
         name: '${USER}',
         url: namespace.url + '/${USER}'
@@ -48,8 +55,8 @@ export function createNamespace(namespace) {
     };
   } else {
     return {
-      id: namespace.key + '-shared:root',
-      key: namespace.key + '-shared',
+      id: `${namespace.key}${SHARED_NAMESPACE_SUFFIX}${ROOT_NAMESPACE_SUFFIX}`,
+      key: `${namespace.key}${SHARED_NAMESPACE_SUFFIX}`,
       name: namespace?.name || namespace.key.toUpperCase() + ' Shared',
       url: namespace.url
     };

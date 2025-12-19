@@ -1,5 +1,5 @@
-import SessionService from '../../SessionService';
-import mcws from '../../../../services/mcws/mcws';
+import SessionService from '../../SessionService.js';
+import mcws from '../../../../services/mcws/mcws.js';
 
 describe('SessionService', () => {
   let dataTable;

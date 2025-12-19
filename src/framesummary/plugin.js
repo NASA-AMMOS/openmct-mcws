@@ -1,6 +1,6 @@
-import FrameWatchViewProvider from './FrameWatchViewProvider';
-import FrameWatchConfigurationViewProvider from './FrameWatchConfigurationViewProvider';
-import { ENCODING_WATCH_TYPE, FRAME_WATCH_TYPE } from './config';
+import FrameWatchViewProvider from './FrameWatchViewProvider.js';
+import FrameWatchConfigurationViewProvider from './FrameWatchConfigurationViewProvider.js';
+import { ENCODING_WATCH_TYPE, FRAME_WATCH_TYPE } from './config.js';
 
 export default function FrameWatchViewPlugin(options) {
   return function install(openmct) {

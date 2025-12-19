@@ -1,5 +1,6 @@
-define(['./VISTAType'], function (VISTAType) {
-  var AlarmMessageStreamType = new VISTAType({
+import VISTAType from './VISTAType.js';
+
+const AlarmMessageStreamType = new VISTAType({
     key: 'vista.alarmMessageStream',
     name: 'Alarm Message Stream',
     cssClass: 'icon-telemetry',
@@ -13,9 +14,8 @@ define(['./VISTAType'], function (VISTAType) {
       return 'alarm-message-stream:' + VISTAType.toKeyString(datasetIdentifier);
     },
     makeObject: function (dataset, data) {
-      return dataset.load().then(
-        function () {
-          return {
+      return dataset.load().then(() => {
+        return {
             name: 'Alarm Message Stream',
             type: this.key,
             location: this.getLocation(dataset, data),
@@ -253,10 +253,8 @@ define(['./VISTAType'], function (VISTAType) {
               ]
             }
           };
-        }.bind(this)
-      );
-    }
+        });
+      }
   });
 
-  return AlarmMessageStreamType;
-});
+export default AlarmMessageStreamType;

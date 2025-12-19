@@ -1,8 +1,8 @@
-import mcws from 'services/mcws/mcws';
-import DatasetCache from 'services/dataset/DatasetCache';
-import SessionURLHandler from './SessionURLHandler';
-import SessionLocalStorageHander from './SessionLocalStorageHandler';
-import { formatNumberSequence } from '../../utils/strings';
+import mcws from 'services/mcws/mcws.js';
+import DatasetCache from 'services/dataset/DatasetCache.js';
+import SessionURLHandler from './SessionURLHandler.js';
+import SessionLocalStorageHander from './SessionLocalStorageHandler.js';
+import { formatNumberSequence } from '../../utils/strings.js';
 const ERROR_PREFIX = 'Error when notifying listener: ';
 
 /**

@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue';
-import mcws from '../services/mcws/mcws';
+import mcws from '../services/mcws/mcws.js';
 
 export default defineComponent({
   inject: ['openmct'],
