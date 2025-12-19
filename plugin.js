@@ -48,10 +48,24 @@ import ExportDataAction from './src/exportDataAction/plugin.js';
 export default function openmctMCWSPlugin(options) {
   return function install(openmct) {
     const defaultConfig = {
+      useDeveloperStorage: true,
       venueAware: {
         enabled: false,
         venues: 'ExampleVenueDefinitions.json'
       },
+      namespaces: [
+        {
+          key: 'dev',
+          name: 'Shared',
+          url: ''
+        },
+        {
+          userNamespace: true,
+          key: 'dev',
+          name: 'Users',
+          url: ''
+        }
+      ],
       taxonomy: {
         evrDefaultBackgroundColor: undefined,
         evrDefaultForegroundColor: undefined,
