@@ -378,10 +378,13 @@
       /**
        * Enable/disable summary widgets.  Added in R3.4.0.
        */
-      summaryWidgets: {
-        enabled: true
+      SummaryWidget: {
+        enabled: false
       },
       BarChart: {
+        enabled: false
+      },
+      CorrelationTelemetry: {
         enabled: false
       },
       ScatterPlot: {
