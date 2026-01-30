@@ -1,7 +1,7 @@
 # Legacy branch
 <font color="red">**This branch is a stand alone branch, and should not be deleted, nor merged into the main code flow.**</font>
 
-The first commit of this tag is `#v5.4.0`, which is the version of the last release of Open MCT for MCWS. Any patches to `#v5.4.0` should be cut from, and merged back into this branch.
+The branch is branched from `#v5.4.0`, which is the version of the last release of Open MCT for MCWS. Any patches to `#v5.4.0` should be cut from, and merged back into this branch.
 
 This repository is now the MCWS Plugin for Open MCT.
 
