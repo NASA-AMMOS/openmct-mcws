@@ -3,29 +3,39 @@ MCWS Plugin for Open MCT is a package that allows Open MCT to use MCWS (Mission 
 
 Open Mission Control Technologies, or [Open MCT](https://github.com/nasa/openmct), is a next-generation web-based mission control and situational awareness framework, for visualization of data on desktop and mobile devices. Open MCT is developed at NASA Ames Research Center in Silicon Valley, in collaboration with NASA AMMOS and the Jet Propulsion Laboratory, California Institute of Technology (under its contract with NASA, 80NM0018D0004).
 
-# Getting Started and Installation Instructions
-Installing the MCWS Plugin with Open MCT requires building Open MCT using the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) (requires access request).
+# Installation
 
-_To build Open MCT for MCWS, the legacy product that combines Open MCT and the MCWS Plugin, see the [legacy branch](https://github.com/NASA-AMMOS/openmct-mcws/tree/legacy)._
+## Installing Open MCT with the Build Tool
+Follow instructions to install the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) (requires access request). The MCWS Plugin is then included and customized in build tool configuration.
 
-## Building Open MCT using the MCWS Plugin
-Open MCT is built using the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) (requires access request). The MCWS Plugin is then included and customized in build tool configuration.
-
-### Installing the Build Tool
-Install the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) (requires access request). Therein contains instructions for how to use and configure Open MCT using the build tool.
-
-### MCWS Plugin via Build Tool command line
+### Installing MCWS Plugin via Build Tool command line
+1. Add the plugin
+Example:
 ```bash
-mct plugins add openmct-mcws-plugin -i my-mcws-instance 
+mct plugins add openmct-mcws-plugin --options '{"mcwsUrl": "<mcws_url>", "namespaces": [{"key": "shared", "name": "Shared", "url": "<persistence_url>"}, {"key": "shared", "name": "Shared", "url": "<persistence_url>"}]}'
+```
+
+2. Configure Open MCT
+Example:
+```bash
+mct plugins configure openmct.plugins.DisplayLayout --options '{"showAsView": ["summary-widget", "vista.packetSummaryEvents", "vista.dataProducts", "vista.packets", "vista.frameSummary", "vista.frameWatch"]}'
+mct plugins configure openmct.plugins.Filters --options '["vista.alarmsView", "vista.chanTableGroup", "vista.commandEventsView", "vista.messagesView", "vista.evrView"]'
+```
+
+3. Build Open MCT
+Example:
+```bash
 mct build
 ```
 
-### MCWS Plugin via Build Tool recipe
+### Installing MCWS Plugin via Build Tool recipe
+1. Specify a pre-configured recipe to build
+Example:
 ```bash
 mct build openmct-mcws.yaml
 ```
 
-openmct-mcws.yaml
+Example `openmct-mcws.yaml`:
 ```yaml
 # yaml-language-server: $schema=../../src/assets/openmct-configuration-schema.json
 # Builds Open MCT for MCWS without dev plugins enabled. Requires an MCWS server to connect to.
@@ -86,6 +96,9 @@ openmct:
 
 Further configuration documentation can be found in the `CONFIGURATION.md`.
 
+## Installing Open MCT for MCWS (Legacy)
+_To build Open MCT for MCWS, the legacy product that combines Open MCT and the MCWS Plugin, see the [legacy branch](https://github.com/NASA-AMMOS/openmct-mcws/tree/legacy)._
+
 ## Connecting to MCWS
 
 ### Installing MCWS
@@ -99,6 +112,8 @@ MCWS is a closed source product in the [Advanced Multi-Mission Operations System
 ## Tomcat Web Application Deployments
 For [Tomcat Web Application Deployments](https://tomcat.apache.org/tomcat-9.0-doc/deployer-howto.html), [Maven](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html) can be used to generate a `.war` file.
 
-# Maintainers
+# Contacts
 Jamie Vigliotta (jamie.j.vigliotta@nasa.gov)
 David Tsay (david.e.tsay@nasa.gov)
+
+Or join us on [Slack](https://jpl.slack.com/app_redirect?channel=openmct)
