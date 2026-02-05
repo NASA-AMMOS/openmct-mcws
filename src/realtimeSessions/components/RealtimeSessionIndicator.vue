@@ -62,15 +62,15 @@ export default {
     this.activeSession = this.sessionService.getActiveTopicOrSession();
     this.stopListening = this.sessionService.listen(this.onActiveSessionChange);
 
-    this.pollForSessions();
+    this.pollForSessions(true);
   },
   beforeUnmount() {
     this.stopListening?.();
   },
   methods: {
-    pollForSessions() {
+    pollForSessions(resolveCachedDatasets = false ) {
       if (!this.activeSession) {
-        this.sessionService.getTopicsWithSessions().then((topics) => {
+        this.sessionService.getTopicsWithSessions(resolveCachedDatasets).then((topics) => {
           this.hasTopics = topics.length > 0;
         });
       }
