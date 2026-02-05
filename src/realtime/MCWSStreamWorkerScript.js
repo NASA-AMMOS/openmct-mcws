@@ -212,7 +212,7 @@
         const data = JSON.parse(message.data);
 
         data.forEach((datum) => {
-          const key = datum[property];
+          const key = datum[property].toUpperCase();
 
           if (subscribers[key] > 0) {
             self.postMessage({
