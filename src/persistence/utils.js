@@ -36,10 +36,10 @@ export function createNamespace(namespace) {
             url: namespace.url,
             containsNamespaces: true,
             childTemplate: {
-                id: namespace.key + '-${USER}:root',
-                key: namespace.key + '-${USER}',
-                name: '${USER}',
-                url: namespace.url + '/${USER}'
+                id: namespace.key + '-${USERID}:root',
+                key: namespace.key + '-${USERID}',
+                name: '${USERNAME}',
+                url: namespace.url + '/${USERID}'
             }
         };
     } else {
@@ -54,18 +54,19 @@ export function createNamespace(namespace) {
 
 /**
  * Interpolate a username with all values in a supplied object, replacing
- * '${USER}' with the supplied username.
+ * '${USERNAME}' with the supplied username and '${USERID} with the
+ *  supplied user ID.
  *
  * @private
  * @param {NamespaceTemplate} templateObject namespace template object.
  * @param {string} username a username.
  * @returns {NamespaceDefinition} a namespace definition object.
  */
-export function interpolateUsername(templateObject, username) {
+export function interpolateUsername(templateObject, username, userid) {
     const namespaceDefinition = {};
 
     Object.keys(templateObject).forEach(key => {
-        namespaceDefinition[key] = templateObject[key].replace('${USER}', username);
+        namespaceDefinition[key] = templateObject[key].replace('${USERNAME}', username).replace('${USERID}', userid);
     });
     
     return namespaceDefinition;

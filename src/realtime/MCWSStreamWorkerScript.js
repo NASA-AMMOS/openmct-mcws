@@ -152,7 +152,16 @@
     reconnect() {
       let oldSocket = this.socket;
       const { url, subscribers, property } = this;
-            
+
+      // Map subscribers to an all uppercase object since MCWS is
+      // not consistent.
+      let upperCaseSubscribers = Object.fromEntries(
+        Object.entries(subscribers).map(([key, value]) => [
+          key === "undefined" ? key : key.toUpperCase(), 
+          value
+        ])
+      );
+
       // no subscribers or no topic close existing socket
       // suppress errors as they are not useful
       if (Object.keys(subscribers).length < 1 || !this.topic) {
@@ -194,9 +203,8 @@
         const data = JSON.parse(message.data);
 
         data.forEach((datum) => {
-          const key = datum[property];
-
-          if (subscribers[key] > 0) {
+          const key = datum[property]?.toUpperCase();
+          if (upperCaseSubscribers[key] > 0) {
             self.postMessage({
               url: url,
               key: key,

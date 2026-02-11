@@ -106,7 +106,7 @@ export default class BaseMCWSPersistenceProvider {
 
         const user = await this.openmct.user.getCurrentUser();
         const containedNamespaces = await this.getNamespacesFromMCWS(namespaceDefinition);
-        const userNamespace = interpolateUsername(namespaceTemplate, user.id);
+        const userNamespace = interpolateUsername(namespaceTemplate, user.name, user.id);
         const existingUserNamespace = containedNamespaces.find(namespace => namespace.url === userNamespace.url);
 
         if (existingUserNamespace) {
@@ -118,7 +118,7 @@ export default class BaseMCWSPersistenceProvider {
 
         containedNamespaces.unshift(userNamespace);
         
-        await this.createIfMissing(userNamespace, user.id);
+        await this.createIfMissing(userNamespace, user.id, user.name);
 
         return containedNamespaces;
     }
@@ -137,7 +137,7 @@ export default class BaseMCWSPersistenceProvider {
         const templateObject = namespaceDefinition.childTemplate;
         const userNamespaces = namespaces.map((namespace) => {
             const username = USERNAME_FROM_PATH_REGEX.exec(namespace.subject)[1]
-            const userNamespaceDefinition = interpolateUsername(templateObject, username);
+            const userNamespaceDefinition = interpolateUsername(templateObject, username, username);
 
             userNamespaceDefinition.location = namespaceDefinition.id;
 
@@ -156,7 +156,7 @@ export default class BaseMCWSPersistenceProvider {
     */
     async getRootNamespaces() {
         const user = await this.openmct.user.getCurrentUser();
-        let rootNamespaces = await Promise.all(this.roots.map((rootNamespace) => this.createIfMissing(rootNamespace, user.id)));
+        let rootNamespaces = await Promise.all(this.roots.map((rootNamespace) => this.createIfMissing(rootNamespace, user.id, user.name)));
         rootNamespaces = rootNamespaces.filter(Boolean);
 
         return this.filterNamespacesByPath(rootNamespaces);
@@ -172,7 +172,7 @@ export default class BaseMCWSPersistenceProvider {
      * @param {NamespaceDefinition} namespaceDefinition
      * @returns {Promise.<NamespaceDefinition>|Promise.<undefined>}
      */
-    async createIfMissing(namespaceDefinition, userId) {
+    async createIfMissing(namespaceDefinition, userId, userName) {
         const namespace = mcws.namespace(namespaceDefinition.url);
 
         try {
