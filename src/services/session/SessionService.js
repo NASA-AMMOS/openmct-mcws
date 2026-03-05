@@ -243,13 +243,49 @@ class SessionService {
      *
      * @returns {Promise.<Topic[]>}
      */
-    async getTopicsWithSessions() {
+    async getTopicsWithSessions(resolveCachedDatasets = false) {
         if (this.realtimeSessionConfig.disable) {
             return Promise.resolve([]);
         }
+        let datasets = [];
+        // Need to wait for MIOs to load for the cached datasets to return.
+        const cachedDatasets = new Promise((resolve) => {
+        // Check once a second
+        const pollInterval = 1000;
+        let currentLength = 0;
+        let maxIterations = 15;
+        let currentIteration = 0;
+        const checkDatasets = () => {
+            const result = Object.values(this.getDatasets());
+            if (result.length > 0) {
+                // Success - we have data
+                if (currentLength !=0 ) {
+                    if (result.length == currentLength){
+                        resolve(result);
+                    }
+                } else {
+                    currentLength = result.length;
+                    setTimeout(checkDatasets, pollInterval);
 
-        const datasets = Object.values(this.getDatasets());
-        const validUrls = datasets.map(dataset => dataset.options.sessionLADUrl).filter(url => url);
+                }
+                
+            } else {
+                // Check if we've hit our 15 seconds give up interval
+                if (currentIteration > maxIterations) {
+                    resolve([]);
+                }
+                currentIteration++;
+                setTimeout(checkDatasets, pollInterval);
+            }
+        };
+        checkDatasets(); // Start polling
+        });
+        if (resolveCachedDatasets) {
+            datasets = await cachedDatasets;
+        } else {
+            datasets = Object.values(this.getDatasets());
+        }
+        const validUrls = datasets.map(datasets => datasets.options.sessionLADUrl).filter(url => url);
         const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
             return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
         }, []);
