@@ -39,7 +39,7 @@
     "karma-jasmine": "5.1.0",
     "karma-sourcemap-loader": "0.4.0",
     "karma-webpack": "5.0.1",
-    "lodash": "4.17.21",
+    "lodash": "4.17.23",
     "marked": "12.0.0",
     "mini-css-extract-plugin": "2.7.6",
     "moment": "2.30.1",
