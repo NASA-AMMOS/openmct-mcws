@@ -1,9 +1,93 @@
-# Open MCT for MCWS Plugin
-Open Mission Control Technologies for Mission Control Web Services Plugin (Open MCT for MCWS) is used with Open MCT, a next-generation web-based mission control framework for visualization of data on desktop and mobile devices. Open MCT for MCWS Plugin is built for the [Open MCT Framework](https://github.com/nasa/openmct), and includes adapter code for using MCWS as a telemetry and persistence provider. Open MCT is developed at NASA Ames Research Center in Silicon Valley, in collaboration with NASA AMMOS and the Jet Propulsion Laboratory, California Institute of Technology (under its contract with NASA, 80NM0018D0004).
+# MCWS Plugin for Open MCT
+MCWS Plugin for Open MCT is a package that allows Open MCT to use MCWS (Mission Control Web Services) as a telemetry and persistence provider.
 
-## Configuration
-Various configurations and customizations are available by editing `recipes/default.yaml`.
-Development configurations and customizations are available by editing `recipes/development.yaml`.
+Open Mission Control Technologies, or [Open MCT](https://github.com/nasa/openmct), is a next-generation web-based mission control and situational awareness framework, for visualization of data on desktop and mobile devices. Open MCT is developed at NASA Ames Research Center in Silicon Valley, in collaboration with NASA AMMOS and the Jet Propulsion Laboratory, California Institute of Technology (under its contract with NASA, 80NM0018D0004).
+
+# Installation
+
+## Installing Open MCT with the Build Tool
+Follow instructions to install the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) (requires access request). The MCWS Plugin is then included and customized in build tool configuration.
+
+### Installing MCWS Plugin via Build Tool command line
+1. Add the plugin
+Example:
+```bash
+mct plugins add openmct-mcws-plugin --options '{"mcwsUrl": "<mcws_url>", "namespaces": [{"key": "shared", "name": "Shared", "url": "<persistence_url>"}, {"key": "shared", "name": "Shared", "url": "<persistence_url>"}]}'
+```
+
+2. Configure Open MCT
+Example:
+```bash
+mct plugins configure openmct.plugins.DisplayLayout --options '{"showAsView": ["summary-widget", "vista.packetSummaryEvents", "vista.dataProducts", "vista.packets", "vista.frameSummary", "vista.frameWatch"]}'
+mct plugins configure openmct.plugins.Filters --options '["vista.alarmsView", "vista.chanTableGroup", "vista.commandEventsView", "vista.messagesView", "vista.evrView"]'
+```
+
+3. Build Open MCT
+Example:
+```bash
+mct build
+```
+
+### Installing MCWS Plugin via Build Tool recipe
+1. Specify a pre-configured recipe to build
+Example:
+```bash
+mct build openmct-mcws.yaml
+```
+
+Example `openmct-mcws.yaml`:
+```yaml
+# yaml-language-server: $schema=../../src/assets/openmct-configuration-schema.json
+# Builds Open MCT for MCWS without dev plugins enabled. Requires an MCWS server to connect to.
+openmct:
+  version: latest 
+  plugins:
+  - openmct.plugins.Snow # Theme: 'Snow', 'Espresso' or 'Maelstrom'
+  - openmct.plugins.ObjectMigration
+  - openmct.plugins.ClearData:
+      options:
+        - ['table', 'telemetry.plot.overlay', 'telemetry.plot.stacked', 'vista.packetSummaryEvents', 'vista.dataProducts', 'vista.packets', 'vista.frameSummary', 'vista.frameWatch', 'vista.chanTableGroup']
+        - indicator: false
+  - openmct.plugins.DisplayLayout:
+      options:
+        showAsView:
+          - summary-widget
+          - vista.packetSummaryEvents
+          - vista.dataProducts
+          - vista.packets
+          - vista.frameSummary
+          - vista.frameWatch
+  - openmct.plugins.Filters:
+      options:
+        - - vista.alarmsView
+          - telemetry.plot.overlay
+          - table
+          - vista.chanTableGroup
+          - vista.commandEventsView
+          - vista.messagesView
+          - vista.evrView
+  - openmct.plugins.UTCTimeSystem
+  - openmct.plugins.Notebook
+  - openmct.plugins.Clock:
+      options:
+        useClockIndicator: false
+  - openmct.plugins.DefaultRootName:
+      options: ['VISTA']
+  - openmct-mcws-plugin:
+      npmPackage: openmct-mcws-plugin
+      options:
+        useDeveloperStorage: false
+        camUrl: ''
+        mcwsUrl: ''
+        namespaces:
+          - key: 'r50-dev'
+            name: 'R5.0 Shared'
+            url: ''
+          - userNamespace: true
+            key: 'r50-dev'
+            name: 'R5.0 Users'
+            url: ''
+```
 
 ### AMMOS configurations
 1. `camUrl`: The url to the CAM server, if CAM is to be used for authentication.
@@ -12,88 +96,24 @@ Development configurations and customizations are available by editing `recipes/
 
 Further configuration documentation can be found in the `CONFIGURATION.md`.
 
-## Development
+## Installing Open MCT for MCWS (Legacy)
+_To build Open MCT for MCWS, the legacy product that combines Open MCT and the MCWS Plugin, see the [legacy branch](https://github.com/NASA-AMMOS/openmct-mcws/tree/legacy)._
 
-### Prerequisite
-You will need to install the [Open MCT Configurator](https://github.com/akhenry/openmct-configurator)
+## Connecting to MCWS
 
-### 1. Install Open MCT for MCWS
-In a terminal, run this command to install Open MCT for MCWS and its dependencies. This may take a few minutes.
+### Installing MCWS
+MCWS is a closed source product in the [Advanced Multi-Mission Operations System (AMMOS)](https://ammos.nasa.gov/) catalog. Contact someone at [AMMOS](https://ammos.nasa.gov/contact/) for instructions how to install MCWS.
 
-    npm install
+[MCWS](https://github.com/NASA-AMMOS/MCWS) is the open source repository for MCWS. MCWS will become open source once all closed source dependencies are purged or made to be open source as well.
 
-If you've installed Open MCT for MCWS locally before, first run this command.
+### Running a mock MCWS server
+[Mock MCWS server](https://github.com/davetsay/mcws-test-server) (requires access request)
 
-    npm run clean
+## Tomcat Web Application Deployments
+For [Tomcat Web Application Deployments](https://tomcat.apache.org/tomcat-9.0-doc/deployer-howto.html), [Maven](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html) can be used to generate a `.war` file.
 
-### 2. Modify development.yaml
-If necessary, make any modifications to `development.yaml`, such as adding Open MCT core plugins or modifying settings for the Openmct for MCWS Plugin
+# Contacts
+Jamie Vigliotta (jamie.j.vigliotta@nasa.gov)
+David Tsay (david.e.tsay@nasa.gov)
 
-### 3. Build Open MCT with the Open MCT for MCWS Plugin locally using Open MCT Configurator
-
-    npm run build:prod 
-    mct build --recipe recipes/development.yaml --instance development
-    npm run serve
-
-With that running, browse to http://localhost:8080/ to access Open MCT with the Open MCT for MCWS Plugin
-
-## Development MCWS server
-To connect Open MCT to MCWS, either run a local mock server, run MCWS locally, or connect to a remote instance of MCWS.
-
-## Running a mock MCWS server
-An example mock mcws server - https://github.com/davetsay/mcws-test-server
-*requires request access
-
-## Running MCWS locally
-Refer to MCWS documentation.
-
-## Running a development server
-Running a development server requires that you are on the JPL network so that
-you can access a development MCWS server. You'll need to retrieve an authentication cookie 
-and make a small modification to your Open MCT for MCWS configuration; here's how.
-
-### 1. Get your CAM cookie
-To get past CAM, you will need to export an environment variable, 
-`COOKIE`, that contains your CAM authentication cookie. Instructions for 
-retrieving this cookie are at the bottom of the README. If you've copied
-your CAM cookie into the clipboard, use this command to set the variable:
-
-    export COOKIE=`pbpaste`
-
-## Tests
-
-Tests are written for [Jasmine 4.4](https://jasmine.github.io/api/npm/4.4/Jasmine)
-and run by [Karma](http://karma-runner.github.io). 
-
-Test files end with `Spec.js`, and will be automatically executed when running the following command:
-
-    npm test
-
-Running the tests creates a code coverage report in `target/coverage`.
-
-## Building for production
-
-    npm install
-    npm run build:prod 
-    mct build --recipe recipes/default.yaml --instance default
-
-TODO: UPDATE THIS sentence, possibly with compressing the necessary files into a war.
-This will create a deployable artifact, `openmct_client.war` in the `target` 
-directory.
-
-## Notes
-
-### Getting your CAM cookie
-
-Go to the MCWS server location and log in to CAM.  Then retrieve 
-the cookie from your browser.
-
-Unsure how to get cookies from the browser? Here's a shortcut: create a 
-bookmarklet with the following code:
-
-    javascript:(function () {prompt('Your cookies for ' + location.host, document.cookie);})();
-
-Pressing this bookmarklet will show you your cookies for the current host, 
-which you can then copy into your clipboard to use to set the cookie environment 
-variable. Note that logging out of CAM or getting a new session will require you
-to get the cookie again.
+Or join us on [Slack](https://jpl.slack.com/app_redirect?channel=openmct)
