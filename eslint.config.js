@@ -1,14 +1,14 @@
-const globals = require('globals');
-const js = require('@eslint/js');
-const vue = require('eslint-plugin-vue');
-const vueParser = require('vue-eslint-parser');
-const babelParser = require('@babel/eslint-parser');
+import globals from 'globals';
+import js from '@eslint/js';
+import vue from 'eslint-plugin-vue';
+import vueParser from 'vue-eslint-parser';
+import babelParser from '@babel/eslint-parser';
 // eslint-plugin-prettier/recommended must be last in configuration
 // so that eslint-config-prettier has the opportunity to override other configs
-const prettierRecommended = require('eslint-plugin-prettier/recommended');
+import prettierRecommended from 'eslint-plugin-prettier/recommended';
 
 /** @type {import('eslint').Linter.Config[]} */
-module.exports = [
+export default [
   {
     ignores: ['**/dist/*', '**/target/*']
   },
