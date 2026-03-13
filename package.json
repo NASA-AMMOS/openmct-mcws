@@ -61,7 +61,7 @@
     "webpack-merge": "5.10.0"
   },
   "peerDependencies": {
-    "openmct": "nasa/openmct#dynamic-roots"
+    "openmct": "^4.0.0"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
