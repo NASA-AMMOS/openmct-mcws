@@ -68,7 +68,7 @@ export default {
     this.stopListening?.();
   },
   methods: {
-    pollForSessions(resolveCachedDatasets = false ) {
+    pollForSessions(resolveCachedDatasets = false) {
       if (!this.activeSession) {
         this.sessionService.getTopicsWithSessions(resolveCachedDatasets).then((topics) => {
           this.hasTopics = topics.length > 0;
