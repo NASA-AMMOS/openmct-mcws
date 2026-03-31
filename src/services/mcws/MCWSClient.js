@@ -60,6 +60,9 @@ class MCWSClient {
       delete options.params;
     }
 
+    // Keepalive
+    options.keepalive = true;
+
     try {
       response = await fetch(url, options);
     } catch (error) {
