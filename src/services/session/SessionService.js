@@ -259,25 +259,34 @@ class SessionService {
 
       const checkDatasets = () => {
         const result = Object.values(this.getDatasets());
-        if (result.length > 0) {
-          // Success - we have data
-          if (currentLength != 0) {
-            if (result.length == currentLength) {
-              resolve(result);
-            }
-          } else {
-            currentLength = result.length;
-            setTimeout(checkDatasets, pollInterval);
-          }
-        } else {
-          // Check if we've hit our 15 seconds give up interval
+
+        // no datasets
+        if (result.length === 0) {
+          // maxed out iterations, give up and resolve with empty array
           if (currentIteration > maxIterations) {
             resolve([]);
+
+            return;
           }
+
           currentIteration++;
           setTimeout(checkDatasets, pollInterval);
+        } else { // we have datasets
+          // first time we have datasets
+          if (currentLength === 0) {
+            currentLength = result.length;
+            setTimeout(checkDatasets, pollInterval);
+          } else { // we've already seen some datasets, check for stability
+            if (result.length === currentLength) { // we have stability, resolve
+              resolve(result);
+            } else { // datasets still loading, wait for stability
+              currentLength = result.length;
+              setTimeout(checkDatasets, pollInterval);
+            } 
+          }
         }
       };
+
       checkDatasets(); // Start polling
     });
 
@@ -288,8 +297,8 @@ class SessionService {
     }
 
     const validUrls = datasets
-      .map((datasets) => datasets.options.sessionLADUrl)
-      .filter((url) => url);
+      .map((dataset) => dataset.options.sessionLADUrl)
+      .filter(Boolean);
     const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
       return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
     }, []);
