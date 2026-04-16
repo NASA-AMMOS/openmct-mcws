@@ -31,7 +31,7 @@ class MCWSEVRLevelStreamProvider extends MCWSStreamProvider {
    * @returns {String} The key
    */
   getKey(domainObject) {
-    return domainObject.telemetry.level;
+    return domainObject.telemetry.level.toUpperCase();
   }
 }
 
