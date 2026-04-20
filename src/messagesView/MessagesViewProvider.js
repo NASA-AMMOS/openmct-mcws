@@ -1,6 +1,6 @@
 import MessagesTable from './MessagesTable.js';
 import TableComponent from 'openmct.tables.components.Table';
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 
 export default class MessagesViewProvider {
   constructor(openmct, options) {

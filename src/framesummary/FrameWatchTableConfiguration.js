@@ -1,6 +1,6 @@
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
-import { config } from './config';
-import FrameWatchColumn from './FrameWatchColumn';
+import { config } from './config.js';
+import FrameWatchColumn from './FrameWatchColumn.js';
 
 export default class FrameWatchTableConfiguration extends TelemetryTableConfiguration {
   constructor(domainObject, openmct, options, type) {

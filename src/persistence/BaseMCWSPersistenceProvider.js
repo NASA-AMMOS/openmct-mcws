@@ -1,5 +1,5 @@
-import mcws from '../services/mcws/mcws';
-import { createModelFromNamespaceDefinitionWithPersisted, interpolateUsername } from './utils';
+import mcws from '../services/mcws/mcws.js';
+import { createModelFromNamespaceDefinitionWithPersisted, interpolateUsername } from './utils.js';
 
 const USERNAME_FROM_PATH_REGEX = new RegExp('.*/(.*?)$');
 
@@ -40,9 +40,11 @@ const USERNAME_FROM_PATH_REGEX = new RegExp('.*/(.*?)$');
  */
 
 export default class BaseMCWSPersistenceProvider {
-  constructor(openmct, roots) {
+  constructor(openmct, roots, allowedNamespaceKeys, invalidNamespaceKeys) {
     this.openmct = openmct;
     this.roots = roots;
+    this.allowedNamespaceKeys = allowedNamespaceKeys;
+    this.invalidNamespaceKeys = invalidNamespaceKeys;
   }
 
   // Abstract method for get, to be implemented by subclasses

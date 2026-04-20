@@ -1,5 +1,5 @@
-import FrameAccountabilityViewProvider from './frameAccountabilityViewProvider';
-import FrameAccountabilityCompositionPolicy from './frameAccountabilityCompositionPolicy';
+import FrameAccountabilityViewProvider from './frameAccountabilityViewProvider.js';
+import FrameAccountabilityCompositionPolicy from './frameAccountabilityCompositionPolicy.js';
 
 export default function install(options) {
   return function FrameAccountabilityPlugin(openmct) {

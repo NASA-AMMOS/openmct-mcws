@@ -1,5 +1,5 @@
-import DatasetCache from 'services/dataset/DatasetCache';
-import { MULTIPLE_DATASET_WARNING } from './constants';
+import DatasetCache from 'services/dataset/DatasetCache.js';
+import { MULTIPLE_DATASET_WARNING } from './constants.js';
 
 export default function warnMultipleDatasetsOnImportModifier(openmct) {
   const importAsJSONAction = openmct.actions._allActions['import.JSON'];

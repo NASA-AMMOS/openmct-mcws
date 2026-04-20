@@ -1,4 +1,4 @@
-import { MULTIPLE_DATASET_WARNING } from './constants';
+import { MULTIPLE_DATASET_WARNING } from './constants.js';
 
 export default function warnMultipleDatasetsOnDuplicateModifier(openmct) {
   const duplicateAction = openmct.actions._allActions['duplicate'];

@@ -1,5 +1,5 @@
 import UrlField from './UrlField.vue';
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 
 export default function UrlFieldFormController(openmct) {
   let _destroy = null;

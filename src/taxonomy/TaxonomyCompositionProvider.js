@@ -1,23 +1,25 @@
-define(['../types/types'], function (types) {
-  function TaxonomyCompositionProvider(datasetCache) {
+import types from '../types/types.js';
+
+class TaxonomyCompositionProvider {
+  constructor(datasetCache) {
     this.datasetCache = datasetCache;
   }
 
-  TaxonomyCompositionProvider.prototype.appliesTo = function (domainObject) {
+  appliesTo(domainObject) {
     return (
       domainObject.identifier.namespace === 'vista' &&
       types.hasTypeForKey(domainObject.type) &&
       types.typeForKey(domainObject.type).hasComposition(domainObject)
     );
-  };
+  }
 
-  TaxonomyCompositionProvider.prototype.load = function (domainObject) {
-    var matchingType = types.typeForKey(domainObject.type);
-    var data = matchingType.data(domainObject.identifier);
-    return this.datasetCache.get(data.datasetIdentifier).then(function (dataset) {
+  load(domainObject) {
+    const matchingType = types.typeForKey(domainObject.type);
+    const data = matchingType.data(domainObject.identifier);
+    return this.datasetCache.get(data.datasetIdentifier).then((dataset) => {
       return matchingType.getComposition(domainObject, dataset, data, types);
     });
-  };
+  }
+}
 
-  return TaxonomyCompositionProvider;
-});
+export default TaxonomyCompositionProvider;

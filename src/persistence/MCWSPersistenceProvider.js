@@ -1,7 +1,20 @@
-import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider';
-import mcws from '../services/mcws/mcws';
+import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider.js';
+import mcws from '../services/mcws/mcws.js';
 
 export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider {
+  /**
+   * Check if the identifier is a valid persistence namespace
+   *
+   * @param {module:openmct.ObjectAPI~Identifier} identifier An object identifier
+   * @returns {boolean} true if the identifier is a valid persistence namespace
+   */
+  appliesTo(identifier) {
+    return (
+      !this.invalidNamespaceKeys.includes(identifier.namespace) &&
+      this.allowedNamespaceKeys.some((key) => identifier.namespace.startsWith(key))
+    );
+  }
+
   /**
    * Read an existing object back from persistence.
    * @param module:openmct.ObjectAPI~Identifier identifier An object identifier

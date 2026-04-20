@@ -6,7 +6,7 @@ export default class ChannelTableRowCollection extends TableRowCollection {
 
     this.openmct = openmct;
     this.ladMap = new Map();
-    this.timeColumn = openmct.time.timeSystem().key;
+    this.timeColumn = openmct.time.getTimeSystem().key;
     this.addOrUpdateRow = this.addOrUpdateRow.bind(this);
   }
 

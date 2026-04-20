@@ -1,4 +1,4 @@
-import VISTAType from './VISTAType';
+import VISTAType from './VISTAType.js';
 
 export default new VISTAType({
   key: 'vista.headerChannelSource',

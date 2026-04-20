@@ -1,7 +1,7 @@
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 import HistoricalSessionIndicator from './indicator/historicalSessionIndicator.vue';
-import SessionTable from './sessionTable/SessionTable';
-import HistoricalSessionMetadata from './HistoricalSessionMetadata';
+import SessionTable from './sessionTable/SessionTable.js';
+import HistoricalSessionMetadata from './HistoricalSessionMetadata.js';
 
 export default function HistoricalSessionsPlugin(options) {
   return function install(openmct) {

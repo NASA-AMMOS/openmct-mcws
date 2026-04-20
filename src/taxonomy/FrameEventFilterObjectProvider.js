@@ -1,20 +1,22 @@
-define(['../constants', '../types/types'], function (constants, types) {
-  function FrameEventFilterObjectProvider(cache) {
+import constants from '../constants.js';
+import types from '../types/types.js';
+
+class FrameEventFilterObjectProvider {
+  constructor(cache) {
     this.cache = cache;
   }
 
-  FrameEventFilterObjectProvider.prototype.get = function (identifier) {
-    var frameEventTypeDatasetTokens = identifier.key.split(':', 3);
-    var frameEventType = frameEventTypeDatasetTokens[0];
-    var datasetId = frameEventTypeDatasetTokens[2];
-    var datasetIdentifier;
+  get(identifier) {
+    const frameEventTypeDatasetTokens = identifier.key.split(':', 3);
+    const frameEventType = frameEventTypeDatasetTokens[0];
+    const datasetId = frameEventTypeDatasetTokens[2];
 
-    datasetIdentifier = {
+    const datasetIdentifier = {
       key: datasetId,
       namespace: frameEventTypeDatasetTokens[1]
     };
 
-    return this.cache.get(datasetIdentifier).then(function (dataset) {
+    return this.cache.get(datasetIdentifier).then((dataset) => {
       return {
         type: 'vista.frame-event-filter',
         identifier: identifier,
@@ -57,7 +59,7 @@ define(['../constants', '../types/types'], function (constants, types) {
         name: constants.FRAME_EVENT_TYPES[frameEventType]
       };
     });
-  };
+  }
+}
 
-  return FrameEventFilterObjectProvider;
-});
+export default FrameEventFilterObjectProvider;

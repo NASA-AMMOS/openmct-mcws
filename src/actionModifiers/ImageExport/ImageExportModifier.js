@@ -1,5 +1,5 @@
-import SessionService from 'services/session/SessionService';
-import { formatNumberSequence } from 'ommUtils/strings';
+import SessionService from 'services/session/SessionService.js';
+import { formatNumberSequence } from 'ommUtils/strings.js';
 
 function imageExportModifier(openmct) {
   const PNGImageExportAction = openmct.actions._allActions['export-as-png'];

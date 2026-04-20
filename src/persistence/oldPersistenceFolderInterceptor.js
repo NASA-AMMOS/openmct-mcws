@@ -1,4 +1,4 @@
-import { createModelFromNamespaceDefinition, interpolateUsername } from './utils';
+import { createModelFromNamespaceDefinition, interpolateUsername } from './utils.js';
 
 function isUserNamespace(namespace, userKeyRegex, identifier) {
   return namespace && userKeyRegex.test(identifier.namespace);

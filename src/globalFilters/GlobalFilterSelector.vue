@@ -94,7 +94,7 @@ export default {
       this.overlay = this.openmct.overlays.overlay({
         element: this.$el,
         size: 'fit',
-        dismissable: true,
+        dismissible: true,
         onDestroy: () => {
           this.$emit('close-filter-selector');
         }

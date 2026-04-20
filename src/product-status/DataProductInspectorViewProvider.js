@@ -1,4 +1,4 @@
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 import DataProductAutoclear from './data-product-autoclear.vue';
 

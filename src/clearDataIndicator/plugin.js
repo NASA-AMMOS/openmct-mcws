@@ -1,4 +1,4 @@
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 import ClearDataIndicator from './ClearDataIndicator.vue';
 
 export default function plugin(globalStalenessMs) {

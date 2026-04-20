@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import mcws from 'services/mcws/mcws';
+import mcws from 'services/mcws/mcws.js';
 
 const MCWS_PERSISTENCE_CHECK_NAMESPACE = '';
 const MCWS_PERSISTENCE_CHECK_INTERVAL = 15000;

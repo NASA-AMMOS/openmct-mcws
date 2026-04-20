@@ -378,10 +378,13 @@
       /**
        * Enable/disable summary widgets.  Added in R3.4.0.
        */
-      summaryWidgets: {
-        enabled: true
+      SummaryWidget: {
+        enabled: false
       },
       BarChart: {
+        enabled: false
+      },
+      CorrelationTelemetry: {
         enabled: false
       },
       ScatterPlot: {
@@ -607,7 +610,8 @@
      */
     // proxyUrl: 'http://localhost:8080/',
     // useDeveloperStorage: true,
-    assetPath: 'node_modules/openmct/dist'
+    assetPath: 'node_modules/openmct/dist',
+    mcwsPluginAssetPath: 'dist'
   };
 
   window.openmctMCWSConfig = openmctMCWSConfig;

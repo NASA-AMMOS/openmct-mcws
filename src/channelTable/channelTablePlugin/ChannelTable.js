@@ -1,9 +1,9 @@
-import ChannelTableRowCollection from './ChannelTableRowCollection';
-import ChannelTableRow from './ChannelTableRow';
+import ChannelTableRowCollection from './ChannelTableRowCollection.js';
+import ChannelTableRow from './ChannelTableRow.js';
 import TelemetryTable from 'openmct.tables.TelemetryTable';
 import TelemetryTableColumn from 'openmct.tables.TelemetryTableColumn';
-import EmptyChannelTableRow from './EmptyChannelTableRow';
-import ObjectNameColumn from './ObjectNameColumn';
+import EmptyChannelTableRow from './EmptyChannelTableRow.js';
+import ObjectNameColumn from './ObjectNameColumn.js';
 
 export default class ChannelTable extends TelemetryTable {
   constructor(domainObject, openmct, options) {

@@ -1,7 +1,7 @@
-import runMCWSStreamWorker from './MCWSStreamWorker';
-import sessionService from 'services/session/SessionService';
-import filterService from 'services/filtering/FilterService';
-import GlobalStaleness from 'services/globalStaleness/globalStaleness';
+import runMCWSStreamWorker from './MCWSStreamWorker.js';
+import sessionService from 'services/session/SessionService.js';
+import filterService from 'services/filtering/FilterService.js';
+import GlobalStaleness from 'services/globalStaleness/globalStaleness.js';
 
 /**
  * Provides real-time streaming telemetry for channels/EVRs with an

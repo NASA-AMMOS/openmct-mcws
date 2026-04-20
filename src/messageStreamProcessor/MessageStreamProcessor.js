@@ -1,5 +1,5 @@
-import ChannelType from '../types/ChannelType';
-import DatasetCache from 'services/dataset/DatasetCache';
+import ChannelType from '../types/ChannelType.js';
+import DatasetCache from 'services/dataset/DatasetCache.js';
 
 /**
  * MessageStreamProcessor accepts a url and supportedMessages to subscribe to a message stream and listen for

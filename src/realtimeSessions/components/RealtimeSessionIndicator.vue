@@ -36,7 +36,7 @@
 
 <script>
 import RealtimeSessionSelector from './RealtimeSessionSelector.vue';
-import SessionService from 'services/session/SessionService';
+import SessionService from 'services/session/SessionService.js';
 
 export default {
   components: {

@@ -1,4 +1,4 @@
-import VenueService from './VenueService';
+import VenueService from './VenueService.js';
 
 export default function VISTAVenuePlugin(options) {
   if (!options.venueAware) {

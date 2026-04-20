@@ -72,7 +72,7 @@
 
 <script>
 import TelemetryTable from 'openmct.tables.components.Table';
-import SessionService from 'services/session/SessionService';
+import SessionService from 'services/session/SessionService.js';
 import { nextTick } from 'vue';
 
 export default {
@@ -210,7 +210,7 @@ export default {
       this.overlay = this.openmct.overlays.overlay({
         element: this.$el,
         size: 'large',
-        dismissable: true,
+        dismissible: true,
         onDestroy: () => {
           this.$emit('close-session-selector');
         }

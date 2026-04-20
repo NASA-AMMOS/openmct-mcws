@@ -1,5 +1,5 @@
-import mcws from 'services/mcws/mcws';
-import createMCWSUser from './createMCWSUser';
+import mcws from 'services/mcws/mcws.js';
+import createMCWSUser from './createMCWSUser.js';
 
 export default class UserProvider {
   constructor(openmct) {

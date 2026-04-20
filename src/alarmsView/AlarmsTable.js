@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import TelemetryTable from 'openmct.tables.TelemetryTable';
-import AlarmsViewRowCollection from './AlarmsViewRowCollection';
-import AlarmsViewHistoricalContextTableRow from './AlarmsViewHistoricalContextTableRow';
+import AlarmsViewRowCollection from './AlarmsViewRowCollection.js';
+import AlarmsViewHistoricalContextTableRow from './AlarmsViewHistoricalContextTableRow.js';
 
 export default class AlarmsTable extends TelemetryTable {
   initialize() {
@@ -55,7 +55,7 @@ export default class AlarmsTable extends TelemetryTable {
 
     //If no persisted sort order, default to sorting by time system, ascending.
     sortOptions = sortOptions || {
-      key: this.openmct.time.timeSystem().key,
+      key: this.openmct.time.getTimeSystem().key,
       direction: 'asc'
     };
 

@@ -3,7 +3,7 @@ import {
   CHANNEL_TABLE_SET_NAME,
   CHANNEL_TABLE_SET_VIEW_KEY,
   CHANNEL_TABLE_SET_KEY
-} from '../constants';
+} from '../constants.js';
 import ChannelTableSetView from './ChannelTableSetView.js';
 
 export default class ChannelTableSetViewProvider {

@@ -1,6 +1,6 @@
-import MCWSPersistenceProvider from '../MCWSPersistenceProvider';
-import MCWSUserContainerProvider from '../MCWSUserContainerProvider';
-import mcws from 'services/mcws/mcws';
+import MCWSPersistenceProvider from '../MCWSPersistenceProvider.js';
+import MCWSUserContainerProvider from '../MCWSUserContainerProvider.js';
+import mcws from 'services/mcws/mcws.js';
 
 describe('MCWSNamespaceService', () => {
   let namespaceMIOs;

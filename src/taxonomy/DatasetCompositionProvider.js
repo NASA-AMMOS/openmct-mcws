@@ -1,19 +1,21 @@
-define(['../types/types', '../constants', 'lodash'], function (types, constants, _) {
-  /**
-   * Composition provider for datasets.  Checks the defined properties of the
-   * dataset and returns a list of options depending on what it has.
-   */
-  function DatasetCompositionProvider(datasetCache) {
+import types from '../types/types.js';
+
+/**
+ * Composition provider for datasets.  Checks the defined properties of the
+ * dataset and returns a list of options depending on what it has.
+ */
+class DatasetCompositionProvider {
+  constructor(datasetCache) {
     this.datasetCache = datasetCache;
   }
 
-  DatasetCompositionProvider.prototype.appliesTo = function (domainObject) {
+  appliesTo(domainObject) {
     return domainObject.type === types.Dataset.key;
-  };
+  }
 
-  DatasetCompositionProvider.prototype.load = function (domainObject) {
-    return this.datasetCache.get(domainObject).then(function (dataset) {
-      var nodes = [];
+  load(domainObject) {
+    return this.datasetCache.get(domainObject).then((dataset) => {
+      const nodes = [];
       if (dataset.channels) {
         nodes.push(types.ChannelSource.makeIdentifier(domainObject.identifier));
         nodes.push({
@@ -58,7 +60,7 @@ define(['../types/types', '../constants', 'lodash'], function (types, constants,
       }
       return nodes;
     });
-  };
+  }
+}
 
-  return DatasetCompositionProvider;
-});
+export default DatasetCompositionProvider;

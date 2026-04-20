@@ -1,5 +1,5 @@
-import Dataset from './Dataset';
-import mcwsClient from 'services/mcws/MCWSClient';
+import Dataset from './Dataset.js';
+import mcwsClient from 'services/mcws/MCWSClient.js';
 
 /**
  * Provide a single place for fetching datasets so that there aren't

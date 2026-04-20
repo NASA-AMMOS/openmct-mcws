@@ -1,4 +1,4 @@
-import DictionaryViewProvider from './dictionaryViewProvider';
+import DictionaryViewProvider from './dictionaryViewProvider.js';
 
 export default function plugin(options) {
   return function install(openmct) {

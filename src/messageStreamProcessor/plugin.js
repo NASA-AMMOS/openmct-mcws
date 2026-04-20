@@ -1,15 +1,15 @@
-define(['./MessageStreamProcessor'], function (MessageStreamProcessor) {
-  return function install(url, supportedMessagesObject) {
-    return function plugin(openmct) {
-      openmct.on('start', () => {
-        let messageStreamProcessor = new MessageStreamProcessor.default(
-          url,
-          supportedMessagesObject,
-          openmct
-        );
+import MessageStreamProcessor from './MessageStreamProcessor.js';
 
-        messageStreamProcessor.subscribe();
-      });
-    };
+export default function install(url, supportedMessagesObject) {
+  return function plugin(openmct) {
+    openmct.on('start', () => {
+      const messageStreamProcessor = new MessageStreamProcessor(
+        url,
+        supportedMessagesObject,
+        openmct
+      );
+
+      messageStreamProcessor.subscribe();
+    });
   };
-});
+}

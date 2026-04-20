@@ -1,6 +1,6 @@
-import EVRViewProvider from './EVRViewProvider';
-import EVRViewLevelsConfigurationViewProvider from './EVRViewLevelsConfigurationViewProvider';
-import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider';
+import EVRViewProvider from './EVRViewProvider.js';
+import EVRViewLevelsConfigurationViewProvider from './EVRViewLevelsConfigurationViewProvider.js';
+import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 
 export default function EVRViewPlugin(options) {
   const { taxonomy, tablePerformanceOptions } = options;

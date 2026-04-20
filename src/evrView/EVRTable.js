@@ -1,5 +1,5 @@
 import TelemetryTable from 'openmct.tables.TelemetryTable';
-import EVRLevelIndicatorTableRow from './EVRLevelIndicatorTableRow';
+import EVRLevelIndicatorTableRow from './EVRLevelIndicatorTableRow.js';
 
 export default class EVRTable extends TelemetryTable {
   initialize() {

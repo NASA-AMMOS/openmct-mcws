@@ -1,6 +1,6 @@
-import FolderGridViewProvider from './FolderGridViewProvider';
-import FolderListViewProvider from './FolderListViewProvider';
-import BlankViewProvider from './BlankViewProvider';
+import FolderGridViewProvider from './FolderGridViewProvider.js';
+import FolderListViewProvider from './FolderListViewProvider.js';
+import BlankViewProvider from './BlankViewProvider.js';
 
 const FOLDER_CONTAINER_TYPES = ['vista.dictionarySource'];
 

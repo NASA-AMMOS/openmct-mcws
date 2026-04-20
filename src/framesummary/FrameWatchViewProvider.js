@@ -1,7 +1,7 @@
-import mount from 'ommUtils/mountVueComponent';
-import FrameWatchTable from './FrameWatchTable';
+import mount from 'ommUtils/mountVueComponent.js';
+import FrameWatchTable from './FrameWatchTable.js';
 import FrameWatchViewComponent from './components/FrameWatchViewComponent.vue';
-import { FRAME_WATCH_TYPE } from './config';
+import { FRAME_WATCH_TYPE } from './config.js';
 
 export default class FrameWatchViewProvider {
   constructor(openmct, key, name, options, type = FRAME_WATCH_TYPE) {
