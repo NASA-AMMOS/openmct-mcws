@@ -47,7 +47,7 @@ export default async function oldPersistenceFolderInterceptor(
       ) {
         userId = identifier.namespace.match(userKeyRegex)[1];
 
-        namespaceDefinition = interpolateUsername(usersNamespace.childTemplate, userId);
+        namespaceDefinition = interpolateUsername(userId, userId, usersNamespace.childTemplate);
         namespaceDefinition.location = usersNamespace.id;
       } else {
         namespaceDefinition = findNamespaceDefinition(namespaces, identifier) || { key: 'default' };
