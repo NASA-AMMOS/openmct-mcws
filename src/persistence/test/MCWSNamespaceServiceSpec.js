@@ -99,10 +99,10 @@ describe('MCWSNamespaceService', () => {
       url: '/some/personal/namespace',
       containsNamespaces: true,
       childTemplate: {
-        id: 'personal-${USER}:root',
-        key: 'personal-${USER}',
-        name: '${USER}',
-        url: '/some/personal/namespace/${USER}'
+        id: 'personal-${USERID}:root',
+        key: 'personal-${USERID}',
+        name: '${USERNAME}',
+        url: '/some/personal/namespace/${USERID}'
       }
     };
     inaccessibleContainerRootDefinition = {
@@ -112,10 +112,10 @@ describe('MCWSNamespaceService', () => {
       url: '/inaccessible/personal/namespace',
       containsNamespaces: true,
       childTemplate: {
-        id: 'inaccessible-personal-${USER}:root',
-        key: 'inaccessible-personal-${USER}',
-        name: '${USER}',
-        url: '/inaccessible/personal/namespace/${USER}'
+        id: 'inaccessible-personal-${USERID}:root',
+        key: 'inaccessible-personal-${USERID}',
+        name: '${USERNAME}',
+        url: '/inaccessible/personal/namespace/${USERID}'
       }
     };
     missingContainerRootDefinition = {
@@ -125,10 +125,10 @@ describe('MCWSNamespaceService', () => {
       url: '/missing/personal/namespace',
       containsNamespaces: true,
       childTemplate: {
-        id: 'missing-personal-${USER}:root',
-        key: 'missing-personal-${USER}',
-        name: '${USER}',
-        url: '/missing/personal/namespace/${USER}'
+        id: 'missing-personal-${USERID}:root',
+        key: 'missing-personal-${USERID}',
+        name: '${USERNAME}',
+        url: '/missing/personal/namespace/${USERID}'
       }
     };
 
