@@ -33,25 +33,26 @@ class MCWSEVRStreamProvider extends MCWSStreamProvider {
     getKey(domainObject) {
         // Can subscribe only by EVR module even if subscribing by EVR
         // This is the default cause for EVRs that contain a module.
-        let module = domainObject.telemetry
-            && domainObject.telemetry.definition
-            && domainObject.telemetry.definition.module
-            && domainObject.telemetry.definition.module.toUpperCase();
+        // only uppercase works for all mcws apis (lowercase will not work)
+        // see https://github.com/NASA-AMMOS/openmct-mcws/pull/412/changes
+        let module = domainObject?.telemetry?.definition?.module?.toUpperCase();
 
-        // This is the top-level vista.evrModule object, which contains 
-        // A module definition but not in the definition object.  
-        // This must be captured before an attempt at legacy EVRs is made
-        // in case the module has underscores in it. 
-        if (!module || module.length <= 0) {
-            module = domainObject.telemetry
-                && domainObject.telemetry.module
-                && domainObject.telemetry.module.toUpperCase();
+        // This is the top-level vista.evrModule object, which contains
+        // a module definition but not in the definition object.
+        // This must be captured before attempting legacy EVRs,
+        // in case the module contains underscores.
+        // only uppercase works for all mcws apis (lowercase will not work)
+        // see https://github.com/NASA-AMMOS/openmct-mcws/pull/412/changes
+        if (!module?.length) {
+            module = domainObject?.telemetry?.module?.toUpperCase();
         }
 
         // legacy inference of module by evr_name
         // This should *never* occur with modern telemetry dictionaries. 
         if (!module || module.length <= 0) {
             console.warn('Legacy domain objects should not be used anymore!');
+            // only uppercase works for all mcws apis (lowercase will not work)
+            // see https://github.com/NASA-AMMOS/openmct-mcws/pull/412/changes
             module = domainObject.telemetry.evr_name.split("_")[0].toUpperCase()
         }
 

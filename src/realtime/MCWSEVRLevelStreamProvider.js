@@ -31,6 +31,8 @@ class MCWSEVRLevelStreamProvider extends MCWSStreamProvider {
      * @returns {String} The key
      */
     getKey(domainObject) {
+        // only uppercase works for all mcws apis (lowercase will not work)
+        // see https://github.com/NASA-AMMOS/openmct-mcws/pull/412/changes
         return domainObject.telemetry.level.toUpperCase();
     }
 }
