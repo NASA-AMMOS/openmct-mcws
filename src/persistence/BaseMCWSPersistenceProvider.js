@@ -118,7 +118,7 @@ export default class BaseMCWSPersistenceProvider {
 
         containedNamespaces.unshift(userNamespace);
         
-        await this.createIfMissing(userNamespace, user.id, user.name);
+        await this.createIfMissing(userNamespace, user.id);
 
         return containedNamespaces;
     }
@@ -156,7 +156,7 @@ export default class BaseMCWSPersistenceProvider {
     */
     async getRootNamespaces() {
         const user = await this.openmct.user.getCurrentUser();
-        let rootNamespaces = await Promise.all(this.roots.map((rootNamespace) => this.createIfMissing(rootNamespace, user.id, user.name)));
+        let rootNamespaces = await Promise.all(this.roots.map((rootNamespace) => this.createIfMissing(rootNamespace, user.id)));
         rootNamespaces = rootNamespaces.filter(Boolean);
 
         return this.filterNamespacesByPath(rootNamespaces);
@@ -170,9 +170,10 @@ export default class BaseMCWSPersistenceProvider {
      *
      * @private
      * @param {NamespaceDefinition} namespaceDefinition
+     c* @param {string} userId the user ID
      * @returns {Promise.<NamespaceDefinition>|Promise.<undefined>}
      */
-    async createIfMissing(namespaceDefinition, userId, userName) {
+    async createIfMissing(namespaceDefinition, userId) {
         const namespace = mcws.namespace(namespaceDefinition.url);
 
         try {
