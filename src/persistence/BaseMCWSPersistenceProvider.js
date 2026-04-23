@@ -106,7 +106,7 @@ export default class BaseMCWSPersistenceProvider {
 
         const user = await this.openmct.user.getCurrentUser();
         const containedNamespaces = await this.getNamespacesFromMCWS(namespaceDefinition);
-        const userNamespace = interpolateUsername(namespaceTemplate, user.name, user.id);
+        const userNamespace = interpolateUsername(namespaceTemplate, user.id, user.name);
         const existingUserNamespace = containedNamespaces.find(namespace => namespace.url === userNamespace.url);
 
         if (existingUserNamespace) {
@@ -137,7 +137,7 @@ export default class BaseMCWSPersistenceProvider {
         const templateObject = namespaceDefinition.childTemplate;
         const userNamespaces = namespaces.map((namespace) => {
             const username = USERNAME_FROM_PATH_REGEX.exec(namespace.subject)[1]
-            const userNamespaceDefinition = interpolateUsername(templateObject, username, username);
+            const userNamespaceDefinition = interpolateUsername(templateObject, username);
 
             userNamespaceDefinition.location = namespaceDefinition.id;
 
