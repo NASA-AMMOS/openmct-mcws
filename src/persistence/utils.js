@@ -59,14 +59,15 @@ export function createNamespace(namespace) {
  *
  * @private
  * @param {NamespaceTemplate} templateObject namespace template object.
- * @param {string} username a username.
+ * @param {string} userId the user ID
+ * @param {string} username the username (default is userId)
  * @returns {NamespaceDefinition} a namespace definition object.
  */
-export function interpolateUsername(templateObject, username, userid) {
+export function interpolateUsername(templateObject, userId, username = userId) {
     const namespaceDefinition = {};
 
     Object.keys(templateObject).forEach(key => {
-        namespaceDefinition[key] = templateObject[key].replace('${USERNAME}', username).replace('${USERID}', userid);
+        namespaceDefinition[key] = templateObject[key].replace('${USERNAME}', username).replace('${USERID}', userId);
     });
     
     return namespaceDefinition;
