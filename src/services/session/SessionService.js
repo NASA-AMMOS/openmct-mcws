@@ -250,53 +250,53 @@ class SessionService {
         let datasets = [];
         // Need to wait for MIOs to load for the cached datasets to return.
         const cachedDatasets = new Promise((resolve) => {
-        // Check once a second
-        const pollInterval = 1000;
-        let currentLength = 0;
-        let maxIterations = 15;
-        let currentIteration = 0;
-        const checkDatasets = () => {
-            const result = Object.values(this.getDatasets());
+            // Check once a second
+            const pollInterval = 1000;
+            let currentLength = 0;
+            let maxIterations = 15;
+            let currentIteration = 0;
+            const checkDatasets = () => {
+                const result = Object.values(this.getDatasets());
 
-            // no datasets
-            if (result.length === 0) {
-                // maxed out iterations, give up and resolve with empty array
-                if (currentIteration > maxIterations) {
-                    resolve([]);
-                    return;
-                }
-                currentIteration++;
-                setTimeout(checkDatasets, pollInterval);
-            } else { // we have datasets
-                // first time we have datasets
-                if (currentLength === 0) {
-                    currentLength = result.length;
+                // no datasets
+                if (result.length === 0) {
+                    // maxed out iterations, give up and resolve with empty array
+                    if (currentIteration > maxIterations) {
+                        resolve([]);
+                        return;
+                    }
+                    currentIteration++;
                     setTimeout(checkDatasets, pollInterval);
-                } else { // we've already seen some datasets, check for stability
-                    if (result.length === currentLength) { // we have stability, resolve
-                        resolve(result);
-                    } else { // datasets still loading, wait for stability
+                } else { // we have datasets
+                    // first time we have datasets
+                    if (currentLength === 0) {
                         currentLength = result.length;
                         setTimeout(checkDatasets, pollInterval);
-                    } 
+                    } else { // we've already seen some datasets, check for stability
+                        if (result.length === currentLength) { // we have stability, resolve
+                            resolve(result);
+                        } else { // datasets still loading, wait for stability
+                            currentLength = result.length;
+                            setTimeout(checkDatasets, pollInterval);
+                        } 
+                    }
                 }
-            }
-        };
-        checkDatasets(); // Start polling
-    });
-    if (resolveCachedDatasets) {
-        datasets = await cachedDatasets;
-    } else {
-        datasets = Object.values(this.getDatasets());
-    }
-    const validUrls = datasets.map((dataset) => dataset.options.sessionLADUrl).filter(Boolean);
-    const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
-        return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
-    }, []);
-    const topicsWithSessions = await Promise.all(sessionLADUrls.map(url => this.getActiveSessions(url)));
+            };
+            checkDatasets(); // Start polling
+        });
+        if (resolveCachedDatasets) {
+            datasets = await cachedDatasets;
+        } else {
+            datasets = Object.values(this.getDatasets());
+        }
+        const validUrls = datasets.map((dataset) => dataset.options.sessionLADUrl).filter(Boolean);
+        const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
+            return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
+        }, []);
+        const topicsWithSessions = await Promise.all(sessionLADUrls.map(url => this.getActiveSessions(url)));
 
-    return topicsWithSessions.flat();
-  };
+        return topicsWithSessions.flat();
+    };
 
     makeMCWSFilters(filters) {
         if (!filters) {
