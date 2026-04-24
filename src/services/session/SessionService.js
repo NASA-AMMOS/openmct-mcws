@@ -215,28 +215,28 @@ class SessionService {
             this.showCamTimeoutError(error);
         }
 
-    const sessionsByTopic = {};
-    sessions.forEach((session) => {
-      if (sessionsByTopic[session.topic] === undefined) {
-        sessionsByTopic[session.topic] = [];
-      }
+        const sessionsByTopic = {};
+        sessions.forEach((session) => {
+            if (sessionsByTopic[session.topic] === undefined) {
+                sessionsByTopic[session.topic] = [];
+            }
 
-      sessionsByTopic[session.topic].push(session);
-    });
+            sessionsByTopic[session.topic].push(session);
+        });
 
-    // for each topic, remove 'number' property from the first session object in the topic as the base topic object
-    const topics = Object.keys(sessionsByTopic).map((topic) => {
-      const topicObj = { ...sessionsByTopic[topic][0] };
-      delete topicObj.number;
+        // for each topic, remove 'number' property from the first session object in the topic as the base topic object
+        const topics = Object.keys(sessionsByTopic).map((topic) => {
+            const topicObj = { ...sessionsByTopic[topic][0] };
+            delete topicObj.number;
 
-      // filter out sessions without a 'number' property and add them to the topic object sessions
-      topicObj.sessions = sessionsByTopic[topic].filter((session) => session.number);
+            // filter out sessions without a 'number' property and add them to the topic object sessions
+            topicObj.sessions = sessionsByTopic[topic].filter((session) => session.number);
 
-      return topicObj;
-    });
+            return topicObj;
+        });
 
-    return topics;
-  }
+        return topics;
+    }
 
   /**
    * Get available topics with sessions.
@@ -244,47 +244,45 @@ class SessionService {
    * @returns {Promise.<Topic[]>}
    */
   async getTopicsWithSessions(resolveCachedDatasets = false) {
-    if (this.realtimeSessionConfig.disable) {
-      return Promise.resolve([]);
-    }
-    let datasets = [];
-    // Need to wait for MIOs to load for the cached datasets to return.
-    const cachedDatasets = new Promise((resolve) => {
-      // Check once a second
-      const pollInterval = 1000;
-      let currentLength = 0;
-      let maxIterations = 15;
-      let currentIteration = 0;
-      const checkDatasets = () => {
-        const result = Object.values(this.getDatasets());
-
-        // no datasets
-        if (result.length === 0) {
-          // maxed out iterations, give up and resolve with empty array
-          if (currentIteration > maxIterations) {
-            resolve([]);
-
-            return;
-          }
-
-          currentIteration++;
-          setTimeout(checkDatasets, pollInterval);
-        } else { // we have datasets
-          // first time we have datasets
-          if (currentLength === 0) {
-            currentLength = result.length;
-            setTimeout(checkDatasets, pollInterval);
-          } else { // we've already seen some datasets, check for stability
-            if (result.length === currentLength) { // we have stability, resolve
-              resolve(result);
-            } else { // datasets still loading, wait for stability
-              currentLength = result.length;
-              setTimeout(checkDatasets, pollInterval);
-            } 
-          }
+        if (this.realtimeSessionConfig.disable) {
+        return Promise.resolve([]);
         }
-      };
-      checkDatasets(); // Start polling
+        let datasets = [];
+        // Need to wait for MIOs to load for the cached datasets to return.
+        const cachedDatasets = new Promise((resolve) => {
+        // Check once a second
+        const pollInterval = 1000;
+        let currentLength = 0;
+        let maxIterations = 15;
+        let currentIteration = 0;
+        const checkDatasets = () => {
+            const result = Object.values(this.getDatasets());
+
+            // no datasets
+            if (result.length === 0) {
+                // maxed out iterations, give up and resolve with empty array
+                if (currentIteration > maxIterations) {
+                    resolve([]);
+                    return;
+                }
+                currentIteration++;
+                setTimeout(checkDatasets, pollInterval);
+            } else { // we have datasets
+                // first time we have datasets
+                if (currentLength === 0) {
+                    currentLength = result.length;
+                    setTimeout(checkDatasets, pollInterval);
+                } else { // we've already seen some datasets, check for stability
+                    if (result.length === currentLength) { // we have stability, resolve
+                        resolve(result);
+                    } else { // datasets still loading, wait for stability
+                        currentLength = result.length;
+                        setTimeout(checkDatasets, pollInterval);
+                    } 
+                }
+            }
+        };
+        checkDatasets(); // Start polling
     });
     if (resolveCachedDatasets) {
         datasets = await cachedDatasets;
@@ -293,7 +291,7 @@ class SessionService {
     }
     const validUrls = datasets.map((dataset) => dataset.options.sessionLADUrl).filter(Boolean);
     const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
-      return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
+        return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
     }, []);
     const topicsWithSessions = await Promise.all(sessionLADUrls.map(url => this.getActiveSessions(url)));
 
