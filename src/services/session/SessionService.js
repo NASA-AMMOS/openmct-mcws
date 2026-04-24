@@ -238,14 +238,14 @@ class SessionService {
         return topics;
     }
 
-  /**
-   * Get available topics with sessions.
-   *
-   * @returns {Promise.<Topic[]>}
-   */
-  async getTopicsWithSessions(resolveCachedDatasets = false) {
+    /**
+     * Get available topics with sessions.
+     *
+     * @returns {Promise.<Topic[]>}
+     */
+    async getTopicsWithSessions(resolveCachedDatasets = false) {
         if (this.realtimeSessionConfig.disable) {
-        return Promise.resolve([]);
+            return Promise.resolve([]);
         }
         let datasets = [];
         // Need to wait for MIOs to load for the cached datasets to return.
