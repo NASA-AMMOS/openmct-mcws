@@ -34,13 +34,7 @@ const MARS_SECONDS_PER_EARTH_SECOND = 1.02749125;
 class LMST {
   static FORMAT = '[SOL]-DDD[M]HH:mm:ss.SSS';
   static TIME_FORMAT = '[M]HH:mm:ss.SSS';
-  static TIME_FORMATS = [
-    '[M]HH:mm:ss.SSS',
-    '[M]HH:mm:ss.SSS',
-    '[M]HH:mm:ss',
-    '[M]HH:mm',
-    '[M]HH'
-  ];
+  static TIME_FORMATS = ['[M]HH:mm:ss.SSS', '[M]HH:mm:ss.SSS', '[M]HH:mm:ss', '[M]HH:mm', '[M]HH'];
   static PATTERN = /SOL-(\d+)([M]\d{2}:\d{2}:\d{2}\.\d{0,4})?/;
 
   constructor(epoch) {
