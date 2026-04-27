@@ -59,15 +59,25 @@ export default class BaseMCWSPersistenceProvider {
    * @returns {Promise.<NamespaceDefinition[]>} persistenceNamespaces
    */
   async getPersistenceNamespaces() {
-    // get root namespaces, get contained namespaces.
-    if (!this.persistenceNamespaces) {
-      const rootNamespaces = await this.getRootNamespaces();
-      const allContainedNamespaces = await this.getAllContainedNamespaces(rootNamespaces);
-
-      this.persistenceNamespaces = [...rootNamespaces, ...allContainedNamespaces];
+    // Return cached result if available
+    if (this.persistenceNamespaces) {
+      return this.persistenceNamespaces;
     }
 
-    return this.persistenceNamespaces;
+    // If initialization is in progress, wait for it
+    if (!this.persistenceNamespacesPromise) {
+      this.persistenceNamespacesPromise = (async () => {
+        const rootNamespaces = await this.getRootNamespaces();
+        const allContainedNamespaces = await this.getAllContainedNamespaces(rootNamespaces);
+
+        this.persistenceNamespaces = [...rootNamespaces, ...allContainedNamespaces];
+        delete this.persistenceNamespacesPromise;
+
+        return this.persistenceNamespaces;
+      })();
+    }
+
+    return this.persistenceNamespacesPromise;
   }
 
   /**
@@ -107,7 +117,7 @@ export default class BaseMCWSPersistenceProvider {
 
     const user = await this.openmct.user.getCurrentUser();
     const containedNamespaces = await this.getNamespacesFromMCWS(namespaceDefinition);
-    const userNamespace = interpolateUsername(namespaceTemplate, user.id);
+    const userNamespace = interpolateUsername(namespaceTemplate, user.id, user.name);
     const existingUserNamespace = containedNamespaces.find(
       (namespace) => namespace.url === userNamespace.url
     );
@@ -175,6 +185,7 @@ export default class BaseMCWSPersistenceProvider {
    *
    * @private
    * @param {NamespaceDefinition} namespaceDefinition
+   * @param {string} userId the user ID
    * @returns {Promise.<NamespaceDefinition>|Promise.<undefined>}
    */
   async createIfMissing(namespaceDefinition, userId) {
