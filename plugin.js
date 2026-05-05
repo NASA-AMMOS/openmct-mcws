@@ -45,8 +45,23 @@ import RealtimeSessions from './src/realtimeSessions/plugin.js';
 import GlobalFilters from './src/globalFilters/plugin.js';
 import ExportDataAction from './src/exportDataAction/plugin.js';
 
+// optional runtime config
+let runtimeConfig = {};
+
+try {
+  const response = await fetch('./config.json', { cache: 'no-store' });
+
+  if (response.ok) {
+    runtimeConfig = await response.json();
+  } else if (response.status !== 404) {
+    console.warn(`Unable to load config.json: ${response.status}`);
+  }
+} catch (error) {
+  console.warn('Unable to load config.json', error);
+}
+
 export default function openmctMCWSPlugin(options) {
-  return function install(openmct) {
+  return async function install(openmct) {
     const defaultConfig = {
       venueAware: {
         enabled: false,
@@ -156,7 +171,9 @@ export default function openmctMCWSPlugin(options) {
       return item && typeof item === 'object' && !Array.isArray(item);
     }
 
-    const config = deepMerge(defaultConfig, options || {});
+    // order of precedence: runtimeConfig, recipeConfig, defaultConfig
+    const recipeConfig = options || {};
+    const config = deepMerge(defaultConfig, deepMerge(recipeConfig, runtimeConfig));
 
     if (config.useDeveloperStorage === undefined) {
       // Attempt to define a reasonable default for developer storage that supports Open MCT build tool
