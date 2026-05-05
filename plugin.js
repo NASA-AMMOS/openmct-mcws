@@ -61,7 +61,7 @@ try {
 }
 
 export default function openmctMCWSPlugin(options) {
-  return async function install(openmct) {
+  return function install(openmct) {
     const defaultConfig = {
       venueAware: {
         enabled: false,
