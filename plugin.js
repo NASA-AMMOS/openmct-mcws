@@ -45,6 +45,21 @@ import RealtimeSessions from './src/realtimeSessions/plugin.js';
 import GlobalFilters from './src/globalFilters/plugin.js';
 import ExportDataAction from './src/exportDataAction/plugin.js';
 
+// optional runtime config
+let runtimeConfig = {};
+
+try {
+  const response = await fetch('./mcws-config.json', { cache: 'no-store' });
+
+  if (response.ok) {
+    runtimeConfig = await response.json();
+  } else if (response.status !== 404) {
+    console.warn(`Unable to load mcws-config.json: ${response.status}`);
+  }
+} catch (error) {
+  console.warn('Unable to load mcws-config.json', error);
+}
+
 export default function openmctMCWSPlugin(options) {
   return function install(openmct) {
     const defaultConfig = {
@@ -156,7 +171,28 @@ export default function openmctMCWSPlugin(options) {
       return item && typeof item === 'object' && !Array.isArray(item);
     }
 
-    const config = deepMerge(defaultConfig, options || {});
+    // restrict the runtime config to only the keys that are allowed
+    // as well as making sure values are present
+    let restrictedRuntimeConfig = {};
+
+    if (runtimeConfig.mcwsUrl) {
+      restrictedRuntimeConfig.mcwsUrl = runtimeConfig.mcwsUrl;
+    }
+
+
+    if (Array.isArray(runtimeConfig.namespaces)) {
+      const filteredNamespaces = runtimeConfig.namespaces.filter(
+        namespace => namespace?.key && namespace.name && namespace.url
+      );
+
+      if (filteredNamespaces.length) {
+        restrictedRuntimeConfig.namespaces = filteredNamespaces;
+      }
+    }
+
+    const recipeConfig = options || {};
+    // order of precedence: runtimeConfig, recipeConfig, defaultConfig
+    const config = deepMerge(defaultConfig, deepMerge(recipeConfig, restrictedRuntimeConfig));
 
     if (config.useDeveloperStorage === undefined) {
       // Attempt to define a reasonable default for developer storage that supports Open MCT build tool
