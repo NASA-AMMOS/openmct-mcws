@@ -3,16 +3,16 @@ MCWS Plugin for Open MCT is a package that allows Open MCT to use MCWS (Mission 
 
 Open Mission Control Technologies, or [Open MCT](https://github.com/nasa/openmct), is a next-generation web-based mission control and situational awareness framework, for visualization of data on desktop and mobile devices. Open MCT is developed at NASA Ames Research Center in Silicon Valley, in collaboration with NASA AMMOS and the Jet Propulsion Laboratory, California Institute of Technology (under its contract with NASA, 80NM0018D0004).
 
-# Installation
+## Installation
 
-## Installing Open MCT with the Build Tool
+### Installing Open MCT with the Build Tool
 Follow instructions to install the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) (requires access request). The MCWS Plugin is then included and customized in build tool configuration.
 
-### Installing MCWS Plugin via Build Tool command line
+#### Installing MCWS Plugin via Build Tool command line
 1. Add the plugin
 Example:
 ```bash
-mct plugins add openmct-mcws-plugin --options '{"mcwsUrl": "<mcws_url>", "namespaces": [{"key": "shared", "name": "Shared", "url": "<persistence_url>"}, {"key": "shared", "name": "Shared", "url": "<persistence_url>"}]}'
+mct plugins add openmct-mcws-plugin --options '{"mcwsUrl": "<mcws_url>", "namespaces": [{"key": "my-instance", "name": "Shared", "url": "<shared_persistence_url>"}, {"key": "my-instance", "name": "Users", "url": "<user_persistence_url>", "userNamespace": true}]}'
 ```
 
 2. Configure Open MCT
@@ -28,76 +28,90 @@ Example:
 mct build
 ```
 
-### Installing MCWS Plugin via Build Tool recipe
-1. Specify a pre-configured recipe to build
+To deploy to Tomcat, package the built instance folder as a WAR; see [Tomcat Web Application Deployments](#tomcat-web-application-deployments).
+
+#### Installing MCWS Plugin via Build Tool recipe
+1. Specify a pre-configured recipe to build (from the openmct-build directory)
 Example:
 ```bash
-mct build openmct-mcws.yaml
+mct build --recipe recipes/mcws/prod.yaml --instance prod-instance
 ```
+<details>
+  <summary>Example <code>prod.yaml</code></summary>
 
-Example `openmct-mcws.yaml`:
-```yaml
-# yaml-language-server: $schema=../../src/assets/openmct-configuration-schema.json
-# Builds Open MCT for MCWS without dev plugins enabled. Requires an MCWS server to connect to.
-openmct:
-  version: latest 
-  plugins:
-  - openmct.plugins.Snow # Theme: 'Snow', 'Espresso' or 'Maelstrom'
-  - openmct.plugins.ObjectMigration
-  - openmct.plugins.ClearData:
-      options:
-        - ['table', 'telemetry.plot.overlay', 'telemetry.plot.stacked', 'vista.packetSummaryEvents', 'vista.dataProducts', 'vista.packets', 'vista.frameSummary', 'vista.frameWatch', 'vista.chanTableGroup']
-        - indicator: false
-  - openmct.plugins.DisplayLayout:
-      options:
-        showAsView:
-          - summary-widget
-          - vista.packetSummaryEvents
-          - vista.dataProducts
-          - vista.packets
-          - vista.frameSummary
-          - vista.frameWatch
-  - openmct.plugins.Filters:
-      options:
-        - - vista.alarmsView
-          - telemetry.plot.overlay
-          - table
-          - vista.chanTableGroup
-          - vista.commandEventsView
-          - vista.messagesView
-          - vista.evrView
-  - openmct.plugins.UTCTimeSystem
-  - openmct.plugins.Notebook
-  - openmct.plugins.Clock:
-      options:
-        useClockIndicator: false
-  - openmct.plugins.DefaultRootName:
-      options: ['VISTA']
-  - openmct-mcws-plugin:
-      npmPackage: openmct-mcws-plugin
-      options:
-        useDeveloperStorage: false
-        camUrl: ''
-        mcwsUrl: ''
-        namespaces:
-          - key: 'r50-dev'
-            name: 'R5.0 Shared'
-            url: ''
-          - userNamespace: true
-            key: 'r50-dev'
-            name: 'R5.0 Users'
-            url: ''
-```
+  ```yaml
+  # yaml-language-server: $schema=../../src/assets/openmct-configuration-schema.json
+  # Builds Open MCT for MCWS without dev plugins enabled. Requires an MCWS server to connect to.
+  openmct:
+    version: latest 
+    plugins:
+    - openmct.plugins.Snow # Theme: 'Snow', 'Espresso' or 'Maelstrom'
+    - openmct.plugins.ObjectMigration
+    - openmct.plugins.ClearData:
+        options:
+          - ['table', 'telemetry.plot.overlay', 'telemetry.plot.stacked', 'vista.packetSummaryEvents', 'vista.dataProducts', 'vista.packets', 'vista.frameSummary', 'vista.frameWatch', 'vista.chanTableGroup']
+          - indicator: false
+    - openmct.plugins.DisplayLayout:
+        options:
+          showAsView:
+            - summary-widget
+            - vista.packetSummaryEvents
+            - vista.dataProducts
+            - vista.packets
+            - vista.frameSummary
+            - vista.frameWatch
+    - openmct.plugins.Filters:
+        options:
+          - - vista.alarmsView
+            - telemetry.plot.overlay
+            - table
+            - vista.chanTableGroup
+            - vista.commandEventsView
+            - vista.messagesView
+            - vista.evrView
+    - openmct.plugins.UTCTimeSystem
+    - openmct.plugins.Notebook
+    - openmct.plugins.Clock:
+        options:
+          useClockIndicator: false
+    - openmct.plugins.DefaultRootName:
+        options: ['VISTA']
+    - openmct-mcws-plugin:
+        npmPackage: openmct-mcws-plugin
+        options:
+          useDeveloperStorage: false
+          mcwsUrl: ''
+          namespaces:
+            - key: 'r50-dev'
+              name: 'R5.0 Shared'
+              url: ''
+            - userNamespace: true
+              key: 'r50-dev'
+              name: 'R5.0 Users'
+              url: ''
+  ```
+  *The recipe example above shows typical build-time values, not the plugin’s built-in defaults.*
+</details>
 
 ### AMMOS configurations
-1. `camUrl`: The url to the CAM server, if CAM is to be used for authentication.
-2. `mcwsUrl`: The url to the MCWS server.
-3. In the `namespaces` configuration, `url`, the path to the MCWS persistence spaces, are required.
+1. `mcwsUrl`: The url to the MCWS server.
+2. In the `namespaces` configuration, `url`, the path to the MCWS persistence spaces, are required.
 
-Further configuration documentation can be found in the `CONFIGURATION.md`.
+## Configuration
+Plugin settings are merged in this order (highest precedence first):
+1. **`mcws-config.json`**: optional file at the root of the built Open MCT instance (runtime). Only `mcwsUrl` and `namespaces` can be overridden. Release artifacts include `mcws-config.example.json`; copy or rename it to `mcws-config.json` and set values you want to override.
+2. **Build-tool recipe / plugin options**: set when building with `mct` (see examples above).
+3. **Plugin defaults**: defined in code in the `defaultConfig` object in [`plugin.js`](plugin.js).
 
-## Installing Open MCT for MCWS (Legacy)
-_To build Open MCT for MCWS, the legacy product that combines Open MCT and the MCWS Plugin, see the [legacy branch](https://github.com/NASA-AMMOS/openmct-mcws/tree/legacy)._
+For descriptions of all supported options, see [`CONFIGURATION.md`](CONFIGURATION.md).
+
+## Legacy workflow (deprecated)
+This repository still includes a legacy standalone app entry point (`index.html`, `config.js`, `legacy-index.js`) for local development and WAR packaging. This will be removed in the future.
+
+Edit `config.js` to set `window.openmctMCWSConfig` (all plugin options). Run `npm install`, build with `npm run build:prod` and run with `npm start`, or package with Maven for Tomcat.
+
+For new deployments, prefer the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) with optional runtime `mcws-config.json` (see Configuration above).
+The [legacy branch](https://github.com/NASA-AMMOS/openmct-mcws/tree/legacy) contains the previous combined Open MCT + MCWS product layout.
 
 ## Connecting to MCWS
 
@@ -110,10 +124,22 @@ MCWS is a closed source product in the [Advanced Multi-Mission Operations System
 [Mock MCWS server](https://github.com/davetsay/mcws-test-server) (requires access request)
 
 ## Tomcat Web Application Deployments
-For [Tomcat Web Application Deployments](https://tomcat.apache.org/tomcat-9.0-doc/deployer-howto.html), [Maven](https://maven.apache.org/guides/getting-started/maven-in-five-minutes.html) can be used to generate a `.war` file.
+Open MCT can be deployed to [Tomcat](https://tomcat.apache.org/tomcat-9.0-doc/deployer-howto.html) as a WAR. How you create the WAR depends on whether you used the build tool or the legacy workflow in this repository.
 
-# Contacts
-Jamie Vigliotta (jamie.j.vigliotta@nasa.gov)
-David Tsay (david.e.tsay@nasa.gov)
+### Build-tool instances (recommended)
+After building with `mct`, package the **entire built instance directory** as the WAR webapp root. That directory (for example `openmct-build/instances/prod-instance/`) should contain at least:
+- `index.html`
+- `assets/`
+- `node_modules/`
+- optional `mcws-config.json` (if using runtime overrides; see [Configuration](#configuration))
+
+Add or edit `mcws-config.json` in the instance folder if needed, then create the WAR:
+```bash
+cd /path/to/openmct-build/instances/testing
+jar -cvf openmct_client.war .
+```
+
+## Contacts
+Jamie Vigliotta (jamie.j.vigliotta@nasa.gov), David Tsay (david.e.tsay@nasa.gov)
 
 Or join us on [Slack](https://jpl.slack.com/app_redirect?channel=openmct)
