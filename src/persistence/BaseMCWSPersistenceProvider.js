@@ -1,7 +1,7 @@
 import mcws from '../services/mcws/mcws.js';
 import { createModelFromNamespaceDefinitionWithPersisted, interpolateUsername } from './utils.js';
 
-const USERNAME_FROM_PATH_REGEX = new RegExp('.*/(.*?)$');
+const USERNAME_FROM_PATH_REGEX = new RegExp('([^/]*)$');
 
 /**
  * An object defining a MCWS namespace.  Provides a unique identifier for a
