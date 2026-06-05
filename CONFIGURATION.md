@@ -1,18 +1,22 @@
 # Plugin Options Recipe Example
 When including the Open MCT for MCWS Plugin into your Open MCT project, the following are available configuration options.
+
+<details>
+  <summary>Example <code>prod.yaml</code></summary>
+
 ```yaml
 - openmct-mcws-plugin:
   npmPackage: NASA-AMMOS/openmct-mcws#omm-plugin
   options:
-    mcwsUrl: http://localhost:8090/mcws-test
+    mcwsUrl: http://example.com/mcws
     namespaces:
-      - key: 'r50-dev'
-        name: 'R5.0 Shared'
-        url: ''
+      - key: 'example-key'
+        name: 'Deployment Shared'
+        url: '/path/to/persistence/shared'
       - userNamespace: true
-        key: 'r50-dev'
-        name: 'R5.0 Users'
-        url: ''
+        key: 'example-key'
+        name: 'Deployment Users'
+        url: '/path/to/persistence/users'
     theme: 'Snow'
     venueAware:
       enabled: false
@@ -77,6 +81,103 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
     proxyUrl: 'http://localhost:8080/'
     assetPath: 'node_modules/openmct/dist'
 ```
+</details>
+
+<details>
+  <summary>Example <code>mcws-config.json</code></summary>
+
+```json
+{
+  "mcwsUrl": "http://example.com/mcws",
+  "namespaces": [
+    {
+      "key": "example-key",
+      "name": "Deployment Shared",
+      "url": "/path/to/persistence/shared"
+    },
+    {
+      "userNamespace": true,
+      "key": "example-key",
+      "name": "Deployment Users",
+      "url": "/path/to/persistence/users"
+    }
+  ],
+  "theme": "Snow",
+  "venueAware": {
+    "enabled": false,
+    "venues": "ExampleVenueDefinitions.json"
+  },
+  "taxonomy": {
+    "evrDefaultBackgroundColor": null,
+    "evrDefaultForegroundColor": null,
+    "evrBackgroundColorByLevel": {
+      "FATAL": "#ff0000",
+      "WARNING_HI": "#ff7f24",
+      "WARNING_LO": "#ffff00",
+      "COMMAND": "#00bfff",
+      "ACTIVITY_HI": "#6d6d6d",
+      "ACTIVITY_LO": "#dcdcdc",
+      "DIAGNOSTIC": "#00ff00",
+      "EVR_UNKNOWN": "#00ff00",
+      "FAULT": "#ff0000",
+      "WARNING": "#ff7f24"
+    },
+    "evrForegroundColorByLevel": {
+      "FATAL": "#ffffff",
+      "WARNING_HI": "#000000",
+      "WARNING_LO": "#000000",
+      "COMMAND": "#ffffff",
+      "ACTIVITY_HI": "#ffffff",
+      "ACTIVITY_LO": "#000000",
+      "DIAGNOSTIC": "#000000",
+      "EVR_UNKNOWN": "#000000",
+      "FAULT": "#ffffff",
+      "WARNING": "#000000"
+    }
+  },
+  "time": {
+    "defaultMode": "fixed",
+    "utcFormat": "utc.day-of-year",
+    "lmstEpoch": null,
+    "subscriptionMCWSFilterDelay": 100,
+    "timeSystems": ["scet", "ert"],
+    "allowRealtime": true,
+    "allowLAD": true,
+    "records": 10
+  },
+  "maxResults": 10000,
+  "sessionHistoricalMaxResults": 100,
+  "batchHistoricalChannelQueries": false,
+  "disableSortParam": false,
+  "messageStreamUrl": "",
+  "messageTypeFilters": [],
+  "frameAccountabilityExpectedVcidList": [],
+  "queryTimespanLimit": null,
+  "globalStalenessInterval": null,
+  "customFormatters": [],
+  "sessions": {
+    "historicalSessionFilter": {
+      "disable": false,
+      "maxRecords": 100,
+      "denyUnfilteredQueries": false
+    },
+    "realtimeSession": {
+      "disable": false
+    }
+  },
+  "globalFilters": [],
+  "tablePerformanceOptions": {
+    "telemetryMode": "unlimited",
+    "persistModeChange": false,
+    "rowLimit": 50
+  },
+  "useDeveloperStorage": true,
+  "proxyUrl": "http://localhost:8080/",
+  "assetPath": "node_modules/openmct/dist"
+}
+```
+</details>
+<hr></hr>
 
 # Configuration Guide
 
