@@ -6,7 +6,7 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
 
 ```yaml
 - openmct-mcws-plugin:
-  npmPackage: NASA-AMMOS/openmct-mcws#omm-plugin
+  npmPackage: NASA-AMMOS/openmct-mcws
   options:
     mcwsUrl: http://example.com/mcws
     namespaces:
