@@ -1,8 +1,8 @@
-# Plugin Options Recipe Example
+# Plugin Options (Recipe/JSON Examples)
 When including the Open MCT for MCWS Plugin into your Open MCT project, the following are available configuration options.
 
 <details>
-  <summary>Example <code>prod.yaml</code></summary>
+  <summary>Example <code>prod.yaml</code> build-tool recipe options</summary>
 
 ```yaml
 - openmct-mcws-plugin:
@@ -17,7 +17,6 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
         key: 'example-key'
         name: 'Deployment Users'
         url: '/path/to/persistence/users'
-    theme: 'Snow'
     venueAware:
       enabled: false
       venues: 'ExampleVenueDefinitions.json'
@@ -77,107 +76,20 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
       telemetryMode: 'unlimited'
       persistModeChange: false
       rowLimit: 50
-    useDeveloperStorage: true
+    useDeveloperStorage: false
     proxyUrl: 'http://localhost:8080/'
     assetPath: 'node_modules/openmct/dist'
 ```
 </details>
 
 <details>
-  <summary>Example <code>mcws-config.json</code></summary>
-
-```json
-{
-  "mcwsUrl": "http://example.com/mcws",
-  "namespaces": [
-    {
-      "key": "example-key",
-      "name": "Deployment Shared",
-      "url": "/path/to/persistence/shared"
-    },
-    {
-      "userNamespace": true,
-      "key": "example-key",
-      "name": "Deployment Users",
-      "url": "/path/to/persistence/users"
-    }
-  ],
-  "theme": "Snow",
-  "venueAware": {
-    "enabled": false,
-    "venues": "ExampleVenueDefinitions.json"
-  },
-  "taxonomy": {
-    "evrDefaultBackgroundColor": null,
-    "evrDefaultForegroundColor": null,
-    "evrBackgroundColorByLevel": {
-      "FATAL": "#ff0000",
-      "WARNING_HI": "#ff7f24",
-      "WARNING_LO": "#ffff00",
-      "COMMAND": "#00bfff",
-      "ACTIVITY_HI": "#6d6d6d",
-      "ACTIVITY_LO": "#dcdcdc",
-      "DIAGNOSTIC": "#00ff00",
-      "EVR_UNKNOWN": "#00ff00",
-      "FAULT": "#ff0000",
-      "WARNING": "#ff7f24"
-    },
-    "evrForegroundColorByLevel": {
-      "FATAL": "#ffffff",
-      "WARNING_HI": "#000000",
-      "WARNING_LO": "#000000",
-      "COMMAND": "#ffffff",
-      "ACTIVITY_HI": "#ffffff",
-      "ACTIVITY_LO": "#000000",
-      "DIAGNOSTIC": "#000000",
-      "EVR_UNKNOWN": "#000000",
-      "FAULT": "#ffffff",
-      "WARNING": "#000000"
-    }
-  },
-  "time": {
-    "defaultMode": "fixed",
-    "utcFormat": "utc.day-of-year",
-    "lmstEpoch": null,
-    "subscriptionMCWSFilterDelay": 100,
-    "timeSystems": ["scet", "ert"],
-    "allowRealtime": true,
-    "allowLAD": true,
-    "records": 10
-  },
-  "maxResults": 10000,
-  "sessionHistoricalMaxResults": 100,
-  "batchHistoricalChannelQueries": false,
-  "disableSortParam": false,
-  "messageStreamUrl": "",
-  "messageTypeFilters": [],
-  "frameAccountabilityExpectedVcidList": [],
-  "queryTimespanLimit": null,
-  "globalStalenessInterval": null,
-  "customFormatters": [],
-  "sessions": {
-    "historicalSessionFilter": {
-      "disable": false,
-      "maxRecords": 100,
-      "denyUnfilteredQueries": false
-    },
-    "realtimeSession": {
-      "disable": false
-    }
-  },
-  "globalFilters": [],
-  "tablePerformanceOptions": {
-    "telemetryMode": "unlimited",
-    "persistModeChange": false,
-    "rowLimit": 50
-  },
-  "useDeveloperStorage": true,
-  "proxyUrl": "http://localhost:8080/",
-  "assetPath": "node_modules/openmct/dist"
-}
-```
+  <summary>Example runtime <code>mcws-config.json</code>, highest precedence</summary>
+  
+  See [`mcws-config.example.json`](mcws-config.example.json) in the repository root.
+  Copy or rename it to `mcws-config.json` at the instance root.
 </details>
-<hr></hr>
+
+---
 
 # Configuration Guide
 
@@ -201,14 +113,6 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
 
 
 ## Basic Configuration
-
-### Theme
-
-#### `theme`
-- **Type**: `string`
-- **Default**: `'Snow'`
-- **Options**: `'Snow'`, `'Espresso'`, or `'Maelstrom'`
-- **Description**: Sets the theme for the Open MCT interface.
 
 ### Venue Aware Configuration
 
