@@ -4,6 +4,9 @@
   "description": "Open MCT for MCWS",
   "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@babel/eslint-parser": "7.26.8",
     "@braintree/sanitize-url": "6.0.4",
