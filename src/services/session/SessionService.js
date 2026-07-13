@@ -426,7 +426,7 @@ class SessionService {
       model?.start_time &&
       model?.end_time &&
       this.openmct.time.getTimeSystem().key === 'ert' &&
-      !this.openmct.time.getClock()
+      this.openmct.time.isFixed()
     ) {
       const format = this.openmct.telemetry.getFormatter('utc.day-of-year');
       const start = format.parse(model.start_time);
