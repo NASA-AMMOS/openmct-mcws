@@ -422,6 +422,8 @@ class SessionService {
 
     let boundsChanged = false;
 
+    // this is called in historicalSessionSelector
+    // must be in ERT because AMPCS returns start and end time in UTC Local only
     if (
       model?.start_time &&
       model?.end_time &&
