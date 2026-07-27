@@ -88,7 +88,7 @@ class MCWSStreamProvider {
   worker() {
     const worker = runMCWSStreamWorker();
 
-    worker.onmessage = this.onmessage.bind(this);
+    worker.addEventListener('message', this.onmessage.bind(this));
 
     // cache worker
     this.worker = function () {

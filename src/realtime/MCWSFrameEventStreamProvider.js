@@ -22,7 +22,7 @@ class MCWSFrameEventStreamProvider extends MCWSStreamProvider {
   getKey(domainObject) {
     if (domainObject.type === 'vista.frame-event-filter') {
       const frameEventType = domainObject.identifier.key.split(':')[0];
-      return frameEventType;
+      return frameEventType.toUpperCase();
     } else {
       return undefined;
     }
