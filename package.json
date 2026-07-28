@@ -5,7 +5,9 @@
   "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "mcws-config.example.json",
+    "CONFIGURATION.md"
   ],
   "devDependencies": {
     "@babel/eslint-parser": "7.26.8",
