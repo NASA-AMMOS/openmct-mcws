@@ -60,6 +60,114 @@ try {
   console.warn('Unable to load mcws-config.json', error);
 }
 
+// helper function to check if an item is an object
+function isObject(item) {
+  return item && typeof item === 'object' && !Array.isArray(item);
+}
+
+// helper function to tag every leaf in a newly introduced subtree with
+// the current config source name ('default', 'build', 'runtime').
+function buildSourceObj(configName, value) {
+  if (!isObject(value)) {
+    return configName;
+  }
+
+  return Object.keys(value).reduce((acc, key) => {
+    acc[key] = buildSourceObj(configName, value[key]);
+
+    return acc;
+  }, {});
+}
+
+// merge a single layer of the config object into the target object
+// and track the source of the values, this is the main merge/track function
+function mergeConfiguration(targetConfig, sourceConfig, name, sourceTags = {}) {
+  const output = Object.assign({}, targetConfig);
+  const tags = Object.assign({}, sourceTags);
+
+  if (!isObject(sourceConfig)) {
+    return { config: output, sources: tags };
+  }
+
+  Object.keys(sourceConfig).forEach((key) => {
+    if (isObject(sourceConfig[key])) {
+      if (!(key in output) || !isObject(output[key])) {
+        output[key] = sourceConfig[key];
+        tags[key] = buildSourceObj(name, sourceConfig[key]);
+      } else {
+        const merged = mergeConfiguration(output[key], sourceConfig[key], name, tags[key] || {});
+        output[key] = merged.config;
+        tags[key] = merged.sources;
+      }
+    } else {
+      output[key] = sourceConfig[key];
+      tags[key] = name;
+    }
+  });
+
+  return { config: output, sources: tags };
+}
+
+// populateAudit helper function to assign a value at a given path in the audit object
+function assignAtPath(obj, pathParts, value) {
+  if (pathParts.length === 1) {
+    obj[pathParts[0]] = value;
+
+    return;
+  }
+
+  if (!(pathParts[0] in obj) || !isObject(obj[pathParts[0]])) {
+    obj[pathParts[0]] = {};
+  }
+
+  assignAtPath(obj[pathParts[0]], pathParts.slice(1), value);
+}
+
+// build the audit object by config source and create a flat
+// object with the source tags for easier (additional) tracking
+// of where the values are coming from
+function populateAudit(config, sourceTags, audit, pathPrefix = '') {
+  Object.keys(config).forEach((key) => {
+    const path = pathPrefix ? `${pathPrefix}.${key}` : key;
+    const tag = sourceTags[key];
+
+    if (typeof tag === 'string') {
+      assignAtPath(audit[tag], path.split('.'), config[key]);
+      audit.sources[path] = tag;
+    } else if (tag && typeof tag === 'object') {
+      populateAudit(config[key], tag, audit, path);
+    }
+  });
+}
+
+/**
+ * Merges config layers in order (lowest precedence first) and builds a source audit.
+ * @param {{ name: 'default'|'build'|'runtime', sourceConfig: object }[]} sourceConfigurations
+ * @returns {{ config: object, audit: { runtime: object, build: object, default: object, derived: object, sources: Record<string, string> } }}
+ */
+function mergeConfigsWithAudit(sourceConfigurations) {
+  let finalConfiguration = {};
+  let sources = {};
+
+  sourceConfigurations.forEach(({ name, sourceConfig }) => {
+    const merged = mergeConfiguration(finalConfiguration, sourceConfig, name, sources);
+    finalConfiguration = merged.config;
+    sources = merged.sources;
+  });
+
+  const audit = {
+    runtime: {},
+    build: {},
+    default: {},
+    derived: {},
+    sources: {}
+  };
+
+  populateAudit(finalConfiguration, sources, audit);
+
+  return { config: finalConfiguration, audit };
+}
+
 export default function openmctMCWSPlugin(options) {
   return function install(openmct) {
     const defaultConfig = {
@@ -146,53 +254,15 @@ export default function openmctMCWSPlugin(options) {
       mcwsPluginAssetPath: 'node_modules/openmct-mcws-plugin/dist'
     };
 
-    // Deep merge function
-    function deepMerge(target, source) {
-      const output = Object.assign({}, target);
-
-      if (isObject(target) && isObject(source)) {
-        Object.keys(source).forEach((key) => {
-          if (isObject(source[key])) {
-            if (!(key in target)) {
-              Object.assign(output, { [key]: source[key] });
-            } else {
-              output[key] = deepMerge(target[key], source[key]);
-            }
-          } else {
-            Object.assign(output, { [key]: source[key] });
-          }
-        });
-      }
-
-      return output;
-    }
-
-    function isObject(item) {
-      return item && typeof item === 'object' && !Array.isArray(item);
-    }
-
-    // restrict the runtime config to only the keys that are allowed
-    // as well as making sure values are present
-    let restrictedRuntimeConfig = {};
-
-    if (runtimeConfig.mcwsUrl) {
-      restrictedRuntimeConfig.mcwsUrl = runtimeConfig.mcwsUrl;
-    }
-
-
-    if (Array.isArray(runtimeConfig.namespaces)) {
-      const filteredNamespaces = runtimeConfig.namespaces.filter(
-        namespace => namespace?.key && namespace.name && namespace.url
-      );
-
-      if (filteredNamespaces.length) {
-        restrictedRuntimeConfig.namespaces = filteredNamespaces;
-      }
-    }
-
     const recipeConfig = options || {};
     // order of precedence: runtimeConfig, recipeConfig, defaultConfig
-    const config = deepMerge(defaultConfig, deepMerge(recipeConfig, restrictedRuntimeConfig));
+    // mergeConfigsWithAudit builds lowest precedence first, with later
+    // configs overwriting earlier ones
+    const { config, audit } = mergeConfigsWithAudit([
+      { name: 'default', sourceConfig: defaultConfig },
+      { name: 'build', sourceConfig: recipeConfig },
+      { name: 'runtime', sourceConfig: runtimeConfig }
+    ]);
 
     if (config.useDeveloperStorage === undefined) {
       // Attempt to define a reasonable default for developer storage that supports Open MCT build tool
@@ -201,6 +271,9 @@ export default function openmctMCWSPlugin(options) {
       } else {
         config.useDeveloperStorage = false;
       }
+
+      audit.derived.useDeveloperStorage = config.useDeveloperStorage;
+      audit.sources.useDeveloperStorage = 'derived';
     }
 
     openmct.setAssetPath(config.assetPath);
@@ -303,6 +376,7 @@ export default function openmctMCWSPlugin(options) {
 
     // expose the config to the window
     window.openmctMCWSConfig = config;
+    window.openmctMCWSConfigurationAudit = audit;
 
     // load the css file
     const link = document.createElement('link');

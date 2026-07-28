@@ -99,11 +99,29 @@ mct build --recipe recipes/mcws/prod.yaml --instance prod-instance
 
 ## Configuration
 Plugin settings are merged in this order (highest precedence first):
-1. **`mcws-config.json`**: optional file at the root of the built Open MCT instance (runtime). Only `mcwsUrl` and `namespaces` can be overridden. Release artifacts include `mcws-config.example.json`; copy or rename it to `mcws-config.json` and set values you want to override.
+1. **`mcws-config.json`**: optional file at the root of the built Open MCT instance (runtime). Release artifacts will include [`mcws-config.example.json`](mcws-config.example.json); copy or rename it to `mcws-config.json` and set values you want to override.
 2. **Build-tool recipe / plugin options**: set when building with `mct` (see examples above).
 3. **Plugin defaults**: defined in code in the `defaultConfig` object in [`plugin.js`](plugin.js).
 
-For descriptions of all supported options, see [`CONFIGURATION.md`](CONFIGURATION.md).
+For descriptions of all supported options as well as examples of a build tool recipe and a runtime json config, see [`CONFIGURATION.md`](CONFIGURATION.md).
+
+### Configuration audit
+
+After the plugin loads, the merged config is available on `window.openmctMCWSConfig`. To see **where each value came from**, use `window.openmctMCWSConfigurationAudit`:
+
+- **`runtime`** — values from `mcws-config.json` loaded at runtime
+- **`build`** — values from build-tool recipe / plugin options
+- **`default`** — values from plugin defaults in [`plugin.js`](plugin.js)
+- **`derived`** — values computed at load time (e.g. `useDeveloperStorage`)
+- **`sources`** — flat lookup of dotted paths to source name (e.g. `sources['time.defaultMode']` → `'default'`)
+
+Example (browser console):
+
+```javascript
+openmctMCWSConfigurationAudit.sources.mcwsUrl
+openmctMCWSConfigurationAudit.runtime
+openmctMCWSConfigurationAudit.build
+```
 
 ## Legacy workflow (deprecated)
 This repository still includes a legacy standalone app entry point (`index.html`, `config.js`, `legacy-index.js`) for local development and WAR packaging. This will be removed in the future.
