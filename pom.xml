@@ -6,7 +6,7 @@
     <groupId>gov.nasa.arc.wtd</groupId>
     <artifactId>openmct-client</artifactId>
     <name>Open MCT for MCWS Plugin</name>
-    <version>v6.0.0-rc1</version>
+    <version>v6.0.0-rc2</version>
     <packaging>war</packaging>
 
     <properties>
