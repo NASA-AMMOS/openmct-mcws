@@ -1,21 +1,21 @@
-define(['./HistoricalProvider'], function (HistoricalProvider) {
-  function HistoricalTelemetryPlugin(options) {
-    return function install(openmct) {
-      openmct.telemetry.addProvider(new HistoricalProvider(openmct));
+import HistoricalProvider from './HistoricalProvider.js';
 
-      /**
-       * Provide a dummy historical provider for message filters to avoid errors in views due to bug.
-       */
-      openmct.telemetry.addProvider({
-        supportsRequest: function (domainObject) {
-          return domainObject.identifier.namespace === 'vista-message-filter';
-        },
-        request: function (domainObject) {
-          return Promise.resolve([]);
-        }
-      });
-    };
-  }
+function HistoricalTelemetryPlugin(options) {
+  return function install(openmct) {
+    openmct.telemetry.addProvider(new HistoricalProvider(openmct));
 
-  return HistoricalTelemetryPlugin;
-});
+    /**
+     * Provide a dummy historical provider for message filters to avoid errors in views due to bug.
+     */
+    openmct.telemetry.addProvider({
+      supportsRequest: function (domainObject) {
+        return domainObject.identifier.namespace === 'vista-message-filter';
+      },
+      request: function (domainObject) {
+        return Promise.resolve([]);
+      }
+    });
+  };
+}
+
+export default HistoricalTelemetryPlugin;

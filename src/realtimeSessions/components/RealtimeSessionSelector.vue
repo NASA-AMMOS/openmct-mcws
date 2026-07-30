@@ -83,7 +83,7 @@
 
 <script>
 import { toRaw } from 'vue';
-import SessionService from 'services/session/SessionService';
+import SessionService from 'services/session/SessionService.js';
 
 export default {
   inject: ['openmct'],
@@ -172,7 +172,7 @@ export default {
       this.overlay = this.openmct.overlays.overlay({
         element: this.$el,
         size: 'large',
-        dismissable: true,
+        dismissible: true,
         onDestroy: () => {
           this.$emit('close-session-selector');
         }

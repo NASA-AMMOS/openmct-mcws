@@ -1,4 +1,4 @@
-import MIO from './MIO';
+import MIO from './MIO.js';
 
 /**
  * Handle for utilizing Opaque File MIOs.

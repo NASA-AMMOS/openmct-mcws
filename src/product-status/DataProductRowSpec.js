@@ -1,5 +1,5 @@
 /* cspell:ignore Mcam */
-import DataProductRow from './DataProductRow';
+import DataProductRow from './DataProductRow.js';
 
 describe('The Data Product Row', () => {
   let dataProductRow;

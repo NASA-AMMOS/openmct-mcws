@@ -78,8 +78,8 @@ export default {
     this.keyString = this.openmct.objects.makeKeyString(this.domainObject.identifier);
     // this.timeContext = this.openmct.time.getContextForView(this.objectPath);
     this.limitEvaluator = this.openmct.telemetry.limitEvaluator(this.domainObject);
-    this.openmct.time.on('timeSystem', this.updateTimeSystem);
-    this.timestampKey = this.openmct.time.timeSystem().key;
+    this.openmct.time.on('timeSystemChanged', this.updateTimeSystem);
+    this.timestampKey = this.openmct.time.getTimeSystem().key;
     this.valueMetadata = undefined;
     if (this.metadata) {
       this.valueMetadata =
@@ -96,7 +96,7 @@ export default {
     this.telemetryCollection.load();
   },
   beforeUnmount() {
-    this.openmct.time.off('timeSystem', this.updateTimeSystem);
+    this.openmct.time.off('timeSystemChanged', this.updateTimeSystem);
     this.telemetryCollection.off('add', this.setLatestValues);
     this.telemetryCollection.off('clear', this.resetValues);
     this.telemetryCollection.destroy();

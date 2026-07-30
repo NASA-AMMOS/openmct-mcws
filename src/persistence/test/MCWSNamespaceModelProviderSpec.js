@@ -1,6 +1,6 @@
-import MCWSUserContainerProvider from '../MCWSUserContainerProvider';
-import MCWSPersistenceProvider from '../MCWSPersistenceProvider';
-import mcws from 'services/mcws/mcws';
+import MCWSUserContainerProvider from '../MCWSUserContainerProvider.js';
+import MCWSPersistenceProvider from '../MCWSPersistenceProvider.js';
+import mcws from 'services/mcws/mcws.js';
 
 describe('MCWS Providers', () => {
   let openmct;

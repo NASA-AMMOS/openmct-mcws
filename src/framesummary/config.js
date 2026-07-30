@@ -1,4 +1,4 @@
-import padStart from 'lodash/padStart';
+import padStart from 'lodash';
 
 export const ENCODING_WATCH_TYPE = 'vista.encodingWatch';
 export const FRAME_WATCH_TYPE = 'vista.frameWatch';

@@ -37,7 +37,7 @@ export default class ChannelLimitsProvider {
       }
 
       // enum alarms are dn alarms
-      alarmKey.replace('enum_', 'dn_');
+      alarmKey = alarmKey.replace('enum_', 'dn_');
 
       return alarmKey;
     }

@@ -1,5 +1,5 @@
-import MCWSIdentityProvider from './MCWSIdentityProvider';
-import mcws from 'services/mcws/mcws';
+import MCWSIdentityProvider from './MCWSIdentityProvider.js';
+import mcws from 'services/mcws/mcws.js';
 
 class User {
   constructor(id, name) {

@@ -1,6 +1,6 @@
 import TelemetryTable from 'openmct.tables.TelemetryTable';
-import PacketSummaryRowCollection from './PacketSummaryRowCollection';
-import PacketSummaryRow from './PacketSummaryRow';
+import PacketSummaryRowCollection from './PacketSummaryRowCollection.js';
+import PacketSummaryRow from './PacketSummaryRow.js';
 
 export default class PacketSummaryTable extends TelemetryTable {
   initialize() {

@@ -1,4 +1,4 @@
-import MCWSStreamProvider from './MCWSStreamProvider';
+import MCWSStreamProvider from './MCWSStreamProvider.js';
 
 /**
  * Provides real-time streaming DataProduct data.
@@ -39,15 +39,6 @@ class MCWSDataProductStreamProvider extends MCWSStreamProvider {
     }
 
     return super.subscribe(domainObject, wrappedCallback, options);
-  }
-
-  notifyWorker(key, value) {
-    if (key === 'subscribe' && this.options.realtimeProductAPIDs && value.mcwsVersion === 3.2) {
-      value.extraFilterTerms = {
-        apid: '(' + this.options.realtimeProductAPIDs.join(',') + ')'
-      };
-    }
-    super.notifyWorker(key, value);
   }
 }
 

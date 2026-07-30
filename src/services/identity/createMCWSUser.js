@@ -8,7 +8,7 @@ export default function createMCWSUser(UserClass) {
      * @param {MCWSUserInfo} userInfo
      */
     constructor(name) {
-      super(name, name); // no id is returned, so we use name twice
+      super(String(name).replace(/[^a-zA-Z0-9]/g, ''), name);
     }
   };
 }

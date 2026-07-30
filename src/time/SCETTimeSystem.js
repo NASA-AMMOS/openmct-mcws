@@ -1,5 +1,5 @@
-define([], function () {
-  function SCETTimeSystem(DEFAULT_UTC_FORMAT) {
+class SCETTimeSystem {
+  constructor(DEFAULT_UTC_FORMAT) {
     this.key = 'scet';
     this.name = 'SCET';
     this.cssClass = 'icon-clock';
@@ -7,6 +7,6 @@ define([], function () {
     this.durationFormat = 'duration';
     this.isUTCBased = true;
   }
+}
 
-  return SCETTimeSystem;
-});
+export default SCETTimeSystem;

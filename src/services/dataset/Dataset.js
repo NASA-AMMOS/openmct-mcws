@@ -1,59 +1,57 @@
-define([
-  './ChannelDictionary',
-  './EVRDictionary',
-  'services/mcws/mcws',
-  'services/session/SessionService',
-  '../../constants',
-  'lodash'
-], function (ChannelDictionary, EVRDictionary, mcwsDefault, sessionServiceDefault, constants, _) {
-  const mcws = mcwsDefault.default;
-  /**
-   * Takes a dataset object, and provides getters for all the objects
-   * that it contains.
-   *
-   * @property [channels] the dataset's channel dictionary, if it exists.
-   * @property [channelAlarms] the dataset's channelAlarm url, if they exist.
-   * @property [evrs] the dataset's evr dictionary, if it exists.
-   * @property [dictionaries] the dataset's dictionary urls, if they exist.
-   * @property [dataProducts] the dataset's dataProduct urls, if they exist.
-   * @property [packets] the dataset's packet urls, if they exist.
-   */
-  function Dataset(domainObject) {
+import ChannelDictionary from './ChannelDictionary.js';
+import EVRDictionary from './EVRDictionary.js';
+import mcws from 'services/mcws/mcws.js';
+import SessionService from 'services/session/SessionService.js';
+import constants from '../../constants.js';
+
+/**
+ * Takes a dataset object, and provides getters for all the objects
+ * that it contains.
+ *
+ * @property [channels] the dataset's channel dictionary, if it exists.
+ * @property [channelAlarms] the dataset's channelAlarm url, if they exist.
+ * @property [evrs] the dataset's evr dictionary, if it exists.
+ * @property [dictionaries] the dataset's dictionary urls, if they exist.
+ * @property [dataProducts] the dataset's dataProduct urls, if they exist.
+ * @property [packets] the dataset's packet urls, if they exist.
+ */
+class Dataset {
+  constructor(domainObject) {
     this.identifier = domainObject.identifier;
     this.options = this.castStreamUrlProtocols(domainObject);
 
     if (this.hasChannels()) {
       this.channels = new ChannelDictionary(this);
-      this.channels.urls = _.pick(this.options, constants.CHANNEL_COPY_KEYS);
+      this.channels.urls = this.pick(this.options, constants.CHANNEL_COPY_KEYS);
       this.channelAlarms = {
-        urls: _.pick(this.options, constants.CHANNEL_COPY_KEYS)
+        urls: this.pick(this.options, constants.CHANNEL_COPY_KEYS)
       };
     }
 
     if (this.hasHeaderChannels()) {
       this.headerChannels = {
-        urls: _.pick(this.options, constants.CHANNEL_COPY_KEYS),
+        urls: this.pick(this.options, constants.CHANNEL_COPY_KEYS),
         headerChannelsString: this.options.headerChannels
       };
     }
 
     if (this.hasEVRs()) {
       this.evrs = new EVRDictionary(this);
-      this.evrs.urls = _.pick(this.options, constants.EVR_PROPERTIES);
+      this.evrs.urls = this.pick(this.options, constants.EVR_PROPERTIES);
     }
     if (this.hasDictionaries()) {
       this.dictionaries = {
-        urls: _.pick(this.options, constants.DICTIONARY_PROPERTIES)
+        urls: this.pick(this.options, constants.DICTIONARY_PROPERTIES)
       };
     }
     if (this.hasDataProducts()) {
       this.dataProducts = {
-        urls: _.pick(this.options, constants.DATA_PRODUCT_PROPERTIES)
+        urls: this.pick(this.options, constants.DATA_PRODUCT_PROPERTIES)
       };
     }
     if (this.hasPackets()) {
       this.packets = {
-        urls: _.pick(this.options, constants.PACKET_PROPERTIES)
+        urls: this.pick(this.options, constants.PACKET_PROPERTIES)
       };
     }
     if (this.hasMessages()) {
@@ -79,93 +77,143 @@ define([
   }
 
   /**
+   * Helper method to replace lodash pick
+   */
+  pick(obj, keys) {
+    const result = {};
+    keys.forEach((key) => {
+      if (obj.hasOwnProperty(key)) {
+        result[key] = obj[key];
+      }
+    });
+    return result;
+  }
+
+  /**
+   * Helper method to replace lodash values
+   */
+  values(obj) {
+    return Object.values(obj);
+  }
+
+  /**
+   * Helper method to replace lodash some
+   */
+  some(array) {
+    return array.some((value) => Boolean(value));
+  }
+
+  /**
+   * Helper method to replace lodash every
+   */
+  every(keys, hasFunc) {
+    return keys.every((key) => hasFunc(key));
+  }
+
+  /**
+   * Helper method to replace lodash has
+   */
+  has(obj, key) {
+    return obj.hasOwnProperty(key);
+  }
+
+  /**
+   * Helper method to replace lodash partial
+   */
+  partial(func, ...args) {
+    return function (...remainingArgs) {
+      return func(...args, ...remainingArgs);
+    };
+  }
+
+  /**
    * Returns true if the dataset contains channels.
    *
    * @private
    */
-  Dataset.prototype.hasChannels = function () {
-    return _.some(_.values(_.pick(this.options, constants.CHANNEL_PROPERTIES)));
-  };
+  hasChannels() {
+    return this.some(this.values(this.pick(this.options, constants.CHANNEL_PROPERTIES)));
+  }
 
   /**
    * Returns true if the dataset contains EVRs.
    *
    * @private
    */
-  Dataset.prototype.hasEVRs = function () {
-    return _.some(_.values(_.pick(this.options, constants.EVR_PROPERTIES)));
-  };
+  hasEVRs() {
+    return this.some(this.values(this.pick(this.options, constants.EVR_PROPERTIES)));
+  }
 
   /**
    * Returns true if the dataset contains dictionaries.
    *
    * @private
    */
-  Dataset.prototype.hasDictionaries = function () {
-    return _.some(_.values(_.pick(this.options, constants.DICTIONARY_PROPERTIES)));
-  };
+  hasDictionaries() {
+    return this.some(this.values(this.pick(this.options, constants.DICTIONARY_PROPERTIES)));
+  }
 
   /**
    * Returns true if the dataset contains data products.
    *
    * @private
    */
-  Dataset.prototype.hasDataProducts = function () {
-    return _.every(constants.DATA_PRODUCT_PROPERTIES, _.partial(_.has, this.options));
-  };
+  hasDataProducts() {
+    return constants.DATA_PRODUCT_PROPERTIES.every((key) => this.has(this.options, key));
+  }
 
   /**
    * Returns true if the dataset contains packets.
    *
    * @private
    */
-  Dataset.prototype.hasPackets = function () {
-    return _.every(constants.PACKET_PROPERTIES, _.partial(_.has, this.options));
-  };
+  hasPackets() {
+    return constants.PACKET_PROPERTIES.every((key) => this.has(this.options, key));
+  }
 
-  Dataset.prototype.hasMessages = function () {
+  hasMessages() {
     return !!(this.options.messageStreamUrl || this.options.messageHistoricalUrl);
-  };
+  }
 
-  Dataset.prototype.hasFrameSummary = function () {
+  hasFrameSummary() {
     return !!(this.options.frameSummaryStreamUrl || this.options.frameSummaryStreamUrl);
-  };
+  }
 
-  Dataset.prototype.hasFrameEvent = function () {
+  hasFrameEvent() {
     return this.options.frameEventStreamUrl;
-  };
+  }
 
-  Dataset.prototype.hasAlarmMessage = function () {
+  hasAlarmMessage() {
     return this.options.alarmMessageStreamUrl;
-  };
+  }
 
-  Dataset.prototype.hasHeaderChannels = function () {
+  hasHeaderChannels() {
     return !!(this.options.headerChannels && this.options.channelStreamUrl);
-  };
+  }
 
-  Dataset.prototype.getActiveChannelDictionaryUrl = function () {
+  getActiveChannelDictionaryUrl() {
     return (
       this.options.channelDictionaryUrl &&
       this.getActiveDictionaryUrl(this.options.channelDictionaryUrl)
     );
-  };
+  }
 
-  Dataset.prototype.getActiveChannelEnumerationDictionaryUrl = function () {
+  getActiveChannelEnumerationDictionaryUrl() {
     return (
       this.options.channelEnumerationDictionaryUrl &&
       this.getActiveDictionaryUrl(this.options.channelEnumerationDictionaryUrl)
     );
-  };
+  }
 
-  Dataset.prototype.getActiveEvrDictionaryUrl = function () {
+  getActiveEvrDictionaryUrl() {
     return (
       this.options.eventRecordDictionaryUrl &&
       this.getActiveDictionaryUrl(this.options.eventRecordDictionaryUrl)
     );
-  };
+  }
 
-  Dataset.prototype.getActiveDictionaryUrl = function (url) {
-    const sessions = sessionServiceDefault.default();
+  getActiveDictionaryUrl(url) {
+    const sessions = new SessionService();
     let activeTopicOrSession = sessions.getActiveTopicOrSession();
     if (
       activeTopicOrSession &&
@@ -179,11 +227,11 @@ define([
       }
     }
     return url;
-  };
+  }
 
-  Dataset.prototype.omitsDictionaryVersion = function (url) {
+  omitsDictionaryVersion(url) {
     return /\/.*Dictionary\/?$/.test(url);
-  };
+  }
 
   /**
    * Returns the urlType
@@ -194,7 +242,7 @@ define([
    *
    * @private
    */
-  Dataset.prototype.urlType = function (url) {
+  urlType(url) {
     if (url.startsWith('/')) {
       if (url.startsWith('//')) {
         return 'protocol-relative';
@@ -204,7 +252,7 @@ define([
     } else if (/(ws|wss):/.test(url)) {
       return 'fully-qualified';
     }
-  };
+  }
 
   /**
    * Returns an options object with
@@ -212,16 +260,16 @@ define([
    *
    * @private
    */
-  Dataset.prototype.castStreamUrlProtocols = function (options) {
-    let streamKeys = constants.WEBSOCKET_STREAM_URL_KEYS,
-      protocol = window.location.protocol,
-      host = window.location.host;
+  castStreamUrlProtocols(options) {
+    const streamKeys = constants.WEBSOCKET_STREAM_URL_KEYS;
+    const protocol = window.location.protocol;
+    const host = window.location.host;
 
     streamKeys.forEach((streamKey) => {
-      let url = options[streamKey];
+      const url = options[streamKey];
 
       if (url) {
-        let urlType = this.urlType(url);
+        const urlType = this.urlType(url);
 
         if (urlType === 'protocol-relative') {
           if (protocol === 'https:') {
@@ -240,9 +288,9 @@ define([
     });
 
     return options;
-  };
+  }
 
-  Dataset.prototype.load = function () {
+  load() {
     if (this.loading) {
       return this.loading;
     }
@@ -254,24 +302,24 @@ define([
         .namespace(this.options.mcwsRootUrl)
         .getMetadata()
         .then(
-          function (m) {
+          (m) => {
             this.version = Number(m.get('mcws', 'has_version').slice(0, 3));
             delete this.loading;
             this.loaded = true;
             return this;
-          }.bind(this),
-          function () {
+          },
+          () => {
             this.version = 3.0; // minimum supported version
             this.loaded = true;
             delete this.loading;
             return this;
-          }.bind(this)
+          }
         ));
     }
     this.version = 3.0; // minimum supported version
     this.loaded = true;
     return Promise.resolve(this);
-  };
+  }
+}
 
-  return Dataset;
-});
+export default Dataset;

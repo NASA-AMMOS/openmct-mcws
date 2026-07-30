@@ -1,4 +1,4 @@
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 import RealtimeIndicator from './RealtimeIndicator.vue';
 
 export default function plugin(vistaTime, format) {

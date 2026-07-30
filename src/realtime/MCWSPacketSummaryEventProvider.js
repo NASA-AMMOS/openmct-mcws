@@ -1,4 +1,4 @@
-import MCWSStreamProvider from './MCWSStreamProvider';
+import MCWSStreamProvider from './MCWSStreamProvider.js';
 
 /**
  * Provides real-time streaming PacketSummaryEvent data.

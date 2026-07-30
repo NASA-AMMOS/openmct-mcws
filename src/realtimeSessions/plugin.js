@@ -1,4 +1,4 @@
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 import RealtimeSessionIndicator from './components/RealtimeSessionIndicator.vue';
 
 export default function plugin() {

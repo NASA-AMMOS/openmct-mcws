@@ -1,10 +1,10 @@
 import TelemetryTable from 'openmct.tables.TelemetryTable';
-import DataProductRow from './DataProductRow';
-import EMDColumn from './EMDColumn';
-import EMDPreviewColumn from './EMDPreviewColumn';
-import DATColumn from './DATColumn';
-import TXTColumn from './TXTColumn';
-import DataProductRowCollection from './DataProductRowCollection';
+import DataProductRow from './DataProductRow.js';
+import EMDColumn from './EMDColumn.js';
+import EMDPreviewColumn from './EMDPreviewColumn.js';
+import DATColumn from './DATColumn.js';
+import TXTColumn from './TXTColumn.js';
+import DataProductRowCollection from './DataProductRowCollection.js';
 import _ from 'lodash';
 
 export default class DataProductTable extends TelemetryTable {
@@ -38,7 +38,7 @@ export default class DataProductTable extends TelemetryTable {
 
     //If no persisted sort order, default to sorting by time system, ascending.
     sortOptions = sortOptions || {
-      key: this.openmct.time.timeSystem().key,
+      key: this.openmct.time.getTimeSystem().key,
       direction: 'asc'
     };
     this.tableRows.sortBy(sortOptions);

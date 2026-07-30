@@ -1,4 +1,4 @@
-import PacketSummaryViewProvider from './PacketSummaryViewProvider';
+import PacketSummaryViewProvider from './PacketSummaryViewProvider.js';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 
 export default function PacketSummaryPlugin(options) {

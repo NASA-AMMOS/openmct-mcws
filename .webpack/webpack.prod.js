@@ -3,10 +3,10 @@ This configuration should be used for production installs.
 It is the default webpack configuration.
 */
 
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common');
+import { merge } from 'webpack-merge';
+import common from './webpack.common.js';
 
 /** @type {import('webpack').Configuration} */
-module.exports = merge(common, {
+export default merge(common, {
   mode: 'production'
 });

@@ -1,5 +1,7 @@
-define(['moment'], function (moment) {
-  function LMSTTimeSystem(openmct) {
+import moment from 'moment';
+
+class LMSTTimeSystem {
+  constructor(openmct) {
     this.key = 'lmst';
     this.name = 'LMST';
     this.cssClass = 'icon-clock';
@@ -10,13 +12,13 @@ define(['moment'], function (moment) {
     this.openmct = openmct;
   }
 
-  LMSTTimeSystem.prototype.defaults = function () {
-    var mode = this.openmct.time.getMode();
+  defaults() {
+    const mode = this.openmct.time.getMode();
     if (mode === 'fixed') {
-      var nowLST = this.solFormat.format(moment.utc());
-      var sol = Number(/SOL-(\d+)M/.exec(nowLST)[1]);
-      var start = this.solFormat.parse('SOL-' + sol);
-      var end = this.solFormat.parse('SOL-' + (sol + 1));
+      const nowLST = this.solFormat.format(moment.utc());
+      const sol = Number(/SOL-(\d+)M/.exec(nowLST)[1]);
+      const start = this.solFormat.parse('SOL-' + sol);
+      const end = this.solFormat.parse('SOL-' + (sol + 1));
       return {
         bounds: {
           start: +start,
@@ -30,7 +32,7 @@ define(['moment'], function (moment) {
     }
 
     throw new Error('Unknown mode: ' + mode);
-  };
+  }
+}
 
-  return LMSTTimeSystem;
-});
+export default LMSTTimeSystem;

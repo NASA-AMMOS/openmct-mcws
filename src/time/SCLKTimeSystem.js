@@ -1,5 +1,5 @@
-define([], function () {
-  function SCLKTimeSystem() {
+class SCLKTimeSystem {
+  constructor() {
     this.key = 'sclk';
     this.name = 'SCLK as Float 64';
     this.cssClass = 'icon-clock';
@@ -7,6 +7,6 @@ define([], function () {
     this.durationFormat = 'number';
     this.isUTCBased = false;
   }
+}
 
-  return SCLKTimeSystem;
-});
+export default SCLKTimeSystem;

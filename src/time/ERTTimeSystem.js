@@ -1,5 +1,5 @@
-define([], function () {
-  function ERTTimeSystem(DEFAULT_UTC_FORMAT) {
+class ERTTimeSystem {
+  constructor(DEFAULT_UTC_FORMAT) {
     this.key = 'ert';
     this.name = 'ERT';
     this.cssClass = 'icon-clock';
@@ -7,6 +7,6 @@ define([], function () {
     this.durationFormat = 'duration';
     this.isUTCBased = true;
   }
+}
 
-  return ERTTimeSystem;
-});
+export default ERTTimeSystem;

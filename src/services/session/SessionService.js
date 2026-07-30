@@ -1,8 +1,8 @@
-import mcws from 'services/mcws/mcws';
-import DatasetCache from 'services/dataset/DatasetCache';
-import SessionURLHandler from './SessionURLHandler';
-import SessionLocalStorageHander from './SessionLocalStorageHandler';
-import { formatNumberSequence } from '../../utils/strings';
+import mcws from 'services/mcws/mcws.js';
+import DatasetCache from 'services/dataset/DatasetCache.js';
+import SessionURLHandler from './SessionURLHandler.js';
+import SessionLocalStorageHander from './SessionLocalStorageHandler.js';
+import { formatNumberSequence } from '../../utils/strings.js';
 const ERROR_PREFIX = 'Error when notifying listener: ';
 
 /**
@@ -243,13 +243,62 @@ class SessionService {
    *
    * @returns {Promise.<Topic[]>}
    */
-  async getTopicsWithSessions() {
+  async getTopicsWithSessions(resolveCachedDatasets = false) {
     if (this.realtimeSessionConfig.disable) {
       return Promise.resolve([]);
     }
 
-    const datasets = Object.values(this.getDatasets());
-    const validUrls = datasets.map((dataset) => dataset.options.sessionLADUrl).filter((url) => url);
+    let datasets = [];
+    // Need to wait for MIOs to load for the cached datasets to return.
+    const cachedDatasets = new Promise((resolve) => {
+      // Check once a second
+      const pollInterval = 1000;
+      let currentLength = 0;
+      let maxIterations = 15;
+      let currentIteration = 0;
+
+      const checkDatasets = () => {
+        const result = Object.values(this.getDatasets());
+
+        // no datasets
+        if (result.length === 0) {
+          // maxed out iterations, give up and resolve with empty array
+          if (currentIteration > maxIterations) {
+            resolve([]);
+
+            return;
+          }
+
+          currentIteration++;
+          setTimeout(checkDatasets, pollInterval);
+        } else { // we have datasets
+          // first time we have datasets
+          if (currentLength === 0) {
+            currentLength = result.length;
+            setTimeout(checkDatasets, pollInterval);
+          } else { // we've already seen some datasets, check for stability
+            if (result.length === currentLength) { // we have stability, resolve
+              resolve(result);
+            } else { // datasets still loading, wait for stability
+              currentLength = result.length;
+              setTimeout(checkDatasets, pollInterval);
+            } 
+          }
+        }
+      };
+
+      checkDatasets(); // Start polling
+    });
+
+    if (resolveCachedDatasets) {
+      datasets = await cachedDatasets;
+    } else {
+      datasets = Object.values(this.getDatasets());
+    }
+
+    const validUrls = datasets
+      .map((dataset) => dataset.options.sessionLADUrl)
+      .filter(Boolean);
     const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
       return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
     }, []);
@@ -376,8 +425,8 @@ class SessionService {
     if (
       model?.start_time &&
       model?.end_time &&
-      this.openmct.time.timeSystem().key === 'ert' &&
-      !this.openmct.time.clock()
+      this.openmct.time.getTimeSystem().key === 'ert' &&
+      !this.openmct.time.getClock()
     ) {
       const format = this.openmct.telemetry.getFormatter('utc.day-of-year');
       const start = format.parse(model.start_time);
@@ -387,7 +436,7 @@ class SessionService {
         end = format.endOfDay(end);
       }
 
-      this.openmct.time.bounds({
+      this.openmct.time.setBounds({
         start,
         end
       });
@@ -397,7 +446,7 @@ class SessionService {
 
     if (!boundsChanged) {
       //force a bounds change to trigger a requery for views
-      this.openmct.time.bounds(this.openmct.time.bounds());
+      this.openmct.time.setBounds(this.openmct.time.getBounds());
     }
   }
 

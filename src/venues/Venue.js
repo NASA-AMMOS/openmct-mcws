@@ -1,5 +1,5 @@
-import SessionService from 'services/session/SessionService';
-import constants from '../constants';
+import SessionService from 'services/session/SessionService.js';
+import constants from '../constants.js';
 
 const ADDITIONAL_FIELDS = [
   'prefix',

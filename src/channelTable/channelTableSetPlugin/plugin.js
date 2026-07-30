@@ -2,9 +2,9 @@ import {
   CHANNEL_TABLE_SET_ICON,
   CHANNEL_TABLE_SET_KEY,
   CHANNEL_TABLE_SET_NAME
-} from '../constants';
-import ChannelTableSetViewProvider from './ChannelTableSetViewProvider';
-import channelTableSetCompositionPolicy from './ChannelTableSetCompositionPolicy';
+} from '../constants.js';
+import ChannelTableSetViewProvider from './ChannelTableSetViewProvider.js';
+import channelTableSetCompositionPolicy from './ChannelTableSetCompositionPolicy.js';
 
 export default function ChannelTableSetPlugin() {
   return function install(openmct) {

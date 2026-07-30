@@ -1,32 +1,37 @@
-const path = require('path');
-const packageDefinition = require('../package.json');
-const webpack = require('webpack');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import pkg from '../package.json' with { type: 'json' };
 
-const { VueLoaderPlugin } = require('vue-loader');
+import webpack from 'webpack';
+import MiniCssExtractPlugin from 'mini-css-extract-plugin';
+
+import { VueLoaderPlugin } from 'vue-loader';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 let gitRevision = 'error-retrieving-revision';
 let gitBranch = 'error-retrieving-branch';
 
 try {
-  gitRevision = require('child_process').execSync('git rev-parse HEAD').toString().trim();
-  gitBranch = require('child_process')
-    .execSync('git rev-parse --abbrev-ref HEAD')
-    .toString()
-    .trim();
+  gitRevision = execSync('git rev-parse HEAD').toString().trim();
+  gitBranch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 } catch (err) {
   console.warn('Error retreiving git info', err);
 }
 
 /** @type {import('webpack').Configuration} */
 const config = {
-  context: path.join(__dirname, '..'),
+  context: join(__dirname, '..'),
   entry: {
-    'openmct-mcws': './loader.js'
+    'openmct-mcws-plugin': './plugin.js',
+    'legacy-index': './legacy-index.js'
+  },
+  experiments: {
+    outputModule: true // Enables the feature
   },
   output: {
     library: {
-      name: 'openmctMCWS',
-      type: 'umd'
+      type: 'module'
     },
     filename: '[name].js',
     hashFunction: 'xxhash64',
@@ -38,54 +43,50 @@ const config = {
        * Open MCT Source Paths
        * TODO FIXME these rely on openmct core source paths becase we extend core code directly
        */
-      '@': path.join(__dirname, '..', 'node_modules/openmct/src'),
-      objectUtils: path.join(
-        __dirname,
-        '..',
-        'node_modules/openmct/src/api/objects/object-utils.js'
-      ),
-      utils: path.join(__dirname, '..', 'node_modules/openmct/src/utils'),
-      'openmct.views.FolderGridViewComponent': path.join(
+      '@': join(__dirname, '..', 'node_modules/openmct/src'),
+      objectUtils: join(__dirname, '..', 'node_modules/openmct/src/api/objects/object-utils.js'),
+      utils: join(__dirname, '..', 'node_modules/openmct/src/utils'),
+      'openmct.views.FolderGridViewComponent': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/folderView/components/GridView.vue'
       ),
-      'openmct.views.FolderListViewComponent': path.join(
+      'openmct.views.FolderListViewComponent': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/folderView/components/ListView.vue'
       ),
-      'openmct.tables.TelemetryTable': path.join(
+      'openmct.tables.TelemetryTable': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/TelemetryTable.js'
       ),
-      'openmct.tables.TelemetryTableColumn': path.join(
+      'openmct.tables.TelemetryTableColumn': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/TelemetryTableColumn.js'
       ),
-      'openmct.tables.TelemetryTableRow': path.join(
+      'openmct.tables.TelemetryTableRow': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/TelemetryTableRow.js'
       ),
-      'openmct.tables.TelemetryTableConfiguration': path.join(
+      'openmct.tables.TelemetryTableConfiguration': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/TelemetryTableConfiguration.js'
       ),
-      'openmct.tables.collections.TableRowCollection': path.join(
+      'openmct.tables.collections.TableRowCollection': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/collections/TableRowCollection.js'
       ),
-      'openmct.tables.components.Table': path.join(
+      'openmct.tables.components.Table': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/components/TableComponent.vue'
       ),
-      'openmct.tables.components.TableConfiguration': path.join(
+      'openmct.tables.components.TableConfiguration': join(
         __dirname,
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue'
@@ -93,29 +94,30 @@ const config = {
       /**
        * Globals
        **/
-      openmct: path.join(__dirname, '..', 'node_modules/openmct/dist/openmct.js'),
+      openmct: join(__dirname, '..', 'node_modules/openmct/dist/openmct.js'),
       saveAs: 'file-saver/src/FileSaver.js',
       bourbon: 'bourbon.scss',
-      printj: path.join(__dirname, '..', 'node_modules/printj/dist/printj.min.js'),
+      printj: join(__dirname, '..', 'node_modules/printj/dist/printj.min.js'),
       /**
        * OMM Paths
        **/
-      types: path.join(__dirname, '..', 'src/types'),
-      services: path.join(__dirname, '..', 'src/services'),
-      lib: path.join(__dirname, '..', 'src/lib'),
-      tables: path.join(__dirname, '..', 'src/tables'),
-      ommUtils: path.join(__dirname, '..', 'src/utils'),
+      types: join(__dirname, '..', 'src/types'),
+      services: join(__dirname, '..', 'src/services'),
+      lib: join(__dirname, '..', 'src/lib'),
+      tables: join(__dirname, '..', 'src/tables'),
+      ommUtils: join(__dirname, '..', 'src/utils'),
       vue: 'vue/dist/vue.esm-bundler.js'
     }
   },
   plugins: [
     new webpack.DefinePlugin({
-      __OMM_VERSION__: `'${packageDefinition.version}'`,
+      __OMM_VERSION__: `'${pkg.version}'`,
       __OMM_BUILD_DATE__: `'${new Date()}'`,
       __OMM_REVISION__: `'${gitRevision}'`,
       __OMM_BUILD_BRANCH__: `'${gitBranch}'`,
-      __VUE_OPTIONS_API__: true, // enable/disable Options API support, default: true
-      __VUE_PROD_DEVTOOLS__: false // enable/disable devtools support in production, default: false
+      __VUE_OPTIONS_API__: true, // Options API support, default: true
+      __VUE_PROD_DEVTOOLS__: false, // devtools support in production, default: false
+      __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false // detailed hydration mismatch support when using esm-bundler, default: false
     }),
     new VueLoaderPlugin(),
     new MiniCssExtractPlugin({
@@ -181,4 +183,4 @@ const config = {
   stats: 'errors-warnings'
 };
 
-module.exports = config;
+export default config;

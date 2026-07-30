@@ -1,6 +1,6 @@
 import TelemetryTableConfiguration from 'openmct.tables.TelemetryTableConfiguration';
 import TableConfigurationComponent from 'openmct.tables.components.TableConfiguration';
-import mount from 'ommUtils/mountVueComponent';
+import mount from 'ommUtils/mountVueComponent.js';
 
 export default class VistaTableConfigurationProvider {
   constructor(key, name, type, openmct, options) {

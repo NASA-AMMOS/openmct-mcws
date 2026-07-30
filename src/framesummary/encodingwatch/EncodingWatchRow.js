@@ -1,6 +1,6 @@
-import FrameWatchRow from '../FrameWatchRow';
-import DatasetCache from 'services/dataset/DatasetCache';
-import Types from '../../types/types';
+import FrameWatchRow from '../FrameWatchRow.js';
+import DatasetCache from 'services/dataset/DatasetCache.js';
+import Types from '../../types/types.js';
 
 export default class EncodingWatchRow extends FrameWatchRow {
   constructor(datum, columns, objectKeyString, limitEvaluator, rowId, frameEventType) {

@@ -1,4 +1,4 @@
-import PacketQueryViewProvider from './PacketQueryViewProvider';
+import PacketQueryViewProvider from './PacketQueryViewProvider.js';
 
 export default function PacketSummaryPlugin() {
   return function install(openmct) {

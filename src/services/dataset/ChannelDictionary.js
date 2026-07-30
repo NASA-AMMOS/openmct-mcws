@@ -1,28 +1,57 @@
-define(['services/mcws/mcws', 'services/session/SessionService', 'lodash', 'openmct'], function (
-  mcwsDefault,
-  sessionServiceDefault,
-  _,
-  openmct
-) {
-  // TODO: implement basic ChannelDictionary object which takes 1-2 URLS and returns
-  const mcws = mcwsDefault.default;
+import mcws from 'services/mcws/mcws.js';
+import sessionServiceDefault from 'services/session/SessionService.js';
 
-  function ChannelDictionary(dataset) {
+// Helper function to replace lodash sortBy
+function sortBy(array, key) {
+  return [...array].sort((a, b) => {
+    const aVal = typeof key === 'function' ? key(a) : a[key];
+    const bVal = typeof key === 'function' ? key(b) : b[key];
+    if (aVal < bVal) return -1;
+    if (aVal > bVal) return 1;
+    return 0;
+  });
+}
+
+// Helper function to replace lodash keyBy
+function keyBy(array, key) {
+  return array.reduce((result, item) => {
+    const groupKey = typeof key === 'function' ? key(item) : item[key];
+    result[groupKey] = item;
+    return result;
+  }, {});
+}
+
+// Helper function to replace lodash groupBy
+function groupBy(array, key) {
+  return array.reduce((result, item) => {
+    const groupKey = typeof key === 'function' ? key(item) : item[key];
+    if (!result[groupKey]) {
+      result[groupKey] = [];
+    }
+    result[groupKey].push(item);
+    return result;
+  }, {});
+}
+
+// Helper function to replace lodash map
+function map(array, key) {
+  return array.map((item) => (typeof key === 'function' ? key(item) : item[key]));
+}
+
+// Helper function to replace lodash values
+function values(obj) {
+  return Object.values(obj);
+}
+
+// TODO: implement basic ChannelDictionary object which takes 1-2 URLS and returns
+class ChannelDictionary {
+  constructor(dataset) {
     this.dataset = dataset;
-    this.sessions = sessionServiceDefault.default();
+    this.sessions = sessionServiceDefault();
     this.channelsById = {};
     this.groupsByKey = {};
     this.groups = [];
     this.loaded = false;
-    [
-      'combineDictionaries',
-      'groupChannels',
-      'standardizeDictionary',
-      'fetchDictionaries',
-      'loadOnSessionChange'
-    ].forEach(function (method) {
-      this[method] = this[method].bind(this);
-    }, this);
 
     this.sessions.listen(this.loadOnSessionChange);
   }
@@ -32,84 +61,76 @@ define(['services/mcws/mcws', 'services/session/SessionService', 'lodash', 'open
    *
    * @public
    */
-  ChannelDictionary.prototype.getChannel = function (id) {
-    return this.load().then(
-      function () {
-        if (!this.channelsById[id]) {
-          return {
-            channel_id: id,
-            channel_name: 'MISSING CHANNEL',
-            status: 'missing'
-          };
-        }
-        return this.channelsById[id];
-      }.bind(this)
-    );
-  };
+  getChannel(id) {
+    return this.load().then(() => {
+      if (!this.channelsById[id]) {
+        return {
+          channel_id: id,
+          channel_name: 'MISSING CHANNEL',
+          status: 'missing'
+        };
+      }
+      return this.channelsById[id];
+    });
+  }
 
   /**
    * Gets all groups of channels.
    *
    * @public
    */
-  ChannelDictionary.prototype.getGroups = function () {
-    return this.load().then(
-      function () {
-        return this.groups;
-      }.bind(this)
-    );
-  };
+  getGroups() {
+    return this.load().then(() => {
+      return this.groups;
+    });
+  }
 
   /**
    * Gets a specific group of channels, by key.
    *
    * @public
    */
-  ChannelDictionary.prototype.getGroup = function (key) {
-    return this.load().then(
-      function () {
-        return this.groupsByKey[key];
-      }.bind(this)
-    );
-  };
+  getGroup(key) {
+    return this.load().then(() => {
+      return this.groupsByKey[key];
+    });
+  }
 
   /**
    * Gets channel ids in a specific group.
    *
    * @public
    */
-  ChannelDictionary.prototype.getGroupChannelIds = function (key) {
-    return this.getGroup(key).then(function (group) {
+  getGroupChannelIds(key) {
+    return this.getGroup(key).then((group) => {
       return group.channelIds;
     });
-  };
+  }
 
   /**
    * @private
    */
-  ChannelDictionary.prototype.load = function () {
+  load() {
     if (this.loaded) {
       return Promise.resolve();
     }
     if (!this.loading) {
       this.loading = this.dataset
         .load()
-        .then(this.fetchDictionaries)
-        .then(this.combineDictionaries)
-        .then(this.groupChannels)
-        .then(
-          function () {
-            this.loaded = true;
-          }.bind(this)
-        );
+        .then(() => this.fetchDictionaries())
+        .then((results) => this.combineDictionaries(results))
+        .then((channelDictionary) => this.groupChannels(channelDictionary))
+        .then(() => {
+          this.loaded = true;
+        });
     }
     return this.loading;
-  };
+  }
 
   /**
    * @private
    */
-  ChannelDictionary.prototype.loadOnSessionChange = function (session) {
+  loadOnSessionChange = (session) => {
     if (session) {
       this.loaded = false;
       this.loading = false;
@@ -120,9 +141,9 @@ define(['services/mcws/mcws', 'services/session/SessionService', 'lodash', 'open
   /**
    * @private
    */
-  ChannelDictionary.prototype.standardizeDictionary = function (channelDictionary) {
+  standardizeDictionary(channelDictionary) {
     if (channelDictionary[0]?.['channel-Mnemonic']) {
-      channelDictionary = channelDictionary.map(function (row) {
+      channelDictionary = channelDictionary.map((row) => {
         return {
           channel_id: row['channel-ID'],
           channel_name: row['channel-Mnemonic'],
@@ -134,20 +155,20 @@ define(['services/mcws/mcws', 'services/session/SessionService', 'lodash', 'open
       });
     }
 
-    return _.sortBy(channelDictionary, 'channel_id');
-  };
+    return sortBy(channelDictionary, 'channel_id');
+  }
 
   /**
    * @private
    */
-  ChannelDictionary.prototype.combineDictionaries = function (results) {
-    var channelDictionary = results[0],
-      enumerationDictionary = results[1];
+  combineDictionaries(results) {
+    const channelDictionary = results[0];
+    const enumerationDictionary = results[1];
 
-    this.channelsById = _.keyBy(channelDictionary, 'channel_id');
+    this.channelsById = keyBy(channelDictionary, 'channel_id');
 
-    enumerationDictionary.forEach(function (chanEnumDef) {
-      var id = chanEnumDef.channel_id;
+    enumerationDictionary.forEach((chanEnumDef) => {
+      const id = chanEnumDef.channel_id;
 
       if (!this.channelsById[id]) {
         return;
@@ -157,21 +178,21 @@ define(['services/mcws/mcws', 'services/session/SessionService', 'lodash', 'open
         this.channelsById[id].enumerations = [];
       }
       this.channelsById[id].enumerations.push(chanEnumDef);
-    }, this);
+    });
 
     return channelDictionary;
-  };
+  }
 
   /**
    * @private
    */
-  ChannelDictionary.prototype.fetchDictionaries = function () {
-    var fetching = [],
-      channelDictionaryUrl = this.dataset.getActiveChannelDictionaryUrl(),
-      channelEnumerationDictionaryUrl = this.dataset.getActiveChannelEnumerationDictionaryUrl();
+  fetchDictionaries() {
+    const fetching = [];
+    const channelDictionaryUrl = this.dataset.getActiveChannelDictionaryUrl();
+    const channelEnumerationDictionaryUrl = this.dataset.getActiveChannelEnumerationDictionaryUrl();
 
     if (channelDictionaryUrl) {
-      fetching.push(this.getDataTable(channelDictionaryUrl).then(this.standardizeDictionary));
+      fetching.push(this.getDataTable(channelDictionaryUrl).then((data) => this.standardizeDictionary(data)));
     } else {
       fetching.push(Promise.resolve([]));
     }
@@ -182,36 +203,33 @@ define(['services/mcws/mcws', 'services/session/SessionService', 'lodash', 'open
     }
 
     return Promise.all(fetching);
-  };
+  }
 
   /**
    * @private
    */
-  ChannelDictionary.prototype.groupChannels = function (channels) {
-    var byPrefix = _.groupBy(channels, function (channel) {
+  groupChannels(channels) {
+    const byPrefix = groupBy(channels, (channel) => {
       return channel.channel_id.split('-')[0];
     });
 
-    _.forEach(
-      byPrefix,
-      function (channels, prefix) {
-        this.groupsByKey[prefix] = {
-          name: prefix,
-          key: prefix,
-          channels: channels,
-          channelIds: _.map(channels, 'channel_id')
-        };
-      }.bind(this)
-    );
-    this.groups = _.sortBy(_.values(this.groupsByKey), 'name');
-  };
+    Object.entries(byPrefix).forEach(([prefix, channels]) => {
+      this.groupsByKey[prefix] = {
+        name: prefix,
+        key: prefix,
+        channels: channels,
+        channelIds: map(channels, 'channel_id')
+      };
+    });
+    this.groups = sortBy(values(this.groupsByKey), 'name');
+  }
 
   /**
    * @private
    */
-  ChannelDictionary.prototype.getDataTable = function (url) {
+  getDataTable(url) {
     return mcws.dataTable(url).read();
-  };
+  }
+}
 
-  return ChannelDictionary;
-});
+export default ChannelDictionary;

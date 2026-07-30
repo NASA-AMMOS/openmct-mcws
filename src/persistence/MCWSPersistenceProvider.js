@@ -1,7 +1,20 @@
-import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider';
-import mcws from '../services/mcws/mcws';
+import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider.js';
+import mcws from '../services/mcws/mcws.js';
 
 export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider {
+  /**
+   * Check if the identifier is a valid persistence namespace
+   *
+   * @param {module:openmct.ObjectAPI~Identifier} identifier An object identifier
+   * @returns {boolean} true if the identifier is a valid persistence namespace
+   */
+  appliesTo(identifier) {
+    return (
+      !this.invalidNamespaceKeys.includes(identifier.namespace) &&
+      this.allowedNamespaceKeys.some((key) => identifier.namespace.startsWith(key))
+    );
+  }
+
   /**
    * Read an existing object back from persistence.
    * @param module:openmct.ObjectAPI~Identifier identifier An object identifier
@@ -18,9 +31,8 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       options.signal = abortSignal;
     }
 
-    const persistenceNamespace = await this.#getNamespace(namespace, options);
-
     try {
+      const persistenceNamespace = await this.#getNamespace(namespace, options);
       let result = await persistenceNamespace.opaqueFile(key).read();
 
       result = await this.#fromPersistableModel(result, identifier);
@@ -28,6 +40,21 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       return result;
     } catch (error) {
       console.warn('MCWSPersistenceProvider:get', error);
+
+      // it's a network error, we don't want to create a new object
+      if (error.status !== 404) {
+        const userFolder = namespace.split(':')[0].split('-').pop();
+        this.openmct.notifications.error(
+          `Unable to open ${userFolder} folder. Close and open the folder to try again. If issue persists, check network connection and try again.`
+        );
+
+        return {
+          identifier,
+          type: 'unknown',
+          name: 'Error: ' + this.openmct.objects.makeKeyString(identifier),
+          networkError: true
+        };
+      }
 
       return;
     }

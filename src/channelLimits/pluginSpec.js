@@ -1,4 +1,4 @@
-import ChannelLimitsProvider from './ChannelLimitsProvider';
+import ChannelLimitsProvider from './ChannelLimitsProvider.js';
 
 describe('the channel limits provider', () => {
   let channelLimitsProvider;

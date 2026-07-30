@@ -1,6 +1,7 @@
-define(['moment'], function (moment) {
-  var MSL_EPOCH = moment.utc(Date.UTC(2012, 7, 5, 13, 49, 59)),
-    MARS_SECONDS_PER_EARTH_SECOND = 1.02749125;
+import moment from 'moment';
+
+const MSL_EPOCH = moment.utc(Date.UTC(2012, 7, 5, 13, 49, 59));
+const MARS_SECONDS_PER_EARTH_SECOND = 1.02749125;
 
   /**
    * The MSLSolDate formatter takes UTC dates and converts them to the correct
@@ -29,29 +30,28 @@ define(['moment'], function (moment) {
    * 3. Calculate UTC value by adding SOL0 to earth seconds elapsed.
    *
    * @implements {Format}
-   * @constructor
    */
-  function MSLSOLFormat() {
-    this.key = 'msl.sol';
-  }
-
-  MSLSOLFormat.prototype.FORMAT = '[SOL]-DDD[M]HH:mm:ss.SSS';
-  MSLSOLFormat.prototype.TIME_FORMAT = '[M]HH:mm:ss.SSS';
-  MSLSOLFormat.prototype.TIME_FORMATS = [
-    MSLSOLFormat.prototype.TIME_FORMAT,
+class MSLSOLFormat {
+  static FORMAT = '[SOL]-DDD[M]HH:mm:ss.SSS';
+  static TIME_FORMAT = '[M]HH:mm:ss.SSS';
+  static TIME_FORMATS = [
+    '[M]HH:mm:ss.SSS',
     '[M]HH:mm:ss.SSS',
     '[M]HH:mm:ss',
     '[M]HH:mm',
     '[M]HH'
   ];
+  static PATTERN = /SOL-(\d+)([M]\d{2}:\d{2}:\d{2}\.\d{0,4})?/;
 
-  MSLSOLFormat.prototype.PATTERN = /SOL-(\d+)([M]\d{2}:\d{2}:\d{2}\.\d{0,4})?/;
+  constructor() {
+    this.key = 'msl.sol';
+  }
 
   /**
    * @param {Number} utcValue a numerical representation of a utc date.
    * @returns {String} the utc date as a string representing MSL-SOL time.
    */
-  MSLSOLFormat.prototype.format = function (utcValue) {
+  format(utcValue) {
     if (!utcValue) {
       return '';
     }
@@ -60,50 +60,50 @@ define(['moment'], function (moment) {
       return utcValue;
     }
 
-    var earthTimeElapsed = moment.utc(utcValue) - MSL_EPOCH,
-      marsTimeElapsed = earthTimeElapsed / MARS_SECONDS_PER_EARTH_SECOND,
-      solDecimal = marsTimeElapsed / moment.utc(0).add(1, 'day'),
-      sol = Math.floor(solDecimal),
-      timeDecimal = solDecimal - sol,
-      time = moment.utc(timeDecimal * moment.utc(0).add(1, 'day'));
+    const earthTimeElapsed = moment.utc(utcValue) - MSL_EPOCH;
+    const marsTimeElapsed = earthTimeElapsed / MARS_SECONDS_PER_EARTH_SECOND;
+    const solDecimal = marsTimeElapsed / moment.utc(0).add(1, 'day');
+    const sol = Math.floor(solDecimal);
+    const timeDecimal = solDecimal - sol;
+    const time = moment.utc(timeDecimal * moment.utc(0).add(1, 'day'));
 
-    sol = String(sol);
-    while (sol.length < 4) {
-      sol = '0' + sol;
+    let solString = String(sol);
+    while (solString.length < 4) {
+      solString = '0' + solString;
     }
 
-    return 'SOL-' + sol + time.format(this.TIME_FORMAT);
-  };
+    return 'SOL-' + solString + time.format(MSLSOLFormat.TIME_FORMAT);
+  }
 
   /**
    *
    * @param {String} solDate a string sol date e.g. SOL-0000T12:00:00.
    * @returns {Number} the utc datetime equivalent of the sol.
    */
-  MSLSOLFormat.prototype.parse = function (text) {
+  parse(text) {
     if (!this.validate(text)) {
       return undefined;
     }
-    var matches = this.PATTERN.exec(text),
-      sol = matches[1],
-      time = matches[2],
-      solValue = moment.utc(0).add(sol, 'days'),
-      timeValue = time ? moment.utc(time, this.TIME_FORMATS) : moment.utc(0),
-      marsTimeElapsed = solValue.add({
+    const matches = MSLSOLFormat.PATTERN.exec(text);
+    const sol = matches[1];
+    const time = matches[2];
+    const solValue = moment.utc(0).add(sol, 'days');
+    const timeValue = time ? moment.utc(time, MSLSOLFormat.TIME_FORMATS) : moment.utc(0);
+    const marsTimeElapsed = solValue.add({
         hours: timeValue.hours(),
         minutes: timeValue.minutes(),
         seconds: timeValue.seconds(),
         milliseconds: timeValue.milliseconds()
-      }),
-      earthTimeElapsed = marsTimeElapsed * MARS_SECONDS_PER_EARTH_SECOND,
-      value = MSL_EPOCH + Math.round(earthTimeElapsed);
+    });
+    const earthTimeElapsed = marsTimeElapsed * MARS_SECONDS_PER_EARTH_SECOND;
+    const value = MSL_EPOCH + Math.round(earthTimeElapsed);
 
     return value;
-  };
+  }
 
-  MSLSOLFormat.prototype.validate = function (text) {
-    return this.PATTERN.test(text);
-  };
+  validate(text) {
+    return MSLSOLFormat.PATTERN.test(text);
+  }
+}
 
-  return MSLSOLFormat;
-});
+export default MSLSOLFormat;

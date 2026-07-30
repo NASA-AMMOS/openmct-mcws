@@ -1,17 +1,11 @@
-/* eslint-disable no-useless-escape */
-/*
- * TODO https://github.com/NASA-AMMOS/openmct-mcws/issues/281
- * to remove eslint-disable no-useless-escape
- */
-import VISTAType from './VISTAType';
-import HeaderChannelSourceType from './HeaderChannelSourceType';
-import _ from 'lodash';
+import VISTAType from './VISTAType.js';
+import HeaderChannelSourceType from './HeaderChannelSourceType.js';
 
 export default new VISTAType({
   key: 'vista.headerChannel',
   name: 'Header Channel',
   cssClass: 'icon-telemetry',
-  pattern: /^header-channel:([a-zA-Z0-9\-:]+):([a-zA-Z0-9\-]+)/,
+  pattern: /^header-channel:([a-zA-Z0-9-:]+):([a-zA-Z0-9-]+)/,
   transform: function (match) {
     return {
       datasetIdentifier: VISTAType.toIdentifier(match[1]),
@@ -58,7 +52,7 @@ export default new VISTAType({
     };
 
     if (dataset.hasHeaderChannels()) {
-      _.assignIn(object.telemetry, dataset.headerChannels.urls);
+      Object.assign(object.telemetry, dataset.headerChannels.urls);
     }
 
     return Promise.resolve(object);

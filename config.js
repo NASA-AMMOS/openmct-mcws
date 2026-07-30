@@ -350,43 +350,26 @@
     },
 
     /**
-     * Data Product Temporary Workaround:
-     *
-     * If you want to view real-time product data, you must specify all
-     * product APIDs that you want to see in the below array.  This config
-     * is only required for MCWS R3.2, and will not be required for
-     * MCWS R3.3.
-     *
-     * This list can be quickly extracted from apid.xml with the following
-     * python code:
-     *
-     * temporarily disable spellcheck, to be removed in https://github.com/NASA-AMMOS/openmct-mcws/issues/303
-     * cspell:disable
-     * import xml.etree.ElementTree as ET
-     * tree = ET.parse('apid.xml')
-     * apids = [int(a.attrib['number']) for a in tree.getroot() if a.tag == 'apid']
-     * cspell:enable
-     *
-     */
-    realtimeProductAPIDs: [],
-
-    /**
      * Plugin Support 
      * Example configuration:
      * plugins: {        
-        // Simple enable
+        // Simple enable:
+        // openmct.plugins.anotherPlugin()
         anotherPlugin: {
           enabled: true
         },
-        // Enable with options
-        configuredPlugin: {
+        // Enable with options:
+        // openmct.plugins.ConfiguredPlugin({setting1: 'value1', setting2: 'value2'}, 1000)
+        // 1000 is passed as the second argument to the plugin constructor
+        ConfiguredPlugin: {
           enabled: true,
           // these are passed as arguments to the plugin constructor
           configuration: [
             {
               setting1: 'value1',
               setting2: 'value2'
-            }
+            },
+            1000
           ]
         }
       }
@@ -395,11 +378,33 @@
       /**
        * Enable/disable summary widgets.  Added in R3.4.0.
        */
-      summaryWidgets: {
-        enabled: true
+      SummaryWidget: {
+        enabled: false
       },
       BarChart: {
         enabled: false
+      },
+      CorrelationTelemetry: {
+        enabled: false
+      },
+      ScatterPlot: {
+        enabled: false
+      },
+      Timeline: {
+        enabled: false
+      },
+      Timelist: {
+        enabled: false
+      },
+      PlanLayout: {
+        enabled: false,
+        configuration: [
+          {
+            name: 'Gantt Chart',
+            creatable: true,
+            namespace: '' // namespace to use for the activity state object
+          }
+        ]
       }
     },
 
@@ -605,7 +610,8 @@
      */
     // proxyUrl: 'http://localhost:8080/',
     // useDeveloperStorage: true,
-    assetPath: 'node_modules/openmct/dist'
+    assetPath: 'node_modules/openmct/dist',
+    mcwsPluginAssetPath: 'dist'
   };
 
   window.openmctMCWSConfig = openmctMCWSConfig;

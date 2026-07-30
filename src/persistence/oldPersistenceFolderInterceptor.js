@@ -1,4 +1,4 @@
-import { createModelFromNamespaceDefinition, interpolateUsername } from './utils';
+import { createModelFromNamespaceDefinition, interpolateUsername } from './utils.js';
 
 function isUserNamespace(namespace, userKeyRegex, identifier) {
   return namespace && userKeyRegex.test(identifier.namespace);
@@ -35,6 +35,11 @@ export default async function oldPersistenceFolderInterceptor(
     invoke: (identifier, object) => {
       let userId = 'system';
       let namespaceDefinition;
+
+      // if the object is a network error object, we don't want to create a new object
+      if (object.networkError === true) {
+        return object;
+      }
 
       if (
         isUserNamespace(usersNamespace, userKeyRegex, identifier) &&

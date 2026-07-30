@@ -45,8 +45,8 @@
 
 <script>
 import HistoricalSessionSelector from '../sessionSelector/historicalSessionSelector.vue';
-import SessionService from 'services/session/SessionService';
-import { formatNumberSequence } from '../../utils/strings';
+import SessionService from 'services/session/SessionService.js';
+import { formatNumberSequence } from '../../utils/strings.js';
 export default {
   components: {
     HistoricalSessionSelector
