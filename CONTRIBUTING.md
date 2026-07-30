@@ -16,7 +16,7 @@ Our Code of Conduct helps facilitate a positive interaction environment for ever
 
 ### Developer Environment
 
-For patch contributions, see our [Developer Documentation](https://github.com/NASA-AMMOS/openmct-mcws/wiki) for more details on how to set up your local environment, to best contribute to our project. 
+For patch contributions, see our [Developer Documentation](./README.md#development) for more details on how to set up your local environment, to best contribute to our project. 
 
 At a minimum however to submit patches (if using Git), you'll want to ensure you have:
 1. An account on the Version Control System our project uses (i.e. GitHub).
@@ -56,9 +56,7 @@ Make sure people are aware you're working on a patch! Check out our [issue track
 
 #### Choose the Right Branch to Fork
 
-Our project typically has the following branches available, make sure to fork either the default branch or a branch someone else already tagged with a particular issue ticket you're working with.
-- `main` &mdash; release branch 
-- `develop` &mdash; optional default branch, used primarily for new code development
+`main` is the default branch that contains the forward codepath for our project. Fork from either the default branch or a branch someone else already tagged with a particular issue ticket you're working with. For inclusion of code into other release branches, please contact a member of the team.
 
 ### Make your Modifications
 
@@ -66,21 +64,13 @@ Within your local development environment, this is the stage at which you'll pro
 
 #### Commit Messages
 
-Commit messages to version control should reference a ticket in their title / summary line:
-
-```
-Issue #248 - Show an example commit message title
-```
-
-This makes sure that tickets are updated on GitHub with references to commits that are related to them.
-
-Commit should always be atomic. Keep solutions isolated whenever possible. Filler commits such as "clean up white space" or "fix typo" should be merged together before making a pull request, and significant sub-feature branches should be [rebased](https://www.youtube.com/results?search_query=git+rebase) to preserve commit history. Please ensure your commit history is clean and meaningful!
+Commit messages should be clear and describe the changes in the commit. Commits should always be atomic. Keep solutions isolated whenever possible.
 
 ### Submit a Pull Request
 
 Pull requests are the core way our project will receive your patch contributions. Navigate to your branch on your own fork within the version control system, and submit a pull request or submit the patch text to our project. 
 
-Please make sure to provide a meaningful text description to your pull requests, whenever submitted. Our pull-request template will be auto-generated for you when you create your pull-request. See the template [here](.github/PULL_REQUEST_TEMPLATE.md). 
+Please make sure to provide a meaningful text description to your pull requests, whenever submitted. Our pull-request template will be auto-generated for you when you create your pull-request. See the template [here](.github/PULL_REQUEST_TEMPLATE.md). Pull requests are merged using squash merge strategy, so it is the reviewer's responsibility to ensure the final pull request commit  be descriptive.
 
 **Working on your first Pull Request?** See guide: [How to Contribute to an Open Source Project on GitHub](https://kcd.im/pull-request)
 
@@ -162,7 +152,10 @@ Here's some guidance on submitting a new feature issue:
 
 Security vulnerabilities should **not** be filed to the regular issue tracking system.
 
-Report your security vulnerabilities to (see contact links): [@jl-0](https://github.com/jl-0) or [@sharimayer](https://github.com/sharimayer)
+Report your security vulnerabilities to (see contact links):
+- [@jvigliotta](https://github.com/jvigliotta)
+- [@davetsay](https://github.com/davetsay)
+- [@jl-0](https://github.com/jl-0)
 
 Please be sure to:
 * Indicate the severity of the vulnerability
@@ -193,7 +186,7 @@ Some guidelines for code-specific contributions:
 - **Do your homework** - read-up on necessary documentation, like `README.md`s, developer documentation, and pre-existing code to see the intention and context necessary to make your contribution a success. It's important to _communicate_ what you're working on through our project [communication channels](#communication-channels) and get buy-in from frequent contributors - this will help the project be more receptive to your contributions! 
 - **Ask questions** - its important to ask questions while you work on your contributions, to check-in with frequent contributors on the style and the set of expectations to make your code contribution work well with pre-existing project code. Use our [communication channels](#communication-channels)
 - **Keep positive** - code contributions, by their nature, have direct impacts on the output and functionality of the project. Keep a positive spirit as your code is reviewed, and take it in stride if core contributors take time to review, give you suggestions for your code or respectfully decline your contribution. This is all part of the process for quality open source development. 
-- **Comments** - include *useful* comments throughout your code that explain the intention of a code block, not a step-by-step analysis. See our [inline code documentation](#inline-code-documentation) section for specifics. 
+- **Comments** - include *useful* comments throughout your code that explain the intention of a code block, not a step-by-step analysis. Your code should be your comments, so only include comments that cannot be captured using clear logic and descriptive variables. See our [inline code documentation](#inline-code-documentation) section for specifics. 
 <!-- EXAMPLE: APIs, PyTest, etc.
 [INSERT ADDITIONAL SECTIONS HERE FOR MORE SPECIFIC CLASSES OF CODE CONTRIBUTIONS DEPENDING ON YOUR MODULES, LANGUAGES, PLATFORMS IN USE BY YOUR PROJECT. THE MORE DETAILS YOU OFFER, THE MORE LIKELY SOMEONE IS TO UNDERSTAND HOW TO CONTRIBUTE]
  -->
@@ -220,7 +213,7 @@ The overall structure of our project documentation is as follows:
   - [CONTRIBUTING.md](CONTRIBUTING.md) - guidance on contributing to the project
   - `*.java`, `*.py`, `*.sh`, etc. - inline documentation available inside code files
 - Hosted documentation
-  - [Wiki Main-page](https://github.com/NASA-AMMOS/openmct-mcws/wiki)
+  - [Wiki Main-page](https://github.com/NASA-AMMOS/openmct-mcws/wiki) Under Contruction
 - Discussion Boards
   - [Discussions](https://github.com/NASA-AMMOS/openmct-mcws/discussions)
 

@@ -11,7 +11,12 @@ Various configurations and customizations are available by editing `config.js`. 
 
 ## Development
 
-### 1. Install Open MCT for MCWS
+### 1. Clone Open MCT for MCWS
+In a terminal, run this command to clone Open MCT for MCWS
+
+    git clone https://github.com/NASA-AMMOS/openmct-mcws.git
+
+### 2. Install Open MCT for MCWS
 In a terminal, run this command to install Open MCT for MCWS and its dependencies. This may take a few minutes.
 
     npm install
@@ -20,17 +25,17 @@ If you've installed Open MCT for MCWS locally before, first run this command.
 
     npm run clean
 
-### 2. Modify config.js
+### 3. Modify config.js
 Uncomment the `proxyUrl` setting in `config.js`. It is located under Developer 
 Settings near the end of the file.
 
-### 3. Run Open MCT for MCWS locally
+### 4. Run Open MCT for MCWS locally
 
     npm start
 
 With that running, browse to http://localhost:8080/ to access Open MCT for MCWS.
 
-### 4. Rebuilding SASS stylesheets
+### 5. Rebuilding SASS stylesheets
 
     npm run build:prod
 
