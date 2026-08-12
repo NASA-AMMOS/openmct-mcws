@@ -1,9 +1,13 @@
 const path = require('path');
 
-module.exports = function (config) {
-  const webpackConfig = require('./.webpack/webpack.dev.js');
+module.exports = async function (config) {
+  const webpackConfig = (await import('./.webpack/webpack.dev.js')).default;
   delete webpackConfig.output;
   delete webpackConfig.entry;
+
+  if (webpackConfig.experiments) {
+    webpackConfig.experiments.outputModule = false;
+  }
 
   webpackConfig.module.rules.push({
     test: /\.js$/,
@@ -22,7 +26,7 @@ module.exports = function (config) {
 
     // Frameworks to use
     // Available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['jasmine'],
+    frameworks: ['jasmine', 'webpack'],
 
     // List of files / patterns to load in the browser.
     // By default, files are also included in a script tag.
