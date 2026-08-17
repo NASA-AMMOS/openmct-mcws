@@ -33,17 +33,15 @@ describe('Venue', () => {
       commandEventUrl: '/qdb/CommandEvent',
       commandEventStreamUrl: 'wss://host/mcws/stream/CommandEvent'
     };
-    openmct = jasmine.createSpyObj('openmct', ['on']);
-    openmct.on.and.returnValue(Promise.resolve());
-    sessionService = new SessionService(openmct, {
+    openmct = {
+      on: jasmine.createSpy('on').and.returnValue(Promise.resolve()),
+      notifications: jasmine.createSpyObj('notifications', ['info', 'alert']),
+      objectViews: jasmine.createSpyObj('objectViews', ['emit'])
+    };
+    SessionService(openmct, {
       sessions: {
-        historicalSessionFilter: {
-          disable: false,
-          maxRecords: 1000
-        },
-        realtimeSession: {
-          disable: false
-        }
+        historicalSessionFilter: { disable: false, maxRecords: 1000 },
+        realtimeSession: { disable: false }
       }
     });
     sessionService = jasmine.createSpyObj('sessionService', ['getActiveSessions']);
