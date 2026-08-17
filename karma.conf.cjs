@@ -1,6 +1,6 @@
-const path = require('path');
+const path = require('node:path');
 
-module.exports = async function (config) {
+module.exports = async function karmaConfig(config) {
   const webpackConfig = (await import('./.webpack/webpack.dev.js')).default;
   delete webpackConfig.output;
   delete webpackConfig.entry;
