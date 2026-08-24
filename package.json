@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws-plugin",
-  "version": "v6.0.0-rc2",
+  "version": "6.0.0",
   "description": "Open MCT for MCWS",
   "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
@@ -66,7 +66,7 @@
     "webpack-merge": "5.10.0"
   },
   "peerDependencies": {
-    "openmct": "4.3.0-rc1"
+    "openmct": "4.3.0"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
@@ -86,7 +86,7 @@
     "url": "https://github.com/NASA-AMMOS/openmct-mcws"
   },
   "engines": {
-    "node": ">=18.18.0 <23"
+    "node": ">=24.14.1"
   },
   "overrides": {
     "core-js": "3.21.1"
