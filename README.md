@@ -6,7 +6,7 @@ Open Mission Control Technologies, or [Open MCT](https://github.com/nasa/openmct
 ## Installation
 
 ### Installing Open MCT with the Build Tool
-Follow instructions to install the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) (requires access request). The MCWS Plugin is then included and customized in build tool configuration.
+Follow instructions to install the [Open MCT Build Tool](https://github.com/nasa/openmct-build). The MCWS Plugin is then included and customized in build tool configuration.
 
 #### Installing MCWS Plugin via Build Tool command line
 1. Add the plugin
@@ -43,7 +43,7 @@ mct build --recipe recipes/mcws/prod.yaml --instance prod-instance
   # yaml-language-server: $schema=../../src/assets/openmct-configuration-schema.json
   # Builds Open MCT for MCWS without dev plugins enabled. Requires an MCWS server to connect to.
   openmct:
-    version: latest 
+    version: latest
     plugins:
     - openmct.plugins.Snow # Theme: 'Snow', 'Espresso' or 'Maelstrom'
     - openmct.plugins.ObjectMigration
@@ -76,19 +76,22 @@ mct build --recipe recipes/mcws/prod.yaml --instance prod-instance
           useClockIndicator: false
     - openmct.plugins.DefaultRootName:
         options: ['VISTA']
+    - openmct.plugins.MyItems:
+        enabled: false
     - openmct-mcws-plugin:
-        npmPackage: openmct-mcws-plugin
+        npmPackage: latest
         options:
           useDeveloperStorage: false
+          camUrl: ''
           mcwsUrl: ''
           namespaces:
-            - key: 'r50-dev'
-              name: 'R5.0 Shared'
-              url: ''
+            - key: 'example-key'
+              name: 'Deployment Shared'
+              url: '/path/to/persistence/shared'
             - userNamespace: true
-              key: 'r50-dev'
-              name: 'R5.0 Users'
-              url: ''
+              key: 'example-key'
+              name: 'Deployment Users'
+              url: '/path/to/persistence/users'
   ```
   *The recipe example above shows typical build-time values, not the plugin’s built-in defaults.*
 </details>
@@ -128,7 +131,7 @@ This repository still includes a legacy standalone app entry point (`index.html`
 
 Edit `config.js` to set `window.openmctMCWSConfig` (all plugin options). Run `npm install`, build with `npm run build:prod` and run with `npm start`, or package with Maven for Tomcat.
 
-For new deployments, prefer the [Open MCT Build Tool](https://github.com/akhenry/openmct-build) with optional runtime `mcws-config.json` (see Configuration above).
+For new deployments, prefer the [Open MCT Build Tool](https://github.com/nasa/openmct-build) with optional runtime `mcws-config.json` (see Configuration above).
 The [legacy branch](https://github.com/NASA-AMMOS/openmct-mcws/tree/legacy) contains the previous combined Open MCT + MCWS product layout.
 
 ## Connecting to MCWS
