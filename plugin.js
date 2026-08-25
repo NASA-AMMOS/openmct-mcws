@@ -82,8 +82,8 @@ function buildSourceObj(configName, value) {
 // merge a single layer of the config object into the target object
 // and track the source of the values, this is the main merge/track function
 function mergeConfiguration(targetConfig, sourceConfig, name, sourceTags = {}) {
-  const output = {...targetConfig};
-  const tags = {...sourceTags};
+  const output = Object.assign({}, targetConfig);
+  const tags = Object.assign({}, sourceTags);
 
   if (!isObject(sourceConfig)) {
     return { config: output, sources: tags };
