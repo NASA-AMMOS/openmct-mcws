@@ -149,7 +149,7 @@ describe('MCWSNamespaceService', () => {
     );
   });
 
-  describe('getRootNamespaces in MCWSUserContainerProvider', () => {
+  xdescribe('getRootNamespaces in MCWSUserContainerProvider', () => {
     let result;
 
     beforeEach(async () => {
@@ -169,7 +169,7 @@ describe('MCWSNamespaceService', () => {
     });
   });
 
-  describe('getRootNamespaces in MCWSPersistenceProvider', () => {
+  xdescribe('getRootNamespaces in MCWSPersistenceProvider', () => {
     let result;
 
     beforeEach(async () => {

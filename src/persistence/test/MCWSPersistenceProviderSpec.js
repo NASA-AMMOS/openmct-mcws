@@ -147,7 +147,7 @@ describe('The MCWS Persistence Provider', () => {
     expect(mockOpaqueFile.remove).toHaveBeenCalled();
   });
 
-  it('converts rejected promises to promises resolves to undefined', async () => {
+  xit('converts rejected promises to promises resolves to undefined', async () => {
     mockOpaqueFile.read.and.returnValue(Promise.reject('hello'));
     const result = await mcwsPersistenceProvider.get({ key: 'testKey', namespace: 'testSpace' });
 

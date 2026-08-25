@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws-plugin",
-  "version": "v6.0.0-rc2",
+  "version": "6.0.0",
   "description": "Open MCT for MCWS",
   "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
@@ -66,7 +66,7 @@
     "webpack-merge": "5.10.0"
   },
   "peerDependencies": {
-    "openmct": "^4.0.0"
+    "openmct": "4.3.0"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
@@ -77,7 +77,7 @@
     "build:prod": "webpack --config ./.webpack/webpack.prod.js",
     "build:dev": "webpack --config ./.webpack/webpack.dev.js",
     "build:watch": "webpack --config ./.webpack/webpack.dev.js --watch",
-    "test": "karma start --single-run",
+    "test": "karma start karma.conf.cjs --single-run",
     "jshint": "jshint src/**/*.js || exit 0",
     "prepare": "node -e \"if (require('fs').existsSync('node_modules/webpack-cli')) { require('child_process').execSync('npm run build:prod', {stdio: 'inherit'}) }\" || true"
   },
@@ -86,7 +86,7 @@
     "url": "https://github.com/NASA-AMMOS/openmct-mcws"
   },
   "engines": {
-    "node": ">=18.18.0 <23"
+    "node": ">=24.14.1"
   },
   "overrides": {
     "core-js": "3.21.1"

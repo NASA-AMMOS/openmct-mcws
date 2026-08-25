@@ -50,11 +50,26 @@ describe('SessionService', () => {
       }
     };
 
-    openmct = jasmine.createSpyObj('openmct', ['time', 'objectViews', 'notifications', 'on']);
-    openmct.time = jasmine.createSpyObj('time', ['getTimeSystem', 'getBounds', 'getClock']);
+    openmct = {
+      on: jasmine.createSpy('on').and.returnValue(Promise.resolve()),
+      time: jasmine.createSpyObj('time', [
+        'getTimeSystem', 'getBounds', 'getClock', 'setBounds', 'isFixed'
+      ]),
+      objectViews: jasmine.createSpyObj('objectViews', ['emit']),
+      notifications: jasmine.createSpyObj('notificationApi', ['info', 'alert'])
+    };
+    openmct.time = jasmine.createSpyObj('time', [
+      'getTimeSystem',
+      'getBounds',
+      'getClock',
+      'setBounds',
+      'isFixed'
+    ]);
     openmct.objectViews = jasmine.createSpyObj('objectViews', ['emit']);
     openmct.time.getTimeSystem.and.returnValue({ key: 'ert' });
     openmct.time.getClock.and.returnValue(true);
+    openmct.time.isFixed.and.returnValue(true);
+    openmct.time.getBounds.and.returnValue({ start: 0, end: 1 });
     openmct.on.and.returnValue(Promise.resolve());
 
     openmct.notifications = jasmine.createSpyObj('notificationApi', ['info', 'alert']);
@@ -72,6 +87,8 @@ describe('SessionService', () => {
     };
 
     sessionService = new SessionService(openmct, openmctMCWSConfig);
+    sessionService.openmct = openmct;
+    sessionService.notificationService = openmct.notifications;
 
     spyOn(sessionService, 'listen').and.callThrough();
     spyOn(sessionService, 'listenForHistoricalChange').and.callThrough();
@@ -314,7 +331,7 @@ describe('SessionService', () => {
     });
   });
 
-  describe('getTopicsWithSession', () => {
+  describe('getHistoricalSessions', () => {
     beforeEach(async () => {
       dataTable.read.and.returnValue(
         Promise.resolve([
@@ -345,6 +362,8 @@ describe('SessionService', () => {
           }
         ])
       );
+
+      await sessionService.getHistoricalSessions({});
     });
 
     it('gets available historical sessions for all datasets', () => {
