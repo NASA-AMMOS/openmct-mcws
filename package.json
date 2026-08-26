@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws-plugin",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Open MCT for MCWS",
   "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
@@ -66,7 +66,7 @@
     "webpack-merge": "5.10.0"
   },
   "peerDependencies": {
-    "openmct": "4.3.0"
+    "openmct": "4.3.1"
   },
   "scripts": {
     "clean": "npm cache clean --force;rm -rf ./dist ./node_modules ./target ./package-lock.json",
