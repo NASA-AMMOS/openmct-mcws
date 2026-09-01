@@ -1,26 +1,26 @@
-  /**
-     * A type for representing different types of VISTA objects and allowing
-     * similar operations (such as making ids) to be shared between different
-     * sections of code.
-     *
-     * @param {Object} attrs attributes specific to the Type.  Will become
-     * available as instance properties of the object.
-     * @param {string} attrs.key type key registered with Open MCT.
-     * @param {string} attrs.type type label registered with Open MCT.
-     * @param {string} attrs.cssClass display class registered with Open MCT.
-     * @param {RegExp} [attrs.pattern] a pattern for matching ids of this type.
-     * @param {Function} [attrs.transform] A function that takes a RegExp match
-     * object (received by matching `pattern`) and return an object containing
-     * all identifying information in the id.
-     * @param {Function} [attrs.makeId] A function that generates ids for this
-     * type.  Should expect to take a parameter similar to that returned by
-     * `transform`
-     * @param {Function} [attrs.name] A function for generating names for
-     * objects of this type.  Will receive `Dataset` and `data` parameters and
-     * should return a name from that.
-     * @param {Function} [attrs.location] A function that returns the identifier
-     * for the parent object of a specific instance of this object type.
-     */
+/**
+ * A type for representing different types of VISTA objects and allowing
+ * similar operations (such as making ids) to be shared between different
+ * sections of code.
+ *
+ * @param {Object} attrs attributes specific to the Type.  Will become
+ * available as instance properties of the object.
+ * @param {string} attrs.key type key registered with Open MCT.
+ * @param {string} attrs.type type label registered with Open MCT.
+ * @param {string} attrs.cssClass display class registered with Open MCT.
+ * @param {RegExp} [attrs.pattern] a pattern for matching ids of this type.
+ * @param {Function} [attrs.transform] A function that takes a RegExp match
+ * object (received by matching `pattern`) and return an object containing
+ * all identifying information in the id.
+ * @param {Function} [attrs.makeId] A function that generates ids for this
+ * type.  Should expect to take a parameter similar to that returned by
+ * `transform`
+ * @param {Function} [attrs.name] A function for generating names for
+ * objects of this type.  Will receive `Dataset` and `data` parameters and
+ * should return a name from that.
+ * @param {Function} [attrs.location] A function that returns the identifier
+ * for the parent object of a specific instance of this object type.
+ */
 class VISTAType {
   constructor(attrs) {
     Object.assign(this, attrs);

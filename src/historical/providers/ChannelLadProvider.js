@@ -2,8 +2,6 @@ import mcws from 'services/mcws/mcws.js';
 import types from '../../types/types.js';
 import { groupBy, keyBy, setSortFilter } from '../../utils/utils.js';
 
-
-
 class ChannelLadProvider {
   supportsRequest(domainObject, request) {
     return (

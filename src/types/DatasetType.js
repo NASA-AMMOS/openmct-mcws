@@ -3,11 +3,12 @@ import VISTAType from './VISTAType.js';
 const DatasetType = new VISTAType({
   key: 'vista.dataset',
   name: 'Data Set',
-  description: `Combine one or more data sources such as historical, ` +
-  `streaming, LAD or MinMax into a unified collection. Once added, ` +
-  `sources become available in the Data Set folder as Channel and ` +
-  `Event Record objects which can be viewed directly or used in ` +
-  `Plots, Channel Tables and Display Layouts.`,
+  description:
+    `Combine one or more data sources such as historical, ` +
+    `streaming, LAD or MinMax into a unified collection. Once added, ` +
+    `sources become available in the Data Set folder as Channel and ` +
+    `Event Record objects which can be viewed directly or used in ` +
+    `Plots, Channel Tables and Display Layouts.`,
   creatable: 'true',
   cssClass: 'icon-dataset',
   initialize: function (domainObject) {

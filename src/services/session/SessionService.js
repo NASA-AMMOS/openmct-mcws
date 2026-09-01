@@ -271,18 +271,22 @@ class SessionService {
 
           currentIteration++;
           setTimeout(checkDatasets, pollInterval);
-        } else { // we have datasets
+        } else {
+          // we have datasets
           // first time we have datasets
           if (currentLength === 0) {
             currentLength = result.length;
             setTimeout(checkDatasets, pollInterval);
-          } else { // we've already seen some datasets, check for stability
-            if (result.length === currentLength) { // we have stability, resolve
+          } else {
+            // we've already seen some datasets, check for stability
+            if (result.length === currentLength) {
+              // we have stability, resolve
               resolve(result);
-            } else { // datasets still loading, wait for stability
+            } else {
+              // datasets still loading, wait for stability
               currentLength = result.length;
               setTimeout(checkDatasets, pollInterval);
-            } 
+            }
           }
         }
       };
@@ -296,9 +300,7 @@ class SessionService {
       datasets = Object.values(this.getDatasets());
     }
 
-    const validUrls = datasets
-      .map((dataset) => dataset.options.sessionLADUrl)
-      .filter(Boolean);
+    const validUrls = datasets.map((dataset) => dataset.options.sessionLADUrl).filter(Boolean);
     const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
       return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
     }, []);
