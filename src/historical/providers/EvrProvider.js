@@ -4,8 +4,7 @@ import { setSortFilter, setMaxResults, isLADQuery } from '../../utils/utils.js';
 class EvrProvider {
   supportsRequest(domainObject, options) {
     const hasTelemetry = Boolean(domainObject.telemetry);
-    const hasEvrHistoricalUrl =
-      hasTelemetry && Boolean(domainObject.telemetry.evrHistoricalUrl);
+    const hasEvrHistoricalUrl = hasTelemetry && Boolean(domainObject.telemetry.evrHistoricalUrl);
     const hasEvrLADUrl = hasTelemetry && Boolean(domainObject.telemetry.evrLADUrl);
 
     return hasEvrHistoricalUrl || (hasEvrLADUrl && isLADQuery(options));

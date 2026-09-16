@@ -22,13 +22,11 @@ const EVRSourceType = new VISTAType({
   },
   getComposition: function (domainObject, dataset, data, types) {
     if (dataset.hasEVRs()) {
-      return Promise.all([dataset.evrs.getModules(), dataset.evrs.getLevels()]).then(
-        (results) => {
-          return results[1].concat(results[0]).map((module) => {
-            return types.EVRModule.makeIdentifier(module, data.datasetIdentifier);
-          });
-        }
-      );
+      return Promise.all([dataset.evrs.getModules(), dataset.evrs.getLevels()]).then((results) => {
+        return results[1].concat(results[0]).map((module) => {
+          return types.EVRModule.makeIdentifier(module, data.datasetIdentifier);
+        });
+      });
     }
     return Promise.resolve([]);
   },
@@ -46,11 +44,11 @@ const EVRSourceType = new VISTAType({
           }
         };
 
-        constants.EVR_PROPERTIES
-          .filter((key) => dataset.options.hasOwnProperty(key))
-          .forEach((key) => {
+        constants.EVR_PROPERTIES.filter((key) => dataset.options.hasOwnProperty(key)).forEach(
+          (key) => {
             object.telemetry[key] = dataset.options[key];
-          });
+          }
+        );
 
         return object;
       });
