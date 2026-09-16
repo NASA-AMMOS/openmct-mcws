@@ -1,6 +1,6 @@
 // This is a Babel config that webpack.coverage.js uses in order to instrument
 // code with coverage instrumentation.
-const babelConfig = {
+export default {
   plugins: [
     [
       'babel-plugin-istanbul',
@@ -10,5 +10,3 @@ const babelConfig = {
     ]
   ]
 };
-
-module.exports = babelConfig;
