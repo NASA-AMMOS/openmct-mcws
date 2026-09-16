@@ -145,10 +145,20 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
    * @returns {Promise<Object>} A promise that resolves to the MCWS namespace.
    */
   async #getNamespace(persistenceSpace, options) {
-    const persistenceNamespaces = await this.getPersistenceNamespaces();
-    const persistenceNamespace = persistenceNamespaces.find((namespace) => {
+    let persistenceNamespaces = await this.getPersistenceNamespaces();
+    let persistenceNamespace = persistenceNamespaces.find((namespace) => {
       return namespace.key === persistenceSpace;
     });
+
+    if (!persistenceNamespace) {
+      // The namespace may have been created by another user's session after
+      // our cache was populated; refresh once before giving up.
+      delete this.persistenceNamespaces;
+      persistenceNamespaces = await this.getPersistenceNamespaces();
+      persistenceNamespace = persistenceNamespaces.find((namespace) => {
+        return namespace.key === persistenceSpace;
+      });
+    }
 
     return mcws.namespace(persistenceNamespace.url, options);
   }
