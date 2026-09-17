@@ -1,6 +1,5 @@
 import AboutTemplate from './about.html';
-// eslint-disable-next-line no-unused-vars
-import VistaStyles from './src/styles/sass/vista.scss'; /** Do not delete, needed for webpack to compile scss file*/
+import './src/styles/sass/vista.scss'; /** Do not delete, needed for webpack to compile scss file*/
 import CommandEventsViewPlugin from './src/commandEventsView/plugin.js';
 import TaxonomyPlugin from './src/taxonomy/plugin.js';
 import HistoricalTelemetryPlugin from './src/historical/plugin.js';
