@@ -44,11 +44,11 @@ const EVRSourceType = new VISTAType({
           }
         };
 
-        constants.EVR_PROPERTIES.filter((key) => dataset.options.hasOwnProperty(key)).forEach(
-          (key) => {
-            object.telemetry[key] = dataset.options[key];
-          }
-        );
+        constants.EVR_PROPERTIES.filter((key) =>
+          Object.prototype.hasOwnProperty.call(dataset.options, key)
+        ).forEach((key) => {
+          object.telemetry[key] = dataset.options[key];
+        });
 
         return object;
       });

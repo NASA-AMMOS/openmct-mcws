@@ -22,7 +22,7 @@ const DictionarySourceType = new VISTAType({
   },
   getComposition: function (domainObject, dataset, data, types) {
     const composition = constants.DICTIONARY_PROPERTIES.filter((key) =>
-      dataset.options.hasOwnProperty(key)
+      Object.prototype.hasOwnProperty.call(dataset.options, key)
     ).map((key) => types.Dictionary.makeIdentifier(data.datasetIdentifier, key));
 
     return Promise.resolve(composition);
