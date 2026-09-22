@@ -1,5 +1,5 @@
 import TelemetryTable from 'openmct.tables.TelemetryTable';
-import EVRLevelIndicatorTableRow from './EVRLevelIndicatorTableRow.js';
+import EVRHistoricalContextTableRow from './EVRHistoricalContextTableRow.js';
 
 export default class EVRTable extends TelemetryTable {
   initialize() {
@@ -43,7 +43,7 @@ export default class EVRTable extends TelemetryTable {
 
       let telemetryRows = telemetry.map(
         (datum) =>
-          new EVRLevelIndicatorTableRow(datum, columnMap, keyString, limitEvaluator, this.levels)
+          new EVRHistoricalContextTableRow(datum, columnMap, keyString, limitEvaluator, this.levels)
       );
 
       if (this.paused) {
