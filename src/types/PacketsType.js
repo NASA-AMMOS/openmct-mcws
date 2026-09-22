@@ -15,7 +15,7 @@ const valueType = {
 };
 
 function startCase(str) {
-  return str.replace(/_/g, ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+  return str.replaceAll('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
 /**

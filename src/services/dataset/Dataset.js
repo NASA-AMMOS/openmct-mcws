@@ -82,7 +82,7 @@ class Dataset {
   pick(obj, keys) {
     const result = {};
     keys.forEach((key) => {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (Object.hasOwn(obj, key)) {
         result[key] = obj[key];
       }
     });
@@ -114,7 +114,7 @@ class Dataset {
    * Helper method to replace lodash has
    */
   has(obj, key) {
-    return Object.prototype.hasOwnProperty.call(obj, key);
+    return Object.hasOwn(obj, key);
   }
 
   /**

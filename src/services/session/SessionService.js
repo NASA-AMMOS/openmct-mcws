@@ -263,7 +263,7 @@ class SessionService {
         // no datasets
         if (result.length === 0) {
           // maxed out iterations, give up and resolve with empty array
-          if (currentIteration > maxIterations) {
+          if (currentIteration >= maxIterations) {
             resolve([]);
 
             return;
@@ -277,16 +277,13 @@ class SessionService {
           if (currentLength === 0) {
             currentLength = result.length;
             setTimeout(checkDatasets, pollInterval);
+          } else if (result.length === currentLength) {
+            // we have stability, resolve
+            resolve(result);
           } else {
-            // we've already seen some datasets, check for stability
-            if (result.length === currentLength) {
-              // we have stability, resolve
-              resolve(result);
-            } else {
-              // datasets still loading, wait for stability
-              currentLength = result.length;
-              setTimeout(checkDatasets, pollInterval);
-            }
+            // datasets still loading, wait for stability
+            currentLength = result.length;
+            setTimeout(checkDatasets, pollInterval);
           }
         }
       };
