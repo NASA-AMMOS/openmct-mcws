@@ -93,6 +93,7 @@ class EVRDictionary {
           });
           this.modules = sortBy(keys(this.byModule));
           this.byName = keyBy(evrs, 'evr_name');
+          this.byNameUpper = keyBy(evrs, (evr) => evr.evr_name.toUpperCase());
           this.levels = map(uniqBy(evrs, 'level'), 'level');
           this.loaded = true;
         });
@@ -121,8 +122,15 @@ class EVRDictionary {
 
   getModuleEVRs(module) {
     return this.load().then(() => {
-      return this.byModule[module];
+      return this.byModule[module] || [];
     });
+  }
+
+  // evr_name casing in the dictionary isn't guaranteed to match the casing used
+  // elsewhere (e.g. the live telemetry stream's name field), so fall back to a
+  // case-insensitive lookup rather than requiring an exact match.
+  getEVRByName(name) {
+    return this.byName[name] || (name && this.byNameUpper[name.toUpperCase()]);
   }
 }
 
