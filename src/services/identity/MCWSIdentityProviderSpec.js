@@ -57,7 +57,7 @@ describe('MCWSIdentityProvider', () => {
 
     const user = await mockOpenmct.user.getCurrentUser();
 
-    expect(user.getId()).toEqual('test-user');
+    expect(user.getId()).toEqual('testuser');
     expect(user.getName()).toEqual('test-user');
     expect(console.warn).not.toHaveBeenCalled();
   });
