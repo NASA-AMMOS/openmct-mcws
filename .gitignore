@@ -4,9 +4,6 @@
 *.tgz
 *.DS_Store
 
-# Claude local settings
-.claude/
-
 *.sass-cache
 *COMPILE.css
 
