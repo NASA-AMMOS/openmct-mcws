@@ -1,6 +1,5 @@
 import AboutTemplate from './about.html';
-// eslint-disable-next-line no-unused-vars
-import VistaStyles from './src/styles/sass/vista.scss'; /** Do not delete, needed for webpack to compile scss file*/
+import './src/styles/sass/vista.scss'; /** Do not delete, needed for webpack to compile scss file*/
 import CommandEventsViewPlugin from './src/commandEventsView/plugin.js';
 import TaxonomyPlugin from './src/taxonomy/plugin.js';
 import HistoricalTelemetryPlugin from './src/historical/plugin.js';
@@ -25,12 +24,12 @@ import RealtimeTelemetryPlugin from './src/realtime/plugin.js';
 import VenuePlugin from './src/venues/plugin.js';
 import mcwsClient from './src/services/mcws/MCWSClient.js';
 import UTCDayOfYearFormat from './src/formats/UTCDayOfYearFormat.js';
-import FrameWatchViewPlugin from './src/frameSummary/plugin.js';
+import FrameWatchViewPlugin from './src/framesummary/plugin.js';
 import FrameEventFilterViewPlugin from './src/frameEventFilterView/plugin.js';
 import ChannelTablePlugin from './src/channelTable/channelTablePlugin/plugin.js';
 import ChannelTableSetPlugin from './src/channelTable/channelTableSetPlugin/plugin.js';
 import ChannelLimitsPlugin from './src/channelLimits/plugin.js';
-import FrameAccountabilityPlugin from './src/frameAccountability/plugin.js';
+import FrameAccountabilityPlugin from './src/frameaccountability/plugin.js';
 import AlarmsViewPlugin from './src/alarmsView/plugin.js';
 import EVRViewPlugin from './src/evrView/plugin.js';
 import CustomFormatterPlugin from './src/customFormatter/plugin.js';
