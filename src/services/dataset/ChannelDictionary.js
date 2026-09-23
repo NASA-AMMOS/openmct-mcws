@@ -192,7 +192,9 @@ class ChannelDictionary {
     const channelEnumerationDictionaryUrl = this.dataset.getActiveChannelEnumerationDictionaryUrl();
 
     if (channelDictionaryUrl) {
-      fetching.push(this.getDataTable(channelDictionaryUrl).then((data) => this.standardizeDictionary(data)));
+      fetching.push(
+        this.getDataTable(channelDictionaryUrl).then((data) => this.standardizeDictionary(data))
+      );
     } else {
       fetching.push(Promise.resolve([]));
     }

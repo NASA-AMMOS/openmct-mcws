@@ -53,7 +53,11 @@ describe('SessionService', () => {
     openmct = {
       on: jasmine.createSpy('on').and.returnValue(Promise.resolve()),
       time: jasmine.createSpyObj('time', [
-        'getTimeSystem', 'getBounds', 'getClock', 'setBounds', 'isFixed'
+        'getTimeSystem',
+        'getBounds',
+        'getClock',
+        'setBounds',
+        'isFixed'
       ]),
       objectViews: jasmine.createSpyObj('objectViews', ['emit']),
       notifications: jasmine.createSpyObj('notificationApi', ['info', 'alert'])
