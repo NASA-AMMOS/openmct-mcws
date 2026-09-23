@@ -422,11 +422,13 @@ class SessionService {
 
     let boundsChanged = false;
 
+    // this is called in historicalSessionSelector
+    // must be in ERT because AMPCS returns start and end time in UTC Local only
     if (
       model?.start_time &&
       model?.end_time &&
       this.openmct.time.getTimeSystem().key === 'ert' &&
-      !this.openmct.time.getClock()
+      this.openmct.time.isFixed()
     ) {
       const format = this.openmct.telemetry.getFormatter('utc.day-of-year');
       const start = format.parse(model.start_time);

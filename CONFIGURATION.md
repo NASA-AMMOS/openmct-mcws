@@ -1,19 +1,22 @@
-# Plugin Options Recipe Example
+# Plugin Options (Recipe/JSON Examples)
 When including the Open MCT for MCWS Plugin into your Open MCT project, the following are available configuration options.
+
+<details>
+  <summary>Example <code>prod.yaml</code> build-tool recipe options</summary>
+
 ```yaml
 - openmct-mcws-plugin:
-  npmPackage: NASA-AMMOS/openmct-mcws#omm-plugin
+  npmPackage: NASA-AMMOS/openmct-mcws
   options:
-    mcwsUrl: http://localhost:8090/mcws-test
+    mcwsUrl: http://example.com/mcws
     namespaces:
-      - key: 'r50-dev'
-        name: 'R5.0 Shared'
-        url: ''
+      - key: 'example-key'
+        name: 'Deployment Shared'
+        url: '/path/to/persistence/shared'
       - userNamespace: true
-        key: 'r50-dev'
-        name: 'R5.0 Users'
-        url: ''
-    theme: 'Snow'
+        key: 'example-key'
+        name: 'Deployment Users'
+        url: '/path/to/persistence/users'
     venueAware:
       enabled: false
       venues: 'ExampleVenueDefinitions.json'
@@ -73,10 +76,20 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
       telemetryMode: 'unlimited'
       persistModeChange: false
       rowLimit: 50
-    useDeveloperStorage: true
+    useDeveloperStorage: false
     proxyUrl: 'http://localhost:8080/'
     assetPath: 'node_modules/openmct/dist'
 ```
+</details>
+
+<details>
+  <summary>Example runtime <code>mcws-config.json</code>, highest precedence</summary>
+  
+  See [`mcws-config.example.json`](mcws-config.example.json) in the repository root.
+  Copy or rename it to `mcws-config.json` at the instance root.
+</details>
+
+---
 
 # Configuration Guide
 
@@ -100,14 +113,6 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
 
 
 ## Basic Configuration
-
-### Theme
-
-#### `theme`
-- **Type**: `string`
-- **Default**: `'Snow'`
-- **Options**: `'Snow'`, `'Espresso'`, or `'Maelstrom'`
-- **Description**: Sets the theme for the Open MCT interface.
 
 ### Venue Aware Configuration
 

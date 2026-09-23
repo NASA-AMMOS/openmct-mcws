@@ -214,7 +214,7 @@
         data.forEach((datum) => {
           // only uppercase works for all mcws apis (lowercase will not work)
           // see https://github.com/NASA-AMMOS/openmct-mcws/pull/412/changes
-          const key = datum[property].toUpperCase();
+          const key = datum[property]?.toUpperCase();
 
           if (subscribers[key] > 0) {
             self.postMessage({
