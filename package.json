@@ -47,7 +47,7 @@
     "lodash": "4.18.1",
     "marked": "12.0.0",
     "mini-css-extract-plugin": "2.7.6",
-    "moment": "2.30.1",
+    "moment": "2.31.0",
     "node-bourbon": "^4.2.3",
     "prettier": "3.4.2",
     "printj": "1.3.1",
