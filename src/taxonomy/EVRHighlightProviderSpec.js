@@ -31,7 +31,7 @@ describe('the EVR highlight provider', () => {
   });
 
   it('does not apply to other types', () => {
-    ['vista.channel', 'vista.message', 'vista.packet'].forEach((type) => {
+    ['vista.channel', 'vista.dataProducts', 'vista.message'].forEach((type) => {
       expect(provider.supportsLimits({ type })).toBeFalse();
     });
   });
@@ -45,7 +45,7 @@ describe('the EVR highlight provider', () => {
     });
   });
 
-  it('returns default classes for unconfigured levels when defaults are set', () => {
+  it('returns default classes for levels missing from the taxonomy when defaults are set', () => {
     const providerWithDefaults = new EVRHighlightProvider({
       evrDefaultBackgroundColor: '#ababab',
       evrDefaultForegroundColor: '#121212',
@@ -59,7 +59,7 @@ describe('the EVR highlight provider', () => {
     });
   });
 
-  it('returns undefined for unconfigured levels without defaults', () => {
+  it('returns undefined for levels missing from the taxonomy without defaults', () => {
     expect(
       limitEvaluator.evaluate({ level: 'DIAGNOSTIC' }, undefined, undefined)
     ).not.toBeDefined();
