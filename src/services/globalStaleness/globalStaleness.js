@@ -26,9 +26,19 @@ class GlobalStaleness {
 let globalStalenessInstance = null;
 
 export default function (openmct, stalenessInterval) {
-  if (stalenessInterval) {
+  if (!globalStalenessInstance) {
     globalStalenessInstance = new GlobalStaleness(stalenessInterval);
+  }
 
+  if (stalenessInterval !== undefined) {
+    globalStalenessInstance.stalenessInterval = stalenessInterval;
+  }
+
+  // The arrival timestamp is tracked unconditionally so that consumers
+  // (eg. the realtime update indicator) work in every time mode, whether
+  // or not staleness marking is configured. Per-datum stale marking and
+  // the session reset hook below remain opt-in via stalenessInterval.
+  if (stalenessInterval && openmct) {
     openmct.on('start', () => {
       const sessionService = SessionService();
       sessionService.listen((session) => {
