@@ -7,8 +7,12 @@
 </template>
 
 <script>
+import getGlobalStaleness from 'services/globalStaleness/globalStaleness.js';
+
+const POLL_INTERVAL_MS = 1000;
+
 export default {
-  inject: ['openmct', 'vistaTime', 'format'],
+  inject: ['openmct', 'format'],
   data() {
     return {
       currentValue: {
@@ -26,16 +30,12 @@ export default {
     }
   },
   mounted() {
-    this.lastTimestamp = new Date();
-
-    if (this.vistaTime.ladClocks.ert) {
-      this.vistaTime.ladClocks.ert.on('tick', this.setTick.bind(this));
-    }
+    this.previousTimestamp = 0;
+    this.refresh();
+    this.pollInterval = setInterval(this.refresh.bind(this), POLL_INTERVAL_MS);
   },
   beforeUnmount() {
-    if (this.vistaTime.ladClocks.ert) {
-      this.vistaTime.ladClocks.ert.off('tick', this.setTick.bind(this));
-    }
+    clearInterval(this.pollInterval);
   },
   methods: {
     isRefreshRateNominal(newTimestamp, lastTimestamp) {
@@ -44,25 +44,30 @@ export default {
       }
       return false;
     },
-    setTick() {
+    refresh() {
+      const latestTimestamp = getGlobalStaleness()?.latestTimestamp ?? 0;
+
+      if (!latestTimestamp || latestTimestamp === this.previousTimestamp) {
+        return;
+      }
+
       try {
-        let timestamp = new Date();
-        if (this.isRefreshRateNominal(timestamp, this.lastTimestamp)) {
+        if (this.isRefreshRateNominal(latestTimestamp, this.previousTimestamp)) {
           this.currentValue = {
             text: 'Data Rate is higher than 10hz, display may update less than once per second',
             cssClass: 's-status-caution'
           };
         } else {
-          let formattedTimestamp = this.format.format(new Date());
+          let formattedTimestamp = this.format.format(new Date(latestTimestamp));
 
           this.currentValue = {
             text: 'Last real-time display update: ' + formattedTimestamp,
             cssClass: 's-status-on'
           };
         }
-        this.lastTimestamp = timestamp;
+        this.previousTimestamp = latestTimestamp;
       } catch (e) {
-        console.warn('Error setting tick', e);
+        console.warn('Error refreshing realtime indicator', e);
       }
     }
   }
