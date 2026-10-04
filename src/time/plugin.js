@@ -7,6 +7,7 @@ import UTCClock from './UTCClock.js';
 import LADClock from './LADClock.js';
 import MSLSolFormat from '../formats/MSLSOLFormat.js';
 import LMSTFormat from '../formats/LMSTFormat.js';
+import { resolveEagerMarkers, reviveDynamicMarkers } from './dynamicPresets.js';
 import moment from 'moment';
 
 const SYSTEM_MAP = {
@@ -48,6 +49,13 @@ export default function TimePlugin(options) {
       console.error('Please specify one or more time systems to enable.');
     }
 
+    // Revive dynamic markers on a copy. The merged config object is shared
+    // (and exposed for debugging), so marker strings must survive there while
+    // menus receive live closures.
+    const timeSystems = options.timeSystems
+      ? reviveDynamicMarkers(options.timeSystems)
+      : options.timeSystems;
+
     if (options.lmstEpoch) {
       const lmstFormatWithEpoch = new LMSTFormat(options.lmstEpoch);
 
@@ -63,7 +71,7 @@ export default function TimePlugin(options) {
     let useUTCClock = false;
     let menuOptions = [];
 
-    options.timeSystems.forEach(function (timeSystem) {
+    timeSystems.forEach(function (timeSystem) {
       const key = timeSystem.key ?? timeSystem;
 
       if (!SYSTEM_MAP[key]) {
@@ -81,7 +89,7 @@ export default function TimePlugin(options) {
       openmct.time.addTimeSystem(system);
 
       if (timeSystem.modeSettings?.fixed?.bounds) {
-        systemOptions.bounds = timeSystem.modeSettings.fixed.bounds;
+        systemOptions.bounds = resolveEagerMarkers(timeSystem.modeSettings.fixed.bounds);
       } else {
         systemOptions.bounds = BOUNDS_MAP[key];
       }
@@ -110,7 +118,7 @@ export default function TimePlugin(options) {
         let presetConfig = [];
 
         if (timeSystem.modeSettings?.realtime?.clockOffsets) {
-          offsetConfig = timeSystem.modeSettings.realtime.clockOffsets;
+          offsetConfig = resolveEagerMarkers(timeSystem.modeSettings.realtime.clockOffsets);
         }
 
         if (timeSystem.modeSettings?.realtime?.presets) {
@@ -132,7 +140,7 @@ export default function TimePlugin(options) {
         let offsetConfig = DEFAULT_OFFSET_CONFIG;
 
         if (timeSystem.modeSettings?.lad?.clockOffsets) {
-          offsetConfig = timeSystem.modeSettings.lad.clockOffsets;
+          offsetConfig = resolveEagerMarkers(timeSystem.modeSettings.lad.clockOffsets);
         }
 
         install.ladClocks[key] = ladClock;
@@ -172,5 +180,19 @@ export default function TimePlugin(options) {
         menuOptions: menuOptions
       })
     );
+
+    // Core's conductor install reapplies the active clock's offsets in fixed
+    // mode, and core's setClockOffsets always re-derives bounds from the
+    // clock tick, so the default menu's bounds never survive the install.
+    // Re-apply explicitly configured fixed bounds so a fixed boot shows them.
+    // (Defaults without explicit bounds keep today's tick-derived behavior.)
+    const defaultMenu = menuOptions[0];
+    const defaultSystem = timeSystems.find(
+      (timeSystem) => (timeSystem.key ?? timeSystem) === defaultMenu?.timeSystem
+    );
+
+    if (defaultMenu && !defaultMenu.clock && defaultSystem?.modeSettings?.fixed?.bounds) {
+      openmct.time.setBounds(defaultMenu.bounds);
+    }
   };
 }
