@@ -3,6 +3,9 @@ import HeaderChannelType from './HeaderChannelType.js';
 import ChannelSourceType from './ChannelSourceType.js';
 import ChannelGroupType from './ChannelGroupType.js';
 import ChannelType from './ChannelType.js';
+import CommandSourceType from './CommandSourceType.js';
+import CommandGroupType from './CommandGroupType.js';
+import CommandType from './CommandType.js';
 import DictionarySourceType from './DictionarySourceType.js';
 import DataProductsType from './DataProductsType.js';
 import DatasetType from './DatasetType.js';
@@ -26,6 +29,9 @@ const types = {
   ChannelSource: ChannelSourceType,
   ChannelGroup: ChannelGroupType,
   Channel: ChannelType,
+  CommandSource: CommandSourceType,
+  CommandGroup: CommandGroupType,
+  Command: CommandType,
   DictionarySource: DictionarySourceType,
   DataProducts: DataProductsType,
   Dataset: DatasetType,

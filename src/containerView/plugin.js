@@ -9,6 +9,8 @@ const BLANK_CONTAINER_TYPES = [
   'vista.channel.alarms',
   'vista.channelSource',
   'vista.channelGroup',
+  'vista.commandSource',
+  'vista.commandGroup',
   'vista.headerChannelSource'
 ];
 

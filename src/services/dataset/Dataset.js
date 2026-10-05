@@ -1,4 +1,5 @@
 import ChannelDictionary from './ChannelDictionary.js';
+import CommandDictionary from './CommandDictionary.js';
 import EVRDictionary from './EVRDictionary.js';
 import mcws from 'services/mcws/mcws.js';
 import SessionService from 'services/session/SessionService.js';
@@ -11,6 +12,7 @@ import constants from '../../constants.js';
  * @property [channels] the dataset's channel dictionary, if it exists.
  * @property [channelAlarms] the dataset's channelAlarm url, if they exist.
  * @property [evrs] the dataset's evr dictionary, if it exists.
+ * @property [commands] the dataset's command dictionary, if it exists.
  * @property [dictionaries] the dataset's dictionary urls, if they exist.
  * @property [dataProducts] the dataset's dataProduct urls, if they exist.
  * @property [packets] the dataset's packet urls, if they exist.
@@ -38,6 +40,11 @@ class Dataset {
     if (this.hasEVRs()) {
       this.evrs = new EVRDictionary(this);
       this.evrs.urls = this.pick(this.options, constants.EVR_PROPERTIES);
+    }
+
+    if (this.hasCommands()) {
+      this.commands = new CommandDictionary(this);
+      this.commands.urls = this.pick(this.options, constants.COMMAND_PROPERTIES);
     }
     if (this.hasDictionaries()) {
       this.dictionaries = {
@@ -145,6 +152,15 @@ class Dataset {
   }
 
   /**
+   * Returns true if the dataset contains commands.
+   *
+   * @private
+   */
+  hasCommands() {
+    return this.some(this.values(this.pick(this.options, constants.COMMAND_PROPERTIES)));
+  }
+
+  /**
    * Returns true if the dataset contains dictionaries.
    *
    * @private
@@ -209,6 +225,13 @@ class Dataset {
     return (
       this.options.eventRecordDictionaryUrl &&
       this.getActiveDictionaryUrl(this.options.eventRecordDictionaryUrl)
+    );
+  }
+
+  getActiveCommandDictionaryUrl() {
+    return (
+      this.options.commandDictionaryUrl &&
+      this.getActiveDictionaryUrl(this.options.commandDictionaryUrl)
     );
   }
 

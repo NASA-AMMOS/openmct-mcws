@@ -90,6 +90,12 @@ const DatasetType = new VISTAType({
       cssClass: 'l-input-lg'
     },
     {
+      name: 'Command Dictionary URL',
+      key: 'commandDictionaryUrl',
+      control: 'url-field',
+      cssClass: 'l-input-lg'
+    },
+    {
       name: 'EVR Historical URL',
       key: 'evrHistoricalUrl',
       control: 'url-field',

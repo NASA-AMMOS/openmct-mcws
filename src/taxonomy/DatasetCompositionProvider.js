@@ -31,6 +31,10 @@ class DatasetCompositionProvider {
       if (dataset.evrs) {
         nodes.push(types.EVRSource.makeIdentifier(domainObject.identifier));
       }
+
+      if (dataset.commands) {
+        nodes.push(types.CommandSource.makeIdentifier(domainObject.identifier));
+      }
       if (dataset.dictionaries) {
         nodes.push(types.DictionarySource.makeIdentifier(domainObject.identifier));
       }

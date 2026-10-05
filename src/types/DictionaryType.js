@@ -19,7 +19,8 @@ const DictionaryType = new VISTAType({
       name: {
         channelDictionaryUrl: 'Channel Dictionary',
         channelEnumerationDictionaryUrl: 'Channel Enumeration Dictionary',
-        eventRecordDictionaryUrl: 'Event Record Dictionary'
+        eventRecordDictionaryUrl: 'Event Record Dictionary',
+        commandDictionaryUrl: 'Command Dictionary'
       }[match[2]]
     };
   },
@@ -32,6 +33,7 @@ const DictionaryType = new VISTAType({
   makeObject: function (dataset, data) {
     return VISTAType.prototype.makeObject.apply(this, arguments).then((object) => {
       object.dataTablePath = dataset.options[data.url_property];
+      object.url_property = data.url_property;
       return object;
     });
   }

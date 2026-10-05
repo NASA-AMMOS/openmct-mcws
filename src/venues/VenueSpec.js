@@ -31,7 +31,8 @@ describe('Venue', () => {
       packetContentUrl: '/qdb/PacketContent',
       packetSummaryEventStreamUrl: 'wss://host/mcws/stream/PacketSummaryEvent',
       commandEventUrl: '/qdb/CommandEvent',
-      commandEventStreamUrl: 'wss://host/mcws/stream/CommandEvent'
+      commandEventStreamUrl: 'wss://host/mcws/stream/CommandEvent',
+      commandDictionaryUrl: '/qdb/CommandDictionary'
     };
     openmct = {
       on: jasmine.createSpy('on').and.returnValue(Promise.resolve()),
@@ -82,6 +83,7 @@ describe('Venue', () => {
     );
     expect(domainObject.commandEventUrl).toBe(configuration.commandEventUrl);
     expect(domainObject.commandEventStreamUrl).toBe(configuration.commandEventStreamUrl);
+    expect(domainObject.commandDictionaryUrl).toBe(configuration.commandDictionaryUrl);
   });
 
   it('allows realtime', () => {

@@ -52,8 +52,8 @@ export default class DictionaryViewTable extends TelemetryTable {
   }
 
   processData(data) {
-    this.data = data;
-    this.metadata = this.processHeaders(data[0]);
+    this.data = data || [];
+    this.metadata = this.data.length ? this.processHeaders(this.data[0]) : [];
     this.requestDataFor(this.domainObject);
     this.addColumnsForObject(this.domainObject);
   }
@@ -66,7 +66,52 @@ export default class DictionaryViewTable extends TelemetryTable {
   }
 
   loadDictionary() {
+    if (this.domainObject.url_property === 'commandDictionaryUrl') {
+      return this.loadCommandDictionary();
+    }
+
     return mcws.dataTable(this.url).read().then(this.processData, this.processError);
+  }
+
+  loadCommandDictionary() {
+    return mcws
+      .opaqueFile(this.url)
+      .read()
+      .then((response) => {
+        if (response && typeof response.json === 'function') {
+          return response.json();
+        }
+        return response;
+      })
+      .then((dictionary) => {
+        this.processData(this.flattenCommandDictionary(dictionary));
+      }, this.processError);
+  }
+
+  flattenCommandDictionary(dictionary) {
+    const rows = [];
+    const fswCommands = dictionary?.fswCommands || [];
+    const hwCommands = dictionary?.hwCommands || [];
+
+    fswCommands.forEach((command) => {
+      rows.push({
+        stem: command.stem,
+        type: command.type,
+        description: command.description,
+        argument_count: (command.arguments || []).length
+      });
+    });
+
+    hwCommands.forEach((command) => {
+      rows.push({
+        stem: command.stem,
+        type: command.type,
+        description: command.description,
+        argument_count: 0
+      });
+    });
+
+    return rows;
   }
 
   processHeaders(row) {

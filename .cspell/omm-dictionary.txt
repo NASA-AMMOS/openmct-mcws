@@ -23,6 +23,7 @@ mcws
 MCWSEVR
 mcwsurl
 ampcs
+plandev
 mpcs # root_topic was hardcoded as mpcs before name change to ampcs
 atlo
 rfsw

@@ -15,6 +15,7 @@
     "eventRecordDictionaryUrl": null,
     "evrHistoricalUrl": null,
     "evrStreamUrl": null,
+    "commandDictionaryUrl": "http://localhost:8080/test_data/CommandDictionary.json",
     "dataProductUrl": null,
     "dataProductContentUrl": null,
     "dataProductStreamUrl": null,

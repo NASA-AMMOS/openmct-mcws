@@ -2,7 +2,8 @@ const CONSTANTS = {
   DICTIONARY_PROPERTIES: [
     'channelDictionaryUrl',
     'channelEnumerationDictionaryUrl',
-    'eventRecordDictionaryUrl'
+    'eventRecordDictionaryUrl',
+    'commandDictionaryUrl'
   ],
   /**
    * An array of model properties that provide evrs.
@@ -19,6 +20,12 @@ const CONSTANTS = {
    * An array of model properties that provide channels.
    */
   CHANNEL_PROPERTIES: ['channelDictionaryUrl'],
+
+  /**
+   * An array of model properties that provide commands.
+   * The command dictionary is JSON in the plandev-ampcs format.
+   */
+  COMMAND_PROPERTIES: ['commandDictionaryUrl'],
 
   /**
    * An array of model properties that provide different Types of channel

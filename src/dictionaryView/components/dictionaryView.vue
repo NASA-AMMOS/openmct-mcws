@@ -7,7 +7,7 @@
       <telemetry-table :marking="markingProp" :enable-legacy-toolbar="true">
         <div class="c-table-and-summary__summary">
           <div class="c-table-and-summary__summary-item">
-            DataTable URL:
+            Dictionary URL:
             <em> {{ url }} </em>
           </div>
           <div class="c-table-and-summary__summary-item">
