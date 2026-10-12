@@ -43,8 +43,10 @@ describe('TypeCompositionPolicy', () => {
       'vista.evrModule',
       'vista.evrSource',
       'vista.evr',
+      'vista.immediateCommand',
       'vista.packets',
-      'vista.packetSummaryEvents'
+      'vista.packetSummaryEvents',
+      'vista.sessionControl'
     ];
     types.forEach(function (t) {
       parent.type = t;

@@ -15,8 +15,10 @@ const TYPE_DENY_MAP = {
   'vista.evrModule': '*',
   'vista.evrSource': '*',
   'vista.evr': '*',
+  'vista.immediateCommand': '*',
   'vista.packets': '*',
-  'vista.packetSummaryEvents': '*'
+  'vista.packetSummaryEvents': '*',
+  'vista.sessionControl': '*'
 };
 
 class TypeCompositionPolicy {

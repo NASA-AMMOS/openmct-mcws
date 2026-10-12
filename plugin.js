@@ -38,6 +38,8 @@ import CustomFormsPlugin from './src/customForms/plugin.js';
 import ActionModifiersPlugin from './src/actionModifiers/plugin.js';
 import RealtimeIndicatorPlugin from './src/realtimeIndicator/plugin.js';
 import PacketQueryPlugin from './src/packetQuery/plugin.js';
+import SessionControlPlugin from './src/sessionControl/plugin.js';
+import ImmediateCommandPlugin from './src/immediateCommand/plugin.js';
 import MCWSIndicatorPlugin from './src/mcwsIndicator/plugin.js';
 import MultipleHistoricalSessions from './src/multipleHistoricalSessions/plugin.js';
 import MessageStreamProcessor from './src/messageStreamProcessor/MessageStreamProcessor.js';
@@ -357,6 +359,8 @@ export default function openmctMCWSPlugin(options) {
     );
     openmct.install(ActionModifiersPlugin());
     openmct.install(new PacketQueryPlugin());
+    openmct.install(SessionControlPlugin());
+    openmct.install(ImmediateCommandPlugin());
 
     if (config.globalFilters) {
       openmct.install(new GlobalFilters(config.globalFilters));
