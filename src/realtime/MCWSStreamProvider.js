@@ -35,23 +35,21 @@ class MCWSStreamProvider {
   processGlobalStaleness(data, latestTimestamp) {
     const globalStaleness = GlobalStaleness();
 
-    if (globalStaleness === null) {
-      return;
-    }
-
     if (!globalStaleness.latestTimestamp) {
       globalStaleness.updateLatestTimestamp(latestTimestamp);
       return;
     }
 
-    if (globalStaleness.isStale(latestTimestamp)) {
-      data.forEach((datum) => {
-        datum.isStale = 1;
-      });
-    } else {
-      data.forEach((datum) => {
-        datum.isStale = 0;
-      });
+    if (globalStaleness.stalenessInterval) {
+      if (globalStaleness.isStale(latestTimestamp)) {
+        data.forEach((datum) => {
+          datum.isStale = 1;
+        });
+      } else {
+        data.forEach((datum) => {
+          datum.isStale = 0;
+        });
+      }
     }
 
     globalStaleness.updateLatestTimestamp(latestTimestamp);
