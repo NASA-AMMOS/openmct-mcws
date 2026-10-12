@@ -1,6 +1,4 @@
-import getMissionControlService, {
-  MissionControlService
-} from './missionControlService.js';
+import getMissionControlService, { MissionControlService } from './missionControlService.js';
 
 describe('MissionControlService', () => {
   const API_BASE = '/test-api';
@@ -95,16 +93,44 @@ describe('MissionControlService', () => {
     expect(service.selectedUplinkSessionId).toBe(7);
   });
 
-  it('stops uplink sessions and clears state', async () => {
-    fetchSpy.and.resolveTo(jsonResponse([{ sessionId: 7 }]));
+  it('stops one uplink session and clears its selection', async () => {
+    fetchSpy.and.resolveTo(jsonResponse([{ sessionId: 7 }, { sessionId: 9 }]));
     await service.refreshUplinkSessions();
     service.selectUplinkSession(7);
     fetchSpy.and.resolveTo({ ok: true, status: 204 });
-    await service.stopUplinkSessions();
+    await service.stopUplinkSession(7);
 
+    expect(lastFetch().url).toBe(`${API_BASE}/command-sessions/7`);
     expect(lastFetch().options.method).toBe('DELETE');
-    expect(service.state.uplinkSessions).toEqual([]);
+    expect(service.state.uplinkSessions).toEqual([{ sessionId: 9 }]);
     expect(service.selectedUplinkSessionId).toBe(null);
+  });
+
+  it('keeps the selection when stopping a different uplink session', async () => {
+    fetchSpy.and.resolveTo(jsonResponse([{ sessionId: 7 }, { sessionId: 9 }]));
+    await service.refreshUplinkSessions();
+    service.selectUplinkSession(7);
+    fetchSpy.and.resolveTo({ ok: true, status: 204 });
+    await service.stopUplinkSession(9);
+
+    expect(service.selectedUplinkSessionId).toBe(7);
+  });
+
+  it('opens a long-lived uplink session from parameters and selects it', async () => {
+    const parameters = { venueType: 'TESTSET', spacecraftID: 252 };
+
+    fetchSpy.and.returnValues(
+      Promise.resolve(jsonResponse({ sessionIds: [22], startTime: 't' })),
+      Promise.resolve(jsonResponse([{ sessionId: 22, parameters }]))
+    );
+    const opened = await service.openUplinkSession(parameters);
+    const post = fetchSpy.calls.argsFor(0);
+
+    expect(post[0]).toBe(`${API_BASE}/command-sessions`);
+    expect(JSON.parse(post[1].body)).toEqual({ parameters, defaultTarget: 'AB', timeout: 30 });
+    expect(opened.sessionIds).toEqual([22]);
+    expect(service.getUplinkSession(22).parameters).toEqual(parameters);
+    expect(service.selectedUplinkSessionId).toBe(22);
   });
 
   it('manages downlink sessions', async () => {
@@ -116,9 +142,44 @@ describe('MissionControlService', () => {
     expect(service.state.downlinkSessions).toEqual([{ sessionId: 3 }]);
 
     fetchSpy.and.resolveTo({ ok: true, status: 204 });
-    await service.stopDownlinkSessions();
+    await service.stopDownlinkSession(3);
+
+    expect(lastFetch().url).toBe(`${API_BASE}/downlink-sessions/3`);
+    expect(lastFetch().options.method).toBe('DELETE');
 
     expect(service.state.downlinkSessions).toEqual([]);
+  });
+
+  it('opens a downlink session from parameters', async () => {
+    const parameters = { downlinkConnectionType: 'CLIENT_SOCKET', fswDownlinkPort: 9828 };
+
+    fetchSpy.and.returnValues(
+      Promise.resolve(jsonResponse([{ sessionId: 23, parameters }])),
+      Promise.resolve(jsonResponse([{ sessionId: 23, parameters }]))
+    );
+    const opened = await service.openDownlinkSession(parameters);
+
+    expect(fetchSpy.calls.argsFor(0)[0]).toBe(`${API_BASE}/downlink-sessions`);
+    expect(JSON.parse(fetchSpy.calls.argsFor(0)[1].body)).toEqual({ parameters });
+    expect(opened).toEqual([{ sessionId: 23, parameters }]);
+    expect(service.state.downlinkSessions).toEqual([{ sessionId: 23, parameters }]);
+  });
+
+  it('tracks sent commands for radiation status', async () => {
+    fetchSpy.and.resolveTo(
+      jsonResponse({ commandId: 'c9', requested: 'SYNC_CLOCKS', dispatchTime: 't' })
+    );
+    await service.sendFlightSoftwareCommand({ sessionId: 7, commandString: 'SYNC_CLOCKS' });
+
+    expect(service.commandStatus.entries[0]).toEqual(
+      jasmine.objectContaining({
+        commandId: 'c9',
+        sessionId: 7,
+        stem: 'SYNC_CLOCKS',
+        kind: 'fsw',
+        status: 'Dispatched'
+      })
+    );
   });
 
   it('refreshes tracking sessions', async () => {

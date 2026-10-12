@@ -81,6 +81,11 @@
     "persistModeChange": false,
     "rowLimit": 50
   },
+  "missionControl": {
+    "apiBase": "./api/v1",
+    "uplinkSessionFields": [],
+    "downlinkSessionFields": []
+  },
   "useDeveloperStorage": false,
   "proxyUrl": "http://localhost:8080/",
   "assetPath": "node_modules/openmct/dist"

@@ -8,17 +8,24 @@ describe('CommandDictionary', () => {
   let mockDataset;
 
   beforeEach(() => {
-    sessionServiceDefault(
+    const sessionService = sessionServiceDefault(
       {
+        on: jasmine.createSpy('on'),
         notifications: jasmine.createSpyObj('notifications', ['info', 'alert', 'progress'])
       },
       {
+        // SessionService is a shared singleton; match the session config the
+        // other specs construct it with so test order does not matter.
         sessions: {
-          historicalSessionFilter: { disable: true },
-          realtimeSession: { disable: true }
+          historicalSessionFilter: { disable: false, maxRecords: 1000 },
+          realtimeSession: { disable: false }
         }
       }
     );
+
+    // Keep CommandDictionary instances from leaving session listeners on the
+    // shared SessionService, where later specs would trigger real fetches.
+    spyOn(sessionService, 'listen').and.returnValue(() => {});
 
     mockDataset = {
       load: () => Promise.resolve(mockDataset),

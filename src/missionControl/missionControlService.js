@@ -1,17 +1,27 @@
 import { reactive } from 'vue';
+import { CommandStatusTracker } from './commandStatusTracker.js';
 
 const DEFAULT_API_BASE = './api/v1';
 const DEFAULT_COMMAND_TARGET = 'AB';
 const DEFAULT_START_TIMEOUT = 30;
 
+function sessionPath(collection, sessionId) {
+  return `/${collection}/${encodeURIComponent(String(sessionId))}`;
+}
+
 /**
  * Shared uplink/downlink session and commanding state for the mission
  * control plugins. Same-host proxy calls carry the OIDC session cookie.
+ *
+ * Sessions are opened either from configured `parameters`
+ * (`missionControl.uplinkSessionFields` / `downlinkSessionFields`) or by
+ * attaching to existing tracking session ids, and are stopped one at a time.
  */
 export class MissionControlService {
   constructor(openmct, apiBase = DEFAULT_API_BASE) {
     this.openmct = openmct;
-    this.apiBase = apiBase;
+    this.apiBase = apiBase || DEFAULT_API_BASE;
+    this.commandStatus = new CommandStatusTracker();
     this.state = reactive({
       uplinkSessions: [],
       downlinkSessions: [],
@@ -32,13 +42,15 @@ export class MissionControlService {
   canSendCommands() {
     const selected = this.state.selectedUplinkSessionId;
 
-    return (
-      selected !== null && selected !== undefined && this.isSessionAttached(selected)
-    );
+    return selected !== null && selected !== undefined && this.isSessionAttached(selected);
   }
 
   selectUplinkSession(sessionId) {
     this.state.selectedUplinkSessionId = sessionId;
+  }
+
+  getUplinkSession(sessionId) {
+    return this.state.uplinkSessions.find((session) => session.sessionId === sessionId) || null;
   }
 
   async refreshTrackingSessions() {
@@ -62,8 +74,7 @@ export class MissionControlService {
   }
 
   async startUplinkSessions(sessionIds, options = {}) {
-    const { defaultTarget = DEFAULT_COMMAND_TARGET, timeout = DEFAULT_START_TIMEOUT } =
-      options;
+    const { defaultTarget = DEFAULT_COMMAND_TARGET, timeout = DEFAULT_START_TIMEOUT } = options;
 
     return this.#guarded(async () => {
       const started = await this.#request('/command-sessions', {
@@ -81,11 +92,41 @@ export class MissionControlService {
     });
   }
 
-  async stopUplinkSessions() {
+  /**
+   * Opens a new long-lived uplink session from configured parameters.
+   * Commands sent afterwards reuse it until it is stopped.
+   */
+  async openUplinkSession(parameters, options = {}) {
+    const { defaultTarget = DEFAULT_COMMAND_TARGET, timeout = DEFAULT_START_TIMEOUT } = options;
+
     return this.#guarded(async () => {
-      await this.#request('/command-sessions', { method: 'DELETE' });
-      this.state.uplinkSessions = [];
-      this.state.selectedUplinkSessionId = null;
+      const started = await this.#request('/command-sessions', {
+        method: 'POST',
+        body: JSON.stringify({ parameters, defaultTarget, timeout })
+      });
+
+      await this.refreshUplinkSessions();
+
+      const [openedId] = started?.sessionIds || [];
+
+      if (this.state.selectedUplinkSessionId === null && openedId !== undefined) {
+        this.selectUplinkSession(openedId);
+      }
+
+      return started;
+    });
+  }
+
+  async stopUplinkSession(sessionId) {
+    return this.#guarded(async () => {
+      await this.#request(sessionPath('command-sessions', sessionId), { method: 'DELETE' });
+      this.state.uplinkSessions = this.state.uplinkSessions.filter(
+        (session) => session.sessionId !== sessionId
+      );
+
+      if (this.state.selectedUplinkSessionId === sessionId) {
+        this.state.selectedUplinkSessionId = null;
+      }
     });
   }
 
@@ -110,16 +151,35 @@ export class MissionControlService {
     });
   }
 
-  async stopDownlinkSessions() {
+  /**
+   * Opens a new downlink session from configured parameters. The proxy
+   * returns the new session with its id already assigned.
+   */
+  async openDownlinkSession(parameters) {
     return this.#guarded(async () => {
-      await this.#request('/downlink-sessions', { method: 'DELETE' });
-      this.state.downlinkSessions = [];
+      const started = await this.#request('/downlink-sessions', {
+        method: 'POST',
+        body: JSON.stringify({ parameters })
+      });
+
+      await this.refreshDownlinkSessions();
+
+      return started;
+    });
+  }
+
+  async stopDownlinkSession(sessionId) {
+    return this.#guarded(async () => {
+      await this.#request(sessionPath('downlink-sessions', sessionId), { method: 'DELETE' });
+      this.state.downlinkSessions = this.state.downlinkSessions.filter(
+        (session) => session.sessionId !== sessionId
+      );
     });
   }
 
   async sendFlightSoftwareCommand({ sessionId, commandString, validate = false, target, timeout }) {
     return this.#guarded(async () => {
-      return this.#request('/commands/flight-software', {
+      const dispatch = await this.#request('/commands/flight-software', {
         method: 'POST',
         body: JSON.stringify({
           sessionId,
@@ -129,12 +189,16 @@ export class MissionControlService {
           ...(timeout === undefined ? {} : { timeout })
         })
       });
+
+      this.commandStatus.track(dispatch, { sessionId, requested: commandString, kind: 'fsw' });
+
+      return dispatch;
     });
   }
 
   async sendHardwareCommand({ sessionId, commandStem, target, timeout }) {
     return this.#guarded(async () => {
-      return this.#request('/commands/hardware', {
+      const dispatch = await this.#request('/commands/hardware', {
         method: 'POST',
         body: JSON.stringify({
           sessionId,
@@ -143,12 +207,16 @@ export class MissionControlService {
           ...(timeout === undefined ? {} : { timeout })
         })
       });
+
+      this.commandStatus.track(dispatch, { sessionId, requested: commandStem, kind: 'hw' });
+
+      return dispatch;
     });
   }
 
   async sendSimulatorCommand({ sessionId, commandString, timeout }) {
     return this.#guarded(async () => {
-      return this.#request('/commands/simulator', {
+      const dispatch = await this.#request('/commands/simulator', {
         method: 'POST',
         body: JSON.stringify({
           sessionId,
@@ -156,6 +224,10 @@ export class MissionControlService {
           ...(timeout === undefined ? {} : { timeout })
         })
       });
+
+      this.commandStatus.track(dispatch, { sessionId, requested: commandString, kind: 'sim' });
+
+      return dispatch;
     });
   }
 

@@ -6,28 +6,14 @@
 
     <section class="c-session-control__section">
       <h2>Tracking Sessions</h2>
-      <button class="c-button" :disabled="busy" @click="refreshTracking">
-        Refresh
-      </button>
+      <button class="c-button" :disabled="busy" @click="refreshTracking">Refresh</button>
       <ul v-if="trackingSessions.length > 0" class="c-session-control__list">
-        <li
-          v-for="session in trackingSessions"
-          :key="session.number"
-          class="c-form__row"
-        >
+        <li v-for="session in trackingSessions" :key="session.number" class="c-form__row">
           <span>#{{ session.number }} {{ session.topic }} ({{ session.host }})</span>
-          <button
-            class="c-button"
-            :disabled="busy"
-            @click="startUplink([session.number])"
-          >
+          <button class="c-button" :disabled="busy" @click="startUplink([session.number])">
             Start uplink
           </button>
-          <button
-            class="c-button"
-            :disabled="busy"
-            @click="startDownlink([session.number])"
-          >
+          <button class="c-button" :disabled="busy" @click="startDownlink([session.number])">
             Start downlink
           </button>
         </li>
@@ -37,11 +23,9 @@
 
     <section class="c-session-control__section">
       <h2>Uplink Sessions</h2>
+      <h3>Open a new uplink session</h3>
+      <p>The session stays open and every command reuses it until you stop it.</p>
       <div class="c-form__row">
-        <label>
-          Session IDs
-          <input v-model="uplinkIds" type="text" placeholder="7, 9" />
-        </label>
         <label>
           Default target
           <select v-model="defaultTarget">
@@ -54,33 +38,31 @@
           Timeout (s)
           <input v-model="uplinkTimeout" type="text" />
         </label>
-        <button
-          class="c-button c-button--major"
-          :disabled="busy"
-          @click="startUplinkFromForm"
-        >
-          Start
-        </button>
-        <button
-          class="c-button"
-          :disabled="busy || uplinkSessions.length === 0"
-          @click="stopUplink"
-        >
-          Stop
-        </button>
-        <button class="c-button" :disabled="busy" @click="refreshUplink">
-          Refresh
-        </button>
+      </div>
+      <SessionFieldsForm
+        id-prefix="uplink-field"
+        :fields="sessionFields.uplink"
+        :active-sessions="uplinkSessions"
+        :busy="busy"
+        submit-label="Open uplink session"
+        empty-text="No uplink session fields are configured (missionControl.uplinkSessionFields); the proxy defaults apply."
+        @submit="openUplink"
+      />
+
+      <h3>Attach to existing sessions</h3>
+      <div class="c-form__row">
+        <label>
+          Session IDs
+          <input v-model="uplinkIds" type="text" placeholder="7, 9" />
+        </label>
+        <button class="c-button" :disabled="busy" @click="startUplinkFromForm">Attach</button>
+        <button class="c-button" :disabled="busy" @click="refreshUplink">Refresh</button>
       </div>
       <p v-if="formError" class="c-session-control__error" role="alert">
         {{ formError }}
       </p>
       <ul v-if="uplinkSessions.length > 0" class="c-session-control__list">
-        <li
-          v-for="session in uplinkSessions"
-          :key="session.sessionId"
-          class="c-form__row"
-        >
+        <li v-for="session in uplinkSessions" :key="session.sessionId" class="c-form__row">
           <label>
             <input
               v-model="selectedSession"
@@ -90,6 +72,21 @@
             />
             Session {{ session.sessionId }} (started {{ session.startTime }})
           </label>
+          <span
+            v-for="parameter in describe(sessionFields.uplink, session)"
+            :key="parameter.key"
+            class="c-session-control__parameter"
+          >
+            {{ parameter.label }}: {{ parameter.value }}
+          </span>
+          <button
+            class="c-button"
+            :disabled="busy"
+            :aria-label="`Stop uplink session ${session.sessionId}`"
+            @click="stopUplink(session.sessionId)"
+          >
+            Stop
+          </button>
         </li>
       </ul>
       <p v-else>No uplink sessions attached.</p>
@@ -104,36 +101,47 @@
 
     <section class="c-session-control__section">
       <h2>Downlink Sessions</h2>
+      <h3>Open a new downlink session</h3>
+      <SessionFieldsForm
+        id-prefix="downlink-field"
+        :fields="sessionFields.downlink"
+        :active-sessions="downlinkSessions"
+        :busy="busy"
+        submit-label="Open downlink session"
+        empty-text="No downlink session fields are configured (missionControl.downlinkSessionFields); the proxy defaults apply."
+        @submit="openDownlink"
+      />
+
+      <h3>Attach to existing sessions</h3>
       <div class="c-form__row">
         <label>
           Session IDs
           <input v-model="downlinkIds" type="text" placeholder="7, 9" />
         </label>
-        <button
-          class="c-button c-button--major"
-          :disabled="busy"
-          @click="startDownlinkFromForm"
-        >
-          Start
-        </button>
-        <button
-          class="c-button"
-          :disabled="busy || downlinkSessions.length === 0"
-          @click="stopDownlink"
-        >
-          Stop
-        </button>
-        <button class="c-button" :disabled="busy" @click="refreshDownlink">
-          Refresh
-        </button>
+        <button class="c-button" :disabled="busy" @click="startDownlinkFromForm">Attach</button>
+        <button class="c-button" :disabled="busy" @click="refreshDownlink">Refresh</button>
       </div>
       <ul v-if="downlinkSessions.length > 0" class="c-session-control__list">
-        <li
-          v-for="session in downlinkSessions"
-          :key="session.sessionId"
-          class="c-form__row"
-        >
-          Session {{ session.sessionId }} (started {{ session.startTime }})
+        <li v-for="session in downlinkSessions" :key="session.sessionId" class="c-form__row">
+          <span>Session {{ session.sessionId }} (started {{ session.startTime }})</span>
+          <span v-if="session.state" class="c-session-control__parameter">
+            State: {{ session.state }}
+          </span>
+          <span
+            v-for="parameter in describe(sessionFields.downlink, session)"
+            :key="parameter.key"
+            class="c-session-control__parameter"
+          >
+            {{ parameter.label }}: {{ parameter.value }}
+          </span>
+          <button
+            class="c-button"
+            :disabled="busy"
+            :aria-label="`Stop downlink session ${session.sessionId}`"
+            @click="stopDownlink(session.sessionId)"
+          >
+            Stop
+          </button>
         </li>
       </ul>
       <p v-else>No downlink sessions started.</p>
@@ -142,8 +150,21 @@
 </template>
 
 <script>
+import SessionFieldsForm from './SessionFieldsForm.vue';
+import { describeParameters } from '../../missionControl/sessionFields.js';
+
 export default {
-  inject: ['openmct', 'missionControlService'],
+  components: {
+    SessionFieldsForm
+  },
+  inject: {
+    openmct: { from: 'openmct' },
+    missionControlService: { from: 'missionControlService' },
+    sessionFields: {
+      from: 'sessionFields',
+      default: () => ({ uplink: [], downlink: [] })
+    }
+  },
   data() {
     return {
       busy: false,
@@ -195,6 +216,9 @@ export default {
     this.refreshAll();
   },
   methods: {
+    describe(fields, session) {
+      return describeParameters(fields, session.parameters);
+    },
     parseSessionIds(text) {
       return String(text)
         .split(',')
@@ -207,7 +231,7 @@ export default {
 
       try {
         await action();
-      } catch (error) {
+      } catch {
         // failures are recorded on service state for display
       } finally {
         this.busy = false;
@@ -242,12 +266,20 @@ export default {
 
       return ids;
     },
+    uplinkOptions() {
+      return {
+        defaultTarget: this.defaultTarget,
+        timeout: Number(this.uplinkTimeout) || 30
+      };
+    },
+    openUplink(parameters) {
+      return this.runExclusive(() =>
+        this.missionControlService.openUplinkSession(parameters, this.uplinkOptions())
+      );
+    },
     startUplink(sessionIds) {
       return this.runExclusive(() =>
-        this.missionControlService.startUplinkSessions(sessionIds, {
-          defaultTarget: this.defaultTarget,
-          timeout: Number(this.uplinkTimeout) || 30
-        })
+        this.missionControlService.startUplinkSessions(sessionIds, this.uplinkOptions())
       );
     },
     startUplinkFromForm() {
@@ -259,13 +291,14 @@ export default {
 
       return this.startUplink(ids);
     },
-    stopUplink() {
-      return this.runExclusive(() => this.missionControlService.stopUplinkSessions());
+    stopUplink(sessionId) {
+      return this.runExclusive(() => this.missionControlService.stopUplinkSession(sessionId));
+    },
+    openDownlink(parameters) {
+      return this.runExclusive(() => this.missionControlService.openDownlinkSession(parameters));
     },
     startDownlink(sessionIds) {
-      return this.runExclusive(() =>
-        this.missionControlService.startDownlinkSessions(sessionIds)
-      );
+      return this.runExclusive(() => this.missionControlService.startDownlinkSessions(sessionIds));
     },
     startDownlinkFromForm() {
       const ids = this.requireIds(this.downlinkIds);
@@ -276,8 +309,8 @@ export default {
 
       return this.startDownlink(ids);
     },
-    stopDownlink() {
-      return this.runExclusive(() => this.missionControlService.stopDownlinkSessions());
+    stopDownlink(sessionId) {
+      return this.runExclusive(() => this.missionControlService.stopDownlinkSession(sessionId));
     },
     clearSelection() {
       this.missionControlService.selectUplinkSession(null);
@@ -303,5 +336,9 @@ export default {
 }
 .c-session-control__error {
   font-weight: bold;
+}
+.c-session-control__parameter {
+  opacity: 0.8;
+  margin-left: 12px;
 }
 </style>

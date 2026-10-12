@@ -1,9 +1,11 @@
 import SessionControl from './components/SessionControl.vue';
 import mount from 'ommUtils/mountVueComponent.js';
 import getMissionControlService from '../missionControl/missionControlService.js';
+import { normalizeFields } from '../missionControl/sessionFields.js';
 
 export default class SessionControlViewProvider {
-  constructor(openmct) {
+  constructor(openmct, options = {}) {
+    this.options = options || {};
     this.key = 'vista.sessionControlView';
     this.name = 'Session Control';
     this.cssClass = 'icon-session';
@@ -27,7 +29,11 @@ export default class SessionControlViewProvider {
             },
             provide: {
               openmct: self.openmct,
-              missionControlService: getMissionControlService(self.openmct)
+              missionControlService: getMissionControlService(self.openmct, self.options.apiBase),
+              sessionFields: {
+                uplink: normalizeFields(self.options.uplinkSessionFields),
+                downlink: normalizeFields(self.options.downlinkSessionFields)
+              }
             },
             template: '<SessionControl />'
           },
