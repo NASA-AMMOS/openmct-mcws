@@ -1,0 +1,3103 @@
+openapi: 3.1.0
+info:
+  title: Operations JSON Proxy API
+  version: 0.11.0
+  description: |
+    Design-first contract for a JSON proxy covering the telemetry surface
+    consumed by the `openmct-mcws` plugin plus generic authentication,
+    command-service session management, and commanding. Vocabulary is
+    intentionally generic: the proxy is a new implementation, not any
+    particular backend implementation.
+
+    Telemetry paths map 1:1 to a dataset URL key (e.g.
+    `channelHistoricalUrl`) or MIO operation used in
+    `openmct-mcws/src`. Response shapes are the exact row shapes the plugin
+    parses, so the plugin needs only URL remapping, not parsing changes.
+
+    Capability overlap with the venue agent (telemetry queries
+    resolved in favor of the MCWS paths already in this spec):
+    - Channel stream watch and historical channel queries
+      (existing `GET /api/v3/eha/realtime*` and GDS archive queries) are served by
+      `/streams/channels`, `/channels/history` (alarm filters, time
+      bounds, `channel_id__in` batching), and `/channels/lad`.
+      Channel-type facets (realtime/recorded/simulated) are the
+      `record_type` / `realtime` fields; alarm filtering is the
+      `dn_alarm_state` / `eu_alarm_state` filters.
+    - EVR stream watch and historical EVR queries
+      (existing `GET /api/v3/evr/realtime*` and GDS archive queries) are served by
+      `/streams/evrs`, `/evrs/history` (`level`/`module`/`name`
+      filters), and `/evrs/lad`.
+    - Data product metadata queries (existing `GET /api/v3/dp`) are served
+      by `/data-products`; status/APID/file facets are preserved as
+      optional `DataProduct` fields (`dpStatus`, `apId`, `filePath`,
+      `fileSize`, `creationTime`) addressable via standard `filter`.
+    - Serial-bus log parsing and custom-script execution have no
+      MCWS equivalent and are out of scope for this revision (reserved
+      for future `/bus-1553` and `/scripts` paths).
+
+    Commanding paths reference tracking sessions by id; valid ids come
+    from `/sessions/active` and `/sessions/history` (`Session.number`).
+    Commands always name their target session explicitly: listing the
+    attach set and choosing which session to interact with are
+    frontend concerns, and the proxy keeps no selected-session state.
+
+    Every dispatch returns a proxy-issued `commandId` (see
+    `CommandDispatch`); lifecycle events for that command carry the
+    same id on `CommandEvent`, queryable via `/command-events` and
+    observable live via `/streams/command-events`. Commands sent
+    outside the proxy carry no id.
+
+    Downlink sessions (`/downlink-sessions`) are proxy-owned
+    session-control lifecycle with no source equivalent: starting or
+    stopping a downlink session has no effect on queries or streams.
+    Choosing which session's data you see is session filtering,
+    covered by `/sessions/history`, historical filter params, and
+    stream `session`/`topic` filters.
+
+    Command queues (`/command-queues`) hold command message files:
+    ordered entries released by absolute time, relative delay, or
+    script gate, managed explicitly (start, pause, resume, step,
+    abort, cancel entry). Relative delays anchor to the previous
+    entry's release; gate and entry failures follow the queue's
+    `onGateFailure` / `onEntryFailure` policies. `translate` renders
+    each entry to its uplink binary without sending.
+
+    File transfers started by dispatches are managed as transfers
+    (`/transfers`): listed, inspected, paused, resumed, and
+    cancelled, each tracing back to its `commandId`. Loadable
+    artifacts are browsed through the catalog (`/catalog/*`):
+    command message files, packed `.scmf` files, and packed
+    `.cltuf` files, each behind its own listing for UI views.
+
+    Authentication and authorization ride on a mod_auth_openidc
+    frontend. Browser clients authenticate through the frontend's OIDC
+    session; programmatic clients send an OIDC access token as
+    `Authorization: Bearer`, validated upstream against the provider's
+    userinfo endpoint. The proxy issues no tokens and sees no
+    credentials.
+
+    The frontend asserts identity as `REMOTE_USER` plus the default
+    `groups` claim pass-through (`OIDC_CLAIM_groups`), whose values
+    are the caller's LDAP groups. The proxy maps group membership to
+    endpoint scopes; the group-to-scope map is deployment configuration
+    (typically: operators group grants `telemetry:read`, command group
+    additionally grants `sessions:manage` and `commands:send`). The
+    proxy must strip client-supplied identity headers and accept them
+    only from the frontend.
+
+    Every operation except `GET /health` requires authentication: 401
+    when the session/token is missing or invalid, 403 when the caller
+    lacks the required scope. Authorization is role-based (LDAP groups
+    grant endpoint scopes); the proxy does not restrict individual
+    commands beyond the `commands:send` scope. Roles (e.g. ACE,
+    viewer) are named scope sets granted through group membership;
+    `GET /auth/whoami` reports the caller's username, groups,
+    available roles, and effective scopes. Role selection is UI-only:
+    it gates interface affordances while enforcement stays purely
+    scope-based.
+
+    MCWS parenthetical query-param serialization (see
+    `src/services/mcws/MCWSParameters.js`):
+    - `filter`: object encoded as `(k=v,k2!=v2,k3>=v3,k4=(a,b))`.
+      Operator suffixes: `__eq` (default, `=`), `__neq` (`!=`), `__gt` (`>`),
+      `__lt` (`<`), `__gte` (`>=`), `__lte` (`<=`), `__in` (`=(a,b)`).
+    - `sort`: `field__asc|__desc`, encoded as `(field,-other)`.
+    - `select`: encoded as `(col1,col2)`.
+    - `output=json` forces a parsed JSON body (all datatable reads set this).
+    - `max_records`: row cap applied when `mcwsVersion >= 3.2`
+      (see `src/utils/utils.js` `setMaxResults`).
+    - `lad_type`: set to the sort value on LAD queries.
+    - `minmax`: `(size,domain,eu_or_dn)` on min/max queries.
+
+    WebSocket streams are documented as `GET` operations tagged `Streams`
+    with `x-websocket: true` (upgrade + `?filter=(...)` query, JSON text
+    frames). If the streams need formal tooling later, port them to AsyncAPI.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: JSON proxy (this contract)
+  - url: '{mcwsUrl}'
+    description: Direct MCWS passthrough (dataset URLs as configured)
+    variables:
+      mcwsUrl:
+        default: http://example.com/mcws
+tags:
+  - name: Channels
+  - name: EVRs
+  - name: Command Events
+  - name: Data Products
+  - name: Packets
+  - name: Sessions
+  - name: Dictionaries
+  - name: Messages
+  - name: Persistence
+  - name: Metadata
+  - name: Proxy
+  - name: Streams
+  - name: Auth
+  - name: Command Sessions
+  - name: Commands
+  - name: Command Queues
+  - name: Downlink Sessions
+  - name: Transfers
+  - name: Catalog
+security:
+  - oidc: [telemetry:read]
+paths:
+  /channels/history:
+    get:
+      tags: [Channels]
+      summary: Historical channel samples (datatable read)
+      description: |
+        Proxies `channelHistoricalUrl`. Used by `ChannelHistoricalProvider`,
+        `ChannelAlarmProvider`, and `HeaderChannelsHistoricalProvider`.
+        Alarm views reuse this endpoint with `dn_alarm_state` /
+        `eu_alarm_state` filters (`RED`, `YELLOW`). Supports
+        `batchHistoricalChannelQueries` via `channel_id__in`.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of channel sample rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelSample'
+              example:
+                - channel_id: E-0001
+                  dn: '1234'
+                  eu: '12.34'
+                  ert: '2024-100T00:00:00.000'
+                  scet: '2024-100T00:00:00.000'
+                  sclk: '1234567890.123'
+                  lst: null
+                  record_type: EHA
+                  dn_alarm_state: NONE
+                  eu_alarm_state: NONE
+                  module: ELEC
+                  realtime: 'true'
+                  dss_id: '25'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /channels/minmax:
+    get:
+      tags: [Channels]
+      summary: Min/max decimated channel samples
+      description: |
+        Proxies `channelMinMaxUrl`. Used by `MinMaxProvider` when
+        `request.strategy == 'minmax'` and `request.size > 1`.
+        Requires the `minmax=(size,domain,eu_or_dn)` parameter.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+        - name: minmax
+          in: query
+          required: true
+          schema:
+            type: string
+          description: '(size,domain,eu_or_dn), e.g. (2000,scet,eu_or_dn)'
+          example: (2000,scet,eu_or_dn)
+      responses:
+        '200':
+          description: Array of min/max rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelMinMaxSample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /channels/lad:
+    get:
+      tags: [Channels]
+      summary: Latest-available-data channel samples
+      description: |
+        Proxies `channelLADUrl` with fallback to `channelHistoricalUrl`
+        when LAD is unconfigured. Used by `ChannelLadProvider` when
+        `request.strategy == 'latest'` or `request.size == 1`.
+        LAD queries set `lad_type` to the sort value.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/LadType'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of latest channel sample rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelSample'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /evrs/history:
+    get:
+      tags: [EVRs]
+      summary: Historical EVR records (datatable read)
+      description: |
+        Proxies `evrHistoricalUrl`. Used by `EvrProvider`.
+        Filters: `level`, `module`, `name` (from `evr_name`), plus time
+        bounds on the request domain.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of EVR rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvrRecord'
+              example:
+                - name: ELEC_001_INIT
+                  module: ELEC
+                  level: ACTIVITY_LO
+                  message: 'Electra init complete'
+                  event_id: '42'
+                  record_type: EVR
+                  ert: '2024-100T00:00:00.000'
+                  scet: '2024-100T00:00:00.000'
+                  session_id: 7
+                  session_host: mpcs-host
+                  realtime: 'true'
+                  dss_id: 25
+                  vcid: '0'
+                  from_sse: 'false'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /evrs/lad:
+    get:
+      tags: [EVRs]
+      summary: Latest EVR records
+      description: |
+        Proxies `evrLADUrl`. Used by `EvrProvider` when
+        `options.strategy == 'latest'`. Sets `lad_type` to the sort value.
+        Name queries also send `filter.level=*` (required by MCWS/AMPCS).
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/LadType'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of latest EVR rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvrRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /command-events:
+    get:
+      tags: [Command Events]
+      summary: Historical command events (datatable read)
+      description: |
+        Proxies `commandEventUrl`. Used by `CommandEventsProvider`
+        (exclusive domain `ert`, always sorted by `event_time`; `ert`
+        bounds are remapped to `event_time__gte/lte`). HTTP 400 is
+        surfaced to the caller; other failures resolve as `[]`.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of command event rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandEvent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /data-products:
+    get:
+      tags: [Data Products]
+      summary: Historical data products (datatable read)
+      description: |
+        Proxies `dataProductUrl`. Used by `DataProductProvider`. The
+        plugin derives `emd_url`, `dat_url`, and `txt_url` per row from
+        `dataProductContentUrl` (see `/data-products/content`).
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of data product rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /data-products/content:
+    get:
+      tags: [Data Products]
+      summary: Data product file bytes (EMD/DAT/TXT)
+      description: |
+        Proxies `dataProductContentUrl`. Queried as
+        `?filter=(session_id=<id>,unique_name=<name-without-.dat>)&filetype=`
+        with a `.emd` / `.dat` suffix appended; the `.txt` variant
+        replaces `DataProductContent` with `DataProductView` in the URL.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - name: filetype
+          in: query
+          required: false
+          schema:
+            type: string
+          description: File extension selector; empty with suffix on path
+      responses:
+        '200':
+          description: File bytes
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /packets:
+    get:
+      tags: [Packets]
+      summary: Historical packet metadata (datatable read)
+      description: |
+        Proxies `packetUrl`. Consumed through the same provider pattern
+        as data products (`PacketsType` maps `packetUrl` /
+        `packetContentUrl` onto the data-product provider shape).
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of packet rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PacketRecord'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /packets/content:
+    get:
+      tags: [Packets]
+      summary: Packet content bytes
+      description: |
+        Proxies `packetContentUrl`. Same filter/filetype convention as
+        `/data-products/content`.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - name: filetype
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Packet bytes
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /sessions/active:
+    get:
+      tags: [Sessions]
+      summary: Active sessions / topics (LAD datatable read)
+      description: |
+        Proxies `sessionLADUrl`. Used by
+        `SessionService.getActiveSessions` / `getTopicsWithSessions`.
+        No query params are sent. The plugin groups rows by `topic`;
+        each group becomes a topic object (first row minus `number`)
+        with a `sessions` array of rows that carry `number`.
+      parameters:
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of session LAD rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+              example:
+                - number: 7
+                  topic: mpcs.mission.ops
+                  host: mpcs-host
+                  jms_subtopic: ''
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /sessions/history:
+    get:
+      tags: [Sessions]
+      summary: Historical sessions (datatable read)
+      description: |
+        Proxies `sessionUrl`. Used by
+        `SessionService.getHistoricalSessionsByUrl` with
+        `sort=-number:numeric`, `max_records` (default 100), and filters
+        where `number` matches exactly and all other keys match as
+        `*value*` wildcards. Results are deduped on `number + host`.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of historical session rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Session'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /dictionaries/channels:
+    get:
+      tags: [Dictionaries]
+      summary: Channel dictionary (datatable read)
+      description: |
+        Proxies `channelDictionaryUrl`. Used by
+        `ChannelDictionary.fetchDictionaries`. Rows use either the
+        modern keys (`channel_id`, `channel_name`, ...) or the alternate
+        AMPCS keys (`channel-ID`, `channel-Mnemonic`, `channel-Type`,
+        `DN2EU-flag`, `DN-units`, `EU-units`), which the plugin
+        standardizes. Channels are grouped by `channel_id` prefix.
+      parameters:
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of channel definitions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelDictionaryEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /dictionaries/channel-enumerations:
+    get:
+      tags: [Dictionaries]
+      summary: Channel enumeration dictionary (datatable read)
+      description: |
+        Proxies `channelEnumerationDictionaryUrl`. Used by
+        `ChannelDictionary.fetchDictionaries`; rows are attached to
+        their channel's `enumerations` array by `channel_id`.
+      parameters:
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of channel enumeration rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChannelEnumeration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /dictionaries/evrs:
+    get:
+      tags: [Dictionaries]
+      summary: EVR dictionary (datatable read)
+      description: |
+        Proxies `eventRecordDictionaryUrl` / `evrDictionaryUrl`. Used by
+        `EVRDictionary.load`. The plugin groups rows by `module`,
+        indexes by `evr_name`, and collects distinct `level` values.
+      parameters:
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of EVR definitions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvrDictionaryEntry'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /dictionaries/commands:
+    get:
+      tags: [Dictionaries]
+      summary: Command dictionary (opaque JSON file)
+      description: |
+        Serves the static dictionary JSON that datasets load once via
+        `commandDictionaryUrl`. Unlike the other dictionaries this is
+        an opaque JSON file in plandev-ampcs format
+        (`{fswCommands[], hwCommands[]}`), read via
+        `CommandDictionary.getDataFile` and held in dataset memory;
+        interactive flows (e.g. the immediate command UI) consume
+        that in-memory copy, never this endpoint per action. Grouped
+        into FSW/HW by command `type` (`fsw_command` / `hw_command`).
+      responses:
+        '200':
+          description: Command dictionary document
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDictionary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /messages/history:
+    get:
+      tags: [Messages]
+      summary: Historical messages (datatable read)
+      description: |
+        Proxies `messageHistoricalUrl` (see `Dataset.hasMessages`).
+        Same row shape as the message stream.
+      parameters:
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Select'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/MaxRecords'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of message rows
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /namespaces/{namespacePath}:
+    get:
+      tags: [Persistence]
+      summary: List namespace contents (triples)
+      description: |
+        Proxies `GET {namespaceUrl}?output=json` (`NamespaceMIO.read` /
+        `list`). Used by `BaseMCWSPersistenceProvider` (`createIfMissing`
+        existence check, `getNamespacesFromMCWS` user-namespace
+        discovery filtering `object == 'namespace'`). `list()` maps
+        `has_mio_type` triples to child datatable/opaque/namespace
+        handles and `has_registered_namespace` triples to namespaces.
+      parameters:
+        - $ref: '#/components/parameters/NamespacePath'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of RDF-style triples
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Triple'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Persistence]
+      summary: Create a namespace
+      description: |
+        Proxies `PUT {namespaceUrl}?op=create&type=namespace`
+        (`NamespaceMIO.create`). Used by `createIfMissing` when the
+        existence check returns 404.
+      parameters:
+        - $ref: '#/components/parameters/NamespacePath'
+        - $ref: '#/components/parameters/OpCreate'
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [namespace]
+      responses:
+        '200':
+          description: Namespace created
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /files/{filePath}:
+    get:
+      tags: [Persistence]
+      summary: Read an opaque file (persisted object)
+      description: |
+        Proxies `GET {opaqueUrl}` (`OpaqueFileMIO.read` via `MIO.read`).
+        Used by `MCWSPersistenceProvider.get`
+        (`persistenceNamespace.opaqueFile(key).read()`) and by
+        `CommandDictionary.getDataFile` (handles both raw fetch
+        Responses and already-parsed bodies).
+      parameters:
+        - $ref: '#/components/parameters/FilePath'
+      responses:
+        '200':
+          description: Persisted domain object model (JSON)
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Open MCT domain object model
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Persistence]
+      summary: Create or replace an opaque file
+      description: |
+        Create proxies
+        `PUT {opaqueUrl}?op=create&type=opaque_file&content_type=...`
+        with a JSON body (`OpaqueFileMIO.create`, used by
+        `MCWSPersistenceProvider.create`). Replace proxies
+        `PUT {opaqueUrl}` with a JSON body and no query params
+        (`OpaqueFileMIO.replace`, used by
+        `MCWSPersistenceProvider.update`).
+      parameters:
+        - $ref: '#/components/parameters/FilePath'
+        - name: op
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [create]
+          description: Present for create; absent for replace
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [opaque_file]
+          description: Present for create; absent for replace
+        - name: content_type
+          in: query
+          required: false
+          schema:
+            type: string
+          description: MIME type, default `application/json` (create only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Open MCT domain object model
+      responses:
+        '200':
+          description: File written
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      tags: [Persistence]
+      summary: Delete an opaque file
+      description: |
+        Proxies `DELETE {opaqueUrl}` (`OpaqueFileMIO.remove`). Available
+        MIO operation; the current persistence provider does not call it.
+      parameters:
+        - $ref: '#/components/parameters/FilePath'
+      responses:
+        '200':
+          description: File deleted
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /mio/{mioPath}/metadata:
+    get:
+      tags: [Metadata]
+      summary: List MIO metadata triples
+      description: |
+        Proxies `GET {mioUrl}/?output=json` (`MIO.getMetadata`).
+        Returns triples queried by `subject`/`predicate` via `get()` or
+        wholesale via `list()`.
+      parameters:
+        - $ref: '#/components/parameters/MioPath'
+        - $ref: '#/components/parameters/OutputJson'
+      responses:
+        '200':
+          description: Array of metadata triples
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Triple'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Metadata]
+      summary: Add MIO metadata
+      description: |
+        Proxies `POST {mioUrl}/?predicate=<p>&object=<o>`
+        (`MIO.addMetadata`).
+      parameters:
+        - $ref: '#/components/parameters/MioPath'
+        - $ref: '#/components/parameters/Predicate'
+        - $ref: '#/components/parameters/Object'
+      responses:
+        '200':
+          description: Metadata added
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    delete:
+      tags: [Metadata]
+      summary: Remove MIO metadata
+      description: |
+        Proxies `DELETE {mioUrl}/?predicate=<p>&object=<o>`
+        (`MIO.removeMetadata`).
+      parameters:
+        - $ref: '#/components/parameters/MioPath'
+        - $ref: '#/components/parameters/Predicate'
+        - $ref: '#/components/parameters/Object'
+      responses:
+        '200':
+          description: Metadata removed
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /proxyUrl:
+    get:
+      tags: [Proxy]
+      summary: Generic URL-proxy fetch
+      description: |
+        Mirrors the `MCWSClient.proxyRequest` pattern: when `proxyUrl`
+        is configured, the plugin rewrites any MCWS request to
+        `{proxyUrl}proxyUrl?url=<urlencoded-target>` (query params
+        folded into the target first) and sends with
+        `credentials: include`. The proxy fetches the target and
+        returns its bytes. Prefer the concrete paths above for new
+        work; this exists for MCWS-hosted URLs the proxy does not
+        model (e.g. venue JSON files, dictionary JSON fallbacks).
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uri
+          description: Fully-qualified, urlencoded target URL
+      responses:
+        '200':
+          description: Target response bytes
+          content:
+            application/json:
+              schema:
+                type: object
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /streams/channels:
+    get:
+      tags: [Streams]
+      summary: Realtime channel stream (WebSocket)
+      description: |
+        Proxies `channelStreamUrl` (`MCWSChannelStreamProvider`,
+        property `channel_id`). Upgrade to WebSocket with
+        `?filter=(session=<n>,topic=<t>,channel_id=(A,B))`.
+        Connection requires an active topic/session, reconnects on
+        subscription or topic change, and merges global filters.
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of ChannelSample
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelSample'
+  /streams/evrs:
+    get:
+      tags: [Streams]
+      summary: Realtime EVR stream (WebSocket)
+      description: |
+        Proxies `evrStreamUrl` (`MCWSEVRStreamProvider`, property
+        `module`, UPPERCASE only). Level-scoped objects use
+        `MCWSEVRLevelStreamProvider`. Query:
+        `?filter=(session=<n>,topic=<t>,module=(ELEC,FDSW))`.
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of EvrRecord
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvrRecord'
+  /streams/messages:
+    get:
+      tags: [Streams]
+      summary: Realtime message stream (WebSocket)
+      description: |
+        Proxies `messageStreamUrl` (`MCWSMessageStreamProvider`).
+        `CommandMessages` objects preset `message_type` to
+        HardwareCommand, FlightSoftwareCommand, SequenceDirective,
+        SseCommand, FileLoad, SCMF, RawUplinkData, CpdUplinkStatus.
+        `MessageStreamProcessor` also subscribes for StartOfSession /
+        EndOfSession clear-data and suspect-channel handling.
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of Message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+  /streams/data-products:
+    get:
+      tags: [Streams]
+      summary: Realtime data product stream (WebSocket)
+      description: |
+        Proxies `dataProductStreamUrl`
+        (`MCWSDataProductStreamProvider`, no key/property filter).
+        The plugin derives `emd_url` / `dat_url` / `txt_url` per datum
+        from `dataProductContentUrl` (see `/data-products/content`).
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of DataProduct
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataProduct'
+  /streams/frame-summary:
+    get:
+      tags: [Streams]
+      summary: Realtime frame summary stream (WebSocket)
+      description: |
+        Proxies `frameSummaryStreamUrl`
+        (`MCWSFrameSummaryStreamProvider`). Frames carry either the
+        MCWS summary shape (`vcid`, `encoding_type`, ...) or the AMPCS
+        shape (`vcid`, `frame_type`, ...).
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of FrameSummary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrameSummary'
+  /streams/frame-events:
+    get:
+      tags: [Streams]
+      summary: Realtime frame event stream (WebSocket)
+      description: |
+        Proxies `frameEventStreamUrl` (`MCWSFrameEventStreamProvider`).
+        Filter objects split by event type
+        (`BadTelemetryFrame`, `InSync`, `LossOfSync`,
+        `FrameSequenceAnomaly`, `OutOfSyncData`); bad-frame events feed
+        the frame accountability views.
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of FrameEvent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrameEvent'
+  /streams/alarm-messages:
+    get:
+      tags: [Streams]
+      summary: Realtime alarm message stream (WebSocket)
+      description: |
+        Proxies `alarmMessageStreamUrl`
+        (`MCWSAlarmMessageStreamProvider`, attached to alarm views by
+        `ChannelAlarmPlugin`).
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of AlarmMessage
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlarmMessage'
+  /streams/command-events:
+    get:
+      tags: [Streams]
+      summary: Realtime command event stream (WebSocket)
+      description: |
+        Proxies `commandEventStreamUrl` (`MCWSCommandStreamProvider`).
+        Same row shape as `/command-events`.
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of CommandEvent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandEvent'
+  /streams/packet-summary-events:
+    get:
+      tags: [Streams]
+      summary: Realtime packet summary event stream (WebSocket)
+      description: |
+        Proxies `packetSummaryEventStreamUrl`
+        (`MCWSPacketSummaryEventProvider`).
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of PacketRecord
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PacketRecord'
+  /streams/sim/channels:
+    get:
+      tags: [Streams]
+      summary: Simulated channel stream (WebSocket)
+      description: |
+        Proxies `channelSimStreamUrl` with backing datatable
+        `channelSimStreamDatatableUrl` (taxonomy properties; same
+        `ChannelSample` row shape and stream filter convention).
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of ChannelSample
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelSample'
+  /streams/sim/evrs:
+    get:
+      tags: [Streams]
+      summary: Simulated EVR stream (WebSocket)
+      description: |
+        Proxies `evrSimStreamUrl` with backing datatable
+        `evrSimStreamDatatableUrl` (taxonomy properties; same
+        `EvrRecord` row shape and stream filter convention).
+      x-websocket: true
+      parameters:
+        - $ref: '#/components/parameters/StreamFilter'
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames of EvrRecord
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvrRecord'
+  /auth/whoami:
+    get:
+      tags: [Auth]
+      summary: Report caller identity, groups, roles, and scopes
+      description: |
+        Returns the authenticated caller's username, LDAP groups,
+        available roles, and effective scopes, as asserted by the
+        OIDC frontend. Requires authentication but no specific scope,
+        so even callers with no granted scopes can identify
+        themselves. Drives UI role selection and affordance gating.
+      security:
+        - oidc: []
+      responses:
+        '200':
+          description: Caller identity and entitlements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WhoAmI'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /health:
+    get:
+      tags: [Auth]
+      summary: Proxy health check (unauthenticated)
+      description: |
+        Returns proxy liveness. Like the venue-agent health endpoint,
+        this requires no token.
+      security: []
+      responses:
+        '200':
+          description: Health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+  /command-sessions:
+    post:
+      tags: [Command Sessions]
+      summary: Start the command service on tracking sessions
+      description: |
+        Attaches the command service to the given tracking session
+        ids (see `Session.number` from `/sessions/active`) and selects
+        the default redundant-side target for commands that do not
+        specify one. Startup can take tens of seconds; `timeout`
+        bounds the wait (minimum 25). Corresponds to the venue-agent
+        command-service start operation. Session control is
+        independent of telemetry: starting or stopping has no effect
+        on queries or streams.
+      security:
+        - oidc: [sessions:manage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandSessionStart'
+      responses:
+        '200':
+          description: Command service started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags: [Command Sessions]
+      summary: List active command sessions
+      description: |
+        Returns the tracking sessions the command service is currently
+        attached to. Neither source system offers a list operation, so
+        this is new proxy-owned state for frontends to present the
+        attach set for interaction.
+      security:
+        - oidc: [sessions:manage]
+      responses:
+        '200':
+          description: Active command sessions (empty when stopped)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveCommandSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags: [Command Sessions]
+      summary: Stop the command service
+      description: |
+        Detaches the command service started by `POST
+        /command-sessions`. Corresponds to the venue-agent
+        command-service shutdown operation.
+      security:
+        - oidc: [sessions:manage]
+      responses:
+        '204':
+          description: Command service stopped
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /downlink-sessions:
+    post:
+      tags: [Downlink Sessions]
+      summary: Start downlink sessions
+      description: |
+        Starts downlink sessions for the given tracking session ids
+        (see `Session.number` from `/sessions/active`). Session
+        control plane only: starting or stopping a downlink session
+        has no effect on queries or streams. Proxy-owned lifecycle
+        with no source equivalent.
+      security:
+        - oidc: [sessions:manage]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DownlinkSessionStart'
+      responses:
+        '200':
+          description: Downlink sessions started
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveDownlinkSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags: [Downlink Sessions]
+      summary: List active downlink sessions
+      description: |
+        Returns the downlink sessions currently started (empty when
+        none are).
+      security:
+        - oidc: [sessions:manage]
+      responses:
+        '200':
+          description: Active downlink sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveDownlinkSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    delete:
+      tags: [Downlink Sessions]
+      summary: Stop downlink sessions
+      description: |
+        Stops the downlink sessions started by `POST
+        /downlink-sessions`. Session control plane only: no effect
+        on queries or streams.
+      security:
+        - oidc: [sessions:manage]
+      responses:
+        '204':
+          description: Downlink sessions stopped
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /command-queues:
+    post:
+      tags: [Command Queues]
+      summary: Load a command message file as a queue
+      description: |
+        Validates and loads a CMF without executing it (new queues
+        start `loaded`). Accepts structured JSON or the CMF text
+        format (`text/plain`, one entry per line):
+
+        D00:00:00 NO_OPERATION
+        D00:00:01 /uplink/attitude.scmf
+        2026-001T00:00:00.001 /uplink/patch.cltuf
+        D00:00:00,health_check.py=={true} /uplink/maneuver.scmf
+        D00:00:00,com.gds.fileutils.generatecfdp,{output}
+        D00:00:05 /data/image.dat send_cfdp
+
+        Timing is an absolute UTC timestamp, a relative `Dhh:mm:ss`
+        delay from the previous entry's release, and/or a gate of the
+        form `script=={expected}` or a producer script with `{output}`.
+        Commands are a command string, an `.scmf` / `.cltuf` path, a
+        file path plus `send_cfdp` / `file_load`, or script `{output}`.
+        Text-form `file_load` uses proxy defaults; full file-load
+        options require the JSON form.
+
+        Load-time validation checks stems against the dictionary,
+        file paths for existence, and absolute times per
+        `onPastTimestamp`. Returns the queue with per-entry sequence
+        numbers, all `pending`.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - name: sessionId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: Tracking session for text/plain loads (required then; JSON bodies carry their own sessionId). Policies take defaults on text loads.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CmfDocument'
+          text/plain:
+            schema:
+              type: string
+              description: Raw CMF text, one entry per line
+      responses:
+        '201':
+          description: Queue loaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    get:
+      tags: [Command Queues]
+      summary: List command queues
+      description: Lists queue summaries; fetch a queue for entries.
+      security:
+        - oidc: [sessions:manage]
+      responses:
+        '200':
+          description: Queue summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommandQueueSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /command-queues/{queueId}:
+    get:
+      tags: [Command Queues]
+      summary: Inspect a command queue
+      description: Returns the queue with all entries and their states.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '200':
+          description: Queue with entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Command Queues]
+      summary: Remove a command queue
+      description: |
+        Removes a queue and its stored products. Allowed unless the
+        queue is `running` (pause or abort it first).
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '204':
+          description: Queue removed
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Queue is running; pause or abort it first
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  /command-queues/{queueId}/start:
+    post:
+      tags: [Command Queues]
+      summary: Start executing a queue
+      description: |
+        Transitions a `loaded` queue to `running`; entries release as
+        their timing matures. 400 unless the queue is `loaded`.
+      security:
+        - oidc: [commands:send]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '200':
+          description: Queue started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/pause:
+    post:
+      tags: [Command Queues]
+      summary: Pause a running queue
+      description: |
+        Transitions a `running` queue to `paused`. An entry already
+        released runs to completion; pending entries hold. 400 unless
+        the queue is `running`.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '200':
+          description: Queue paused
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/resume:
+    post:
+      tags: [Command Queues]
+      summary: Resume a paused queue
+      description: |
+        Transitions a `paused` queue to `running`. Absolute entries
+        whose time passed while paused follow `onPastTimestamp`;
+        relative entries resume their remaining delays. 400 unless the
+        queue is `paused`.
+      security:
+        - oidc: [commands:send]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '200':
+          description: Queue resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/step:
+    post:
+      tags: [Command Queues]
+      summary: Release the next pending entry immediately
+      description: |
+        Releases the next `pending` entry now, ignoring its remaining
+        delay; its gate (if any) is still evaluated. The queue ends
+        `paused` (or `completed` when nothing remains pending).
+        Allowed from `loaded` or `paused`; 400 otherwise.
+      security:
+        - oidc: [commands:send]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '200':
+          description: Entry stepped
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/abort:
+    post:
+      tags: [Command Queues]
+      summary: Abort a queue
+      description: |
+        Transitions a `running` or `paused` queue to `aborted`;
+        pending entries become `skipped`. Irreversible; 400 unless the
+        queue is `running` or `paused`.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '200':
+          description: Queue aborted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/entries/{sequence}:
+    delete:
+      tags: [Command Queues]
+      summary: Cancel one pending entry
+      description: |
+        Marks one `pending` entry `skipped`. 400 unless the entry is
+        pending; 404 for an unknown queue or sequence.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+        - $ref: '#/components/parameters/EntrySequence'
+      responses:
+        '200':
+          description: Entry cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandQueue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/translate:
+    post:
+      tags: [Command Queues]
+      summary: Translate entries to uplink binaries without sending
+      description: |
+        Runs through the entries and renders each to the binary that
+        would be uplinked, stored on disk and returned as products.
+        Stems are translated via the dictionary; `.scmf` / `.cltuf`
+        entries reference their packed CLTUs as-is; file transfers
+        stage their transfer image; `{output}` producer scripts are
+        executed under `scriptTimeout` and their CLTU output
+        captured. Gate conditions are not executed (noted per
+        product). Nothing is uplinked. 400 when the queue is
+        `running`.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TranslateRequest'
+      responses:
+        '200':
+          description: Translated products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CmfProduct'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/products:
+    get:
+      tags: [Command Queues]
+      summary: List translated binary products
+      description: Lists stored products (empty if never translated).
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '200':
+          description: Stored products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CmfProduct'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Command Queues]
+      summary: Purge translated binary products
+      description: Deletes stored products; the queue is unchanged.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+      responses:
+        '204':
+          description: Products purged
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /command-queues/{queueId}/products/{sequence}:
+    get:
+      tags: [Command Queues]
+      summary: Download one entry's binary product
+      description: Returns the raw uplink bytes for the entry.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/QueueId'
+        - $ref: '#/components/parameters/EntrySequence'
+      responses:
+        '200':
+          description: Product bytes
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /transfers:
+    get:
+      tags: [Transfers]
+      summary: List file transfers
+      description: |
+        Lists uplink file transfers started by dispatches, optionally
+        filtered. Transfers come into existence when a file uplink,
+        sequence file, or CMF file-transfer entry is dispatched.
+      parameters:
+        - name: state
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/TransferState'
+        - name: sessionId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: method
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [file_load, send_cfdp]
+      responses:
+        '200':
+          description: Matching transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transfer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /transfers/{transferId}:
+    get:
+      tags: [Transfers]
+      summary: Inspect one file transfer
+      description: Returns a transfer with progress and error detail.
+      parameters:
+        - $ref: '#/components/parameters/TransferId'
+      responses:
+        '200':
+          description: Transfer detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /transfers/{transferId}/pause:
+    post:
+      tags: [Transfers]
+      summary: Pause a file transfer
+      description: |
+        Pauses a `queued` or `active` transfer. 400 unless the
+        transfer is pausable.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/TransferId'
+      responses:
+        '200':
+          description: Transfer paused
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /transfers/{transferId}/resume:
+    post:
+      tags: [Transfers]
+      summary: Resume a paused file transfer
+      description: |
+        Resumes a `paused` transfer. 400 unless the transfer is
+        paused.
+      security:
+        - oidc: [commands:send]
+      parameters:
+        - $ref: '#/components/parameters/TransferId'
+      responses:
+        '200':
+          description: Transfer resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /transfers/{transferId}/cancel:
+    post:
+      tags: [Transfers]
+      summary: Cancel a file transfer
+      description: |
+        Cancels a `queued`, `active`, or `paused` transfer. Terminal;
+        400 once the transfer is `complete`, `failed`, or
+        `cancelled`.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/TransferId'
+      responses:
+        '200':
+          description: Transfer cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /catalog/cmfs:
+    get:
+      tags: [Catalog]
+      summary: List available command message files
+      description: Drives the CMF browser view; fetch one for loadable contents.
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Return only files whose name contains this string
+      responses:
+        '200':
+          description: Catalog entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CmfCatalogEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /catalog/cmfs/{name}:
+    get:
+      tags: [Catalog]
+      summary: Read one command message file
+      description: |
+        Returns the stored file's entries and default policies, ready
+        to combine with a session and load via `POST /command-queues`.
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Catalog file name from the listing
+      responses:
+        '200':
+          description: CMF contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CmfFile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /catalog/scmfs:
+    get:
+      tags: [Catalog]
+      summary: List available packed command files
+      description: Drives the SCMF browser view.
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Return only files whose name contains this string
+      responses:
+        '200':
+          description: Catalog entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PackedFileCatalogEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /catalog/cltufs:
+    get:
+      tags: [Catalog]
+      summary: List available packed CLTU files
+      description: Drives the CLTU file browser view.
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Return only files whose name contains this string
+      responses:
+        '200':
+          description: Catalog entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PackedFileCatalogEntry'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /commands/flight-software:
+    post:
+      tags: [Commands]
+      summary: Send a flight software command
+      description: |
+        Dispatches a flight software command string (stem plus
+        arguments) through a tracking session. When `validate` is
+        true the command is validated against the flight dictionary
+        before radiation. Corresponds to venue-agent `POST /api/v3/cmd/fsw_cmd`.
+      security:
+        - oidc: [commands:send]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightSoftwareCommand'
+      responses:
+        '200':
+          description: Command dispatched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /commands/hardware:
+    post:
+      tags: [Commands]
+      summary: Send a hardware command
+      description: |
+        Dispatches a hardware command by stem through a tracking
+        session. Corresponds to venue-agent `POST /api/v3/cmd/hw_cmd`.
+      security:
+        - oidc: [commands:send]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HardwareCommand'
+      responses:
+        '200':
+          description: Command dispatched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /commands/simulator:
+    post:
+      tags: [Commands]
+      summary: Send a simulator command
+      description: |
+        Dispatches a command string to the software simulator through
+        a tracking session. Corresponds to venue-agent `POST /api/v3/cmd/sse`.
+      security:
+        - oidc: [commands:send]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulatorCommand'
+      responses:
+        '200':
+          description: Command dispatched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /commands/file-uplink:
+    post:
+      tags: [Commands]
+      summary: Uplink a binary file to the flight computer
+      description: |
+        Builds a host file into a command file of the given file type
+        and uplinks it to the onboard path through a tracking session.
+        Corresponds to venue-agent `POST /api/v3/cmd/binary_file`.
+      security:
+        - oidc: [commands:send]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FileUplinkCommand'
+      responses:
+        '200':
+          description: File uplink dispatched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /commands/sequence-file:
+    post:
+      tags: [Commands]
+      summary: Upload a pre-built sequence file to the flight computer
+      description: |
+        Uploads an existing host-side sequence/command file through a
+        tracking session. `disableChecks` skips ground validation of
+        the file. Corresponds to venue-agent `POST /api/v3/cmd/scmf`.
+      security:
+        - oidc: [commands:send]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SequenceFileCommand'
+      responses:
+        '200':
+          description: Sequence file dispatched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+components:
+  parameters:
+    Filter:
+      name: filter
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Parenthetical MCWS filter, e.g.
+        `(channel_id=E-0001,scet>=2024-100T00:00:00.000)` or
+        `(channel_id__in=(E-0001,E-0002))`. Operators: `=`, `!=`,
+        `>`, `<`, `>=`, `<=`, `=(a,b)`.
+      example: (channel_id=E-0001,scet>=2024-100T00:00:00.000)
+    Select:
+      name: select
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Parenthetical column list, e.g.
+        `(dn,eu,channel_id,ert,scet,sclk,lst,record_type,dn_alarm_state,eu_alarm_state,module,realtime,dss_id)`.
+      example: (dn,eu,channel_id,ert,scet)
+    Sort:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+      description: |
+        Parenthetical sort terms, `-` prefix for descending, e.g.
+        `(scet,-channel_id)`. Sessions history uses
+        `(-number:numeric)`. Omitted when `disableSortParam` is set.
+      example: (scet)
+    MaxRecords:
+      name: max_records
+      in: query
+      required: false
+      schema:
+        type: integer
+      description: Row cap (`maxResults` config / 100 for sessions).
+    OutputJson:
+      name: output
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [json]
+      description: Always `json` for datatable/namespace reads.
+    LadType:
+      name: lad_type
+      in: query
+      required: false
+      schema:
+        type: string
+      description: LAD discriminator; set to the sort value on LAD queries.
+    StreamFilter:
+      name: filter
+      in: query
+      required: true
+      schema:
+        type: string
+      description: |
+        WebSocket subscription filter, e.g.
+        `(session=7,topic=mpcs.mission.ops,channel_id=(E-0001,E-0002))`.
+        Always carries `session` + `topic` plus the provider property
+        (`channel_id`, `module`, `record_type`, ...). EVR modules must
+        be UPPERCASE.
+      example: (session=7,topic=mpcs.mission.ops,channel_id=(E-0001))
+    NamespacePath:
+      name: namespacePath
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Namespace path below the persistence root.
+    FilePath:
+      name: filePath
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Opaque file path (`<namespace>/<key>`).
+    MioPath:
+      name: mioPath
+      in: path
+      required: true
+      schema:
+        type: string
+      description: MIO path whose trailing-slash metadata URL is addressed.
+    OpCreate:
+      name: op
+      in: query
+      required: true
+      schema:
+        type: string
+        enum: [create]
+    Predicate:
+      name: predicate
+      in: query
+      required: true
+      schema:
+        type: string
+    Object:
+      name: object
+      in: query
+      required: true
+      schema:
+        type: string
+    QueueId:
+      name: queueId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Proxy-issued command queue id
+    EntrySequence:
+      name: sequence
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: 1-based entry number within the queue
+    TransferId:
+      name: transferId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Proxy-issued file transfer id
+  responses:
+    BadRequest:
+      description: Malformed MCWS query (e.g. bad filter/sort syntax)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MioError'
+    NotFound:
+      description: No such namespace, file, session, or content
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MioError'
+    Unauthorized:
+      description: Missing or invalid bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    Forbidden:
+      description: Token lacks a required command scope
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+  schemas:
+    ChannelSample:
+      type: object
+      required: [channel_id]
+      additionalProperties: true
+      properties:
+        channel_id:
+          type: string
+          example: E-0001
+        dn:
+          type: string
+        eu:
+          type: string
+        ert:
+          type: string
+        scet:
+          type: string
+        sclk:
+          type: string
+        lst:
+          type: string
+        record_type:
+          type: string
+        dn_alarm_state:
+          type: string
+          enum: [NONE, RED, YELLOW]
+        eu_alarm_state:
+          type: string
+          enum: [NONE, RED, YELLOW]
+        module:
+          type: string
+        realtime:
+          type: string
+        dss_id:
+          type: string
+        isStale:
+          type: integer
+          enum: [0, 1]
+    ChannelMinMaxSample:
+      allOf:
+        - $ref: '#/components/schemas/ChannelSample'
+        - type: object
+          properties:
+            eu_or_dn:
+              type: string
+    EvrRecord:
+      type: object
+      additionalProperties: true
+      properties:
+        name:
+          type: string
+        evr_name:
+          type: string
+        module:
+          type: string
+        level:
+          type: string
+        message:
+          type: string
+        metadata_values:
+          type: string
+        metadata_keywords:
+          type: string
+        event_id:
+          type: string
+        record_type:
+          type: string
+        ert:
+          type: string
+        scet:
+          type: string
+        sclk:
+          type: string
+        lst:
+          type: string
+        rct:
+          type: string
+        dss_id:
+          type: integer
+        realtime:
+          type: string
+        session_id:
+          type: integer
+        session_host:
+          type: string
+        from_sse:
+          type: string
+        vcid:
+          type: string
+        isStale:
+          type: integer
+          enum: [0, 1]
+    CommandEvent:
+      type: object
+      additionalProperties: true
+      properties:
+        event_time:
+          type: string
+        ert:
+          type: string
+        message_type:
+          type: string
+          enum: [UNKNOWN, FlightSoftwareCommand, HardwareCommand, SseCommand, FileLoad, Scmf, RawUplinkData, SequenceDirective]
+        status:
+          type: string
+        summary:
+          type: string
+        vcid:
+          type: integer
+        session_id:
+          type: integer
+        session_host:
+          type: string
+        commandId:
+          type: string
+          description: Proxy-issued dispatch id for lifecycle correlation; absent for commands sent outside the proxy
+    DataProduct:
+      type: object
+      additionalProperties: true
+      properties:
+        session_id:
+          type: integer
+        session_host:
+          type: string
+        unique_name:
+          type: string
+        record_type:
+          type: string
+        emd_url:
+          type: string
+        emd_preview:
+          type: string
+        dat_url:
+          type: string
+        txt_url:
+          type: string
+        dpStatus:
+          type: string
+          enum: [ALL, COMPLETE, PARTIAL]
+          description: Ground receipt status (preserved from venue-agent product queries)
+        apId:
+          type: integer
+          description: Application process id of the product
+        apIdProductType:
+          type: string
+          description: Product type name for the APID
+        filePath:
+          type: string
+          description: Ground file path of the product
+        fileSize:
+          type: integer
+        creationTime:
+          type: string
+          description: Ground creation time (slightly later than packet ERT)
+    PacketRecord:
+      type: object
+      additionalProperties: true
+      properties:
+        session_id:
+          type: number
+        session_host:
+          type: string
+        vcid:
+          type: number
+        dss_id:
+          type: string
+        apid:
+          type: number
+        apid_name:
+          type: string
+        spsc:
+          type: number
+        length:
+          type: number
+        source_vcfc:
+          type: number
+        record_type:
+          type: string
+        from_sse:
+          type: string
+    Session:
+      type: object
+      additionalProperties: true
+      properties:
+        number:
+          type: integer
+        topic:
+          type: string
+        host:
+          type: string
+        jms_subtopic:
+          type: string
+    ChannelDictionaryEntry:
+      type: object
+      additionalProperties: true
+      properties:
+        channel_id:
+          type: string
+        channel_name:
+          type: string
+        data_type:
+          type: string
+        dn_to_eu:
+          type: string
+        dn_units:
+          type: string
+        eu_units:
+          type: string
+        enumerations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelEnumeration'
+    ChannelEnumeration:
+      type: object
+      additionalProperties: true
+      properties:
+        channel_id:
+          type: string
+    EvrDictionaryEntry:
+      type: object
+      additionalProperties: true
+      properties:
+        evr_name:
+          type: string
+        module:
+          type: string
+        level:
+          type: string
+    CommandDictionary:
+      type: object
+      description: Static dictionary document loaded once per dataset; argument schemas are consumed from the in-memory copy, not queried per action
+      required: [fswCommands, hwCommands]
+      properties:
+        fswCommands:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandDefinition'
+        hwCommands:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandDefinition'
+    CommandArgument:
+      type: object
+      additionalProperties: true
+      required: [name, arg_type]
+      properties:
+        name:
+          type: string
+        arg_type:
+          type: string
+          description: e.g. float, unsigned, signed, enum, time, var_string
+        bit_length:
+          type: integer
+        max_bit_length:
+          type: integer
+        prefix_bit_length:
+          type: integer
+        default_value:
+          description: Default value; null when none
+        description:
+          type: string
+        enum_name:
+          type: string
+        range:
+          type: object
+          description: Bounds when constrained; null when unbounded
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+        units:
+          type: string
+        valid_regex:
+          type: string
+        repeat:
+          type: object
+          description: Present on repeat-group arguments
+          properties:
+            min:
+              type: integer
+            max:
+              type: integer
+    CommandDefinition:
+      type: object
+      additionalProperties: true
+      required: [stem, type]
+      properties:
+        stem:
+          type: string
+        type:
+          type: string
+          enum: [fsw_command, hw_command]
+        description:
+          type: string
+        arguments:
+          type: array
+          description: Parameter schema for argument-entry UIs
+          items:
+            $ref: '#/components/schemas/CommandArgument'
+    Message:
+      type: object
+      additionalProperties: true
+      properties:
+        event_time:
+          type: string
+        message_type:
+          type: string
+        summary:
+          type: string
+        suspect_channels:
+          type: array
+          items:
+            type: object
+    FrameEvent:
+      type: object
+      additionalProperties: true
+      properties:
+        event_time:
+          type: string
+        message_type:
+          type: string
+          enum: [BadTelemetryFrame, InSync, LossOfSync, FrameSequenceAnomaly, OutOfSyncData]
+        summary:
+          type: string
+        vcid:
+          type: number
+        scid:
+          type: number
+        reason:
+          type: string
+    FrameSummary:
+      type: object
+      additionalProperties: true
+      description: MCWS shape uses encoding_type + counts; AMPCS shape uses frame_type.
+      properties:
+        vcid:
+          type: integer
+        encoding_type:
+          type: string
+        frame_type:
+          type: string
+        instance_count:
+          type: integer
+        bad_frame_count:
+          type: integer
+        error_count:
+          type: integer
+        sequence_count:
+          type: integer
+        last_ert_time:
+          type: string
+    AlarmMessage:
+      type: object
+      additionalProperties: true
+      properties:
+        event_time:
+          type: string
+        message_type:
+          type: string
+        summary:
+          type: string
+        channel_id:
+          type: string
+    Triple:
+      type: object
+      required: [subject, predicate, object]
+      properties:
+        subject:
+          type: string
+        predicate:
+          type: string
+        object:
+          type: string
+    MioError:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+    ErrorMessage:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [OK, ERROR, UNKNOWN]
+        message:
+          type: string
+    Target:
+      type: string
+      enum: [DEFAULT, A, B, AB]
+      description: |
+        Redundant-side selector. `DEFAULT` uses the command session's
+        `defaultTarget`; otherwise selects flight computer side A, B,
+        or both.
+    CommandSessionStart:
+      type: object
+      required: [sessionIds]
+      properties:
+        sessionIds:
+          type: array
+          items:
+            type: integer
+          description: Tracking session ids to start the command service on
+        defaultTarget:
+          type: string
+          enum: [A, B, AB]
+          default: AB
+          description: Default redundant-side target for commands
+        timeout:
+          type: integer
+          minimum: 25
+          default: 30
+          description: Startup wait bound in seconds
+    CommandSession:
+      type: object
+      required: [sessionIds, startTime]
+      properties:
+        sessionIds:
+          type: array
+          items:
+            type: integer
+        startTime:
+          type: string
+          description: Time the command service started
+    ActiveCommandSession:
+      type: object
+      required: [sessionId, startTime]
+      properties:
+        sessionId:
+          type: integer
+          description: Attached tracking session id
+        startTime:
+          type: string
+          description: Time the command service attached to this session
+    DownlinkSessionStart:
+      type: object
+      required: [sessionIds]
+      properties:
+        sessionIds:
+          type: array
+          items:
+            type: integer
+          description: Tracking session ids to start downlink sessions for
+    ActiveDownlinkSession:
+      type: object
+      required: [sessionId, startTime]
+      properties:
+        sessionId:
+          type: integer
+          description: Tracking session id with a started downlink session
+        startTime:
+          type: string
+          description: Time the downlink session started
+    QueueState:
+      type: string
+      enum: [loaded, running, paused, aborted, completed, failed]
+    EntryState:
+      type: string
+      enum: [pending, released, sent, skipped, failed]
+    CmfTiming:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+          enum: [absolute, relative]
+        at:
+          type: string
+          description: Absolute UTC fire time, e.g. 2026-001T00:00:00.001
+        delaySeconds:
+          type: number
+          minimum: 0
+          description: Relative delay from the previous entry's release (D-notation in text form)
+    CmfGate:
+      type: object
+      required: [script, expect]
+      properties:
+        script:
+          type: string
+          description: Python script path or Java class to execute at fire time
+          example: health_check.py
+        expect:
+          type: string
+          description: Expected script output, e.g. '{true}'
+    StemCommand:
+      type: object
+      required: [kind, commandString]
+      properties:
+        kind:
+          type: string
+          enum: [stem]
+        commandString:
+          type: string
+          description: Command stem plus arguments, translated at send time
+          example: NO_OPERATION
+    ScmfCommand:
+      type: object
+      required: [kind, path]
+      properties:
+        kind:
+          type: string
+          enum: [scmf]
+        path:
+          type: string
+          description: Path to the .scmf whose packed CLTUs are sent with no inter-item delay
+    CltufCommand:
+      type: object
+      required: [kind, path]
+      properties:
+        kind:
+          type: string
+          enum: [cltuf]
+        path:
+          type: string
+          description: Path to the .cltuf whose packed CLTUs are sent
+    FileTransferCommand:
+      type: object
+      required: [kind, method, sourceFilePath]
+      properties:
+        kind:
+          type: string
+          enum: [file-transfer]
+        method:
+          type: string
+          enum: [file_load, send_cfdp]
+        sourceFilePath:
+          type: string
+        targetFilePath:
+          type: string
+        fileType:
+          type: integer
+        overwrite:
+          type: boolean
+          default: true
+    ScriptOutputCommand:
+      type: object
+      required: [kind, script]
+      properties:
+        kind:
+          type: string
+          enum: [script-output]
+        script:
+          type: string
+          description: Python script path or Java class whose CLTU output is uplinked ({output} in text form)
+    CmfCommand:
+      oneOf:
+        - $ref: '#/components/schemas/StemCommand'
+        - $ref: '#/components/schemas/ScmfCommand'
+        - $ref: '#/components/schemas/CltufCommand'
+        - $ref: '#/components/schemas/FileTransferCommand'
+        - $ref: '#/components/schemas/ScriptOutputCommand'
+      discriminator:
+        propertyName: kind
+        mapping:
+          stem: '#/components/schemas/StemCommand'
+          scmf: '#/components/schemas/ScmfCommand'
+          cltuf: '#/components/schemas/CltufCommand'
+          file-transfer: '#/components/schemas/FileTransferCommand'
+          script-output: '#/components/schemas/ScriptOutputCommand'
+    CmfEntry:
+      type: object
+      required: [timing, command]
+      properties:
+        timing:
+          $ref: '#/components/schemas/CmfTiming'
+        gate:
+          $ref: '#/components/schemas/CmfGate'
+        command:
+          $ref: '#/components/schemas/CmfCommand'
+        sessionId:
+          type: integer
+          description: Overrides the queue sessionId for this entry
+    CmfDocument:
+      type: object
+      required: [sessionId, entries]
+      properties:
+        name:
+          type: string
+        sessionId:
+          type: integer
+          description: Tracking session entries target unless overridden
+        onGateFailure:
+          type: string
+          enum: [skip, hold, abort]
+          default: hold
+          description: skip marks the entry skipped and continues; hold pauses the queue; abort aborts it
+        onEntryFailure:
+          type: string
+          enum: [halt, continue]
+          default: halt
+          description: halt fails the queue; continue marks the entry failed and proceeds
+        onPastTimestamp:
+          type: string
+          enum: [send, skip, reject]
+          default: reject
+          description: How absolute times already past at load (or resume) are handled
+        scriptTimeout:
+          type: integer
+          minimum: 1
+          default: 60
+          description: Gate and producer script execution bound in seconds; timeout counts as gate failure
+        entries:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CmfEntry'
+    QueuedEntry:
+      allOf:
+        - $ref: '#/components/schemas/CmfEntry'
+        - type: object
+          required: [sequence, state]
+          properties:
+            sequence:
+              type: integer
+              description: 1-based position in load order
+            state:
+              $ref: '#/components/schemas/EntryState'
+            commandId:
+              type: string
+              description: Dispatch id once released (see `CommandEvent.commandId`)
+            productPath:
+              type: string
+              description: Translated binary path once translated
+            note:
+              type: string
+              description: Failure, skip, or gate detail
+    CommandQueue:
+      type: object
+      required: [queueId, sessionId, state, entries]
+      properties:
+        queueId:
+          type: string
+        name:
+          type: string
+        sessionId:
+          type: integer
+        onGateFailure:
+          type: string
+          enum: [skip, hold, abort]
+        onEntryFailure:
+          type: string
+          enum: [halt, continue]
+        onPastTimestamp:
+          type: string
+          enum: [send, skip, reject]
+        scriptTimeout:
+          type: integer
+        state:
+          $ref: '#/components/schemas/QueueState'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueuedEntry'
+        createdAt:
+          type: string
+    CommandQueueSummary:
+      type: object
+      required: [queueId, state, entryCount]
+      properties:
+        queueId:
+          type: string
+        name:
+          type: string
+        state:
+          $ref: '#/components/schemas/QueueState'
+        entryCount:
+          type: integer
+    TranslateRequest:
+      type: object
+      properties:
+        outputDir:
+          type: string
+          description: Destination directory for generated binaries; proxy default when omitted
+    CmfProduct:
+      type: object
+      required: [sequence, kind, path, bytes]
+      properties:
+        sequence:
+          type: integer
+        kind:
+          type: string
+          enum: [stem, scmf, cltuf, file-transfer, script-output]
+        path:
+          type: string
+          description: Binary that would be uplinked (generated, staged, or referenced as-is)
+        bytes:
+          type: integer
+        cltus:
+          type: integer
+          description: CLTU count when known
+        note:
+          type: string
+          description: e.g. referenced as-is, gate not evaluated
+    TransferState:
+      type: string
+      enum: [queued, active, paused, complete, failed, cancelled]
+    Transfer:
+      type: object
+      required: [transferId, commandId, sessionId, method, state]
+      properties:
+        transferId:
+          type: string
+        commandId:
+          type: string
+          description: Originating dispatch (see `CommandDispatch`)
+        sessionId:
+          type: integer
+        method:
+          type: string
+          enum: [file_load, send_cfdp]
+        state:
+          $ref: '#/components/schemas/TransferState'
+        sourceFilePath:
+          type: string
+        targetFilePath:
+          type: string
+        bytesTotal:
+          type: integer
+        bytesSent:
+          type: integer
+        transactionId:
+          type: string
+          description: CFDP transaction id when applicable
+        error:
+          type: string
+          description: Failure detail
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+    CmfCatalogEntry:
+      type: object
+      required: [name, path]
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        description:
+          type: string
+        entryCount:
+          type: integer
+        updatedAt:
+          type: string
+    CmfFile:
+      type: object
+      required: [name, path, entries]
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        description:
+          type: string
+        onGateFailure:
+          type: string
+          enum: [skip, hold, abort]
+        onEntryFailure:
+          type: string
+          enum: [halt, continue]
+        onPastTimestamp:
+          type: string
+          enum: [send, skip, reject]
+        scriptTimeout:
+          type: integer
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CmfEntry'
+    PackedFileCatalogEntry:
+      type: object
+      required: [name, path]
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        description:
+          type: string
+        bytes:
+          type: integer
+        cltus:
+          type: integer
+        updatedAt:
+          type: string
+    Role:
+      type: object
+      required: [name, scopes]
+      properties:
+        name:
+          type: string
+          example: ACE
+        description:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+          example: [telemetry:read, commands:send, sessions:manage]
+    WhoAmI:
+      type: object
+      required: [username, groups, roles, scopes]
+      properties:
+        username:
+          type: string
+        groups:
+          type: array
+          items:
+            type: string
+          description: Caller LDAP groups from the groups claim
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+          description: Roles the caller's groups entitle them to
+        scopes:
+          type: array
+          items:
+            type: string
+          description: Effective granted scopes (union across roles)
+    CommandDispatch:
+      type: object
+      required: [commandId, requested, dispatchTime]
+      properties:
+        commandId:
+          type: string
+          description: Proxy-issued id correlating this dispatch to its lifecycle events (see `CommandEvent.commandId`)
+          example: cmd-7f3a9c2e
+        requested:
+          type: string
+          description: Mirrors the requested command string, stem, or file path
+        dispatchTime:
+          type: string
+          description: Dispatch time, e.g. 2017-09-25T03:57:42.676Z
+    FlightSoftwareCommand:
+      type: object
+      required: [sessionId, commandString]
+      properties:
+        sessionId:
+          type: integer
+          description: Tracking session to send the command through
+        commandString:
+          type: string
+          description: Command stem plus arguments
+        validate:
+          type: boolean
+          default: true
+          description: Validate against the flight dictionary before radiation
+        target:
+          $ref: '#/components/schemas/Target'
+        timeout:
+          type: integer
+          minimum: 0
+          default: 10
+          description: Dispatch timeout in seconds
+    HardwareCommand:
+      type: object
+      required: [sessionId, commandStem]
+      properties:
+        sessionId:
+          type: integer
+        commandStem:
+          type: string
+        target:
+          $ref: '#/components/schemas/Target'
+        timeout:
+          type: integer
+          minimum: 0
+          default: 10
+    SimulatorCommand:
+      type: object
+      required: [sessionId, commandString]
+      properties:
+        sessionId:
+          type: integer
+        commandString:
+          type: string
+        timeout:
+          type: integer
+          minimum: 0
+          default: 10
+    FileUplinkCommand:
+      type: object
+      required: [sessionId, sourceFilePath, targetFilePath, fileType]
+      properties:
+        sessionId:
+          type: integer
+        sourceFilePath:
+          type: string
+          description: Full host path, e.g. /proj/mission/files/patch.data
+        targetFilePath:
+          type: string
+          description: Full onboard path, e.g. /eng1/patch.data
+        fileType:
+          type: integer
+          description: File type used to build the binary into a command file
+        overwrite:
+          type: boolean
+          default: true
+        target:
+          $ref: '#/components/schemas/Target'
+        timeout:
+          type: integer
+          minimum: 0
+          default: 10
+    SequenceFileCommand:
+      type: object
+      required: [sessionId, filePath]
+      properties:
+        sessionId:
+          type: integer
+          description: Tracking session to send the file through
+        filePath:
+          type: string
+          description: Full host path of the pre-built sequence file
+        disableChecks:
+          type: boolean
+          default: false
+          description: Skip ground validation of the file
+        timeout:
+          type: integer
+          minimum: 0
+          default: 10
+  securitySchemes:
+    oidc:
+      type: openIdConnect
+      openIdConnectUrl: https://idp.example.com/.well-known/openid-configuration
+      description: |
+        OIDC access token (or frontend session) validated by the
+        mod_auth_openidc frontend. Programmatic clients send
+        `Authorization: Bearer <access-token>`. Scope names
+        (`telemetry:read`, `sessions:manage`, `commands:send`) are
+        granted from LDAP group membership in the `groups` claim, per
+        deployment configuration.
