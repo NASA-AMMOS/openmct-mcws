@@ -7,7 +7,7 @@ import { merge } from 'webpack-merge';
 import common from './webpack.common.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const proxyUrl = process.env.PROXY_URL || 'http://localhost:8080';

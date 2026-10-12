@@ -78,7 +78,9 @@ export function interpolateUsername(templateObject, userId, username = userId) {
   const namespaceDefinition = {};
 
   Object.keys(templateObject).forEach((key) => {
-    namespaceDefinition[key] = templateObject[key].replace('${USERNAME}', username).replace('${USERID}', userId);
+    namespaceDefinition[key] = templateObject[key]
+      .replace('${USERNAME}', username)
+      .replace('${USERID}', userId);
   });
 
   return namespaceDefinition;

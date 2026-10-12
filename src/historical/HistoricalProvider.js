@@ -44,10 +44,7 @@ class HistoricalProvider {
     this.clearAlert = this.clearAlert.bind(this);
 
     if (window.openmctMCWSConfig?.queryTimespanLimit !== undefined) {
-      const duration = moment.duration(
-        window.openmctMCWSConfig.queryTimespanLimit,
-        'milliseconds'
-      );
+      const duration = moment.duration(window.openmctMCWSConfig.queryTimespanLimit, 'milliseconds');
       const hours = padTime(Math.floor(duration.asHours()));
       const minutes = padTime(Math.floor(duration.minutes()));
       const seconds = padTime(Math.floor(duration.seconds()));
