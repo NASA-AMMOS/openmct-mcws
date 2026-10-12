@@ -1,0 +1,197 @@
+# yaml-language-server: $schema=assets/openmct-configuration-schema.json
+openmct:
+  version: 4.3.1
+  plugins:
+    - mct-bootstrap-plugin:
+        npmPackage: file:./assets/mct-bootstrap-plugin
+        source: npm
+    - openmct.plugins.Espresso
+    - openmct.plugins.MyItems:
+        enabled: false
+        source: builtin
+    - openmct.plugins.LocalStorage
+    - openmct.plugins.UTCTimeSystem
+    - openmct.plugins.PlanLayout:
+        options:
+          creatable: true
+        source: builtin
+    - openmct.plugins.DisplayLayout:
+        options:
+          showAsView:
+            - summary-widget
+            - vista.packetSummaryEvents
+            - vista.dataProducts
+            - vista.packets
+            - vista.frameSummary
+            - vista.frameWatch
+        source: builtin
+    - openmct.plugins.Conductor
+    - openmct.plugins.Snow
+    - openmct.plugins.ObjectMigration
+    - openmct.plugins.ClearData:
+        options:
+          - - table
+            - telemetry.plot.overlay
+            - telemetry.plot.stacked
+            - vista.packetSummaryEvents
+            - vista.dataProducts
+            - vista.packets
+            - vista.frameSummary
+            - vista.frameWatch
+            - vista.chanTableGroup
+          - indicator: false
+        source: builtin
+    - openmct.plugins.Filters:
+        options:
+          - - vista.alarmsView
+            - telemetry.plot.overlay
+            - table
+            - vista.chanTableGroup
+            - vista.commandEventsView
+            - vista.messagesView
+            - vista.evrView
+        source: builtin
+    - openmct.plugins.Notebook
+    - openmct.plugins.Clock:
+        options:
+          useClockIndicator: false
+        source: builtin
+    - openmct.plugins.DefaultRootName:
+        options:
+          - VISTA
+        source: builtin
+    - openmct-mcws-plugin:
+        npmPackage: file:/tmp/openmct-mcws-plugin-6.1.0-next.tgz
+        options:
+          useDeveloperStorage: false
+          mcwsUrl: https://uphill.jpl.nasa.gov/mcws
+          namespaces:
+            - key: r43-60
+              name: R4.3/6.0 Shared
+              url: /gov/nasa/jpl/mcs/project/ammos/dev/openmct/r43-60/shared
+            - userNamespace: true
+              key: r43-60
+              name: R4.3/6.0 Users
+              url: /gov/nasa/jpl/mcs/project/ammos/dev/openmct/r43-60/users
+          time:
+            defaultMode: fixed
+            utcFormat: utc.day-of-year
+            timeSystems:
+              - key: scet
+                modeSettings:
+                  realtime:
+                    presets:
+                      - label: Last 5 minutes
+                        bounds:
+                          start: -300000
+                          end: 60000
+                      - label: Last 10 minutes
+                        bounds:
+                          start: -600000
+                          end: 60000
+                      - label: Last half hour
+                        bounds:
+                          start: -1800000
+                          end: 60000
+                      - label: Last two hours
+                        bounds:
+                          start: -7200000
+                          end: 60000
+                      - label: Last eight hours
+                        bounds:
+                          start: -28800000
+                          end: 60000
+              - ert
+            allowRealtime: true
+            allowLAD: true
+            records: 10
+          missionControl:
+            apiBase: ./api/v1
+            uplinkSessionFields:
+              - key: venueType
+                name: Venue
+                options:
+                  - ATLO
+                  - CRUISE
+                  - OPS
+                  - ORBIT
+                  - SURFACE
+                  - TESTBED
+                  - TESTSET
+                default: TESTSET
+                required: true
+              - key: spacecraftID
+                name: Spacecraft ID
+                options:
+                  - 252
+                  - 253
+                  - 254
+                required: true
+              - key: fswUplinkHost
+                name: Uplink Host
+                default: 127.0.0.1
+                required: true
+              - key: fswUplinkPort
+                name: Uplink Port
+                control: number
+                default: 9825
+                min: 1
+                max: 65535
+                required: true
+            downlinkSessionFields:
+              - key: venueType
+                name: Venue
+                options:
+                  - ATLO
+                  - CRUISE
+                  - OPS
+                  - ORBIT
+                  - SURFACE
+                  - TESTBED
+                  - TESTSET
+                default: TESTSET
+                required: true
+              - key: downlinkConnectionType
+                name: Connection Type
+                options:
+                  - CLIENT_SOCKET
+                  - SERVER_SOCKET
+                  - DATABASE
+                  - FILE
+                  - NEN_SN_CLIENT
+                  - NEN_SN_SERVER
+                  - TDS
+                default: CLIENT_SOCKET
+                required: true
+              - key: fswDownlinkHost
+                name: Host
+                options:
+                  - value: localhost
+                    label: Local Connection
+                  - value: netacq.example.com  # configure: NetAcquire host for this deployment
+                    label: SSE1 NetAcquire
+                    sets:
+                      fswDownlinkPort: 10412
+                required: true
+              - key: fswDownlinkPort
+                name: Port
+                control: number
+                min: 9828
+                max: 9924
+                unique: true
+                uniqueAmong:
+                  - fswDownlinkHost
+                autoAssign: true
+                required: true
+              - key: inputFormat
+                name: Input Format
+                options:
+                  - RAW_TF
+                  - LEOT_TF
+                  - RAW_PKT
+                  - SFDU_PKT
+                  - SFDU_TF
+                  - SLE_TF
+                default: RAW_TF
+                required: true
+        source: npm

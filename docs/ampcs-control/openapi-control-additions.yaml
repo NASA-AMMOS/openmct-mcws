@@ -1,0 +1,934 @@
+# SUPERSEDED IN PART (2026-10-12): session start/stop, /control/options, and
+# the async downlink create below were replaced by the v0.12.0 spec on branch
+# feat-484-ampcs-session-control. /streams/control, Idempotency-Key, and the
+# CommandDispatch status fields remain proposals. See README.md section 0.
+#
+# Proposed changes to openmct-mcws mcws-proxy-api/openapi.yaml
+# (feat-484-command-dictionary, v0.11.0 -> proposed v0.12.0).
+#
+# How to apply: merge into the spec at operation level. Each operation
+# under `paths` and each entry under `components.*` either replaces the
+# same-named item in the spec or is new. Every item carries
+# `x-proposal: new` or `x-proposal: replaces` so reviewers can tell which.
+#
+# Not expressible as a merge, so apply by hand:
+# - In every existing `/streams/*` description, state that each WebSocket
+#   text frame is a JSON array of rows. src/realtime/MCWSStreamWorkerScript.js
+#   calls data.forEach() on every frame and breaks on single-object frames.
+# - Bump info.version and add a paragraph to info.description pointing at
+#   `/streams/control` as the push channel for proxy-owned state.
+
+paths:
+  /streams/control:
+    get:
+      x-proposal: new
+      tags: [Streams, Command Sessions, Downlink Sessions]
+      summary: Control-plane event stream (WebSocket)
+      description: |
+        Server-to-client push channel for proxy-owned state: command
+        sessions, downlink sessions, command dispatch results, queue and
+        transfer progress, and optional process log lines. Replaces
+        polling of `/command-sessions`, `/downlink-sessions`,
+        `/command-queues`, and `/transfers`.
+
+        No actions are carried on this socket. Every state change is
+        requested through a REST operation, which returns its own result;
+        this stream reports the change to every connected client. The
+        only client frame is `ControlClientMessage` (change event
+        families without reconnecting).
+
+        On connect the proxy sends one `snapshot` event with current
+        state, then incremental events. Each event carries a proxy-wide
+        monotonic `seq`. A reconnecting client passes `since=<last seq>`;
+        the proxy replays retained events after it, or sends a fresh
+        `snapshot` with `resync: true` when they have been discarded.
+
+        Authentication is checked at upgrade (OIDC session cookie or
+        bearer token). `log` events require `sessions:manage`; all other
+        events require `telemetry:read`. When the caller's session
+        expires the proxy closes with code 4401 and the client must
+        re-authenticate before reconnecting. The proxy sends protocol
+        pings so intermediaries do not time out idle sockets.
+      x-websocket: true
+      security:
+        - oidc: [telemetry:read]
+      parameters:
+        - name: since
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+          description: Last `seq` the client processed; requests replay after reconnect
+        - name: topics
+          in: query
+          required: false
+          schema:
+            type: string
+          description: |
+            Comma-separated event families to receive. Default is every
+            family except `log`. Families: `command-session`,
+            `downlink-session`, `command`, `queue`, `transfer`, `log`.
+          example: command-session,downlink-session,command
+      responses:
+        '101':
+          description: WebSocket upgrade; JSON text frames, one ControlEvent per frame
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlEvent'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /control/options:
+    get:
+      x-proposal: new
+      tags: [Command Sessions, Downlink Sessions]
+      summary: Accepted values for session start forms
+      description: |
+        Lists the values the proxy accepts when creating uplink and
+        downlink sessions, so frontends stop hardcoding venue, spacecraft,
+        connection type, input format, host, and port lists. Values are
+        deployment configuration. Replaces the AMPCSController
+        `downlinkHosts` browser config and its hardcoded SCID, venue, and
+        port-range lists.
+      security:
+        - oidc: [sessions:manage]
+      responses:
+        '200':
+          description: Accepted session configuration values
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ControlOptions'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /command-sessions:
+    post:
+      x-proposal: replaces
+      tags: [Command Sessions]
+      summary: Start the command service on tracking sessions
+      description: |
+        Attaches the command service to existing tracking sessions
+        (`sessionIds`), or creates a new uplink session from `create`
+        when the backend needs explicit uplink configuration. AMPCS needs
+        this: chill_send_cmd takes venue, spacecraft id, and uplink host
+        and port, or a `--sessionKey` that reuses a stored session's
+        configuration. Selects the default redundant-side target for
+        commands that do not specify one. Startup can take tens of
+        seconds; `timeout` bounds the wait (minimum 25). Other clients
+        learn of the change through `command-session.*` events on
+        `/streams/control`. Session control is independent of telemetry.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommandSessionStart'
+      responses:
+        '200':
+          description: Command service started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /command-sessions/{sessionId}:
+    get:
+      x-proposal: new
+      tags: [Command Sessions]
+      summary: Inspect one attached command session
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/SessionIdPath'
+      responses:
+        '200':
+          description: Attached command session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveCommandSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-proposal: new
+      tags: [Command Sessions]
+      summary: Detach the command service from one session
+      description: |
+        Detaches one tracking session and leaves the rest of the attach
+        set alone. `DELETE /command-sessions` still stops the whole
+        service, which affects every operator sharing the proxy.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/SessionIdPath'
+      responses:
+        '204':
+          description: Session detached
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /downlink-sessions:
+    post:
+      x-proposal: replaces
+      tags: [Downlink Sessions]
+      summary: Start downlink sessions
+      description: |
+        Two forms. `sessionIds` starts downlink processing for existing
+        tracking sessions, for backends that support it (200). `create`
+        starts a new downlink process from explicit configuration and
+        returns at once with `state: starting` (202). AMPCS needs
+        `create`: chill_down has no session-key option and always creates
+        a new session, whose number is known only after startup. The
+        session number arrives in a `downlink-session.started` event with
+        the same `downlinkId`. When `create.port` is omitted the proxy
+        allocates a free port, which removes the client-side port
+        bookkeeping AMPCSController did. Session control plane only: no
+        effect on queries or streams.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DownlinkSessionStart'
+      responses:
+        '200':
+          description: Downlink sessions started for existing tracking sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveDownlinkSession'
+        '202':
+          description: New downlink session starting; completion arrives on `/streams/control`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveDownlinkSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /downlink-sessions/{downlinkId}:
+    get:
+      x-proposal: new
+      tags: [Downlink Sessions]
+      summary: Inspect one downlink session
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/DownlinkIdPath'
+      responses:
+        '200':
+          description: Downlink session with latest status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveDownlinkSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      x-proposal: new
+      tags: [Downlink Sessions]
+      summary: Stop one downlink session
+      description: |
+        Stops one downlink process and leaves the others running. This
+        replaces the AMPCSController `downlink_session_exit` message.
+        The final state arrives as `downlink-session.stopped`, or
+        `downlink-session.failed` when the process will not exit.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/DownlinkIdPath'
+      responses:
+        '202':
+          description: Stop requested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveDownlinkSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /commands/flight-software:
+    post:
+      x-proposal: replaces
+      tags: [Commands]
+      summary: Send a flight software command
+      description: |
+        Dispatches a flight software command string (stem plus
+        arguments) through a tracking session. When `validate` is true
+        the command is validated against the flight dictionary before
+        radiation. Corresponds to venue-agent `POST /api/v3/cmd/fsw_cmd`.
+
+        Clients send an `Idempotency-Key` on every call so a retry after
+        a dropped connection cannot radiate twice. The call waits up to
+        `timeout` seconds for the uplink result. A 200 carries the final
+        `status`, `radiated` or `failed`. A 202 means the command was
+        dispatched but its result is still pending. The final status
+        then arrives as a `command.completed` or `command.failed` event
+        with the same `commandId`.
+      security:
+        - oidc: [commands:send]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FlightSoftwareCommand'
+      responses:
+        '200':
+          description: Command dispatched; final status known
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '202':
+          description: Command dispatched; final status follows on `/streams/control`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableCommand'
+
+  /commands/hardware:
+    post:
+      x-proposal: replaces
+      tags: [Commands]
+      summary: Send a hardware command
+      description: |
+        Dispatches a hardware command by stem through a tracking
+        session. Corresponds to venue-agent `POST /api/v3/cmd/hw_cmd`.
+        Idempotency, 200/202 semantics, and result events match
+        `/commands/flight-software`.
+      security:
+        - oidc: [commands:send]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HardwareCommand'
+      responses:
+        '200':
+          description: Command dispatched; final status known
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '202':
+          description: Command dispatched; final status follows on `/streams/control`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableCommand'
+
+  /commands/simulator:
+    post:
+      x-proposal: replaces
+      tags: [Commands]
+      summary: Send a simulator command
+      description: |
+        Dispatches a command string to the software simulator through a
+        tracking session. Corresponds to venue-agent `POST /api/v3/cmd/sse`
+        (AMPCS: the `sse:` command prefix). Idempotency, 200/202
+        semantics, and result events match `/commands/flight-software`.
+        Simulator strings are not dictionary-validated.
+      security:
+        - oidc: [commands:send]
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulatorCommand'
+      responses:
+        '200':
+          description: Command dispatched; final status known
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '202':
+          description: Command dispatched; final status follows on `/streams/control`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommandDispatch'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+components:
+  parameters:
+    IdempotencyKey:
+      x-proposal: new
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        maxLength: 128
+      description: |
+        Client-generated unique key, e.g. a UUID. A repeat request with
+        the same key and body inside the proxy's retention window returns
+        the original response instead of acting again. A repeat with the
+        same key and a different body is rejected with 409.
+    SessionIdPath:
+      x-proposal: new
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Tracking session id (`Session.number`)
+    DownlinkIdPath:
+      x-proposal: new
+      name: downlinkId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Proxy-issued downlink session id, stable before the tracking session number exists
+
+  responses:
+    Conflict:
+      x-proposal: new
+      description: |
+        The target session is not attached to the command service, the
+        resource is in a state that forbids the operation, or an
+        `Idempotency-Key` was reused with a different body.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    UnprocessableCommand:
+      x-proposal: new
+      description: Command failed dictionary validation (only when validation is enabled)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+
+  schemas:
+    ControlEvent:
+      x-proposal: new
+      type: object
+      required: [type, seq, time]
+      description: |
+        One event on `/streams/control`. `data` depends on the type
+        family: `snapshot` carries ControlSnapshot; `command-session.*`
+        carries ActiveCommandSession; `downlink-session.*` carries
+        ActiveDownlinkSession; `command.*` carries CommandDispatch;
+        `queue.updated` carries CommandQueueSummary; `transfer.updated`
+        carries Transfer; `log` carries LogLine.
+      properties:
+        type:
+          type: string
+          enum:
+            - snapshot
+            - command-session.starting
+            - command-session.started
+            - command-session.stopped
+            - command-session.failed
+            - downlink-session.starting
+            - downlink-session.started
+            - downlink-session.status
+            - downlink-session.stopped
+            - downlink-session.failed
+            - command.dispatched
+            - command.completed
+            - command.failed
+            - queue.updated
+            - transfer.updated
+            - log
+        seq:
+          type: integer
+          description: Proxy-wide monotonic sequence number
+        time:
+          type: string
+          description: Event time, ISO-8601 UTC
+        resync:
+          type: boolean
+          description: On `snapshot` only; true when the requested `since` could not be replayed
+        actor:
+          type: string
+          description: Username whose request caused the change, when known
+        sessionId:
+          type: [integer, 'null']
+        downlinkId:
+          type: string
+        commandId:
+          type: string
+        queueId:
+          type: string
+        transferId:
+          type: string
+        data:
+          oneOf:
+            - $ref: '#/components/schemas/ControlSnapshot'
+            - $ref: '#/components/schemas/ActiveCommandSession'
+            - $ref: '#/components/schemas/ActiveDownlinkSession'
+            - $ref: '#/components/schemas/CommandDispatch'
+            - $ref: '#/components/schemas/CommandQueueSummary'
+            - $ref: '#/components/schemas/Transfer'
+            - $ref: '#/components/schemas/LogLine'
+    ControlClientMessage:
+      x-proposal: new
+      type: object
+      required: [type, topics]
+      description: The only frame a client sends on `/streams/control`
+      properties:
+        type:
+          type: string
+          enum: [subscribe]
+        topics:
+          type: array
+          items:
+            type: string
+            enum: [command-session, downlink-session, command, queue, transfer, log]
+    ControlSnapshot:
+      x-proposal: new
+      type: object
+      required: [commandSessions, downlinkSessions]
+      properties:
+        commandSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiveCommandSession'
+        downlinkSessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActiveDownlinkSession'
+        queues:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommandQueueSummary'
+        transfers:
+          type: array
+          description: Non-terminal transfers only
+          items:
+            $ref: '#/components/schemas/Transfer'
+    LogLine:
+      x-proposal: new
+      type: object
+      required: [source, level, text]
+      description: |
+        Process output, opt-in through the `log` family. The proxy
+        should parse periodic downlink summaries into
+        `downlink-session.status` events rather than forward them as
+        log lines, and rate-limit what remains.
+      properties:
+        source:
+          type: string
+          enum: [downlink, uplink, command, queue, proxy]
+        level:
+          type: string
+          enum: [DEBUG, INFO, WARN, ERROR]
+        text:
+          type: string
+    DownlinkStatus:
+      x-proposal: new
+      type: object
+      description: |
+        Latest input health for a downlink session. For AMPCS these come
+        from the chill_down INPUT_SUMMARY, FRAME_SUMMARY, PKT_SUMMARY, and
+        PERFORMANCE log lines, or from its RESTful M&C service when
+        enabled with `--restPort`.
+      properties:
+        dataFlowing:
+          type: boolean
+        lastInputTime:
+          type: string
+        inSync:
+          type: boolean
+        frames:
+          type: integer
+        idleFrames:
+          type: integer
+        outOfSyncCount:
+          type: integer
+        frameGaps:
+          type: integer
+        bitrate:
+          type: number
+          description: Bits per second
+        validPackets:
+          type: integer
+        badPackets:
+          type: integer
+        health:
+          type: string
+          enum: [GREEN, YELLOW, RED, UNKNOWN]
+        updatedAt:
+          type: string
+    HostOption:
+      x-proposal: new
+      type: object
+      required: [host, name]
+      properties:
+        host:
+          type: string
+        name:
+          type: string
+          description: Display name
+        fixedPort:
+          type: integer
+          description: When present the host only accepts this port (AMPCSController `requirePort`)
+    ControlOptions:
+      x-proposal: new
+      type: object
+      required: [venues, spacecraftIds, uplink, downlink]
+      properties:
+        venues:
+          type: array
+          items:
+            type: string
+          example: [ATLO, CRUISE, OPS, ORBIT, SURFACE, TESTBED, TESTSET]
+        spacecraftIds:
+          type: array
+          items:
+            type: integer
+          example: [252, 253, 254]
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Target'
+        uplink:
+          type: object
+          properties:
+            connectionTypes:
+              type: array
+              items:
+                type: string
+              example: [SOCKET, COMMAND_SERVICE]
+            hosts:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostOption'
+        downlink:
+          type: object
+          properties:
+            connectionTypes:
+              type: array
+              items:
+                type: string
+              example: [CLIENT_SOCKET, SERVER_SOCKET, DATABASE, FILE, NEN_SN_CLIENT, NEN_SN_SERVER, TDS]
+            inputFormats:
+              type: array
+              items:
+                type: string
+              example: [RAW_TF, LEOT_TF, RAW_PKT, SFDU_PKT, SFDU_TF, SLE_TF]
+            hosts:
+              type: array
+              items:
+                $ref: '#/components/schemas/HostOption'
+            portRange:
+              type: object
+              properties:
+                min:
+                  type: integer
+                  example: 9828
+                max:
+                  type: integer
+                  example: 9924
+    UplinkSessionConfig:
+      x-proposal: new
+      type: object
+      required: [venue, spacecraftId]
+      description: Values must come from `GET /control/options`
+      properties:
+        venue:
+          type: string
+          example: TESTSET
+        spacecraftId:
+          type: integer
+          example: 252
+        connectionType:
+          type: string
+          example: SOCKET
+        host:
+          type: string
+          description: Flight software uplink host
+        port:
+          type: integer
+          description: Flight software uplink port
+        sseHost:
+          type: string
+        ssePort:
+          type: integer
+        testbedName:
+          type: string
+        sessionName:
+          type: string
+        sessionDescription:
+          type: string
+    DownlinkSessionConfig:
+      x-proposal: new
+      type: object
+      required: [venue, connectionType]
+      description: Values must come from `GET /control/options`
+      properties:
+        venue:
+          type: string
+          example: TESTSET
+        spacecraftId:
+          type: integer
+        connectionType:
+          type: string
+          example: CLIENT_SOCKET
+        host:
+          type: string
+          description: Downlink source host; one of `ControlOptions.downlink.hosts`
+        port:
+          type: [integer, 'null']
+          description: Omit or null to let the proxy allocate from `portRange`, or use the host's `fixedPort`
+        inputFormat:
+          type: string
+          example: RAW_TF
+        testbedName:
+          type: string
+        downlinkStreamId:
+          type: string
+        sourceSessionId:
+          type: integer
+          description: DATABASE connections only; the archived session to replay
+        sourceSessionHost:
+          type: string
+          description: DATABASE connections only
+        inputFile:
+          type: string
+          description: FILE and TDS connections only
+        bootstrapLad:
+          type: boolean
+          default: false
+        sessionName:
+          type: string
+        sessionDescription:
+          type: string
+    CommandSessionStart:
+      x-proposal: replaces
+      type: object
+      anyOf:
+        - required: [sessionIds]
+        - required: [create]
+      properties:
+        sessionIds:
+          type: array
+          items:
+            type: integer
+          description: Existing tracking session ids to attach the command service to
+        create:
+          $ref: '#/components/schemas/UplinkSessionConfig'
+        defaultTarget:
+          type: string
+          enum: [A, B, AB]
+          default: AB
+          description: Default redundant-side target for commands
+        timeout:
+          type: integer
+          minimum: 25
+          default: 30
+          description: Startup wait bound in seconds
+    ActiveCommandSession:
+      x-proposal: replaces
+      type: object
+      required: [sessionId, startTime, state]
+      properties:
+        sessionId:
+          type: integer
+          description: Attached tracking session id
+        startTime:
+          type: string
+          description: Time the command service attached to this session
+        state:
+          type: string
+          enum: [starting, attached, failed]
+        startedBy:
+          type: string
+          description: Username that attached the session
+        defaultTarget:
+          type: string
+          enum: [A, B, AB]
+        venue:
+          type: string
+        spacecraftId:
+          type: integer
+        fswVersion:
+          type: string
+          description: |
+            Flight dictionary version the command service translates with.
+            Frontends compare it with the dataset command dictionary and
+            warn on mismatch.
+        message:
+          type: string
+          description: Failure detail when `state` is `failed`
+    DownlinkSessionStart:
+      x-proposal: replaces
+      type: object
+      anyOf:
+        - required: [sessionIds]
+        - required: [create]
+      properties:
+        sessionIds:
+          type: array
+          items:
+            type: integer
+          description: Existing tracking session ids, for backends that support attaching
+        create:
+          $ref: '#/components/schemas/DownlinkSessionConfig'
+    ActiveDownlinkSession:
+      x-proposal: replaces
+      type: object
+      required: [downlinkId, state, startTime]
+      properties:
+        downlinkId:
+          type: string
+          description: Proxy-issued id, assigned before the session number is known
+        sessionId:
+          type: [integer, 'null']
+          description: Tracking session number; null while `starting`
+        state:
+          type: string
+          enum: [starting, running, stopping, stopped, failed]
+        startTime:
+          type: string
+          description: Time the downlink session started
+        startedBy:
+          type: string
+        config:
+          $ref: '#/components/schemas/DownlinkSessionConfig'
+        status:
+          $ref: '#/components/schemas/DownlinkStatus'
+        exitCode:
+          type: integer
+        message:
+          type: string
+          description: Failure or exit detail
+    CommandDispatch:
+      x-proposal: replaces
+      type: object
+      required: [commandId, requested, dispatchTime, status]
+      properties:
+        commandId:
+          type: string
+          description: Proxy-issued id correlating this dispatch to its lifecycle events (see `CommandEvent.commandId`)
+          example: cmd-7f3a9c2e
+        requested:
+          type: string
+          description: Mirrors the requested command string, stem, or file path
+        dispatchTime:
+          type: string
+          description: Dispatch time, e.g. 2017-09-25T03:57:42.676Z
+        sessionId:
+          type: integer
+        status:
+          type: string
+          enum: [accepted, radiated, failed]
+          description: |
+            `accepted` means dispatched with the result still pending
+            (HTTP 202). `radiated` means the uplink tool reported the
+            command sent. `failed` means translation or transmission
+            failed after dispatch; `message` says why.
+        requestId:
+          type: string
+          description: Backend uplink request id when the connection reports one (AMPCS reports none for SOCKET uplink)
+        productPath:
+          type: string
+          description: Generated uplink product, e.g. the written .scmf
+        message:
+          type: string
+          description: One-line result or failure reason
+        completedTime:
+          type: string
+    ValidationError:
+      x-proposal: new
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+        argumentErrors:
+          type: array
+          items:
+            type: object
+            required: [name, message]
+            properties:
+              name:
+                type: string
+              message:
+                type: string

@@ -1,0 +1,160 @@
+{
+  "camUrl": "",
+  "mcwsUrl": "/mcws",
+  "theme": "Snow",
+  "namespaces": [
+    {
+      "key": "s6adata",
+      "name": "Shared",
+      "url": "/mcws/fastmio/shared_jpltsdb_dev"
+    },
+    {
+      "key": "s6a_systems",
+      "name": "Systems",
+      "url": "/mcws/fastmio/systems"
+    },
+    {
+      "userNamespace": true,
+      "key": "s6a_users",
+      "name": "Users",
+      "url": "/mcws/fastmio/users"
+    }
+  ],
+  "venueAware": {
+    "enabled": false,
+    "venues": "ExampleVenueDefinitions.json"
+  },
+  "taxonomy": {
+    "evrDefaultBackgroundColor": null,
+    "evrDefaultForegoundColor": null,
+    "evrBackgroundColorByLevel": {
+      "FATAL": "#ff0000",
+      "WARNING_HI": "#ff7f24",
+      "WARNING_LO": "#ffff00",
+      "COMMAND": "#00bfff",
+      "ACTIVITY_HI": "#6d6d6d",
+      "ACTIVITY_LO": "#dcdcdc",
+      "DIAGNOSTIC": "#00ff00",
+      "EVR_UNKNOWN": "#00ff00",
+      "FAULT": "#ff0000",
+      "WARNING": "#ff7f24"
+    },
+    "evrForegroundColorByLevel": {
+      "FATAL": "#ffffff",
+      "WARNING_HI": "#000000",
+      "WARNING_LO": "#000000",
+      "COMMAND": "#ffffff",
+      "ACTIVITY_HI": "#ffffff",
+      "ACTIVITY_LO": "#000000",
+      "DIAGNOSTIC": "#000000",
+      "EVR_UNKNOWN": "#000000",
+      "FAULT": "#ffffff",
+      "WARNING": "#000000"
+    }
+  },
+  "time": {
+  "defaultMode": "fixed",
+  "utcFormat": "utc.day-of-year",
+  "timeSystems": [
+    {
+      "key": "scet",
+      "modeSettings": {
+        "realtime": {
+          "presets": [
+            { "label": "Last 5 minutes", "bounds": { "start": -300000, "end": 60000 } },
+            { "label": "Last 10 minutes", "bounds": { "start": -600000, "end": 60000 } },
+            { "label": "Last half hour", "bounds": { "start": -1800000, "end": 60000 } },
+            { "label": "Last two hours", "bounds": { "start": -7200000, "end": 60000 } },
+            { "label": "Last eight hours", "bounds": { "start": -28800000, "end": 60000 } }
+          ]
+        },
+        "fixed": {
+          "bounds": {
+             "start": "${dynamic:${dayStart:0}}", "end": "${dynamic:${dayStart:1}}" 
+           },
+          "presets": [
+            {
+              "label": "Today",
+              "bounds": { "start": "${dynamic:${dayStart:0}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Yesterday to end of today",
+              "bounds": { "start": "${dynamic:${dayStart:-1}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Last week to end of today",
+              "bounds": { "start": "${dynamic:${dayStart:-7}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Last month to end of today",
+              "bounds": { "start": "${dynamic:${monthStart:-1}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Last 3 months to end of today",
+              "bounds": { "start": "${dynamic:${monthStart:-3}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Last 6 months to end of today",
+              "bounds": { "start": "${dynamic:${monthStart:-6}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Last year to end of today",
+              "bounds": { "start": "${dynamic:${yearStart:-1}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Last 2 years to end of today",
+              "bounds": { "start": "${dynamic:${yearStart:-2}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Year to date",
+              "bounds": { "start": "${dynamic:${yearStart:0}}", "end": "${dynamic:${dayStart:1}}" }
+            },
+            {
+              "label": "Last year",
+              "bounds": { "start": "${dynamic:${yearStart:-1}}", "end": "${dynamic:${yearStart:0}}" }
+            },
+            {
+              "label": "Last two years",
+              "bounds": { "start": "${dynamic:${yearStart:-2}}", "end": "${dynamic:${yearStart:0}}" }
+            },
+            {
+              "label": "Last three years",
+              "bounds": { "start": "${dynamic:${yearStart:-3}}", "end": "${dynamic:${yearStart:0}}" }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "allowRealtime": true,
+  "allowLAD": true,
+  "records": 10
+  },
+  "realtimeProductAPIDs": [],
+  "plugins": {},
+  "sessionHistoricalMaxResults": 100,
+  "batchHistoricalChannelQueries": false,
+  "disableSortParam": false,
+  "messageStreamUrl": "",
+  "messageTypeFilters": [],
+  "frameAccountabilityExpectedVcidList": [],
+  "queryTimespanLimit": 604800000,
+  "globalStalenessInterval": null,
+  "customFormatters": [],
+  "sessions": {
+    "historicalSessionFilter": {
+      "disable": true,
+      "maxRecords": 100,
+      "denyUnfilteredQueries": false
+    },
+    "realtimeSession": {
+      "disable": true
+    }
+  },
+  "tablePerformanceOptions": {
+    "telemetryMode": "unlimited",
+    "persistModeChange": false,
+    "rowLimit": 50000
+  },
+  "assetPath": "node_modules/openmct/dist"
+}
