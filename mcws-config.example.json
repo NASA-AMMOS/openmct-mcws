@@ -50,7 +50,30 @@
     "utcFormat": "utc.day-of-year",
     "lmstEpoch": null,
     "subscriptionMCWSFilterDelay": 100,
-    "timeSystems": ["scet", "ert"],
+    "timeSystems": [
+      "scet",
+      {
+        "key": "ert",
+        "limit": 216000000,
+        "modeSettings": {
+          "fixed": {
+            "bounds": {
+              "start": "${dynamic:${dayStart:0} - 86400000}",
+              "end": "${dynamic:${dayStart:0} + 86399999}"
+            },
+            "presets": [
+              {
+                "label": "Last 2 hours (dynamic)",
+                "bounds": {
+                  "start": "${dynamic:${now} - ${two_hours}}",
+                  "end": "${dynamic:${now}}"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
     "allowRealtime": true,
     "allowLAD": true,
     "records": 10
