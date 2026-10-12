@@ -1,0 +1,772 @@
+{
+  "enumMap": {
+    "Mode": {
+      "name": "Mode",
+      "values": [
+        {
+          "symbol": "SAFE",
+          "numeric": 0
+        },
+        {
+          "symbol": "NOMINAL",
+          "numeric": 1
+        },
+        {
+          "symbol": "SCIENCE",
+          "numeric": 2
+        }
+      ]
+    },
+    "ChannelMode": {
+      "name": "ChannelMode",
+      "values": [
+        {
+          "symbol": "OFF",
+          "numeric": 0
+        },
+        {
+          "symbol": "ON",
+          "numeric": 1
+        }
+      ]
+    }
+  },
+  "enums": [
+    {
+      "name": "Mode",
+      "values": [
+        {
+          "symbol": "SAFE",
+          "numeric": 0
+        },
+        {
+          "symbol": "NOMINAL",
+          "numeric": 1
+        },
+        {
+          "symbol": "SCIENCE",
+          "numeric": 2
+        }
+      ]
+    },
+    {
+      "name": "ChannelMode",
+      "values": [
+        {
+          "symbol": "OFF",
+          "numeric": 0
+        },
+        {
+          "symbol": "ON",
+          "numeric": 1
+        }
+      ]
+    }
+  ],
+  "fswCommandMap": {
+    "FSW_CONFIGURE": {
+      "argumentMap": {
+        "spare": {
+          "arg_type": "fill",
+          "description": "Alignment padding",
+          "name": "spare"
+        },
+        "retries": {
+          "arg_type": "unsigned",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Retry count",
+          "name": "retries",
+          "range": {
+            "min": 0,
+            "max": 5
+          },
+          "units": ""
+        },
+        "offset": {
+          "arg_type": "numeric",
+          "bit_length": 16,
+          "default_value": null,
+          "description": "Signed offset",
+          "name": "offset",
+          "range": {
+            "min": -100,
+            "max": 100
+          },
+          "type": "integer",
+          "units": "counts"
+        },
+        "gain": {
+          "arg_type": "float",
+          "bit_length": 32,
+          "default_value": 2.5,
+          "description": "Gain",
+          "name": "gain",
+          "range": {
+            "min": 0,
+            "max": 10
+          },
+          "units": "dB"
+        },
+        "enable": {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Enable the configuration",
+          "format": {
+            "false_str": "DISABLE",
+            "true_str": "ENABLE"
+          },
+          "name": "enable"
+        },
+        "label": {
+          "arg_type": "var_string",
+          "default_value": null,
+          "description": "Free text label",
+          "max_bit_length": 256,
+          "name": "label",
+          "prefix_bit_length": 8,
+          "valid_regex": null
+        },
+        "start": {
+          "arg_type": "time",
+          "bit_length": 32,
+          "default_value": null,
+          "description": "Start time",
+          "name": "start",
+          "units": "s"
+        },
+        "channels": {
+          "arg_type": "repeat",
+          "description": "Channels to configure",
+          "name": "channels",
+          "prefix_bit_length": 8,
+          "repeat": {
+            "argumentMap": {
+              "channel_id": {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              "channel_mode": {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            },
+            "arguments": [
+              {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            ],
+            "max": 4,
+            "min": 1
+          }
+        }
+      },
+      "arguments": [
+        {
+          "arg_type": "fill",
+          "description": "Alignment padding",
+          "name": "spare"
+        },
+        {
+          "arg_type": "unsigned",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Retry count",
+          "name": "retries",
+          "range": {
+            "min": 0,
+            "max": 5
+          },
+          "units": ""
+        },
+        {
+          "arg_type": "numeric",
+          "bit_length": 16,
+          "default_value": null,
+          "description": "Signed offset",
+          "name": "offset",
+          "range": {
+            "min": -100,
+            "max": 100
+          },
+          "type": "integer",
+          "units": "counts"
+        },
+        {
+          "arg_type": "float",
+          "bit_length": 32,
+          "default_value": 2.5,
+          "description": "Gain",
+          "name": "gain",
+          "range": {
+            "min": 0,
+            "max": 10
+          },
+          "units": "dB"
+        },
+        {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Enable the configuration",
+          "format": {
+            "false_str": "DISABLE",
+            "true_str": "ENABLE"
+          },
+          "name": "enable"
+        },
+        {
+          "arg_type": "var_string",
+          "default_value": null,
+          "description": "Free text label",
+          "max_bit_length": 256,
+          "name": "label",
+          "prefix_bit_length": 8,
+          "valid_regex": null
+        },
+        {
+          "arg_type": "time",
+          "bit_length": 32,
+          "default_value": null,
+          "description": "Start time",
+          "name": "start",
+          "units": "s"
+        },
+        {
+          "arg_type": "repeat",
+          "description": "Channels to configure",
+          "name": "channels",
+          "prefix_bit_length": 8,
+          "repeat": {
+            "argumentMap": {
+              "channel_id": {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              "channel_mode": {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            },
+            "arguments": [
+              {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            ],
+            "max": 4,
+            "min": 1
+          }
+        }
+      ],
+      "description": "Configures the flight software.",
+      "stem": "FSW_CONFIGURE",
+      "type": "fsw_command"
+    },
+    "FSW_SET_MODE": {
+      "argumentMap": {
+        "mode": {
+          "arg_type": "enum",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Target mode",
+          "enum_name": "Mode",
+          "name": "mode",
+          "range": null
+        },
+        "force": {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Bypass safety checks",
+          "format": {
+            "false_str": "FALSE",
+            "true_str": "TRUE"
+          },
+          "name": "force"
+        },
+        "timeout": {
+          "arg_type": "unsigned",
+          "bit_length": 16,
+          "default_value": 30,
+          "description": "Seconds to wait for the transition",
+          "name": "timeout",
+          "range": {
+            "min": 0,
+            "max": 600
+          },
+          "units": "s"
+        }
+      },
+      "arguments": [
+        {
+          "arg_type": "enum",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Target mode",
+          "enum_name": "Mode",
+          "name": "mode",
+          "range": null
+        },
+        {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Bypass safety checks",
+          "format": {
+            "false_str": "FALSE",
+            "true_str": "TRUE"
+          },
+          "name": "force"
+        },
+        {
+          "arg_type": "unsigned",
+          "bit_length": 16,
+          "default_value": 30,
+          "description": "Seconds to wait for the transition",
+          "name": "timeout",
+          "range": {
+            "min": 0,
+            "max": 600
+          },
+          "units": "s"
+        }
+      ],
+      "description": "Sets the flight software mode.",
+      "stem": "FSW_SET_MODE",
+      "type": "fsw_command"
+    }
+  },
+  "fswCommands": [
+    {
+      "argumentMap": {
+        "spare": {
+          "arg_type": "fill",
+          "description": "Alignment padding",
+          "name": "spare"
+        },
+        "retries": {
+          "arg_type": "unsigned",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Retry count",
+          "name": "retries",
+          "range": {
+            "min": 0,
+            "max": 5
+          },
+          "units": ""
+        },
+        "offset": {
+          "arg_type": "numeric",
+          "bit_length": 16,
+          "default_value": null,
+          "description": "Signed offset",
+          "name": "offset",
+          "range": {
+            "min": -100,
+            "max": 100
+          },
+          "type": "integer",
+          "units": "counts"
+        },
+        "gain": {
+          "arg_type": "float",
+          "bit_length": 32,
+          "default_value": 2.5,
+          "description": "Gain",
+          "name": "gain",
+          "range": {
+            "min": 0,
+            "max": 10
+          },
+          "units": "dB"
+        },
+        "enable": {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Enable the configuration",
+          "format": {
+            "false_str": "DISABLE",
+            "true_str": "ENABLE"
+          },
+          "name": "enable"
+        },
+        "label": {
+          "arg_type": "var_string",
+          "default_value": null,
+          "description": "Free text label",
+          "max_bit_length": 256,
+          "name": "label",
+          "prefix_bit_length": 8,
+          "valid_regex": null
+        },
+        "start": {
+          "arg_type": "time",
+          "bit_length": 32,
+          "default_value": null,
+          "description": "Start time",
+          "name": "start",
+          "units": "s"
+        },
+        "channels": {
+          "arg_type": "repeat",
+          "description": "Channels to configure",
+          "name": "channels",
+          "prefix_bit_length": 8,
+          "repeat": {
+            "argumentMap": {
+              "channel_id": {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              "channel_mode": {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            },
+            "arguments": [
+              {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            ],
+            "max": 4,
+            "min": 1
+          }
+        }
+      },
+      "arguments": [
+        {
+          "arg_type": "fill",
+          "description": "Alignment padding",
+          "name": "spare"
+        },
+        {
+          "arg_type": "unsigned",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Retry count",
+          "name": "retries",
+          "range": {
+            "min": 0,
+            "max": 5
+          },
+          "units": ""
+        },
+        {
+          "arg_type": "numeric",
+          "bit_length": 16,
+          "default_value": null,
+          "description": "Signed offset",
+          "name": "offset",
+          "range": {
+            "min": -100,
+            "max": 100
+          },
+          "type": "integer",
+          "units": "counts"
+        },
+        {
+          "arg_type": "float",
+          "bit_length": 32,
+          "default_value": 2.5,
+          "description": "Gain",
+          "name": "gain",
+          "range": {
+            "min": 0,
+            "max": 10
+          },
+          "units": "dB"
+        },
+        {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Enable the configuration",
+          "format": {
+            "false_str": "DISABLE",
+            "true_str": "ENABLE"
+          },
+          "name": "enable"
+        },
+        {
+          "arg_type": "var_string",
+          "default_value": null,
+          "description": "Free text label",
+          "max_bit_length": 256,
+          "name": "label",
+          "prefix_bit_length": 8,
+          "valid_regex": null
+        },
+        {
+          "arg_type": "time",
+          "bit_length": 32,
+          "default_value": null,
+          "description": "Start time",
+          "name": "start",
+          "units": "s"
+        },
+        {
+          "arg_type": "repeat",
+          "description": "Channels to configure",
+          "name": "channels",
+          "prefix_bit_length": 8,
+          "repeat": {
+            "argumentMap": {
+              "channel_id": {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              "channel_mode": {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            },
+            "arguments": [
+              {
+                "arg_type": "unsigned",
+                "bit_length": 8,
+                "default_value": null,
+                "description": "Channel number",
+                "name": "channel_id",
+                "range": {
+                  "min": 0,
+                  "max": 255
+                },
+                "units": ""
+              },
+              {
+                "arg_type": "enum",
+                "bit_length": 8,
+                "default_value": "OFF",
+                "description": "Channel mode",
+                "enum_name": "ChannelMode",
+                "name": "channel_mode",
+                "range": null
+              }
+            ],
+            "max": 4,
+            "min": 1
+          }
+        }
+      ],
+      "description": "Configures the flight software.",
+      "stem": "FSW_CONFIGURE",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {
+        "mode": {
+          "arg_type": "enum",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Target mode",
+          "enum_name": "Mode",
+          "name": "mode",
+          "range": null
+        },
+        "force": {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Bypass safety checks",
+          "format": {
+            "false_str": "FALSE",
+            "true_str": "TRUE"
+          },
+          "name": "force"
+        },
+        "timeout": {
+          "arg_type": "unsigned",
+          "bit_length": 16,
+          "default_value": 30,
+          "description": "Seconds to wait for the transition",
+          "name": "timeout",
+          "range": {
+            "min": 0,
+            "max": 600
+          },
+          "units": "s"
+        }
+      },
+      "arguments": [
+        {
+          "arg_type": "enum",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Target mode",
+          "enum_name": "Mode",
+          "name": "mode",
+          "range": null
+        },
+        {
+          "arg_type": "boolean",
+          "bit_length": 8,
+          "default_value": null,
+          "description": "Bypass safety checks",
+          "format": {
+            "false_str": "FALSE",
+            "true_str": "TRUE"
+          },
+          "name": "force"
+        },
+        {
+          "arg_type": "unsigned",
+          "bit_length": 16,
+          "default_value": 30,
+          "description": "Seconds to wait for the transition",
+          "name": "timeout",
+          "range": {
+            "min": 0,
+            "max": 600
+          },
+          "units": "s"
+        }
+      ],
+      "description": "Sets the flight software mode.",
+      "stem": "FSW_SET_MODE",
+      "type": "fsw_command"
+    }
+  ],
+  "header": {
+    "mission_name": "TEST",
+    "schema_version": "1.0",
+    "spacecraft_ids": [
+      252
+    ],
+    "version": "1.0"
+  },
+  "hwCommandMap": {
+    "HDW_POWER_OFF": {
+      "description": "Turns the hardware power off.",
+      "stem": "HDW_POWER_OFF",
+      "type": "hw_command"
+    },
+    "HDW_POWER_ON": {
+      "description": "Turns the hardware power on.",
+      "stem": "HDW_POWER_ON",
+      "type": "hw_command"
+    }
+  },
+  "hwCommands": [
+    {
+      "description": "Turns the hardware power off.",
+      "stem": "HDW_POWER_OFF",
+      "type": "hw_command"
+    },
+    {
+      "description": "Turns the hardware power on.",
+      "stem": "HDW_POWER_ON",
+      "type": "hw_command"
+    }
+  ],
+  "id": "test-command-dictionary",
+  "path": null
+}

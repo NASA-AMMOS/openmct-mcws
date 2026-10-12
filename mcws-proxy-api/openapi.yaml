@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Operations JSON Proxy API
-  version: 0.11.0
+  version: 0.12.0
   description: |
     Design-first contract for a JSON proxy covering the telemetry surface
     consumed by the `openmct-mcws` plugin plus generic authentication,
@@ -53,6 +53,20 @@ info:
     Choosing which session's data you see is session filtering,
     covered by `/sessions/history`, historical filter params, and
     stream `session`/`topic` filters.
+
+    Command and downlink sessions are opened from a `parameters`
+    object (`SessionParameters`) or by attaching to existing tracking
+    session ids, stay open until stopped, and are stopped one session at
+    a time (`DELETE /command-sessions/{sessionId}`,
+    `DELETE /downlink-sessions/{sessionId}`). Parameter keys are
+    deployment configuration shared with the frontend, which builds its
+    session start forms from the same key list. The proxy allowlists the
+    keys it accepts and rejects unknown keys with 400.
+
+    Radiation status for a dispatched command is the `status` of its
+    command events (`/command-events`, `/streams/command-events`),
+    for example `Radiated` or `Radiation_Failed`, with `final` marking
+    the last event for a request.
 
     Command queues (`/command-queues`) hold command message files:
     ordered entries released by absolute time, relative delay, or
@@ -974,7 +988,10 @@ paths:
       summary: Realtime command event stream (WebSocket)
       description: |
         Proxies `commandEventStreamUrl` (`MCWSCommandStreamProvider`).
-        Same row shape as `/command-events`.
+        Same row shape as `/command-events`. The Immediate Command view
+        subscribes with `filter=(session_id=<command session>,topic=<topic>)`
+        and shows each sent command's radiation `status`, matched by
+        `commandId` when present.
       x-websocket: true
       parameters:
         - $ref: '#/components/parameters/StreamFilter'
@@ -1077,16 +1094,27 @@ paths:
   /command-sessions:
     post:
       tags: [Command Sessions]
-      summary: Start the command service on tracking sessions
+      summary: Open or attach a command session
       description: |
-        Attaches the command service to the given tracking session
-        ids (see `Session.number` from `/sessions/active`) and selects
-        the default redundant-side target for commands that do not
-        specify one. Startup can take tens of seconds; `timeout`
-        bounds the wait (minimum 25). Corresponds to the venue-agent
-        command-service start operation. Session control is
-        independent of telemetry: starting or stopping has no effect
-        on queries or streams.
+        Opens a new long-lived uplink session from `parameters`, or
+        attaches the command service to existing tracking sessions
+        (`sessionIds`, see `Session.number` from `/sessions/active`).
+        Either way the session stays open, and commands that name it
+        reuse it, until `DELETE /command-sessions/{sessionId}`. Also
+        selects the default redundant-side target for commands that do
+        not specify one. `timeout` bounds the wait (minimum 25). Session
+        control is independent of telemetry: opening or stopping has no
+        effect on queries or streams.
+
+        AMPCS mapping (proxy on the AMPCS host): opening runs
+        chill_send_cmd once with the session options from `parameters`
+        and a command file that holds only a comment, which creates an
+        uplink session and sends nothing. Each later command runs
+        chill_send_cmd with `--sessionKey` set to that session, so AMPCS
+        reuses the session's stored configuration, dictionary, and output
+        directory and files the command under it. AMPCS flags sessions as
+        uplink or downlink capable and rejects uplink on downlink-only
+        sessions, so attaching expects uplink-capable session ids.
       security:
         - oidc: [sessions:manage]
       requestBody:
@@ -1097,7 +1125,7 @@ paths:
               $ref: '#/components/schemas/CommandSessionStart'
       responses:
         '200':
-          description: Command service started
+          description: Command session open
           content:
             application/json:
               schema:
@@ -1110,17 +1138,17 @@ paths:
           $ref: '#/components/responses/Forbidden'
     get:
       tags: [Command Sessions]
-      summary: List active command sessions
+      summary: List open command sessions
       description: |
-        Returns the tracking sessions the command service is currently
-        attached to. Neither source system offers a list operation, so
-        this is new proxy-owned state for frontends to present the
-        attach set for interaction.
+        Returns the command sessions currently open, with the parameters
+        each was opened with. Neither source system offers a list
+        operation, so this is proxy-owned state for frontends to present
+        the attach set for interaction.
       security:
         - oidc: [sessions:manage]
       responses:
         '200':
-          description: Active command sessions (empty when stopped)
+          description: Open command sessions (empty when none)
           content:
             application/json:
               schema:
@@ -1131,34 +1159,50 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+  /command-sessions/{sessionId}:
     delete:
       tags: [Command Sessions]
-      summary: Stop the command service
+      summary: Stop one command session
       description: |
-        Detaches the command service started by `POST
-        /command-sessions`. Corresponds to the venue-agent
-        command-service shutdown operation.
+        Stops one command session and leaves every other open session
+        alone. Commands naming it are rejected afterwards. For AMPCS the
+        proxy stops reusing the session key; there is no uplink process
+        to terminate.
       security:
         - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
       responses:
         '204':
-          description: Command service stopped
-        '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Command session stopped
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /downlink-sessions:
     post:
       tags: [Downlink Sessions]
-      summary: Start downlink sessions
+      summary: Open or attach a downlink session
       description: |
-        Starts downlink sessions for the given tracking session ids
-        (see `Session.number` from `/sessions/active`). Session
-        control plane only: starting or stopping a downlink session
-        has no effect on queries or streams. Proxy-owned lifecycle
-        with no source equivalent.
+        Opens a new downlink session from `parameters`, or starts
+        downlink processing for existing tracking sessions
+        (`sessionIds`). The response carries the session id, which is
+        known before the call returns. Session control plane only:
+        opening or stopping a downlink session has no effect on queries
+        or streams. Proxy-owned lifecycle with no source equivalent.
+
+        AMPCS mapping (proxy on the AMPCS host): the proxy runs the
+        telemetry ingest and process servers (chill_telem_ingest,
+        chill_telem_process) with their RESTful M&C service. Opening calls
+        `createSession`, which returns the new session key at once, then
+        `attach` with the key, the session host, and the connection
+        options from `parameters`, then `start`. AMPCS cannot assign a
+        caller-chosen session number; attach accepts only keys that
+        already exist. When a `parameters` value must be unique among
+        open sessions (for example a listening port) and is already in
+        use, the proxy responds 409.
       security:
         - oidc: [sessions:manage]
       requestBody:
@@ -1169,7 +1213,7 @@ paths:
               $ref: '#/components/schemas/DownlinkSessionStart'
       responses:
         '200':
-          description: Downlink sessions started
+          description: Downlink sessions open
           content:
             application/json:
               schema:
@@ -1182,17 +1226,19 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
     get:
       tags: [Downlink Sessions]
-      summary: List active downlink sessions
+      summary: List open downlink sessions
       description: |
-        Returns the downlink sessions currently started (empty when
-        none are).
+        Returns the downlink sessions currently open, with the
+        parameters each was opened with (empty when none are).
       security:
         - oidc: [sessions:manage]
       responses:
         '200':
-          description: Active downlink sessions
+          description: Open downlink sessions
           content:
             application/json:
               schema:
@@ -1203,24 +1249,28 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+  /downlink-sessions/{sessionId}:
     delete:
       tags: [Downlink Sessions]
-      summary: Stop downlink sessions
+      summary: Stop one downlink session
       description: |
-        Stops the downlink sessions started by `POST
-        /downlink-sessions`. Session control plane only: no effect
-        on queries or streams.
+        Stops one downlink session and leaves every other open session
+        running. For AMPCS the proxy stops and releases that session's
+        ingest and process workers. Session control plane only: no
+        effect on queries or streams.
       security:
         - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
       responses:
         '204':
-          description: Downlink sessions stopped
-        '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Downlink session stopped
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /command-queues:
     post:
       tags: [Command Queues]
@@ -2126,6 +2176,13 @@ components:
         type: integer
         minimum: 1
       description: 1-based entry number within the queue
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: Command or downlink session id (`Session.number`)
     TransferId:
       name: transferId
       in: path
@@ -2154,6 +2211,12 @@ components:
             $ref: '#/components/schemas/ErrorMessage'
     Forbidden:
       description: Token lacks a required command scope
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessage'
+    Conflict:
+      description: A session parameter that must be unique is already in use by an open session
       content:
         application/json:
           schema:
@@ -2273,7 +2336,30 @@ components:
           type: string
         commandId:
           type: string
-          description: Proxy-issued dispatch id for lifecycle correlation; absent for commands sent outside the proxy
+          description: |
+            Proxy-issued dispatch id for lifecycle correlation; absent for
+            commands sent outside the proxy. AMPCS command messages carry
+            no proxy id and an empty request id, so the proxy sets this by
+            correlating its own dispatches (session, command string, and
+            time, or the database request id).
+        command_type:
+          type: string
+          description: Command kind as reported by MCWS, e.g. FlightSoftwareCommand
+        command_string:
+          type: string
+          description: Command as radiated, e.g. IDL_ECHO,"test"
+        request_id:
+          type: string
+        fail_reason:
+          type: string
+          description: NONE unless radiation failed
+        scmf_file:
+          type: string
+        final:
+          type: string
+          description: "'true' on the last status event for a request"
+        finalized:
+          type: string
     DataProduct:
       type: object
       additionalProperties: true
@@ -2561,15 +2647,38 @@ components:
         Redundant-side selector. `DEFAULT` uses the command session's
         `defaultTarget`; otherwise selects flight computer side A, B,
         or both.
+    SessionParameters:
+      type: object
+      description: |
+        Session start values keyed by deployment-configured parameter
+        names. The same keys drive the frontend's session start forms
+        (`missionControl.uplinkSessionFields` and
+        `missionControl.downlinkSessionFields` in openmct-mcws). For
+        AMPCS, keys are chill tool long option names, for example
+        `venueType`, `spacecraftID`, `fswUplinkHost`, `fswUplinkPort`,
+        `downlinkConnectionType`, `fswDownlinkHost`, `fswDownlinkPort`,
+        and `inputFormat`.
+      additionalProperties:
+        type: [string, number, boolean]
+      example:
+        venueType: TESTSET
+        spacecraftID: 252
+        fswUplinkHost: 127.0.0.1
+        fswUplinkPort: 9825
     CommandSessionStart:
       type: object
-      required: [sessionIds]
+      description: Give `parameters` to open a new session, or `sessionIds` to attach
+      anyOf:
+        - required: [parameters]
+        - required: [sessionIds]
       properties:
+        parameters:
+          $ref: '#/components/schemas/SessionParameters'
         sessionIds:
           type: array
           items:
             type: integer
-          description: Tracking session ids to start the command service on
+          description: Existing tracking session ids to attach the command service to
         defaultTarget:
           type: string
           enum: [A, B, AB]
@@ -2588,38 +2697,63 @@ components:
           type: array
           items:
             type: integer
+          description: Ids of the sessions opened or attached by this request
         startTime:
           type: string
-          description: Time the command service started
+          description: Time the command session opened
     ActiveCommandSession:
       type: object
       required: [sessionId, startTime]
       properties:
         sessionId:
           type: integer
-          description: Attached tracking session id
+          description: Open command session id
         startTime:
           type: string
-          description: Time the command service attached to this session
+          description: Time the command session opened
+        parameters:
+          $ref: '#/components/schemas/SessionParameters'
+        topic:
+          type: string
+          description: Messaging topic the session publishes on; used as the stream `topic` filter
+        host:
+          type: string
+          description: Session host
     DownlinkSessionStart:
       type: object
-      required: [sessionIds]
+      description: Give `parameters` to open a new session, or `sessionIds` to attach
+      anyOf:
+        - required: [parameters]
+        - required: [sessionIds]
       properties:
+        parameters:
+          $ref: '#/components/schemas/SessionParameters'
         sessionIds:
           type: array
           items:
             type: integer
-          description: Tracking session ids to start downlink sessions for
+          description: Existing tracking session ids to start downlink processing for
     ActiveDownlinkSession:
       type: object
       required: [sessionId, startTime]
       properties:
         sessionId:
           type: integer
-          description: Tracking session id with a started downlink session
+          description: Open downlink session id
         startTime:
           type: string
-          description: Time the downlink session started
+          description: Time the downlink session opened
+        parameters:
+          $ref: '#/components/schemas/SessionParameters'
+        state:
+          type: string
+          description: Backend processing state, e.g. READY, ACTIVE, STOPPED for AMPCS ingest workers
+        topic:
+          type: string
+          description: Messaging topic the session publishes on
+        host:
+          type: string
+          description: Session host
     QueueState:
       type: string
       enum: [loaded, running, paused, aborted, completed, failed]

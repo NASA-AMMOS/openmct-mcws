@@ -1,8 +1,11 @@
 import ImmediateCommandViewProvider from './ImmediateCommandViewProvider.js';
 
-export default function ImmediateCommandPlugin() {
+/**
+ * @param {object} [options] the `missionControl` config slice (`apiBase`)
+ */
+export default function ImmediateCommandPlugin(options = {}) {
   return function install(openmct) {
-    openmct.objectViews.addProvider(new ImmediateCommandViewProvider(openmct));
+    openmct.objectViews.addProvider(new ImmediateCommandViewProvider(openmct, options));
 
     openmct.types.addType('vista.immediateCommand', {
       name: 'Immediate Command',

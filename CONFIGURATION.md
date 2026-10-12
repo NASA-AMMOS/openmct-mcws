@@ -76,6 +76,10 @@ When including the Open MCT for MCWS Plugin into your Open MCT project, the foll
       telemetryMode: 'unlimited'
       persistModeChange: false
       rowLimit: 50
+    missionControl:
+      apiBase: './api/v1'
+      uplinkSessionFields: []   # see Mission Control Configuration
+      downlinkSessionFields: []
     useDeveloperStorage: false
     proxyUrl: 'http://localhost:8080/'
     assetPath: 'node_modules/openmct/dist'
@@ -337,6 +341,101 @@ globalFilters:
 - `telemetryMode` (string): Performance mode limits the maximum table rows. Options: `'performance'`, `'unlimited'`.
 - `persistModeChange` (boolean): Whether changes in the UI are persisted with the table.
 - `rowLimit` (number): The maximum number of rows in performance mode.
+
+### Mission Control Configuration
+
+#### `missionControl`
+- **Type**: `object`
+- **Description**: Settings for the Session Control and Immediate Command views, which talk to the operations proxy described in [`mcws-proxy-api/openapi.yaml`](mcws-proxy-api/openapi.yaml). The session field lists define the inputs Session Control shows when an operator opens a new uplink or downlink session. Field values are sent to the proxy as the `parameters` object of `POST /command-sessions` or `POST /downlink-sessions`, so the field keys must match the parameter names the proxy accepts.
+
+**Properties:**
+- `apiBase` (string): Base URL of the proxy API. Default `'./api/v1'`.
+- `uplinkSessionFields` (array): Inputs for opening an uplink (command) session. Default `[]`, which opens sessions with the proxy defaults.
+- `downlinkSessionFields` (array): Inputs for opening a downlink session. Default `[]`.
+
+**Field Object Properties:**
+- `key` (string, required): Parameter name sent to the proxy. For AMPCS, use the chill tool long option name, e.g. `venueType` or `fswDownlinkPort`.
+- `name` (string, optional): Input label. Defaults to `key`.
+- `description` (string, optional): Help text shown with the input.
+- `control` (string, optional): `'text'`, `'number'`, or `'select'`. Defaults to `'select'` when `options` is given, otherwise `'text'`.
+- `options` (array, optional): Values for a select. Each entry is a plain value or an object:
+  - `value` (required): Value sent to the proxy.
+  - `label` (string, optional): Displayed text. Defaults to the value.
+  - `sets` (object, optional): Other fields' values that this option forces and locks while it is selected, e.g. `{ fswDownlinkPort: 10412 }` for a host that only accepts one port.
+- `default` (optional): Initial value. Selects default to their first option.
+- `required` (boolean, optional): Reject an empty value. Default `false`.
+- `min`, `max` (number, optional): Bounds for number fields, and the search range for `autoAssign`.
+- `pattern` (string, optional): Regular expression a text value must match.
+- `unique` (boolean, optional): The value must differ from the same parameter of every open session.
+- `uniqueAmong` (array of keys, optional): Only compare against open sessions whose values for these other keys match the form, e.g. `['fswDownlinkHost']` so ports only conflict on the same host.
+- `autoAssign` (boolean, optional): For number fields, start at the lowest value in `[min, max]` that no matching open session uses. The value is reassigned when the selected options or the open sessions change.
+
+The proxy still validates every value. It rejects unknown keys with 400 and a value already used by an open session with 409.
+
+**Example (AMPCS):**
+
+Host names in this example are placeholders. Replace `netacq.example.com` with your NetAcquire host and its fixed port, and set the uplink host and port defaults for your deployment.
+
+```yaml
+missionControl:
+  apiBase: './api/v1'
+  uplinkSessionFields:
+    - key: venueType
+      name: Venue
+      options: [ATLO, CRUISE, OPS, ORBIT, SURFACE, TESTBED, TESTSET]
+      default: TESTSET
+      required: true
+    - key: spacecraftID
+      name: Spacecraft ID
+      options: [252, 253, 254]
+      required: true
+    - key: fswUplinkHost
+      name: Uplink Host
+      default: '127.0.0.1'
+      required: true
+    - key: fswUplinkPort
+      name: Uplink Port
+      control: number
+      default: 9825
+      min: 1
+      max: 65535
+      required: true
+  downlinkSessionFields:
+    - key: venueType
+      name: Venue
+      options: [ATLO, CRUISE, OPS, ORBIT, SURFACE, TESTBED, TESTSET]
+      default: TESTSET
+      required: true
+    - key: downlinkConnectionType
+      name: Connection Type
+      options: [CLIENT_SOCKET, SERVER_SOCKET, DATABASE, FILE, NEN_SN_CLIENT, NEN_SN_SERVER, TDS]
+      default: CLIENT_SOCKET
+      required: true
+    - key: fswDownlinkHost
+      name: Host
+      options:
+        - value: localhost
+          label: Local Connection
+        - value: netacq.example.com
+          label: SSE1 NetAcquire
+          sets:
+            fswDownlinkPort: 10412
+      required: true
+    - key: fswDownlinkPort
+      name: Port
+      control: number
+      min: 9828
+      max: 9924
+      unique: true
+      uniqueAmong: [fswDownlinkHost]
+      autoAssign: true
+      required: true
+    - key: inputFormat
+      name: Input Format
+      options: [RAW_TF, LEOT_TF, RAW_PKT, SFDU_PKT, SFDU_TF, SLE_TF]
+      default: RAW_TF
+      required: true
+```
 
 ### Developer Settings
 

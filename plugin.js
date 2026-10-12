@@ -252,6 +252,11 @@ export default function openmctMCWSPlugin(options) {
         persistModeChange: false,
         rowLimit: 50
       },
+      missionControl: {
+        apiBase: './api/v1',
+        uplinkSessionFields: [],
+        downlinkSessionFields: []
+      },
       assetPath: 'node_modules/openmct/dist',
       mcwsPluginAssetPath: 'node_modules/openmct-mcws-plugin/dist'
     };
@@ -359,8 +364,8 @@ export default function openmctMCWSPlugin(options) {
     );
     openmct.install(ActionModifiersPlugin());
     openmct.install(new PacketQueryPlugin());
-    openmct.install(SessionControlPlugin());
-    openmct.install(ImmediateCommandPlugin());
+    openmct.install(SessionControlPlugin(config.missionControl));
+    openmct.install(ImmediateCommandPlugin(config.missionControl));
 
     if (config.globalFilters) {
       openmct.install(new GlobalFilters(config.globalFilters));

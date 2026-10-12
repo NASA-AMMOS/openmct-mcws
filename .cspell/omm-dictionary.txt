@@ -39,6 +39,10 @@ scmf
 cltus
 insync
 datatable
+leot
+netacq
+sfdu
+testset
 
 # time
 scet

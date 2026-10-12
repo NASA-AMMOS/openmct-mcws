@@ -3,7 +3,8 @@ import mount from 'ommUtils/mountVueComponent.js';
 import getMissionControlService from '../missionControl/missionControlService.js';
 
 export default class ImmediateCommandViewProvider {
-  constructor(openmct) {
+  constructor(openmct, options = {}) {
+    this.options = options || {};
     this.key = 'vista.immediateCommandView';
     this.name = 'Immediate Command';
     this.cssClass = 'icon-object';
@@ -27,7 +28,7 @@ export default class ImmediateCommandViewProvider {
             },
             provide: {
               openmct: self.openmct,
-              missionControlService: getMissionControlService(self.openmct),
+              missionControlService: getMissionControlService(self.openmct, self.options.apiBase),
               domainObject
             },
             template: '<ImmediateCommand />'
