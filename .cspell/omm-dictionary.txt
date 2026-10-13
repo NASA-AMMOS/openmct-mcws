@@ -54,3 +54,4 @@ mslsol
 dsanto
 peterr
 smap
+commanddispatcher

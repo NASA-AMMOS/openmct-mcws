@@ -39,6 +39,7 @@ import RealtimeIndicatorPlugin from './src/realtimeIndicator/plugin.js';
 import PacketQueryPlugin from './src/packetQuery/plugin.js';
 import SessionControlPlugin from './src/sessionControl/plugin.js';
 import ImmediateCommandPlugin from './src/immediateCommand/plugin.js';
+import CommandDetailPlugin from './src/commandDetail/plugin.js';
 import MCWSIndicatorPlugin from './src/mcwsIndicator/plugin.js';
 import MultipleHistoricalSessions from './src/multipleHistoricalSessions/plugin.js';
 import MessageStreamProcessor from './src/messageStreamProcessor/MessageStreamProcessor.js';
@@ -365,6 +366,7 @@ export default function openmctMCWSPlugin(options) {
     openmct.install(new PacketQueryPlugin());
     openmct.install(SessionControlPlugin(config.missionControl));
     openmct.install(ImmediateCommandPlugin(config.missionControl));
+    openmct.install(CommandDetailPlugin());
 
     if (config.globalFilters) {
       openmct.install(new GlobalFilters(config.globalFilters));

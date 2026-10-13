@@ -1,4 +1,7 @@
-import SessionControlViewProvider from './SessionControlViewProvider.js';
+import mount from 'ommUtils/mountVueComponent.js';
+import SessionControlIndicator from './components/SessionControlIndicator.vue';
+import getMissionControlService from '../missionControl/missionControlService.js';
+import { normalizeFields } from '../missionControl/sessionFields.js';
 
 /**
  * @param {object} [options] the `missionControl` config slice:
@@ -6,20 +9,28 @@ import SessionControlViewProvider from './SessionControlViewProvider.js';
  */
 export default function SessionControlPlugin(options = {}) {
   return function install(openmct) {
-    openmct.objectViews.addProvider(new SessionControlViewProvider(openmct, options));
+    const componentDefinition = {
+      provide: {
+        openmct,
+        missionControlService: getMissionControlService(openmct, options.apiBase),
+        sessionFields: {
+          uplink: normalizeFields(options.uplinkSessionFields),
+          downlink: normalizeFields(options.downlinkSessionFields)
+        }
+      },
+      components: {
+        SessionControlIndicator
+      },
+      template: '<SessionControlIndicator />'
+    };
 
-    openmct.types.addType('vista.sessionControl', {
-      name: 'Session Control',
-      description:
-        'Start and stop uplink and downlink sessions, and choose the uplink ' +
-        'session that command plugins target.',
-      cssClass: 'icon-session',
-      creatable: true,
-      initialize(domainObject) {
-        domainObject.composition = [];
+    const { destroy, el } = mount(componentDefinition);
 
-        return domainObject;
-      }
+    openmct.indicators.add({
+      key: 'mission-control-indicator',
+      element: el,
+      priority: -6,
+      destroy
     });
   };
 }

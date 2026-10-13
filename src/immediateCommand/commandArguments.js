@@ -292,6 +292,67 @@ export function validateCommandArguments(command, values = {}, enumMap = {}) {
   };
 }
 
+/**
+ * Parses a JSON paste for a repeat argument into repeat sets.
+ *
+ * Returns `{ sets, error }`: on success `sets` holds one object per
+ * set with exactly the repeat's input children (missing values keep
+ * their defaults) and `error` is null; on failure `sets` is null and
+ * `error` describes the first problem found. Blank text parses as an
+ * empty set list. Counts and nested values reuse the form validation
+ * so both entry modes accept the same input.
+ */
+export function parseRepeatJson(argument, rawText, enumMap = {}) {
+  const text = String(rawText ?? '');
+  let parsed;
+
+  try {
+    parsed = text.trim() === '' ? [] : JSON.parse(text);
+  } catch {
+    return { sets: null, error: 'Invalid JSON' };
+  }
+
+  if (!Array.isArray(parsed)) {
+    return { sets: null, error: 'Repeat JSON must be an array of sets' };
+  }
+
+  const children = repeatChildren(argument);
+  const names = new Set(children.map((child) => child.name));
+  const sets = [];
+
+  for (let index = 0; index < parsed.length; index++) {
+    const raw = parsed[index];
+
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+      return { sets: null, error: `Set ${index + 1} must be an object` };
+    }
+
+    for (const key of Object.keys(raw)) {
+      if (!names.has(key)) {
+        return { sets: null, error: `Set ${index + 1} has unknown argument "${key}"` };
+      }
+    }
+
+    const set = emptyRepeatSet(argument);
+
+    for (const child of children) {
+      if (raw[child.name] !== undefined) {
+        set[child.name] = raw[child.name];
+      }
+    }
+
+    sets.push(set);
+  }
+
+  const error = validateRepeat(argument, sets, enumMap);
+
+  if (error) {
+    return { sets: null, error };
+  }
+
+  return { sets, error: null };
+}
+
 function formatBooleanValue(argument, value) {
   const format = argument.format || {};
   const text = String(value).toLowerCase();
