@@ -7,13 +7,15 @@ import CommandGroupType from './CommandGroupType.js';
  * Commands have no telemetry provider; the command definition from the
  * JSON command dictionary is attached for command-specific views.
  *
- * Id format: "vista:command:<dataset_id>:<command_stem>"
+ * Id format: "vista:command:<dataset_id>:<command_stem>". Stems may
+ * contain dots (e.g. deployment.commanddispatcher.no_op), so the stem
+ * is the full remainder after the dataset key string.
  */
 const CommandType = new VISTAType({
   key: 'vista.command',
   name: 'Command',
   cssClass: 'icon-object',
-  pattern: /^command:([a-zA-Z0-9-:]+):([a-zA-Z0-9_-]+)/,
+  pattern: /^command:([^:]+:[^:]+):(.+)$/,
   transform: function (match) {
     return {
       datasetIdentifier: VISTAType.toIdentifier(match[1]),

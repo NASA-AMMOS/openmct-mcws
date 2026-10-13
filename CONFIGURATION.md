@@ -346,7 +346,7 @@ globalFilters:
 
 #### `missionControl`
 - **Type**: `object`
-- **Description**: Settings for the Session Control and Immediate Command views, which talk to the operations proxy described in [`mcws-proxy-api/openapi.yaml`](mcws-proxy-api/openapi.yaml). The session field lists define the inputs Session Control shows when an operator opens a new uplink or downlink session. Field values are sent to the proxy as the `parameters` object of `POST /command-sessions` or `POST /downlink-sessions`, so the field keys must match the parameter names the proxy accepts.
+- **Description**: Settings for the MCS status indicator and the Immediate Command view, which talk to the operations proxy described in [`mcws-proxy-api/openapi.yaml`](mcws-proxy-api/openapi.yaml). The session field lists define the inputs the session dialog shows when an operator opens a new uplink or downlink session. Field values are sent to the proxy as the `parameters` object of `POST /command-sessions` or `POST /downlink-sessions`, so the field keys must match the parameter names the proxy accepts.
 
 **Properties:**
 - `apiBase` (string): Base URL of the proxy API. Default `'./api/v1'`.

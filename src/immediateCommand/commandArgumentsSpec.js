@@ -3,6 +3,7 @@ import {
   defaultArgumentValues,
   emptyRepeatSet,
   inputArguments,
+  parseRepeatJson,
   validateArgument,
   validateCommandArguments
 } from './commandArguments.js';
@@ -282,6 +283,59 @@ describe('commandArguments', () => {
       expect(defaultArgumentValues({ arguments: [channels, fill] })).toEqual({
         channels: [{ id: '', state: 'SAFE' }]
       });
+    });
+
+    it('parses repeat JSON into sets with defaults filled', () => {
+      expect(
+        parseRepeatJson(
+          channels,
+          '[{"id": 1, "state": "NOMINAL"}, {"id": "2"}]',
+          plandevEnums
+        )
+      ).toEqual({
+        sets: [
+          { id: 1, state: 'NOMINAL' },
+          { id: '2', state: 'SAFE' }
+        ],
+        error: null
+      });
+    });
+
+    it('rejects malformed repeat JSON', () => {
+      expect(parseRepeatJson(channels, 'not json', plandevEnums)).toEqual({
+        sets: null,
+        error: 'Invalid JSON'
+      });
+      expect(parseRepeatJson(channels, '{"id": 1}', plandevEnums)).toEqual({
+        sets: null,
+        error: 'Repeat JSON must be an array of sets'
+      });
+      expect(parseRepeatJson(channels, '[3]', plandevEnums)).toEqual({
+        sets: null,
+        error: 'Set 1 must be an object'
+      });
+      expect(parseRepeatJson(channels, '   ', plandevEnums)).toEqual({
+        sets: null,
+        error: 'Needs at least 1 repeat set'
+      });
+    });
+
+    it('rejects unknown keys and invalid nested values', () => {
+      expect(parseRepeatJson(channels, '[{"id": "1", "bogus": 2}]', plandevEnums)).toEqual({
+        sets: null,
+        error: 'Set 1 has unknown argument "bogus"'
+      });
+      expect(parseRepeatJson(channels, '[{"id": "x"}]', plandevEnums)).toEqual({
+        sets: null,
+        error: 'Set 1, id: Must be a number'
+      });
+      expect(parseRepeatJson(channels, '[]', plandevEnums)).toEqual({
+        sets: null,
+        error: 'Needs at least 1 repeat set'
+      });
+      expect(
+        parseRepeatJson(channels, '[{"id": "1"}, {"id": "2"}, {"id": "3"}]', plandevEnums)
+      ).toEqual({ sets: null, error: 'Allows at most 2 repeat sets' });
     });
   });
 });

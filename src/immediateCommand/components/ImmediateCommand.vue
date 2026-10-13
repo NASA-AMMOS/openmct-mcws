@@ -17,6 +17,7 @@
           class="c-immediate-command__search"
           type="text"
           placeholder="Search stems"
+          aria-label="Search command stems"
         />
         <div class="c-immediate-command__filters">
           <button
@@ -28,21 +29,13 @@
           >
             {{ filter.label }}
           </button>
-          <label v-if="typeFilter !== 'sim'">
-            Module
-            <select v-model="moduleFilter">
-              <option value="all">All</option>
-              <option v-for="module in modules" :key="module" :value="module">
-                {{ module }}
-              </option>
-            </select>
-          </label>
         </div>
         <ul v-if="typeFilter !== 'sim'" class="c-immediate-command__list">
           <li v-for="stem in visibleStems" :key="stem">
             <button
               class="c-immediate-command__stem"
               :class="{ 'is-selected': stem === selectedStem }"
+              :title="stem"
               @click="selectStem(stem)"
             >
               {{ stem }}
@@ -83,48 +76,95 @@
             :id="argInputId(argument)"
             class="c-immediate-command__repeat"
           >
-            <div
-              v-for="(set, setIndex) in argValues[argument.name] || []"
-              :key="setIndex"
-              class="c-immediate-command__repeat-set"
-            >
-              <span>Set {{ setIndex + 1 }}</span>
-              <label v-for="child in repeatChildren(argument)" :key="child.name">
-                {{ child.name }}
-                <select v-if="enumOptions(child).length > 0" v-model="set[child.name]">
-                  <option v-for="symbol in enumOptions(child)" :key="symbol" :value="symbol">
-                    {{ symbol }}
-                  </option>
-                </select>
-                <select v-else-if="isBooleanArgument(child)" v-model="set[child.name]">
-                  <option v-for="form in booleanForms(child)" :key="form" :value="form">
-                    {{ form }}
-                  </option>
-                </select>
-                <input
-                  v-else
-                  v-model="set[child.name]"
-                  type="text"
-                  :placeholder="placeholderFor(child)"
-                />
-              </label>
+            <div class="c-immediate-command__repeat-mode">
               <button
                 class="c-button"
-                :disabled="!canRemoveSet(argument)"
-                @click="removeSet(argument, setIndex)"
+                :class="{ 'is-active': !isRepeatJsonMode(argument) }"
+                @click="setRepeatMode(argument, false)"
               >
-                Remove set
+                Form
               </button>
+              <button
+                class="c-button"
+                :class="{ 'is-active': isRepeatJsonMode(argument) }"
+                @click="setRepeatMode(argument, true)"
+              >
+                JSON
+              </button>
+              <span>{{ repeatHint(argument) }}</span>
             </div>
-            <button class="c-button" :disabled="!canAddSet(argument)" @click="addSet(argument)">
-              Add set
-            </button>
-            <span>{{ repeatHint(argument) }}</span>
+            <div v-if="isRepeatJsonMode(argument)">
+              <textarea
+                v-model="repeatJsonText[argument.name]"
+                class="c-immediate-command__repeat-json"
+                rows="6"
+                @change="applyRepeatJson(argument)"
+              ></textarea>
+              <p
+                v-if="repeatJsonErrors[argument.name]"
+                class="c-immediate-command__error"
+                role="alert"
+              >
+                {{ repeatJsonErrors[argument.name] }}
+              </p>
+            </div>
+            <template v-else>
+              <div
+                v-for="(set, setIndex) in argValues[argument.name] || []"
+                :key="setIndex"
+                class="c-immediate-command__repeat-set"
+              >
+                <span>Set {{ setIndex + 1 }}</span>
+                <label v-for="child in repeatChildren(argument)" :key="child.name">
+                  {{ child.name }}
+                  <select
+                    v-if="enumOptions(child).length > 0"
+                    v-model="set[child.name]"
+                    @change="validateForm"
+                  >
+                    <option v-for="symbol in enumOptions(child)" :key="symbol" :value="symbol">
+                      {{ symbol }}
+                    </option>
+                  </select>
+                  <select
+                    v-else-if="isBooleanArgument(child)"
+                    v-model="set[child.name]"
+                    @change="validateForm"
+                  >
+                    <option v-for="form in booleanForms(child)" :key="form" :value="form">
+                      {{ form }}
+                    </option>
+                  </select>
+                  <input
+                    v-else
+                    v-model="set[child.name]"
+                    type="text"
+                    :placeholder="placeholderFor(child)"
+                    @change="validateForm"
+                  />
+                </label>
+                <button
+                  class="c-button"
+                  :disabled="!canRemoveSet(argument)"
+                  @click="removeSet(argument, setIndex)"
+                >
+                  Remove set
+                </button>
+              </div>
+              <button
+                class="c-button"
+                :disabled="!canAddSet(argument)"
+                @click="addSet(argument)"
+              >
+                Add set
+              </button>
+            </template>
           </div>
           <select
             v-else-if="enumOptions(argument).length > 0"
             :id="argInputId(argument)"
             v-model="argValues[argument.name]"
+            @change="validateForm"
           >
             <option v-for="symbol in enumOptions(argument)" :key="symbol" :value="symbol">
               {{ symbol }}
@@ -134,6 +174,7 @@
             v-else-if="isBooleanArgument(argument)"
             :id="argInputId(argument)"
             v-model="argValues[argument.name]"
+            @change="validateForm"
           >
             <option v-for="form in booleanForms(argument)" :key="form" :value="form">
               {{ form }}
@@ -145,6 +186,7 @@
             v-model="argValues[argument.name]"
             type="text"
             :placeholder="placeholderFor(argument)"
+            @change="validateForm"
           />
           <span v-if="argument.units">{{ argument.units }}</span>
           <span v-if="argErrors[argument.name]" class="c-immediate-command__error" role="alert">
@@ -163,7 +205,7 @@
           Send
         </button>
         <p v-if="!canSend">
-          Start and select an uplink session in Session Control to enable sending.
+          Start and select an uplink session in the MCS status indicator to enable sending.
         </p>
       </div>
       <div v-if="result" class="c-immediate-command__result">
@@ -175,29 +217,31 @@
       <div v-if="sentCommands.length > 0" class="c-immediate-command__history">
         <h3>Sent commands</h3>
         <p>{{ statusSourceText }}</p>
-        <table class="c-immediate-command__history-table">
-          <thead>
-            <tr>
-              <th>Dispatched</th>
-              <th>Session</th>
-              <th>Command</th>
-              <th>Radiation status</th>
-              <th>Detail</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(entry, index) in sentCommands" :key="entry.commandId || index">
-              <td>{{ entry.dispatchTime }}</td>
-              <td>{{ entry.sessionId }}</td>
-              <td>{{ entry.requested }}</td>
-              <td>
-                {{ entry.status }}
-                <span v-if="entry.final">(final)</span>
-              </td>
-              <td>{{ statusDetail(entry) }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="c-immediate-command__history-scroll">
+          <table class="c-table c-immediate-command__history-table">
+            <thead>
+              <tr>
+                <th>Dispatched</th>
+                <th>Session</th>
+                <th>Command</th>
+                <th>Radiation status</th>
+                <th>Detail</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(entry, index) in sentCommands" :key="entry.commandId || index">
+                <td>{{ entry.dispatchTime }}</td>
+                <td>{{ entry.sessionId }}</td>
+                <td>{{ entry.requested }}</td>
+                <td>
+                  {{ entry.status }}
+                  <span v-if="entry.final">(final)</span>
+                </td>
+                <td>{{ statusDetail(entry) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <button class="c-button" :disabled="!canCheckStatus || checkingStatus" @click="checkStatus">
           Check status
         </button>
@@ -219,6 +263,7 @@ import {
   emptyRepeatSet,
   inputArguments,
   isRepeatArgument,
+  parseRepeatJson,
   repeatBounds,
   validateCommandArguments
 } from '../commandArguments.js';
@@ -255,12 +300,14 @@ export default {
       dictionaryError: null,
       searchText: '',
       typeFilter: 'all',
-      moduleFilter: 'all',
       selectedStem: null,
       selectedGroup: null,
       selectedCommand: null,
       argValues: {},
       argErrors: {},
+      repeatJsonMode: {},
+      repeatJsonText: {},
+      repeatJsonErrors: {},
       simulatorText: '',
       result: null,
       sendError: null,
@@ -288,26 +335,10 @@ export default {
     canCheckStatus() {
       return Boolean(this.currentDataset()?.options?.commandEventUrl);
     },
-    modules() {
-      const modules = new Set();
-
-      this.stemsForType(this.typeFilter).forEach((stem) => {
-        modules.add(stem.split('_')[0]);
-      });
-
-      return [...modules].sort();
-    },
     visibleStems() {
       const query = this.searchText.trim().toLowerCase();
-      const moduleOk = this.moduleFilter === 'all' || this.modules.includes(this.moduleFilter);
 
       return this.stemsForType(this.typeFilter).filter((stem) => {
-        if (moduleOk && this.moduleFilter !== 'all') {
-          if (stem.split('_')[0] !== this.moduleFilter) {
-            return false;
-          }
-        }
-
         return stem.toLowerCase().includes(query);
       });
     },
@@ -488,6 +519,40 @@ export default {
         (set, index) => index !== setIndex
       );
     },
+    isRepeatJsonMode(argument) {
+      return this.repeatJsonMode[argument.name] === true;
+    },
+    setRepeatMode(argument, json) {
+      if (json) {
+        this.repeatJsonText[argument.name] = JSON.stringify(
+          this.argValues[argument.name] || [],
+          null,
+          2
+        );
+        this.repeatJsonErrors[argument.name] = null;
+      } else {
+        this.repeatJsonErrors[argument.name] = null;
+      }
+
+      this.repeatJsonMode[argument.name] = json;
+    },
+    applyRepeatJson(argument) {
+      const { sets, error } = parseRepeatJson(
+        argument,
+        this.repeatJsonText[argument.name] ?? '',
+        this.enumMap
+      );
+
+      if (error) {
+        this.repeatJsonErrors[argument.name] = error;
+
+        return;
+      }
+
+      this.repeatJsonErrors[argument.name] = null;
+      this.argValues[argument.name] = sets;
+      this.validateForm();
+    },
     async initialize() {
       try {
         this.loadDatasets();
@@ -550,6 +615,9 @@ export default {
       this.selectedCommand = null;
       this.argValues = {};
       this.argErrors = {};
+      this.repeatJsonMode = {};
+      this.repeatJsonText = {};
+      this.repeatJsonErrors = {};
       this.result = null;
       this.sendError = null;
       this.collapsed = false;
@@ -647,12 +715,23 @@ export default {
 
       return `Default: ${argument.default_value}`;
     },
+    validateForm() {
+      if (this.typeFilter === 'sim' || this.selectedGroup === 'hw' || !this.selectedCommand) {
+        return;
+      }
+
+      this.argErrors = validateCommandArguments(
+        this.selectedCommand,
+        this.argValues,
+        this.enumMap
+      ).errors;
+    },
     async send() {
       this.sendError = null;
       this.result = null;
 
       if (!this.missionControlService.canSendCommands()) {
-        this.sendError = 'Select an attached uplink session in Session Control first.';
+        this.sendError = 'Select an attached uplink session in the MCS indicator first.';
 
         return;
       }
@@ -681,6 +760,14 @@ export default {
             commandStem: this.selectedStem
           });
         } else {
+          const repeatError = Object.values(this.repeatJsonErrors).find((error) => error);
+
+          if (repeatError) {
+            this.sendError = 'Fix the repeat JSON errors before sending.';
+
+            return;
+          }
+
           const { valid, errors } = validateCommandArguments(
             this.selectedCommand,
             this.argValues,
@@ -721,9 +808,10 @@ export default {
   flex-direction: row;
   height: 100%;
   overflow: hidden;
+  container-type: inline-size;
 }
 .c-immediate-command__sidebar {
-  width: 320px;
+  width: min(320px, 45%);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -731,8 +819,31 @@ export default {
   padding: 12px;
   overflow-y: auto;
 }
+.c-immediate-command__dataset select {
+  max-width: 100%;
+}
+.c-immediate-command__search {
+  width: 100%;
+  box-sizing: border-box;
+}
+.c-immediate-command__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
 .c-immediate-command.is-collapsed .c-immediate-command__sidebar {
-  width: 120px;
+  width: 32px;
+  padding: 12px 4px;
+  align-items: center;
+}
+.c-immediate-command.is-collapsed .c-immediate-command__dataset {
+  display: none;
+}
+.c-immediate-command.is-collapsed .c-immediate-command__collapse {
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  flex: 1;
 }
 .c-immediate-command__list {
   list-style: none;
@@ -743,6 +854,8 @@ export default {
 .c-immediate-command__stem {
   width: 100%;
   text-align: left;
+  white-space: normal;
+  word-break: break-word;
 }
 .c-immediate-command__stem.is-selected,
 .c-immediate-command__filters .is-active {
@@ -750,8 +863,22 @@ export default {
 }
 .c-immediate-command__detail {
   flex: 1;
+  min-width: 0;
+  min-height: 0;
   padding: 12px;
   overflow-y: auto;
+}
+.c-immediate-command__detail .c-form__row {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.c-immediate-command__detail input,
+.c-immediate-command__detail select,
+.c-immediate-command__detail textarea {
+  background-color: #ffffff;
+  color: #000000;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .c-immediate-command__simulator {
   width: 100%;
@@ -770,6 +897,22 @@ export default {
   gap: 4px 8px;
   align-items: baseline;
 }
+.c-immediate-command__repeat-mode {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+}
+.c-immediate-command__repeat-mode .is-active {
+  font-weight: bold;
+}
+.c-immediate-command__repeat-json {
+  width: 100%;
+  font-family: monospace;
+}
+.c-immediate-command__history-scroll {
+  overflow-x: auto;
+  margin: 8px 0;
+}
 .c-immediate-command__history-table {
   border-collapse: collapse;
   width: 100%;
@@ -778,5 +921,28 @@ export default {
 .c-immediate-command__history-table td {
   padding: 2px 6px;
   text-align: left;
+  white-space: nowrap;
+}
+@container (max-width: 600px) {
+  .c-immediate-command {
+    flex-direction: column;
+  }
+  .c-immediate-command__sidebar {
+    width: auto;
+    max-height: 42%;
+    flex-shrink: 0;
+  }
+  .c-immediate-command.is-collapsed .c-immediate-command__sidebar {
+    width: auto;
+    max-height: none;
+    padding: 8px 12px;
+  }
+  .c-immediate-command.is-collapsed .c-immediate-command__dataset {
+    display: block;
+  }
+  .c-immediate-command.is-collapsed .c-immediate-command__collapse {
+    writing-mode: horizontal-tb;
+    flex: none;
+  }
 }
 </style>
