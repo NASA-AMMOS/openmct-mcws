@@ -1,5 +1,8 @@
 <template>
-  <div class="c-immediate-command" :class="{ 'is-collapsed': collapsed }">
+  <div
+    class="c-immediate-command"
+    :class="{ 'is-collapsed': collapsed, 'is-narrow': isNarrow }"
+  >
     <div class="c-immediate-command__sidebar">
       <div class="c-immediate-command__dataset">
         <label>
@@ -33,7 +36,7 @@
         <ul v-if="typeFilter !== 'sim'" class="c-immediate-command__list">
           <li v-for="stem in visibleStems" :key="stem">
             <button
-              class="c-immediate-command__stem"
+              class="c-list-button c-immediate-command__stem"
               :class="{ 'is-selected': stem === selectedStem }"
               :title="stem"
               @click="selectStem(stem)"
@@ -65,12 +68,19 @@
       <template v-else-if="selectedCommand">
         <h2>{{ selectedStem }}</h2>
         <p>{{ selectedCommand.description }}</p>
-        <div v-for="argument in formArguments" :key="argument.name" class="c-form__row">
-          <label :for="argInputId(argument)">
-            {{ argument.name }}
+        <div
+          v-for="argument in formArguments"
+          :key="argument.name"
+          class="c-form__row c-immediate-command__arg-row"
+        >
+          <label :for="argInputId(argument)" class="c-immediate-command__arg-label">
+            <span class="c-immediate-command__arg-name">{{ argument.name }}</span>
             <span v-if="isRequired(argument)">(required)</span>
+            <span v-if="argument.description" class="c-immediate-command__arg-description">
+              {{ argument.description }}
+            </span>
+            <span aria-hidden="true">:</span>
           </label>
-          <span v-if="argument.description">{{ argument.description }}</span>
           <div
             v-if="isRepeat(argument)"
             :id="argInputId(argument)"
@@ -98,6 +108,7 @@
                 v-model="repeatJsonText[argument.name]"
                 class="c-immediate-command__repeat-json"
                 rows="6"
+                :class="{ 'is-invalid': repeatJsonInvalid(argument) }"
                 @change="applyRepeatJson(argument)"
               ></textarea>
               <p
@@ -120,6 +131,14 @@
                   <select
                     v-if="enumOptions(child).length > 0"
                     v-model="set[child.name]"
+                    :class="{
+                      'is-invalid': repeatCellInvalid(
+                        argument,
+                        setIndex,
+                        child.name,
+                        set[child.name]
+                      )
+                    }"
                     @change="validateForm"
                   >
                     <option v-for="symbol in enumOptions(child)" :key="symbol" :value="symbol">
@@ -129,6 +148,14 @@
                   <select
                     v-else-if="isBooleanArgument(child)"
                     v-model="set[child.name]"
+                    :class="{
+                      'is-invalid': repeatCellInvalid(
+                        argument,
+                        setIndex,
+                        child.name,
+                        set[child.name]
+                      )
+                    }"
                     @change="validateForm"
                   >
                     <option v-for="form in booleanForms(child)" :key="form" :value="form">
@@ -140,6 +167,14 @@
                     v-model="set[child.name]"
                     type="text"
                     :placeholder="placeholderFor(child)"
+                    :class="{
+                      'is-invalid': repeatCellInvalid(
+                        argument,
+                        setIndex,
+                        child.name,
+                        set[child.name]
+                      )
+                    }"
                     @change="validateForm"
                   />
                 </label>
@@ -164,6 +199,7 @@
             v-else-if="enumOptions(argument).length > 0"
             :id="argInputId(argument)"
             v-model="argValues[argument.name]"
+            :class="{ 'is-invalid': inputInvalid(argument) }"
             @change="validateForm"
           >
             <option v-for="symbol in enumOptions(argument)" :key="symbol" :value="symbol">
@@ -174,6 +210,7 @@
             v-else-if="isBooleanArgument(argument)"
             :id="argInputId(argument)"
             v-model="argValues[argument.name]"
+            :class="{ 'is-invalid': inputInvalid(argument) }"
             @change="validateForm"
           >
             <option v-for="form in booleanForms(argument)" :key="form" :value="form">
@@ -186,9 +223,12 @@
             v-model="argValues[argument.name]"
             type="text"
             :placeholder="placeholderFor(argument)"
+            :class="{ 'is-invalid': inputInvalid(argument) }"
             @change="validateForm"
           />
-          <span v-if="argument.units">{{ argument.units }}</span>
+          <span v-if="showUnits(argument)" class="c-immediate-command__arg-units">
+            {{ argument.units }}
+          </span>
           <span v-if="argErrors[argument.name]" class="c-immediate-command__error" role="alert">
             {{ argErrors[argument.name] }}
           </span>
@@ -313,6 +353,7 @@ export default {
       sendError: null,
       sending: false,
       collapsed: false,
+      isNarrow: false,
       typeFilters: TYPE_FILTERS,
       streamState: 'idle',
       checkingStatus: false,
@@ -367,10 +408,17 @@ export default {
       // Let the dataset's CommandDictionary react to the session change first.
       setTimeout(() => this.reloadIfDictionaryChanged(), 0);
     });
+    this.resizeObserver = new ResizeObserver(() => this.updateNarrow());
+    this.resizeObserver.observe(this.$el);
+    this.updateNarrow();
   },
   beforeUnmount() {
     if (this.unlistenSession) {
       this.unlistenSession();
+    }
+
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
     }
 
     this.closeStream();
@@ -715,6 +763,14 @@ export default {
 
       return `Default: ${argument.default_value}`;
     },
+    updateNarrow() {
+      this.isNarrow = this.$el.clientWidth <= 600;
+    },
+    showUnits(argument) {
+      const units = (argument.units ?? '').trim();
+
+      return units !== '' && units.toLowerCase() !== 'none';
+    },
     validateForm() {
       if (this.typeFilter === 'sim' || this.selectedGroup === 'hw' || !this.selectedCommand) {
         return;
@@ -725,6 +781,26 @@ export default {
         this.argValues,
         this.enumMap
       ).errors;
+    },
+    hasValue(value) {
+      return value !== undefined && value !== null && value !== '';
+    },
+    inputInvalid(argument) {
+      return Boolean(this.argErrors[argument.name]) && this.hasValue(this.argValues[argument.name]);
+    },
+    repeatCellInvalid(argument, setIndex, childName, cellValue) {
+      const error = this.argErrors[argument.name];
+
+      if (!error || !this.hasValue(cellValue)) {
+        return false;
+      }
+
+      return error.startsWith(`Set ${setIndex + 1}, ${childName}:`);
+    },
+    repeatJsonInvalid(argument) {
+      const text = this.repeatJsonText[argument.name] ?? '';
+
+      return Boolean(this.repeatJsonErrors[argument.name]) && text.trim() !== '';
     },
     async send() {
       this.sendError = null;
@@ -808,7 +884,6 @@ export default {
   flex-direction: row;
   height: 100%;
   overflow: hidden;
-  container-type: inline-size;
 }
 .c-immediate-command__sidebar {
   width: min(320px, 45%);
@@ -856,6 +931,7 @@ export default {
   text-align: left;
   white-space: normal;
   word-break: break-word;
+  color: inherit;
 }
 .c-immediate-command__stem.is-selected,
 .c-immediate-command__filters .is-active {
@@ -868,9 +944,21 @@ export default {
   padding: 12px;
   overflow-y: auto;
 }
-.c-immediate-command__detail .c-form__row {
-  flex-wrap: wrap;
-  row-gap: 4px;
+.c-immediate-command__arg-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 320px) minmax(0, 1fr) auto auto;
+  gap: 4px 12px;
+  align-items: start;
+}
+.c-immediate-command__arg-label {
+  text-align: right;
+  overflow-wrap: break-word;
+}
+.c-immediate-command__arg-name {
+  font-weight: bold;
+}
+.c-immediate-command__arg-description {
+  opacity: 0.8;
 }
 .c-immediate-command__detail input,
 .c-immediate-command__detail select,
@@ -879,6 +967,11 @@ export default {
   color: #000000;
   max-width: 100%;
   box-sizing: border-box;
+}
+.c-immediate-command__detail input.is-invalid,
+.c-immediate-command__detail select.is-invalid,
+.c-immediate-command__detail textarea.is-invalid {
+  background-color: #f8d7da;
 }
 .c-immediate-command__simulator {
   width: 100%;
@@ -923,26 +1016,30 @@ export default {
   text-align: left;
   white-space: nowrap;
 }
-@container (max-width: 600px) {
-  .c-immediate-command {
-    flex-direction: column;
-  }
-  .c-immediate-command__sidebar {
-    width: auto;
-    max-height: 42%;
-    flex-shrink: 0;
-  }
-  .c-immediate-command.is-collapsed .c-immediate-command__sidebar {
-    width: auto;
-    max-height: none;
-    padding: 8px 12px;
-  }
-  .c-immediate-command.is-collapsed .c-immediate-command__dataset {
-    display: block;
-  }
-  .c-immediate-command.is-collapsed .c-immediate-command__collapse {
-    writing-mode: horizontal-tb;
-    flex: none;
-  }
+.c-immediate-command.is-narrow {
+  flex-direction: column;
+}
+.c-immediate-command.is-narrow .c-immediate-command__sidebar {
+  width: auto;
+  max-height: 42%;
+  flex-shrink: 0;
+}
+.c-immediate-command.is-narrow.is-collapsed .c-immediate-command__sidebar {
+  width: auto;
+  max-height: none;
+  padding: 8px 12px;
+}
+.c-immediate-command.is-narrow.is-collapsed .c-immediate-command__dataset {
+  display: block;
+}
+.c-immediate-command.is-narrow.is-collapsed .c-immediate-command__collapse {
+  writing-mode: horizontal-tb;
+  flex: none;
+}
+.c-immediate-command.is-narrow .c-immediate-command__arg-row {
+  grid-template-columns: 1fr;
+}
+.c-immediate-command.is-narrow .c-immediate-command__arg-label {
+  text-align: left;
 }
 </style>

@@ -7,7 +7,7 @@ export default class ImmediateCommandViewProvider {
     this.options = options || {};
     this.key = 'vista.immediateCommandView';
     this.name = 'Immediate Command';
-    this.cssClass = 'icon-object';
+    this.cssClass = 'icon-command';
     this.openmct = openmct;
   }
 
