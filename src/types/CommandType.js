@@ -14,7 +14,7 @@ import CommandGroupType from './CommandGroupType.js';
 const CommandType = new VISTAType({
   key: 'vista.command',
   name: 'Command',
-  cssClass: 'icon-object',
+  cssClass: 'icon-command',
   pattern: /^command:([^:]+:[^:]+):(.+)$/,
   transform: function (match) {
     return {

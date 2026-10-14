@@ -12,7 +12,7 @@ export default function ImmediateCommandPlugin(options = {}) {
       description:
         'Browse a dataset command dictionary and send immediate flight ' +
         'software, hardware, or simulator commands.',
-      cssClass: 'icon-object',
+      cssClass: 'icon-command',
       creatable: true,
       initialize(domainObject) {
         domainObject.composition = [];
