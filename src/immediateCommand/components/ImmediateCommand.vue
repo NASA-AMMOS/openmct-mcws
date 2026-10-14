@@ -3,7 +3,7 @@
     class="c-immediate-command"
     :class="{ 'is-collapsed': collapsed, 'is-narrow': isNarrow }"
   >
-    <div class="c-immediate-command__sidebar">
+    <div class="c-immediate-command__sidebar" :style="sidebarStyle">
       <div class="c-immediate-command__dataset">
         <label>
           Dataset
@@ -307,6 +307,7 @@ import {
   repeatBounds,
   validateCommandArguments
 } from '../commandArguments.js';
+import { stemListWidth } from '../stemListWidth.js';
 import { openCommandEventStream } from '../../missionControl/commandEventStream.js';
 import { formatDayOfYear } from '../../missionControl/commandStatusTracker.js';
 
@@ -354,6 +355,7 @@ export default {
       sending: false,
       collapsed: false,
       isNarrow: false,
+      listWidth: null,
       typeFilters: TYPE_FILTERS,
       streamState: 'idle',
       checkingStatus: false,
@@ -382,6 +384,13 @@ export default {
       return this.stemsForType(this.typeFilter).filter((stem) => {
         return stem.toLowerCase().includes(query);
       });
+    },
+    sidebarStyle() {
+      if (!this.listWidth || this.collapsed || this.isNarrow) {
+        return null;
+      }
+
+      return { width: `${this.listWidth}px` };
     },
     canSend() {
       return this.missionControlService.canSendCommands();
@@ -636,6 +645,7 @@ export default {
     async loadDictionary() {
       this.dictionaryError = null;
       this.dictionary = null;
+      this.listWidth = null;
 
       try {
         const cache = datasetCache();
@@ -653,6 +663,7 @@ export default {
         this.enumMap = dataset.commands.dictionary?.enumMap ?? {};
         this.fswStems = await dataset.commands.getGroupCommandStems('fsw');
         this.hwStems = await dataset.commands.getGroupCommandStems('hw');
+        this.fitListWidth();
       } catch (error) {
         this.dictionaryError = error.message;
       }
@@ -765,6 +776,20 @@ export default {
     },
     updateNarrow() {
       this.isNarrow = this.$el.clientWidth <= 600;
+    },
+    fitListWidth() {
+      const stems = [...this.fswStems, ...this.hwStems];
+      const sidebar = this.$el.querySelector('.c-immediate-command__sidebar');
+      const context = document.createElement('canvas').getContext('2d');
+
+      if (!sidebar || !context) {
+        this.listWidth = null;
+
+        return;
+      }
+
+      context.font = getComputedStyle(sidebar).font;
+      this.listWidth = stemListWidth(stems, (stem) => context.measureText(stem).width);
     },
     showUnits(argument) {
       const units = (argument.units ?? '').trim();
@@ -887,6 +912,7 @@ export default {
 }
 .c-immediate-command__sidebar {
   width: min(320px, 45%);
+  max-width: 45%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -1021,6 +1047,7 @@ export default {
 }
 .c-immediate-command.is-narrow .c-immediate-command__sidebar {
   width: auto;
+  max-width: none;
   max-height: 42%;
   flex-shrink: 0;
 }
