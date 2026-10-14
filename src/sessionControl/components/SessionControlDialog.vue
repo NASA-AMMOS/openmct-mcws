@@ -57,7 +57,8 @@ export default {
 .c-session-control__dialog-contents {
   display: flex;
   min-height: 0;
-  overflow-y: auto;
+  max-height: calc(100vh - 300px);
+  overflow: hidden;
 }
 .c-session-control__dialog-contents > .c-session-control {
   flex: 1;
