@@ -61,15 +61,15 @@ describe('CommandType', () => {
     };
   }
 
-  async function expectStemRoundTrip(dataset, stem) {
-    const identifier = CommandType.makeIdentifier(DATASET_IDENTIFIER, stem);
+  async function expectStemRoundTrip(dataset, stem, datasetIdentifier = DATASET_IDENTIFIER) {
+    const identifier = CommandType.makeIdentifier(datasetIdentifier, stem);
 
     expect(types.typeForIdentifier(identifier)).toBe(CommandType);
 
     const data = CommandType.data(identifier);
 
     expect(data.stem).toBe(stem);
-    expect(data.datasetIdentifier).toEqual(DATASET_IDENTIFIER);
+    expect(data.datasetIdentifier).toEqual(datasetIdentifier);
 
     const object = await CommandType.makeObject(dataset, data);
 
@@ -114,6 +114,16 @@ describe('CommandType', () => {
     const object = await expectStemRoundTrip(dataset, 'deployment.commanddispatcher.no_op');
 
     expect(object.definition.description).toBe('No-op.');
+  });
+
+  it('round-trips local datasets with an empty namespace', async () => {
+    const dataset = await datasetWithCommands();
+    const localIdentifier = { namespace: '', key: 'test-server-dataset' };
+    const identifier = CommandType.makeIdentifier(localIdentifier, 'FSW_CONFIGURE');
+
+    expect(identifier.key).toBe('command::test-server-dataset:FSW_CONFIGURE');
+
+    await expectStemRoundTrip(dataset, 'FSW_CONFIGURE', localIdentifier);
   });
 
   it('marks genuinely unknown stems missing', async () => {

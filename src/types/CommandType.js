@@ -15,7 +15,7 @@ const CommandType = new VISTAType({
   key: 'vista.command',
   name: 'Command',
   cssClass: 'icon-command',
-  pattern: /^command:([^:]+:[^:]+):(.+)$/,
+  pattern: /^command:([a-zA-Z0-9-:]+):(.+)$/,
   transform: function (match) {
     return {
       datasetIdentifier: VISTAType.toIdentifier(match[1]),
