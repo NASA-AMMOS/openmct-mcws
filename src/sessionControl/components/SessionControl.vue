@@ -364,8 +364,12 @@ export default {
   flex-direction: column;
   gap: 16px;
   padding: 12px;
-  overflow-y: auto;
   container-type: inline-size;
+}
+.c-session-control__section {
+  /* Never squash: keep natural height so the dialog's outer scroller
+     engages as soon as the sections no longer fit. */
+  flex: 0 0 auto;
 }
 .c-session-control__section-head {
   display: flex;
