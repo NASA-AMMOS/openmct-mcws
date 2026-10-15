@@ -55,13 +55,7 @@ export default {
 
 <style scoped>
 .c-session-control__dialog-contents {
-  display: flex;
-  min-height: 0;
   max-height: calc(100vh - 300px);
-  overflow: hidden;
-}
-.c-session-control__dialog-contents > .c-session-control {
-  flex: 1;
-  min-height: 0;
+  overflow-y: auto;
 }
 </style>
