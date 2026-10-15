@@ -55,7 +55,9 @@ export default {
 
 <style scoped>
 .c-session-control__dialog-contents {
-  max-height: calc(100vh - 300px);
+  /* Fill the available flex space (core: flex 1 + height 0) and scroll
+     internally when content overflows. No max-height: capping this below
+     the available space leaves dead whitespace under the button bar. */
   overflow-y: auto;
 }
 </style>
