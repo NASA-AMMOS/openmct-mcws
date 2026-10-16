@@ -18,14 +18,20 @@ export default class ChannelTable extends TelemetryTable {
   }
 
   initialize() {
-    this.filterObserver = this.openmct.objects.observe(
-      this.domainObject,
-      'configuration.filters',
-      this.updateFilters
-    );
+    // Deliberately not observing configuration.filters (core scopes that
+    // observer to plain tables): filter edits would clearAndResubscribe,
+    // duplicating the one row per channel and aborting live requests
+    // (issue #299).
     this.filters = this.domainObject.configuration && this.domainObject.configuration.filters;
     this.loadComposition();
     this.tableComposition.on('reorder', this.reorder);
+  }
+
+  updateTelemetryMode() {
+    // Channel tables always show one LAD row per channel, so the
+    // limited/unlimited telemetry modes do not apply. Ignoring mode changes
+    // keeps the table from clearing and resubscribing, which duplicates rows
+    // and breaks rendering (issue #299).
   }
 
   createTableRowCollections() {
