@@ -349,6 +349,7 @@ globalFilters:
 - **Description**: Settings for the MCS status indicator and the Immediate Command view, which talk to the operations proxy described in [`mcws-proxy-api/openapi.yaml`](mcws-proxy-api/openapi.yaml). The session field lists define the inputs the session dialog shows when an operator opens a new uplink or downlink session. Field values are sent to the proxy as the `parameters` object of `POST /command-sessions` or `POST /downlink-sessions`, so the field keys must match the parameter names the proxy accepts.
 
 **Properties:**
+- `enabled` (boolean): Whether to install the MCS status indicator and the Immediate Command view at all. Default `true`. Set `false` for a view-only instance with no commanding UI.
 - `apiBase` (string): Base URL of the proxy API. Default `'./api/v1'`.
 - `uplinkSessionFields` (array): Inputs for opening an uplink (command) session. Default `[]`, which opens sessions with the proxy defaults.
 - `downlinkSessionFields` (array): Inputs for opening a downlink session. Default `[]`.

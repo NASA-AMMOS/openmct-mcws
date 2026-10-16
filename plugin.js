@@ -254,6 +254,7 @@ export default function openmctMCWSPlugin(options) {
         rowLimit: 50
       },
       missionControl: {
+        enabled: true,
         apiBase: './api/v1',
         uplinkSessionFields: [],
         downlinkSessionFields: []
@@ -365,8 +366,10 @@ export default function openmctMCWSPlugin(options) {
     );
     openmct.install(ActionModifiersPlugin());
     openmct.install(new PacketQueryPlugin());
-    openmct.install(SessionControlPlugin(config.missionControl));
-    openmct.install(ImmediateCommandPlugin(config.missionControl));
+    if (config.missionControl?.enabled !== false) {
+      openmct.install(SessionControlPlugin(config.missionControl));
+      openmct.install(ImmediateCommandPlugin(config.missionControl));
+    }
     openmct.install(CommandDetailPlugin());
 
     if (config.globalFilters) {

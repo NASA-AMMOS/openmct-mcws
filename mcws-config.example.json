@@ -82,6 +82,7 @@
     "rowLimit": 50
   },
   "missionControl": {
+    "enabled": true,
     "apiBase": "./api/v1",
     "uplinkSessionFields": [],
     "downlinkSessionFields": []
