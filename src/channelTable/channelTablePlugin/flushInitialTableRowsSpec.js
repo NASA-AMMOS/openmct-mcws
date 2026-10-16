@@ -5,15 +5,24 @@ describe('flushInitialTableRows', () => {
   let listeners;
   let flushSpy;
   let table;
+  let cancelCurrent;
 
   function emitAdd() {
     (listeners.add || []).slice().forEach((callback) => callback());
   }
 
-  function addRows(count) {
+  function addRows(count, dummy = true) {
     for (let i = 0; i < count; i++) {
-      tableRows.rows.push({});
+      tableRows.rows.push(dummy ? { isDummyRow: true } : {});
     }
+
+    emitAdd();
+  }
+
+  function markAllWithData() {
+    tableRows.rows.forEach((row) => {
+      delete row.isDummyRow;
+    });
 
     emitAdd();
   }
@@ -47,7 +56,7 @@ describe('flushInitialTableRows', () => {
   });
 
   function start(options) {
-    return flushInitialTableRows({
+    cancelCurrent = flushInitialTableRows({
       table,
       getTableComponent: () => ({
         throttledUpdateVisibleRows: {
@@ -55,9 +64,19 @@ describe('flushInitialTableRows', () => {
         }
       }),
       timeout: 30,
+      dataTimeout: 25,
       ...options
     });
+
+    return cancelCurrent;
   }
+
+  afterEach(() => {
+    if (cancelCurrent) {
+      cancelCurrent();
+      cancelCurrent = null;
+    }
+  });
 
   it('flushes once all initial rows arrive', () => {
     start();
@@ -86,13 +105,37 @@ describe('flushInitialTableRows', () => {
     expect(flushSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('flushes only once and unsubscribes', () => {
+  it('flushes again once initial data arrives, then unsubscribes', () => {
     start();
     addRows(3);
-    addRows(5);
 
     expect(flushSpy).toHaveBeenCalledTimes(1);
+
+    addRows(5);
+    markAllWithData();
+
+    expect(flushSpy).toHaveBeenCalledTimes(2);
     expect(listeners.add || []).toEqual([]);
+
+    addRows(5);
+
+    expect(flushSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it('flushes partial data on data timeout', async () => {
+    start({ dataTimeout: 15 });
+    addRows(3);
+
+    expect(flushSpy).toHaveBeenCalledTimes(1);
+
+    delete tableRows.rows[0].isDummyRow;
+    emitAdd();
+
+    expect(flushSpy).toHaveBeenCalledTimes(1);
+
+    await sleep(40);
+
+    expect(flushSpy).toHaveBeenCalledTimes(2);
   });
 
   it('cleanup prevents a later flush', async () => {
