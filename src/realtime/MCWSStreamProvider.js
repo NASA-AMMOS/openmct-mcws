@@ -58,6 +58,26 @@ class MCWSStreamProvider {
   onmessage(message) {
     const data = message.data;
     const { url, key, values } = data;
+
+    // Control messages from the worker report connection status, not telemetry,
+    // and carry no values. Handle them before touching values.
+    if (data.onclose || data.onerror) {
+      //Communicate websocket timeout and errors to users
+      if (data.onclose && data.code === 1006) {
+        const message = `Real-time data connection lost - data may not be displayed as expected. Code: 1006`;
+
+        this.openmct.notifications.error(message);
+        console.error(message);
+      } else if (data.onerror) {
+        this.openmct.notifications.error(
+          `Websocket Error for ${url}?${data.query}, please see console for details`
+        );
+        console.error(`Websocket Error - Code: ${data.code}, Error: ${data.reason}`);
+      }
+
+      return;
+    }
+
     const subscriptions = (this.subscriptions[url] ?? {})[key] ?? [];
     const timestamp = Date.now();
 
@@ -69,19 +89,6 @@ class MCWSStreamProvider {
     subscriptions.forEach(function (subscription) {
       values.forEach(subscription.callback);
     });
-
-    //Communicate websocket timeout and errors to users
-    if (data.onclose && data.code === 1006) {
-      const message = `Real-time data connection lost - data may not be displayed as expected. Code: 1006`;
-
-      this.openmct.notifications.error(message);
-      console.error(message);
-    } else if (data.onerror) {
-      this.openmct.notifications.error(
-        `Websocket Error for ${url}?${data.query}, please see console for details`
-      );
-      console.error(`Websocket Error - Code: ${data.code}, Error: ${data.reason}`);
-    }
   }
 
   worker() {
