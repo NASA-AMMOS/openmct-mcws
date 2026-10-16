@@ -4,11 +4,16 @@ import {
   CHANNEL_TABLE_SET_NAME
 } from '../constants.js';
 import ChannelTableSetViewProvider from './ChannelTableSetViewProvider.js';
+import ChannelTableSetViewActions from './ChannelTableSetViewActions.js';
 import channelTableSetCompositionPolicy from './ChannelTableSetCompositionPolicy.js';
 
 export default function ChannelTableSetPlugin() {
   return function install(openmct) {
     openmct.objectViews.addProvider(new ChannelTableSetViewProvider(openmct));
+
+    ChannelTableSetViewActions.forEach((action) => {
+      openmct.actions.register(action);
+    });
 
     openmct.types.addType(CHANNEL_TABLE_SET_KEY, {
       name: CHANNEL_TABLE_SET_NAME,
