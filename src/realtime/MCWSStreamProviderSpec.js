@@ -23,7 +23,10 @@ describe('MCWSStreamProvider onmessage', () => {
     const provider = providerWith(
       {
         url: {
-          key: [{ callback: (datum) => seen.push(datum) }, { callback: (datum) => seen.push(datum) }]
+          key: [
+            { callback: (datum) => seen.push(datum) },
+            { callback: (datum) => seen.push(datum) }
+          ]
         }
       },
       updates
@@ -43,5 +46,60 @@ describe('MCWSStreamProvider onmessage', () => {
     provider.onmessage({ data: { url: 'url', key: 'key', values: [{ ert: 1 }] } });
 
     expect(updates.length).toBe(1);
+  });
+
+  it('reports a lost connection on worker onclose without values', () => {
+    const updates = [];
+    const errors = [];
+    const provider = providerWith({}, updates);
+    provider.openmct.notifications.error = (message) => errors.push(message);
+    spyOn(console, 'error');
+
+    expect(() => {
+      provider.onmessage({ data: { onclose: true, code: 1006, reason: 'abnormal closure' } });
+    }).not.toThrow();
+
+    expect(updates.length).toBe(0);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('connection lost');
+  });
+
+  it('reports worker onerror without values', () => {
+    const updates = [];
+    const errors = [];
+    const provider = providerWith({}, updates);
+    provider.openmct.notifications.error = (message) => errors.push(message);
+    spyOn(console, 'error');
+
+    expect(() => {
+      provider.onmessage({
+        data: {
+          onerror: true,
+          url: 'ws://localhost:8090/mcws-test',
+          query: 'filter=(session_id=1)',
+          code: 'unavailable',
+          reason: 'WebSocket error occurred'
+        }
+      });
+    }).not.toThrow();
+
+    expect(updates.length).toBe(0);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('Websocket Error');
+  });
+
+  it('ignores onclose codes other than 1006 without throwing', () => {
+    const updates = [];
+    const errors = [];
+    const provider = providerWith({}, updates);
+    provider.openmct.notifications.error = (message) => errors.push(message);
+    spyOn(console, 'error');
+
+    expect(() => {
+      provider.onmessage({ data: { onclose: true, code: 1000, reason: 'normal closure' } });
+    }).not.toThrow();
+
+    expect(updates.length).toBe(0);
+    expect(errors.length).toBe(0);
   });
 });
