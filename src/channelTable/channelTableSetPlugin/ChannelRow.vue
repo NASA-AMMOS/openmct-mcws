@@ -20,6 +20,10 @@ export default {
     pathToTable: {
       type: Array,
       required: true
+    },
+    paused: {
+      type: Boolean,
+      default: false
     }
   },
   emits: ['rowContextClick'],
@@ -72,6 +76,9 @@ export default {
       return [this.domainObject, ...this.pathToTable];
     }
   },
+  watch: {
+    paused: 'flushOnUnpause'
+  },
   mounted() {
     this.metadata = this.openmct.telemetry.getMetadata(this.domainObject);
     this.formats = this.openmct.telemetry.getFormatMap(this.metadata);
@@ -114,7 +121,14 @@ export default {
     },
     setLatestValues(data) {
       this.latestDatum = data[data.length - 1];
-      this.updateView();
+      if (!this.paused) {
+        this.updateView();
+      }
+    },
+    flushOnUnpause(paused) {
+      if (!paused && this.latestDatum !== undefined) {
+        this.updateView();
+      }
     },
     updateTimeSystem(timeSystem) {
       this.timestampKey = timeSystem.key;

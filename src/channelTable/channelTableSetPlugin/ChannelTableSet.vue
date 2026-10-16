@@ -20,6 +20,7 @@
           :key="ladRow.key"
           :domain-object="ladRow.domainObject"
           :path-to-table="ladTable.objectPath"
+          :paused="paused"
           @row-context-click="updateViewContext"
         />
       </template>
@@ -45,7 +46,8 @@ export default {
       ladTableObjects: [],
       ladTelemetryObjects: {},
       viewContext: {},
-      timesystem: '---'
+      timesystem: '---',
+      paused: false
     };
   },
   mounted() {
@@ -138,8 +140,25 @@ export default {
     updateViewContext(rowContext) {
       this.viewContext.row = rowContext;
     },
+    togglePauseByButton() {
+      if (this.paused) {
+        this.unpause();
+      } else {
+        this.pause();
+      }
+    },
+    pause() {
+      this.paused = true;
+    },
+    unpause() {
+      this.paused = false;
+    },
     getViewContext() {
-      return this.viewContext;
+      return {
+        ...this.viewContext,
+        type: 'channel-table-set',
+        togglePauseByButton: this.togglePauseByButton
+      };
     }
   }
 };
