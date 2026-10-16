@@ -56,15 +56,16 @@ export default class ChannelTableViewProvider {
             renderWhenVisible
           },
           template: `
-                    <table-component
-                        :class="'js-channel-list-view'"
-                        ref="tableComponent"
-                        :isEditing="isEditing"
-                        :marking="markingProp"
-                        :allowFiltering="false"
-                        :allowSorting="true"
-                        :view="view"
-                    ></table-component>`
+                    <div class="js-channel-list-view">
+                      <table-component
+                          ref="tableComponent"
+                          :isEditing="isEditing"
+                          :marking="markingProp"
+                          :allowFiltering="false"
+                          :allowSorting="true"
+                          :view="view"
+                      ></table-component>
+                    </div>`
         };
         const componentOptions = {
           element
