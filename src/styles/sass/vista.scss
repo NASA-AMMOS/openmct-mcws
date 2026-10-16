@@ -312,3 +312,11 @@ mct-table {
 .c-about .l-splash.s-splash {
   height: 220px;
 }
+
+// Channel tables show one LAD row per channel and have no limited/unlimited
+// modes, so the core table footer toggle is not offered here (issue #299).
+.js-channel-list-view {
+  .c-table-indicator__counts .c-button {
+    display: none;
+  }
+}
