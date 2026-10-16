@@ -34,4 +34,35 @@ describe('ChannelTable', () => {
       expect(clearAndResubscribeSpy).not.toHaveBeenCalled();
     });
   });
+
+  describe('initialize', () => {
+    it('does not observe configuration.filters (issue #299)', () => {
+      const domainObject = {
+        type: 'vista.chanTableGroup',
+        configuration: {}
+      };
+      const observeSpy = jasmine.createSpy('observe');
+
+      const channelTable = Object.create(ChannelTable.prototype);
+      channelTable.domainObject = domainObject;
+      channelTable.openmct = {
+        objects: {
+          observe: observeSpy
+        }
+      };
+      channelTable.reorder = () => {};
+      channelTable.loadComposition = () => {};
+      channelTable.tableComposition = {
+        on: () => {}
+      };
+
+      channelTable.initialize();
+
+      expect(observeSpy).not.toHaveBeenCalledWith(
+        domainObject,
+        'configuration.filters',
+        jasmine.anything()
+      );
+    });
+  });
 });
