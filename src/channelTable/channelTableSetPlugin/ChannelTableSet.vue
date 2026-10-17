@@ -25,6 +25,7 @@
           :marked="isMarked(ladRow.key)"
           @mark="markRow"
           @unmark="unmarkRow"
+          @mark-multiple-concurrent="markMultipleConcurrentRows"
           @row-context-click="updateViewContext"
         />
       </template>
@@ -231,6 +232,49 @@ export default {
       if (this.markedRows.length === 0) {
         this.unpause();
       }
+    },
+    allChannelKeys() {
+      const keys = [];
+
+      this.ladTableObjects.forEach((ladTable) => {
+        (this.ladTelemetryObjects[ladTable.key] || []).forEach((telemetryObject) => {
+          keys.push(telemetryObject.key);
+        });
+      });
+
+      return keys;
+    },
+    markMultipleConcurrentRows(key) {
+      if (!this.markedRows.length) {
+        this.markRow(key);
+
+        return;
+      }
+
+      const anchor = this.markedRows[0];
+      const keys = this.allChannelKeys();
+      let firstIndex = keys.indexOf(anchor.key);
+      let lastIndex = keys.indexOf(key);
+
+      if (firstIndex === -1 || lastIndex === -1) {
+        this.markRow(key);
+
+        return;
+      }
+
+      // Supports backward selection.
+      if (lastIndex < firstIndex) {
+        [firstIndex, lastIndex] = [lastIndex, firstIndex];
+      }
+
+      this.markedRows = keys.slice(firstIndex, lastIndex + 1).map((rangeKey) => {
+        const existing = this.markedRows.find((markedRow) => markedRow.key === rangeKey);
+        if (existing) {
+          return existing;
+        }
+
+        return { key: rangeKey, domainObject: this.findTelemetryObject(rangeKey).domainObject };
+      });
     },
     undoMarkedRows() {
       this.markedRows = [];
