@@ -156,7 +156,7 @@ describe('ChannelTableSet pause', () => {
     });
   });
 
-  it('marks a row and pauses, replacing the previous mark without modifier', () => {
+  it('marks a row and pauses, accumulating further plain-click marks', () => {
     set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
     set().ladTelemetryObjects = {
       table1: [
@@ -173,8 +173,20 @@ describe('ChannelTableSet pause', () => {
 
     set().markRow('ch2', false);
 
-    expect(set().markedRows.map((row) => row.key)).toEqual(['ch2']);
-    expect(set().isMarked('ch1')).toBe(false);
+    expect(set().markedRows.map((row) => row.key)).toEqual(['ch1', 'ch2']);
+    expect(set().isMarked('ch1')).toBe(true);
+  });
+
+  it('keeps export actions out of the status bar', () => {
+    const byKey = Object.fromEntries(
+      ChannelTableSetViewActions.map((action) => [action.key, action])
+    );
+
+    expect(byKey['pause-channel-table-set'].showInStatusBar).toBe(true);
+    expect(byKey['play-channel-table-set'].showInStatusBar).toBe(true);
+    expect(byKey['channel-table-set-unmark-all'].showInStatusBar).toBe(true);
+    expect(byKey['channel-table-set-export-all'].showInStatusBar).toBeFalsy();
+    expect(byKey['channel-table-set-export-marked'].showInStatusBar).toBeFalsy();
   });
 
   it('adds marks with the modifier key and unpauses when the last mark clears', () => {
