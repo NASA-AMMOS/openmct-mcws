@@ -73,10 +73,13 @@ describe('ChannelRow pause', () => {
           },
           onUnmark(...args) {
             this.emitted.push(['unmark', ...args]);
+          },
+          onMarkMultiple(...args) {
+            this.emitted.push(['mark-multiple-concurrent', ...args]);
           }
         },
         template:
-          '<ChannelRow ref="row" :domain-object="testObject" :path-to-table="[]" :paused="pausedFlag" :marked="markedFlag" @mark="onMark" @unmark="onUnmark" />'
+          '<ChannelRow ref="row" :domain-object="testObject" :path-to-table="[]" :paused="pausedFlag" :marked="markedFlag" @mark="onMark" @unmark="onUnmark" @mark-multiple-concurrent="onMarkMultiple" />'
       },
       {
         element
@@ -168,6 +171,22 @@ describe('ChannelRow pause', () => {
     row().$el.click();
 
     expect(rootInstance.emitted).toEqual([['unmark', 'test-key']]);
+  });
+
+  it('emits mark-multiple-concurrent on shift-click', () => {
+    mountRow(false);
+
+    row().$el.dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }));
+
+    expect(rootInstance.emitted).toEqual([['mark-multiple-concurrent', 'test-key']]);
+  });
+
+  it('prefers range-mark over unmark on shift-click of a marked row', () => {
+    mountRow(true, true);
+
+    row().$el.dispatchEvent(new MouseEvent('click', { bubbles: true, shiftKey: true }));
+
+    expect(rootInstance.emitted).toEqual([['mark-multiple-concurrent', 'test-key']]);
   });
 
   it('highlights the row only while marked', (done) => {

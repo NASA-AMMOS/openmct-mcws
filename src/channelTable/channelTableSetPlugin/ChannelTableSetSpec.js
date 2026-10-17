@@ -214,6 +214,53 @@ describe('ChannelTableSet pause', () => {
     expect(set().markedRows.length).toBe(0);
   });
 
+  it('marks a range on shift-click anchored at the first mark', () => {
+    set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
+    set().ladTelemetryObjects = {
+      table1: ['ch1', 'ch2', 'ch3', 'ch4'].map((key) => ({
+        key,
+        domainObject: { name: key }
+      }))
+    };
+
+    set().markRow('ch2', false);
+    set().markMultipleConcurrentRows('ch4');
+
+    expect(set().paused).toBe(true);
+    expect(set().markedRows.map((row) => row.key)).toEqual(['ch2', 'ch3', 'ch4']);
+  });
+
+  it('supports backward range selection and shrinks to the anchor', () => {
+    set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
+    set().ladTelemetryObjects = {
+      table1: ['ch1', 'ch2', 'ch3', 'ch4'].map((key) => ({
+        key,
+        domainObject: { name: key }
+      }))
+    };
+
+    set().markRow('ch3', false);
+    set().markMultipleConcurrentRows('ch1');
+
+    expect(set().markedRows.map((row) => row.key)).toEqual(['ch1', 'ch2', 'ch3']);
+
+    set().markMultipleConcurrentRows('ch2');
+
+    expect(set().markedRows.map((row) => row.key)).toEqual(['ch1', 'ch2']);
+  });
+
+  it('falls back to a single mark when shift-clicking with no marks', () => {
+    set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
+    set().ladTelemetryObjects = {
+      table1: ['ch1', 'ch2'].map((key) => ({ key, domainObject: { name: key } }))
+    };
+
+    set().markMultipleConcurrentRows('ch2');
+
+    expect(set().paused).toBe(true);
+    expect(set().markedRows.map((row) => row.key)).toEqual(['ch2']);
+  });
+
   it('clears marks on play and on unmark-all', () => {
     set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
     set().ladTelemetryObjects = {
