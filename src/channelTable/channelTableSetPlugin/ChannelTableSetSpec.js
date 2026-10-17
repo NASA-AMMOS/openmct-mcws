@@ -1,14 +1,24 @@
 import ChannelTableSet from './ChannelTableSet.vue';
 import ChannelTableSetViewActions from './ChannelTableSetViewActions.js';
 import mount from 'ommUtils/mountVueComponent.js';
+import { nextTick } from 'vue';
 
 describe('ChannelTableSet pause', () => {
   let element;
   let destroyFn = null;
   let rootInstance = null;
+  let actionCollection;
 
   function mockOpenmct() {
+    actionCollection = {
+      hide: jasmine.createSpy('hide'),
+      show: jasmine.createSpy('show')
+    };
+
     return {
+      actions: {
+        getActionsCollection: () => actionCollection
+      },
       composition: {
         get: () => ({
           on() {},
@@ -93,6 +103,32 @@ describe('ChannelTableSet pause', () => {
       expect(action.appliesTo([], setView)).toBe(true);
       expect(action.appliesTo([], {})).toBe(false);
       expect(action.appliesTo([], tableView)).toBe(false);
+    });
+  });
+
+  it('shows only Pause until paused, then only Play', (done) => {
+    nextTick(() => {
+      expect(actionCollection.hide).toHaveBeenCalledWith(['play-channel-table-set']);
+      expect(actionCollection.show).toHaveBeenCalledWith(['pause-channel-table-set']);
+
+      actionCollection.hide.calls.reset();
+      actionCollection.show.calls.reset();
+
+      set().togglePauseByButton();
+      nextTick(() => {
+        expect(actionCollection.hide).toHaveBeenCalledWith(['pause-channel-table-set']);
+        expect(actionCollection.show).toHaveBeenCalledWith(['play-channel-table-set']);
+
+        actionCollection.hide.calls.reset();
+        actionCollection.show.calls.reset();
+
+        set().togglePauseByButton();
+        nextTick(() => {
+          expect(actionCollection.hide).toHaveBeenCalledWith(['play-channel-table-set']);
+          expect(actionCollection.show).toHaveBeenCalledWith(['pause-channel-table-set']);
+          done();
+        });
+      });
     });
   });
 
