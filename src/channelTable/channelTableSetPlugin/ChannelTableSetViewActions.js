@@ -44,7 +44,43 @@ const play = {
   group: 'view'
 };
 
-const viewActions = [pause, play];
+const exportAllDataAsCSV = {
+  name: 'Export Table Data',
+  key: 'channel-table-set-export-all',
+  description: "Export this view's data",
+  cssClass: 'icon-download labeled',
+  invoke: (objectPath, view) => {
+    view.getViewContext().exportAllDataAsCSV();
+  },
+  showInStatusBar: true,
+  group: 'view'
+};
+
+const exportMarkedDataAsCSV = {
+  name: 'Export Marked Rows',
+  key: 'channel-table-set-export-marked',
+  description: 'Export marked rows as CSV',
+  cssClass: 'icon-download labeled',
+  invoke: (objectPath, view) => {
+    view.getViewContext().exportMarkedDataAsCSV();
+  },
+  showInStatusBar: true,
+  group: 'view'
+};
+
+const unmarkAllRows = {
+  name: 'Unmark All Rows',
+  key: 'channel-table-set-unmark-all',
+  description: 'Unmark all rows',
+  cssClass: 'icon-x labeled',
+  invoke: (objectPath, view) => {
+    view.getViewContext().unmarkAllRows();
+  },
+  showInStatusBar: true,
+  group: 'view'
+};
+
+const viewActions = [exportAllDataAsCSV, exportMarkedDataAsCSV, unmarkAllRows, pause, play];
 
 viewActions.forEach((action) => {
   action.appliesTo = (objectPath, view = {}) => {

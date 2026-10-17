@@ -17,10 +17,14 @@
         </tr>
         <channel-row
           v-for="ladRow in ladTelemetryObjects[ladTable.key]"
+          :ref="(el) => setRowRef(ladRow.key, el)"
           :key="ladRow.key"
           :domain-object="ladRow.domainObject"
           :path-to-table="ladTable.objectPath"
           :paused="paused"
+          :marked="isMarked(ladRow.key)"
+          @mark="markRow"
+          @unmark="unmarkRow"
           @row-context-click="updateViewContext"
         />
       </template>
@@ -30,6 +34,7 @@
 
 <script>
 import ChannelRow from './ChannelRow.vue';
+import CSVExporter, { sanitizeCsvFormulaInjection } from '@/exporters/CSVExporter.js';
 export default {
   components: {
     ChannelRow
@@ -47,18 +52,24 @@ export default {
       ladTelemetryObjects: {},
       viewContext: {},
       timesystem: '---',
-      paused: false
+      paused: false,
+      markedRows: []
     };
   },
   watch: {
     paused() {
       this.updatePausePlayActions();
+    },
+    markedRows() {
+      this.updateMarkedActions();
     }
   },
   mounted() {
     // Non-reactive on purpose: CompositionCollections use private fields,
     // which throw when accessed through Vue's reactive proxies.
     this.compositions = [];
+    this.rowRefs = {};
+    this.csvExporter = new CSVExporter();
     this.composition = this.openmct.composition.get(this.domainObject);
     this.composition.on('add', this.addLadTable);
     this.composition.on('remove', this.removeLadTable);
@@ -130,6 +141,18 @@ export default {
     },
     initializeViewActions() {
       this.updatePausePlayActions();
+      this.updateMarkedActions();
+    },
+    updateMarkedActions() {
+      if (!this.viewActionsCollection) {
+        return;
+      }
+
+      const action = this.markedRows.length > 0 ? 'enable' : 'disable';
+      this.viewActionsCollection[action]([
+        'channel-table-set-unmark-all',
+        'channel-table-set-export-marked'
+      ]);
     },
     updatePausePlayActions() {
       if (!this.viewActionsCollection) {
@@ -180,12 +203,100 @@ export default {
     },
     unpause() {
       this.paused = false;
+      this.undoMarkedRows();
+    },
+    isMarked(key) {
+      return this.markedRows.some((markedRow) => markedRow.key === key);
+    },
+    findTelemetryObject(key) {
+      for (const ladTable of this.ladTableObjects) {
+        const found = (this.ladTelemetryObjects[ladTable.key] || []).find(
+          (telemetryObject) => telemetryObject.key === key
+        );
+        if (found) {
+          return found;
+        }
+      }
+
+      return undefined;
+    },
+    markRow(key, keyModifier) {
+      if (this.markedRows.length > 0 && !keyModifier) {
+        this.undoMarkedRows();
+      }
+
+      const telemetryObject = this.findTelemetryObject(key);
+      if (telemetryObject && !this.isMarked(key)) {
+        this.markedRows = [...this.markedRows, { key, domainObject: telemetryObject.domainObject }];
+      }
+
+      this.pause();
+    },
+    unmarkRow(key) {
+      // Replace (never mutate): the markedRows watcher is shallow and would
+      // miss in-place changes, leaving mark actions out of sync.
+      this.markedRows = this.markedRows.filter((markedRow) => markedRow.key !== key);
+
+      if (this.markedRows.length === 0) {
+        this.unpause();
+      }
+    },
+    undoMarkedRows() {
+      this.markedRows = [];
+    },
+    unmarkAllRows() {
+      this.undoMarkedRows();
+      this.unpause();
+    },
+    setRowRef(key, el) {
+      if (el) {
+        this.rowRefs[key] = el;
+      } else {
+        delete this.rowRefs[key];
+      }
+    },
+    getSetRowData(keys) {
+      const rows = [];
+
+      this.ladTableObjects.forEach((ladTable) => {
+        (this.ladTelemetryObjects[ladTable.key] || []).forEach((telemetryObject) => {
+          if (keys && !keys.includes(telemetryObject.key)) {
+            return;
+          }
+
+          const row = this.rowRefs[telemetryObject.key];
+          rows.push({
+            ID: sanitizeCsvFormulaInjection(row?.id ?? ''),
+            Title: sanitizeCsvFormulaInjection(row?.name ?? ''),
+            Value: row ? row.value : '---',
+            [this.timesystem]: row ? row.formattedTimestamp : '---'
+          });
+        });
+      });
+
+      return rows;
+    },
+    exportAsCSV(data) {
+      this.csvExporter.export(data, {
+        filename: this.domainObject.name + '.csv',
+        headers: ['ID', 'Title', 'Value', this.timesystem]
+      });
+    },
+    exportAllDataAsCSV() {
+      this.exportAsCSV(this.getSetRowData());
+    },
+    exportMarkedDataAsCSV() {
+      const keys = this.markedRows.map((markedRow) => markedRow.key);
+      this.exportAsCSV(this.getSetRowData(keys));
     },
     getViewContext() {
       return {
         ...this.viewContext,
         type: 'channel-table-set',
-        togglePauseByButton: this.togglePauseByButton
+        togglePauseByButton: this.togglePauseByButton,
+        unmarkAllRows: this.unmarkAllRows,
+        exportAllDataAsCSV: this.exportAllDataAsCSV,
+        exportMarkedDataAsCSV: this.exportMarkedDataAsCSV
       };
     }
   }
