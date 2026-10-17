@@ -6,10 +6,10 @@
     @click="markRow"
     @contextmenu.prevent="showContextMenu"
   >
-    <td class="js-first-data">{{ id }}</td>
-    <td class="js-second-data">{{ name }}</td>
-    <td class="js-third-data" :class="valueClass">{{ value }}</td>
-    <td class="js-fourth-data">{{ formattedTimestamp }}</td>
+    <td class="js-first-data" :style="columnStyle('id')">{{ id }}</td>
+    <td class="js-second-data" :style="columnStyle('title')">{{ name }}</td>
+    <td class="js-third-data" :class="valueClass" :style="columnStyle('value')">{{ value }}</td>
+    <td class="js-fourth-data" :style="columnStyle('timestamp')">{{ formattedTimestamp }}</td>
   </tr>
 </template>
 
@@ -34,6 +34,10 @@ export default {
     marked: {
       type: Boolean,
       default: false
+    },
+    columnWidths: {
+      type: Object,
+      default: () => ({})
     }
   },
   emits: ['rowContextClick', 'mark', 'unmark', 'mark-multiple-concurrent'],
@@ -119,6 +123,14 @@ export default {
     this.telemetryCollection.destroy();
   },
   methods: {
+    columnStyle(key) {
+      const width = (this.columnWidths || {})[key];
+      if (!width) {
+        return {};
+      }
+
+      return { width: width + 'px', 'max-width': width + 'px' };
+    },
     updateView() {
       if (!this.updatingView) {
         this.updatingView = true;

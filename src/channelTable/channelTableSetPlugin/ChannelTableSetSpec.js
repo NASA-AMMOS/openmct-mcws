@@ -8,6 +8,7 @@ describe('ChannelTableSet pause', () => {
   let destroyFn = null;
   let rootInstance = null;
   let actionCollection;
+  let mutateSpy;
 
   function mockOpenmct() {
     actionCollection = {
@@ -16,6 +17,7 @@ describe('ChannelTableSet pause', () => {
       enable: jasmine.createSpy('enable'),
       disable: jasmine.createSpy('disable')
     };
+    mutateSpy = jasmine.createSpy('mutate');
 
     return {
       actions: {
@@ -29,7 +31,8 @@ describe('ChannelTableSet pause', () => {
         })
       },
       objects: {
-        makeKeyString: () => 'test-key'
+        makeKeyString: () => 'test-key',
+        mutate: (...args) => mutateSpy(...args)
       },
       telemetry: {
         getMetadata: () => ({
@@ -61,7 +64,7 @@ describe('ChannelTableSet pause', () => {
     };
   }
 
-  function mountSet() {
+  function mountSet(testObject = { name: 'Test Set' }) {
     element = document.createElement('div');
     const { componentInstance, destroy } = mount(
       {
@@ -74,7 +77,7 @@ describe('ChannelTableSet pause', () => {
           ChannelTableSet
         },
         data: () => ({
-          testObject: { name: 'Test Set' }
+          testObject
         }),
         template: '<ChannelTableSet ref="set" :domain-object="testObject" />'
       },
@@ -349,5 +352,123 @@ describe('ChannelTableSet pause', () => {
     expect(set().paused).toBe(true);
     play.invoke([], view);
     expect(set().paused).toBe(false);
+  });
+
+  it('renders a resize hitarea in every header', () => {
+    const headers = element.querySelectorAll('thead th');
+    const handles = element.querySelectorAll('thead .c-telemetry-table__resize-hitarea');
+
+    expect(headers.length).toBe(4);
+    expect(handles.length).toBe(4);
+  });
+
+  it('initializes column widths from the domain object configuration', () => {
+    destroyFn();
+    mountSet({
+      name: 'Configured Set',
+      configuration: { columnWidths: { id: 111, value: 222 } }
+    });
+
+    expect(set().columnWidths).toEqual({ id: 111, value: 222 });
+  });
+
+  it('applies column widths to the headers', (done) => {
+    set().columnWidths = { id: 123 };
+
+    nextTick(() => {
+      const header = element.querySelector('thead th');
+
+      expect(header.style.width).toBe('123px');
+      expect(header.style.maxWidth).toBe('123px');
+      expect(header.style.position).toBe('');
+      expect(header.querySelector('.c-lad-table-set__header-content').style.position).toBe(
+        'relative'
+      );
+      done();
+    });
+  });
+
+  it('updates widths live while dragging and honors the minimum', () => {
+    // getComputedStyle resolves empty on detached trees, so connect the
+    // mount for this drag; Karma serves no core CSS, so pin the minimum
+    // the app provides via .c-table.
+    document.body.appendChild(element);
+    const header = element.querySelector('thead th');
+    header.style.minWidth = '10px';
+    set().columnWidths = { id: 100 };
+
+    set().resizeColumnStart(
+      {
+        clientX: 100,
+        currentTarget: { closest: () => header },
+        preventDefault() {}
+      },
+      'id'
+    );
+    set().resizeColumnMove({ clientX: 130 });
+
+    expect(set().columnWidths.id).toBe(130);
+
+    set().resizeColumnMove({ clientX: 0 });
+
+    expect(set().columnWidths.id).toBe(130);
+
+    // A real mouseup must end the drag through the registered listener.
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+
+    expect(set().resizeKey).toBe(undefined);
+    expect(mutateSpy).toHaveBeenCalled();
+
+    element.remove();
+  });
+
+  it('pins the table to the columns total once widths are manual', (done) => {
+    const table = element.querySelector('table');
+
+    expect(table.style.width).toBe('');
+    expect(table.classList.contains('fixed-layout')).toBe(false);
+
+    set().columnWidths = { id: 100, title: 150 };
+
+    nextTick(() => {
+      expect(table.style.width).toBe('250px');
+      expect(table.classList.contains('fixed-layout')).toBe(true);
+      done();
+    });
+  });
+
+  it('freezes unset columns at natural widths when a drag starts', () => {
+    document.body.appendChild(element);
+    const headers = element.querySelectorAll('thead th');
+    set().columnWidths = { id: 100 };
+
+    set().resizeColumnStart(
+      {
+        clientX: 100,
+        currentTarget: { closest: () => headers[1] },
+        preventDefault() {}
+      },
+      'title'
+    );
+
+    expect(set().columnWidths.id).toBe(100);
+    expect(set().columnWidths.title).toBe(headers[1].offsetWidth);
+    expect(set().columnWidths.value).toBe(headers[2].offsetWidth);
+    expect(set().columnWidths.timestamp).toBe(headers[3].offsetWidth);
+
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+    element.remove();
+  });
+
+  it('persists column widths to the configuration on drag end', () => {
+    const testObject = rootInstance.testObject;
+    set().columnWidths = { id: 130, title: 140 };
+
+    set().resizeColumnEnd({ preventDefault() {}, stopPropagation() {} });
+
+    expect(mutateSpy).toHaveBeenCalledWith(testObject, 'configuration', {
+      autosize: false,
+      columnWidths: { id: 130, title: 140 }
+    });
   });
 });
