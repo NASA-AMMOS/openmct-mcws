@@ -36,7 +36,7 @@ export default {
       default: false
     }
   },
-  emits: ['rowContextClick', 'mark', 'unmark'],
+  emits: ['rowContextClick', 'mark', 'unmark', 'mark-multiple-concurrent'],
   data() {
     return {
       datum: undefined,
@@ -141,6 +141,12 @@ export default {
       }
     },
     markRow(event) {
+      if (event.shiftKey) {
+        this.$emit('mark-multiple-concurrent', this.keyString);
+
+        return;
+      }
+
       const keyModifier = Boolean(event.ctrlKey || event.metaKey);
 
       if (this.marked) {
