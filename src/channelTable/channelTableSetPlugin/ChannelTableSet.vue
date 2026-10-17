@@ -191,7 +191,8 @@ export default {
         (ladTable) => this.openmct.objects.makeKeyString(identifier) === ladTable.key
       );
       let ladTable = this.ladTableObjects[index];
-      this.$delete(this.ladTelemetryObjects, ladTable.key);
+      // Vue 3: plain delete is reactive ($delete was Vue 2 only).
+      delete this.ladTelemetryObjects[ladTable.key];
       this.ladTableObjects.splice(index, 1);
     },
     reorderLadTables(reorderPlan) {
