@@ -37,6 +37,13 @@ export default class ChannelTableRowCollection extends TableRowCollection {
 
     if (this.isNewerThanLAD(item)) {
       let rowIndex = this.ladMap.get(item.objectKeyString);
+      const existingRow = this.rows[rowIndex];
+      if (existingRow?.marked) {
+        // Preserve marks across replacement: a datum processed after the
+        // last render would otherwise drop a mark placed on the rendered
+        // instance as soon as the new instance paints.
+        item.marked = true;
+      }
       this.rows[rowIndex] = item;
       this.removeExistingByKeyString(item.objectKeyString);
       this.emit('add', [item]);
