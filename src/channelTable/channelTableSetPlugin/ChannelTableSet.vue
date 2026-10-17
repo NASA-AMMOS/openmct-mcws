@@ -123,7 +123,12 @@ export default {
     // Non-reactive on purpose: row component instances must not pass
     // through Vue's reactive proxies.
     this.rowRefs = {};
-    this.columnWidths = { ...(this.domainObject.configuration?.columnWidths || {}) };
+    this.applyConfiguration();
+    this.unobserveConfiguration = this.openmct.objects.observe(
+      this.domainObject,
+      'configuration',
+      this.handleConfigurationChange
+    );
     this.resizeKey = undefined;
     this.resizeStartX = undefined;
     this.resizeStartWidth = undefined;
@@ -153,6 +158,7 @@ export default {
       c.composition.off('remove', c.removeCallback);
     });
     this.openmct.time.off('timeSystemChanged', this.setTimeSystem);
+    this.unobserveConfiguration?.();
     // Mid-drag unmount: the once-only mouseup already fired or never will,
     // but the mousemove listener would leak without this.
     document.removeEventListener('mousemove', this.resizeColumnMove);
@@ -193,6 +199,43 @@ export default {
     },
     setTimeSystem(timesystem) {
       this.timesystem = timesystem.name;
+    },
+    applyConfiguration() {
+      // Autosize (the default) means natural widths; persisted widths only
+      // apply once the user drags a column or unticks Auto-size, either of
+      // which stores autosize: false.
+      const configuration = this.domainObject.configuration || {};
+      this.columnWidths =
+        configuration.autosize === false ? { ...(configuration.columnWidths || {}) } : {};
+    },
+    handleConfigurationChange() {
+      this.applyConfiguration();
+    },
+    expandColumns() {
+      // Non-persisted: freeze every column at its content width, like core.
+      // Must clear first so the measurement sees natural widths rather
+      // than the current manual ones.
+      this.columnWidths = {};
+      const table = this.$el;
+      this.$nextTick(() => {
+        if (!table.isConnected) {
+          return;
+        }
+
+        const keys = ['id', 'title', 'value', 'timestamp'];
+        const headers = table.querySelectorAll('thead th');
+        const widths = {};
+        keys.forEach((key, index) => {
+          if (headers[index]) {
+            widths[key] = headers[index].offsetWidth;
+          }
+        });
+        this.columnWidths = widths;
+      });
+    },
+    autosizeColumns() {
+      // Non-persisted: drop manual widths so the table fits its container.
+      this.columnWidths = {};
     },
     columnStyle(key) {
       // Width and max-width mirror core TableColumnHeader so body cells
@@ -451,6 +494,8 @@ export default {
       return {
         ...this.viewContext,
         type: 'channel-table-set',
+        expandColumns: this.expandColumns,
+        autosizeColumns: this.autosizeColumns,
         togglePauseByButton: this.togglePauseByButton,
         unmarkAllRows: this.unmarkAllRows,
         exportAllDataAsCSV: this.exportAllDataAsCSV,

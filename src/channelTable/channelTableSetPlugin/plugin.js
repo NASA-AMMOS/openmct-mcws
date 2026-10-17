@@ -6,10 +6,21 @@ import {
 import ChannelTableSetViewProvider from './ChannelTableSetViewProvider.js';
 import ChannelTableSetViewActions from './ChannelTableSetViewActions.js';
 import channelTableSetCompositionPolicy from './ChannelTableSetCompositionPolicy.js';
+import VistaTableConfigurationProvider from '../../tables/VistaTableConfigurationProvider.js';
 
-export default function ChannelTableSetPlugin() {
+export default function ChannelTableSetPlugin(options) {
   return function install(openmct) {
     openmct.objectViews.addProvider(new ChannelTableSetViewProvider(openmct));
+
+    openmct.inspectorViews.addProvider(
+      new VistaTableConfigurationProvider(
+        'vista.chanTable-configuration',
+        'Config',
+        CHANNEL_TABLE_SET_KEY,
+        openmct,
+        options
+      )
+    );
 
     ChannelTableSetViewActions.forEach((action) => {
       openmct.actions.register(action);
@@ -23,6 +34,10 @@ export default function ChannelTableSetPlugin() {
       cssClass: CHANNEL_TABLE_SET_ICON,
       initialize(domainObject) {
         domainObject.composition = [];
+        domainObject.configuration = {
+          columnWidths: {},
+          hiddenColumns: {}
+        };
       }
     });
 
