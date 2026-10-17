@@ -462,6 +462,26 @@ describe('ChannelTableSet pause', () => {
     expect(unobserveSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('hides the header row while hideHeaders is configured', (done) => {
+    destroyFn();
+    mountSet({
+      name: 'No Header Set',
+      configuration: { hideHeaders: true }
+    });
+
+    nextTick(() => {
+      expect(element.querySelector('thead').style.display).toBe('none');
+
+      rootInstance.testObject.configuration = { hideHeaders: false };
+      observeSpy.calls.argsFor(0)[2]();
+
+      nextTick(() => {
+        expect(element.querySelector('thead').style.display).toBe('');
+        done();
+      });
+    });
+  });
+
   it('applies column widths to the headers', (done) => {
     set().columnWidths = { id: 123 };
 
@@ -582,6 +602,37 @@ describe('ChannelTableSet pause', () => {
           timestamp: headers[3].offsetWidth
         });
         expect(mutateSpy).not.toHaveBeenCalled();
+
+        element.remove();
+        done();
+      });
+    });
+  });
+
+  it('expands from body content when rows exist', (done) => {
+    document.body.appendChild(element);
+    set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
+    set().ladTelemetryObjects = {
+      table1: [
+        {
+          key: 'ch1',
+          domainObject: { name: 'CH1 - Title', identifier: { namespace: 't', key: 'c' } }
+        }
+      ]
+    };
+
+    set().expandColumns();
+
+    set().$nextTick(() => {
+      set().$nextTick(() => {
+        const cells = element.querySelector('.js-lad-table__body__row').querySelectorAll('td');
+
+        expect(set().columnWidths).toEqual({
+          id: cells[0].offsetWidth,
+          title: cells[1].offsetWidth,
+          value: cells[2].offsetWidth,
+          timestamp: cells[3].offsetWidth
+        });
 
         element.remove();
         done();

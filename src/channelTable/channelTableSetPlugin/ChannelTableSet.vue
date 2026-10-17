@@ -4,7 +4,7 @@
     :class="{ 'fixed-layout': hasManualWidths }"
     :style="tableStyle"
   >
-    <thead>
+    <thead v-show="!hideHeaders">
       <tr>
         <th :style="columnStyle('id')">
           <div class="c-lad-table-set__header-content" style="position: relative">
@@ -93,7 +93,8 @@ export default {
       timesystem: '---',
       paused: false,
       markedRows: [],
-      columnWidths: {}
+      columnWidths: {},
+      hideHeaders: false
     };
   },
   computed: {
@@ -211,6 +212,7 @@ export default {
       const configuration = this.domainObject.configuration || {};
       this.columnWidths =
         configuration.autosize === false ? { ...(configuration.columnWidths || {}) } : {};
+      this.hideHeaders = configuration.hideHeaders === true;
     },
     handleConfigurationChange() {
       this.applyConfiguration();
@@ -218,7 +220,8 @@ export default {
     expandColumns() {
       // Non-persisted: freeze every column at its content width, like core.
       // Must clear first so the measurement sees natural widths rather
-      // than the current manual ones.
+      // than the current manual ones. Body cells carry the real content
+      // (and still measure when headers are hidden); headers are fallback.
       this.columnWidths = {};
       const table = this.$el;
       this.$nextTick(() => {
@@ -227,11 +230,14 @@ export default {
         }
 
         const keys = ['id', 'title', 'value', 'timestamp'];
-        const headers = table.querySelectorAll('thead th');
+        const firstRow = table.querySelector('.js-lad-table__body__row');
+        const cells = firstRow
+          ? firstRow.querySelectorAll('td')
+          : table.querySelectorAll('thead th');
         const widths = {};
         keys.forEach((key, index) => {
-          if (headers[index]) {
-            widths[key] = headers[index].offsetWidth;
+          if (cells[index]) {
+            widths[key] = cells[index].offsetWidth;
           }
         });
         this.columnWidths = widths;
