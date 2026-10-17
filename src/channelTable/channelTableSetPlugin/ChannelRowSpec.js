@@ -47,7 +47,7 @@ describe('ChannelRow pause', () => {
     };
   }
 
-  function mountRow(paused, marked = false) {
+  function mountRow(paused, marked = false, widths = {}) {
     element = document.createElement('div');
     const { componentInstance, destroy } = mount(
       {
@@ -65,6 +65,7 @@ describe('ChannelRow pause', () => {
           },
           pausedFlag: paused,
           markedFlag: marked,
+          widths,
           emitted: []
         }),
         methods: {
@@ -79,7 +80,7 @@ describe('ChannelRow pause', () => {
           }
         },
         template:
-          '<ChannelRow ref="row" :domain-object="testObject" :path-to-table="[]" :paused="pausedFlag" :marked="markedFlag" @mark="onMark" @unmark="onUnmark" @mark-multiple-concurrent="onMarkMultiple" />'
+          '<ChannelRow ref="row" :domain-object="testObject" :path-to-table="[]" :paused="pausedFlag" :marked="markedFlag" :column-widths="widths" @mark="onMark" @unmark="onUnmark" @mark-multiple-concurrent="onMarkMultiple" />'
       },
       {
         element
@@ -197,6 +198,19 @@ describe('ChannelRow pause', () => {
     rootInstance.markedFlag = true;
     nextTick(() => {
       expect(row().$el.classList.contains('is-selected')).toBe(true);
+      done();
+    });
+  });
+
+  it('sizes cells from column widths and leaves unset columns natural', (done) => {
+    mountRow(false, false, { value: 200 });
+
+    nextTick(() => {
+      const cells = row().$el.querySelectorAll('td');
+
+      expect(cells[2].style.width).toBe('200px');
+      expect(cells[2].style.maxWidth).toBe('200px');
+      expect(cells[0].style.width).toBe('');
       done();
     });
   });
