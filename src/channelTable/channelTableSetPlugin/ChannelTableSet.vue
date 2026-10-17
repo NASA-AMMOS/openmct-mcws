@@ -51,6 +51,11 @@ export default {
       paused: false
     };
   },
+  watch: {
+    paused() {
+      this.updatePausePlayActions();
+    }
+  },
   mounted() {
     this.composition = this.openmct.composition.get(this.domainObject);
     this.composition.on('add', this.addLadTable);
@@ -66,11 +71,6 @@ export default {
       );
       this.initializeViewActions();
     });
-  },
-  watch: {
-    paused() {
-      this.updatePausePlayActions();
-    }
   },
   beforeUnmount() {
     this.composition.off('add', this.addLadTable);
