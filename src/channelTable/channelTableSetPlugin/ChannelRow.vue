@@ -1,5 +1,11 @@
 <template>
-  <tr class="js-lad-table__body__row" @contextmenu.prevent="showContextMenu">
+  <tr
+    class="js-lad-table__body__row"
+    :class="{ 'is-selected': marked }"
+    :aria-label="marked ? 'Selected Table Row' : 'Table Row'"
+    @click="markRow"
+    @contextmenu.prevent="showContextMenu"
+  >
     <td class="js-first-data">{{ id }}</td>
     <td class="js-second-data">{{ name }}</td>
     <td class="js-third-data" :class="valueClass">{{ value }}</td>
@@ -24,9 +30,13 @@ export default {
     paused: {
       type: Boolean,
       default: false
+    },
+    marked: {
+      type: Boolean,
+      default: false
     }
   },
-  emits: ['rowContextClick'],
+  emits: ['rowContextClick', 'mark', 'unmark'],
   data() {
     return {
       datum: undefined,
@@ -128,6 +138,15 @@ export default {
     flushOnUnpause(paused) {
       if (!paused && this.latestDatum !== undefined) {
         this.updateView();
+      }
+    },
+    markRow(event) {
+      const keyModifier = Boolean(event.ctrlKey || event.metaKey);
+
+      if (this.marked) {
+        this.$emit('unmark', this.keyString);
+      } else {
+        this.$emit('mark', this.keyString, keyModifier);
       }
     },
     updateTimeSystem(timeSystem) {
