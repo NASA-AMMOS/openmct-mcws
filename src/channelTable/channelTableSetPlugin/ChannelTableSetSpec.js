@@ -164,6 +164,34 @@ describe('ChannelTableSet pause', () => {
     });
   });
 
+  it('shows only Expand until manual, then only Autosize', (done) => {
+    nextTick(() => {
+      expect(actionCollection.hide).toHaveBeenCalledWith(['channel-table-set-autosize-columns']);
+      expect(actionCollection.show).toHaveBeenCalledWith(['channel-table-set-expand-columns']);
+
+      actionCollection.hide.calls.reset();
+      actionCollection.show.calls.reset();
+
+      set().columnWidths = { id: 100 };
+      nextTick(() => {
+        expect(actionCollection.hide).toHaveBeenCalledWith(['channel-table-set-expand-columns']);
+        expect(actionCollection.show).toHaveBeenCalledWith(['channel-table-set-autosize-columns']);
+
+        actionCollection.hide.calls.reset();
+        actionCollection.show.calls.reset();
+
+        set().autosizeColumns();
+        nextTick(() => {
+          expect(actionCollection.hide).toHaveBeenCalledWith([
+            'channel-table-set-autosize-columns'
+          ]);
+          expect(actionCollection.show).toHaveBeenCalledWith(['channel-table-set-expand-columns']);
+          done();
+        });
+      });
+    });
+  });
+
   it('marks a row and pauses, accumulating further plain-click marks', () => {
     set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
     set().ladTelemetryObjects = {

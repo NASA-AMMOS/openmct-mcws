@@ -116,6 +116,9 @@ export default {
     },
     markedRows() {
       this.updateMarkedActions();
+    },
+    hasManualWidths() {
+      this.updateExpandAutosizeActions();
     }
   },
   mounted() {
@@ -309,6 +312,7 @@ export default {
     initializeViewActions() {
       this.updatePausePlayActions();
       this.updateMarkedActions();
+      this.updateExpandAutosizeActions();
     },
     updateMarkedActions() {
       if (!this.viewActionsCollection) {
@@ -332,6 +336,21 @@ export default {
       } else {
         this.viewActionsCollection.hide(['play-channel-table-set']);
         this.viewActionsCollection.show(['pause-channel-table-set']);
+      }
+    },
+    updateExpandAutosizeActions() {
+      if (!this.viewActionsCollection) {
+        return;
+      }
+
+      // Toggle pair like Pause/Play: only the action that changes state is
+      // shown. Local state drives it, seeded from persisted configuration.
+      if (this.hasManualWidths) {
+        this.viewActionsCollection.hide(['channel-table-set-expand-columns']);
+        this.viewActionsCollection.show(['channel-table-set-autosize-columns']);
+      } else {
+        this.viewActionsCollection.hide(['channel-table-set-autosize-columns']);
+        this.viewActionsCollection.show(['channel-table-set-expand-columns']);
       }
     },
     addTelemetryObject(ladTable) {
