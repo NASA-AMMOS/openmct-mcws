@@ -61,6 +61,18 @@ export default {
     this.openmct.time.on('timeSystemChanged', this.setTimeSystem);
     this.setTimeSystem(this.openmct.time.getTimeSystem());
     this.composition.load();
+    this.$nextTick(() => {
+      this.viewActionsCollection = this.openmct.actions.getActionsCollection(
+        this.objectPath,
+        this.currentView
+      );
+      this.initializeViewActions();
+    });
+  },
+  watch: {
+    paused() {
+      this.updatePausePlayActions();
+    }
   },
   beforeUnmount() {
     // Teardown must be idempotent: a second pass would remove listeners
@@ -115,6 +127,22 @@ export default {
     },
     setTimeSystem(timesystem) {
       this.timesystem = timesystem.name;
+    },
+    initializeViewActions() {
+      this.updatePausePlayActions();
+    },
+    updatePausePlayActions() {
+      if (!this.viewActionsCollection) {
+        return;
+      }
+
+      if (this.paused) {
+        this.viewActionsCollection.hide(['pause-channel-table-set']);
+        this.viewActionsCollection.show(['play-channel-table-set']);
+      } else {
+        this.viewActionsCollection.hide(['play-channel-table-set']);
+        this.viewActionsCollection.show(['pause-channel-table-set']);
+      }
     },
     addTelemetryObject(ladTable) {
       return (domainObject) => {
