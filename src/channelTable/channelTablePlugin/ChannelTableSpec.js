@@ -35,6 +35,47 @@ describe('ChannelTable', () => {
     });
   });
 
+  describe('marking fixes', () => {
+    it('makes columns selectable only while editing', () => {
+      let editing = false;
+      const channelTable = Object.create(ChannelTable.prototype);
+      channelTable.openmct = {
+        editor: {
+          isEditing: () => editing
+        },
+        telemetry: {
+          getValueFormatter: () => ({})
+        }
+      };
+
+      const column = channelTable.createColumn({ key: 'value', name: 'Value' });
+
+      expect(column.selectable).toBe(false);
+
+      editing = true;
+
+      expect(column.selectable).toBe(true);
+    });
+
+    it('unpause clears marks on current rows before resuming', () => {
+      const rows = [{ marked: true }, { marked: false }, {}];
+      const runDelayedActionsSpy = jasmine.createSpy('runDelayedActions');
+      const channelTable = Object.create(ChannelTable.prototype);
+      channelTable.tableRows = {
+        getRows: () => rows
+      };
+      channelTable.paused = true;
+      channelTable.delayedActions = [];
+      channelTable.runDelayedActions = runDelayedActionsSpy;
+
+      channelTable.unpause();
+
+      expect(rows.every((row) => row.marked === false)).toBe(true);
+      expect(channelTable.paused).toBe(false);
+      expect(runDelayedActionsSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('initialize', () => {
     it('does not observe configuration.filters (issue #299)', () => {
       const domainObject = {

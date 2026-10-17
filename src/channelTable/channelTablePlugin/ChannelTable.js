@@ -130,7 +130,27 @@ export default class ChannelTable extends TelemetryTable {
   }
 
   createColumn(metadatum) {
-    return new TelemetryTableColumn(this.openmct, metadatum, { selectable: true });
+    const column = new TelemetryTableColumn(this.openmct, metadatum, { selectable: true });
+    const openmct = this.openmct;
+
+    // Cell selection drives the cell-format inspector, which only applies
+    // while editing. In browse mode selection would swallow row clicks
+    // (breaking marking) and point the inspector at a cell context.
+    Object.defineProperty(column, 'selectable', {
+      get: () => openmct.editor.isEditing(),
+      configurable: true
+    });
+
+    return column;
+  }
+
+  unpause() {
+    // Clear marks on current rows first: replacement rows may carry marks
+    // whose entries in the view's marked list point at orphaned instances.
+    this.tableRows.getRows().forEach((row) => {
+      row.marked = false;
+    });
+    super.unpause();
   }
 
   createRow(datum, columnMap, keyString, limitEvaluator) {
