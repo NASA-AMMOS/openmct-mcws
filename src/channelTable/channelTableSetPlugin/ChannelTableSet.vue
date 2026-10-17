@@ -1,11 +1,47 @@
 <template>
-  <table class="c-table c-lad-table">
+  <table
+    class="c-table c-lad-table"
+    :class="{ 'fixed-layout': hasManualWidths }"
+    :style="tableStyle"
+  >
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Title</th>
-        <th>Value</th>
-        <th>{{ timesystem }}</th>
+        <th :style="columnStyle('id')">
+          <div class="c-lad-table-set__header-content" style="position: relative">
+            ID
+            <div
+              class="c-telemetry-table__resize-hitarea"
+              @mousedown="resizeColumnStart($event, 'id')"
+            ></div>
+          </div>
+        </th>
+        <th :style="columnStyle('title')">
+          <div class="c-lad-table-set__header-content" style="position: relative">
+            Title
+            <div
+              class="c-telemetry-table__resize-hitarea"
+              @mousedown="resizeColumnStart($event, 'title')"
+            ></div>
+          </div>
+        </th>
+        <th :style="columnStyle('value')">
+          <div class="c-lad-table-set__header-content" style="position: relative">
+            Value
+            <div
+              class="c-telemetry-table__resize-hitarea"
+              @mousedown="resizeColumnStart($event, 'value')"
+            ></div>
+          </div>
+        </th>
+        <th :style="columnStyle('timestamp')">
+          <div class="c-lad-table-set__header-content" style="position: relative">
+            {{ timesystem }}
+            <div
+              class="c-telemetry-table__resize-hitarea"
+              @mousedown="resizeColumnStart($event, 'timestamp')"
+            ></div>
+          </div>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -23,6 +59,7 @@
           :path-to-table="ladTable.objectPath"
           :paused="paused"
           :marked="isMarked(ladRow.key)"
+          :column-widths="columnWidths"
           @mark="markRow"
           @unmark="unmarkRow"
           @mark-multiple-concurrent="markMultipleConcurrentRows"
@@ -55,8 +92,24 @@ export default {
       viewContext: {},
       timesystem: '---',
       paused: false,
-      markedRows: []
+      markedRows: [],
+      columnWidths: {}
     };
+  },
+  computed: {
+    hasManualWidths() {
+      return Object.keys(this.columnWidths).length > 0;
+    },
+    tableStyle() {
+      // Manual widths need room: like core's sizing table, pin the table
+      // to the columns' total so wider columns scroll instead of squeeze.
+      const widths = Object.values(this.columnWidths);
+      if (!widths.length) {
+        return {};
+      }
+
+      return { width: widths.reduce((total, width) => total + width, 0) + 'px' };
+    }
   },
   watch: {
     paused() {
@@ -70,6 +123,11 @@ export default {
     // Non-reactive on purpose: row component instances must not pass
     // through Vue's reactive proxies.
     this.rowRefs = {};
+    this.columnWidths = { ...(this.domainObject.configuration?.columnWidths || {}) };
+    this.resizeKey = undefined;
+    this.resizeStartX = undefined;
+    this.resizeStartWidth = undefined;
+    this.resizeHeaderEl = undefined;
     this.csvExporter = new CSVExporter();
     this.composition = this.openmct.composition.get(this.domainObject);
     this.composition.on('add', this.addLadTable);
@@ -95,6 +153,9 @@ export default {
       c.composition.off('remove', c.removeCallback);
     });
     this.openmct.time.off('timeSystemChanged', this.setTimeSystem);
+    // Mid-drag unmount: the once-only mouseup already fired or never will,
+    // but the mousemove listener would leak without this.
+    document.removeEventListener('mousemove', this.resizeColumnMove);
   },
   methods: {
     addLadTable(domainObject) {
@@ -132,6 +193,68 @@ export default {
     },
     setTimeSystem(timesystem) {
       this.timesystem = timesystem.name;
+    },
+    columnStyle(key) {
+      // Width and max-width mirror core TableColumnHeader so body cells
+      // line up. The header itself stays static: positioned headers would
+      // paint above the previous column's handle (core keeps them static
+      // for the same reason); the handle anchors to the relative wrapper.
+      const width = this.columnWidths[key];
+      if (!width) {
+        return {};
+      }
+
+      return { width: width + 'px', 'max-width': width + 'px' };
+    },
+    resizeColumnStart(event, key) {
+      this.captureNaturalWidths();
+      this.resizeKey = key;
+      this.resizeStartX = event.clientX;
+      this.resizeHeaderEl = event.currentTarget.closest('th');
+      this.resizeStartWidth = this.columnWidths[key] || this.resizeHeaderEl.offsetWidth;
+
+      document.addEventListener('mouseup', this.resizeColumnEnd, {
+        once: true,
+        capture: true
+      });
+      document.addEventListener('mousemove', this.resizeColumnMove);
+      event.preventDefault();
+    },
+    captureNaturalWidths() {
+      // First manual sizing freezes every column at its rendered width so
+      // the dragged column grows the table instead of squeezing siblings.
+      // Never overwrites widths the user already set.
+      const keys = ['id', 'title', 'value', 'timestamp'];
+      const headers = this.$el.querySelectorAll('thead th');
+      keys.forEach((key, index) => {
+        if (!this.columnWidths[key] && headers[index]) {
+          this.columnWidths[key] = headers[index].offsetWidth;
+        }
+      });
+    },
+    resizeColumnMove(event) {
+      const newWidth = this.resizeStartWidth + (event.clientX - this.resizeStartX);
+      const minWidth = parseInt(window.getComputedStyle(this.resizeHeaderEl).minWidth, 10);
+      if (newWidth > minWidth) {
+        this.columnWidths[this.resizeKey] = newWidth;
+      }
+    },
+    resizeColumnEnd(event) {
+      this.resizeKey = undefined;
+      this.resizeStartX = undefined;
+      this.resizeStartWidth = undefined;
+      this.resizeHeaderEl = undefined;
+      document.removeEventListener('mousemove', this.resizeColumnMove);
+      event.preventDefault();
+      event.stopPropagation();
+
+      // Persist like core TelemetryTableConfiguration: manual widths win.
+      const configuration = {
+        ...(this.domainObject.configuration || {}),
+        autosize: false,
+        columnWidths: { ...this.columnWidths }
+      };
+      this.openmct.objects.mutate(this.domainObject, 'configuration', configuration);
     },
     initializeViewActions() {
       this.updatePausePlayActions();
