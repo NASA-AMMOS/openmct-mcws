@@ -1,9 +1,15 @@
 <template>
-  <tr class="js-lad-table__body__row" @contextmenu.prevent="showContextMenu">
-    <td class="js-first-data">{{ id }}</td>
-    <td class="js-second-data">{{ name }}</td>
-    <td class="js-third-data" :class="valueClass">{{ value }}</td>
-    <td class="js-fourth-data">{{ formattedTimestamp }}</td>
+  <tr
+    class="js-lad-table__body__row"
+    :class="{ 'is-selected': marked }"
+    :aria-label="marked ? 'Selected Table Row' : 'Table Row'"
+    @click="markRow"
+    @contextmenu.prevent="showContextMenu"
+  >
+    <td class="js-first-data" :style="columnStyle('id')">{{ id }}</td>
+    <td class="js-second-data" :style="columnStyle('title')">{{ name }}</td>
+    <td class="js-third-data" :class="valueClass" :style="columnStyle('value')">{{ value }}</td>
+    <td class="js-fourth-data" :style="columnStyle('timestamp')">{{ formattedTimestamp }}</td>
   </tr>
 </template>
 
@@ -20,9 +26,21 @@ export default {
     pathToTable: {
       type: Array,
       required: true
+    },
+    paused: {
+      type: Boolean,
+      default: false
+    },
+    marked: {
+      type: Boolean,
+      default: false
+    },
+    columnWidths: {
+      type: Object,
+      default: () => ({})
     }
   },
-  emits: ['rowContextClick'],
+  emits: ['rowContextClick', 'mark', 'unmark', 'mark-multiple-concurrent'],
   data() {
     return {
       datum: undefined,
@@ -72,6 +90,9 @@ export default {
       return [this.domainObject, ...this.pathToTable];
     }
   },
+  watch: {
+    paused: 'flushOnUnpause'
+  },
   mounted() {
     this.metadata = this.openmct.telemetry.getMetadata(this.domainObject);
     this.formats = this.openmct.telemetry.getFormatMap(this.metadata);
@@ -102,6 +123,14 @@ export default {
     this.telemetryCollection.destroy();
   },
   methods: {
+    columnStyle(key) {
+      const width = (this.columnWidths || {})[key];
+      if (!width) {
+        return {};
+      }
+
+      return { width: width + 'px', 'max-width': width + 'px' };
+    },
     updateView() {
       if (!this.updatingView) {
         this.updatingView = true;
@@ -114,7 +143,29 @@ export default {
     },
     setLatestValues(data) {
       this.latestDatum = data[data.length - 1];
-      this.updateView();
+      if (!this.paused) {
+        this.updateView();
+      }
+    },
+    flushOnUnpause(paused) {
+      if (!paused && this.latestDatum !== undefined) {
+        this.updateView();
+      }
+    },
+    markRow(event) {
+      if (event.shiftKey) {
+        this.$emit('mark-multiple-concurrent', this.keyString);
+
+        return;
+      }
+
+      const keyModifier = Boolean(event.ctrlKey || event.metaKey);
+
+      if (this.marked) {
+        this.$emit('unmark', this.keyString);
+      } else {
+        this.$emit('mark', this.keyString, keyModifier);
+      }
     },
     updateTimeSystem(timeSystem) {
       this.timestampKey = timeSystem.key;
