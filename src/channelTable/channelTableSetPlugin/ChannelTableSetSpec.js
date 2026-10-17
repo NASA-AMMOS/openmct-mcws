@@ -164,6 +164,26 @@ describe('ChannelTableSet pause', () => {
     });
   });
 
+  it('removes a LAD table and its telemetry entries', () => {
+    set().ladTableObjects = [{ key: 'test-key', domainObject: {}, objectPath: [] }];
+    set().ladTelemetryObjects = { 'test-key': [{ key: 'ch1', domainObject: {} }] };
+
+    set().removeLadTable({ namespace: 'test', key: 'table1' });
+
+    expect(set().ladTableObjects).toEqual([]);
+    expect(set().ladTelemetryObjects).toEqual({});
+  });
+
+  it('removes a telemetry object from its LAD table', () => {
+    const ladTable = { key: 'test-key', domainObject: {}, objectPath: [] };
+    set().ladTableObjects = [ladTable];
+    set().ladTelemetryObjects = { 'test-key': [{ key: 'test-key', domainObject: {} }] };
+
+    set().removeTelemetryObject(ladTable)({ namespace: 'test', key: 'ch1' });
+
+    expect(set().ladTelemetryObjects['test-key']).toEqual([]);
+  });
+
   it('shows only Expand until manual, then only Autosize', (done) => {
     nextTick(() => {
       expect(actionCollection.hide).toHaveBeenCalledWith(['channel-table-set-autosize-columns']);
