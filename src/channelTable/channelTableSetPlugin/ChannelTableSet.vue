@@ -220,11 +220,9 @@ export default {
 
       return undefined;
     },
-    markRow(key, keyModifier) {
-      if (this.markedRows.length > 0 && !keyModifier) {
-        this.undoMarkedRows();
-      }
-
+    markRow(key) {
+      // Marks always accumulate (unlike the channel table's replace on
+      // plain click): once paused, every clicked row adds to the marks.
       const telemetryObject = this.findTelemetryObject(key);
       if (telemetryObject && !this.isMarked(key)) {
         this.markedRows = [...this.markedRows, { key, domainObject: telemetryObject.domainObject }];

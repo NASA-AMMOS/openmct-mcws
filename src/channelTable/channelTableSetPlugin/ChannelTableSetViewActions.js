@@ -52,7 +52,6 @@ const exportAllDataAsCSV = {
   invoke: (objectPath, view) => {
     view.getViewContext().exportAllDataAsCSV();
   },
-  showInStatusBar: true,
   group: 'view'
 };
 
@@ -64,7 +63,6 @@ const exportMarkedDataAsCSV = {
   invoke: (objectPath, view) => {
     view.getViewContext().exportMarkedDataAsCSV();
   },
-  showInStatusBar: true,
   group: 'view'
 };
 
