@@ -47,7 +47,7 @@ describe('ChannelRow pause', () => {
     };
   }
 
-  function mountRow(paused) {
+  function mountRow(paused, marked = false) {
     element = document.createElement('div');
     const { componentInstance, destroy } = mount(
       {
@@ -63,10 +63,20 @@ describe('ChannelRow pause', () => {
             name: 'CH1 - Title',
             identifier: { namespace: 'test', key: 'ch1' }
           },
-          pausedFlag: paused
+          pausedFlag: paused,
+          markedFlag: marked,
+          emitted: []
         }),
+        methods: {
+          onMark(...args) {
+            this.emitted.push(['mark', ...args]);
+          },
+          onUnmark(...args) {
+            this.emitted.push(['unmark', ...args]);
+          }
+        },
         template:
-          '<ChannelRow ref="row" :domain-object="testObject" :path-to-table="[]" :paused="pausedFlag" />'
+          '<ChannelRow ref="row" :domain-object="testObject" :path-to-table="[]" :paused="pausedFlag" :marked="markedFlag" @mark="onMark" @unmark="onUnmark" />'
       },
       {
         element
@@ -132,6 +142,42 @@ describe('ChannelRow pause', () => {
     rootInstance.pausedFlag = false;
     nextTick(() => {
       expect(row().updateView).not.toHaveBeenCalled();
+      done();
+    });
+  });
+
+  it('emits mark without modifier on row click', () => {
+    mountRow(false);
+
+    row().$el.click();
+
+    expect(rootInstance.emitted).toEqual([['mark', 'test-key', false]]);
+  });
+
+  it('emits mark with modifier on ctrl-click', () => {
+    mountRow(false);
+
+    row().$el.dispatchEvent(new MouseEvent('click', { bubbles: true, ctrlKey: true }));
+
+    expect(rootInstance.emitted).toEqual([['mark', 'test-key', true]]);
+  });
+
+  it('emits unmark when the marked row is clicked', () => {
+    mountRow(true, true);
+
+    row().$el.click();
+
+    expect(rootInstance.emitted).toEqual([['unmark', 'test-key']]);
+  });
+
+  it('highlights the row only while marked', (done) => {
+    mountRow(false);
+
+    expect(row().$el.classList.contains('is-selected')).toBe(false);
+
+    rootInstance.markedFlag = true;
+    nextTick(() => {
+      expect(row().$el.classList.contains('is-selected')).toBe(true);
       done();
     });
   });
