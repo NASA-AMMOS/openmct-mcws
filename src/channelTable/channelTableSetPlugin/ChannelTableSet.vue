@@ -50,6 +50,11 @@ export default {
       paused: false
     };
   },
+  watch: {
+    paused() {
+      this.updatePausePlayActions();
+    }
+  },
   mounted() {
     // Non-reactive on purpose: CompositionCollections use private fields,
     // which throw when accessed through Vue's reactive proxies.
@@ -68,11 +73,6 @@ export default {
       );
       this.initializeViewActions();
     });
-  },
-  watch: {
-    paused() {
-      this.updatePausePlayActions();
-    }
   },
   beforeUnmount() {
     // Teardown must be idempotent: a second pass would remove listeners
