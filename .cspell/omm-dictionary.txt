@@ -55,4 +55,3 @@ dsanto
 peterr
 smap
 commanddispatcher
-qrtester
