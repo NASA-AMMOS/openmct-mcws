@@ -22,7 +22,16 @@ export default async function oldPersistenceFolderInterceptor(
     appliesTo: (identifier, domainObject) => {
       const isMissing = !domainObject;
       const isNotUserRoot = identifier.key !== 'container';
-      const isUserFolderIdentifier = isUserNamespace(usersNamespace, userKeyRegex, identifier);
+      // Shared namespaces (ex: qr-shared) can accidentally match the user
+      // namespace pattern (qr-<userid>); never treat them as user folders,
+      // or a failed read for a mistyped shared id would recreate (and wipe)
+      // the shared root.
+      const sharedNamespaceKeys = namespaces
+        .filter((namespace) => !namespace.containsNamespaces)
+        .map((namespace) => namespace.key);
+      const isUserFolderIdentifier =
+        isUserNamespace(usersNamespace, userKeyRegex, identifier) &&
+        !sharedNamespaceKeys.includes(identifier.namespace);
       const nonUserRoots = ROOT_IDENTIFIERS.filter((rootId) => rootId.key !== 'container');
       const isRootFolder = nonUserRoots.some((rootId) =>
         openmct.objects.areIdsEqual(rootId, identifier)
