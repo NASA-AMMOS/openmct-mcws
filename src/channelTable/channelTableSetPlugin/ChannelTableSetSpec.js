@@ -9,6 +9,8 @@ describe('ChannelTableSet pause', () => {
   let rootInstance = null;
   let actionCollection;
   let mutateSpy;
+  let observeSpy;
+  let unobserveSpy;
 
   function mockOpenmct() {
     actionCollection = {
@@ -18,6 +20,8 @@ describe('ChannelTableSet pause', () => {
       disable: jasmine.createSpy('disable')
     };
     mutateSpy = jasmine.createSpy('mutate');
+    unobserveSpy = jasmine.createSpy('unobserve');
+    observeSpy = jasmine.createSpy('observe').and.returnValue(unobserveSpy);
 
     return {
       actions: {
@@ -32,7 +36,8 @@ describe('ChannelTableSet pause', () => {
       },
       objects: {
         makeKeyString: () => 'test-key',
-        mutate: (...args) => mutateSpy(...args)
+        mutate: (...args) => mutateSpy(...args),
+        observe: (...args) => observeSpy(...args)
       },
       telemetry: {
         getMetadata: () => ({
@@ -121,7 +126,7 @@ describe('ChannelTableSet pause', () => {
   });
 
   it('scopes pause and play actions to the set view context', () => {
-    expect(ChannelTableSetViewActions.length).toBe(5);
+    expect(ChannelTableSetViewActions.length).toBe(7);
 
     const setView = { getViewContext: () => set().getViewContext() };
     const tableView = { getViewContext: () => ({ type: 'telemetry-table' }) };
@@ -366,10 +371,47 @@ describe('ChannelTableSet pause', () => {
     destroyFn();
     mountSet({
       name: 'Configured Set',
-      configuration: { columnWidths: { id: 111, value: 222 } }
+      configuration: { autosize: false, columnWidths: { id: 111, value: 222 } }
     });
 
     expect(set().columnWidths).toEqual({ id: 111, value: 222 });
+  });
+
+  it('ignores persisted widths while autosize stays enabled', () => {
+    destroyFn();
+    mountSet({
+      name: 'Autosize Set',
+      configuration: { columnWidths: { id: 111, value: 222 } }
+    });
+
+    expect(set().columnWidths).toEqual({});
+  });
+
+  it('reapplies widths when the configuration is mutated elsewhere', () => {
+    expect(observeSpy).toHaveBeenCalledWith(
+      rootInstance.testObject,
+      'configuration',
+      jasmine.any(Function)
+    );
+
+    rootInstance.testObject.configuration = {
+      autosize: false,
+      columnWidths: { id: 77 }
+    };
+    observeSpy.calls.argsFor(0)[2]();
+
+    expect(set().columnWidths).toEqual({ id: 77 });
+
+    rootInstance.testObject.configuration = { autosize: true };
+    observeSpy.calls.argsFor(0)[2]();
+
+    expect(set().columnWidths).toEqual({});
+  });
+
+  it('stops observing the configuration on unmount', () => {
+    destroyFn();
+
+    expect(unobserveSpy).toHaveBeenCalledTimes(1);
   });
 
   it('applies column widths to the headers', (done) => {
@@ -470,5 +512,65 @@ describe('ChannelTableSet pause', () => {
       autosize: false,
       columnWidths: { id: 130, title: 140 }
     });
+  });
+
+  it('expands columns to content widths without persisting', (done) => {
+    document.body.appendChild(element);
+    set().columnWidths = { id: 999 };
+    mutateSpy.calls.reset();
+
+    set().expandColumns();
+
+    expect(set().columnWidths).toEqual({});
+
+    set().$nextTick(() => {
+      set().$nextTick(() => {
+        const headers = element.querySelectorAll('thead th');
+
+        expect(set().columnWidths).toEqual({
+          id: headers[0].offsetWidth,
+          title: headers[1].offsetWidth,
+          value: headers[2].offsetWidth,
+          timestamp: headers[3].offsetWidth
+        });
+        expect(mutateSpy).not.toHaveBeenCalled();
+
+        element.remove();
+        done();
+      });
+    });
+  });
+
+  it('clears manual widths through autosizeColumns without persisting', () => {
+    set().columnWidths = { id: 999 };
+    mutateSpy.calls.reset();
+
+    set().autosizeColumns();
+
+    expect(set().columnWidths).toEqual({});
+    expect(mutateSpy).not.toHaveBeenCalled();
+  });
+
+  it('sizes columns through the registered actions', () => {
+    const expand = ChannelTableSetViewActions.find(
+      (action) => action.key === 'channel-table-set-expand-columns'
+    );
+    const autosize = ChannelTableSetViewActions.find(
+      (action) => action.key === 'channel-table-set-autosize-columns'
+    );
+    const view = { getViewContext: () => set().getViewContext() };
+
+    expect(expand.showInStatusBar).toBe(true);
+    expect(autosize.showInStatusBar).toBe(true);
+
+    set().columnWidths = { id: 999 };
+    autosize.invoke([], view);
+
+    expect(set().columnWidths).toEqual({});
+
+    set().expandColumns = jasmine.createSpy('expandColumns');
+    expand.invoke([], view);
+
+    expect(set().expandColumns).toHaveBeenCalledTimes(1);
   });
 });

@@ -78,7 +78,39 @@ const unmarkAllRows = {
   group: 'view'
 };
 
-const viewActions = [exportAllDataAsCSV, exportMarkedDataAsCSV, unmarkAllRows, pause, play];
+const expandColumns = {
+  name: 'Expand Columns',
+  key: 'channel-table-set-expand-columns',
+  description: 'Increase column widths to fit currently available data.',
+  cssClass: 'icon-arrows-right-left labeled',
+  invoke: (objectPath, view) => {
+    view.getViewContext().expandColumns();
+  },
+  showInStatusBar: true,
+  group: 'view'
+};
+
+const autosizeColumns = {
+  name: 'Autosize Columns',
+  key: 'channel-table-set-autosize-columns',
+  description: 'Automatically size columns to fit the table into the available space.',
+  cssClass: 'icon-expand labeled',
+  invoke: (objectPath, view) => {
+    view.getViewContext().autosizeColumns();
+  },
+  showInStatusBar: true,
+  group: 'view'
+};
+
+const viewActions = [
+  exportAllDataAsCSV,
+  exportMarkedDataAsCSV,
+  unmarkAllRows,
+  pause,
+  play,
+  expandColumns,
+  autosizeColumns
+];
 
 viewActions.forEach((action) => {
   action.appliesTo = (objectPath, view = {}) => {

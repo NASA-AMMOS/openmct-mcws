@@ -329,7 +329,7 @@ export default function openmctMCWSPlugin(options) {
     openmct.install(FrameWatchViewPlugin(config.tablePerformanceOptions));
     openmct.install(FrameEventFilterViewPlugin(config.tablePerformanceOptions));
     openmct.install(new ChannelTablePlugin(config.tablePerformanceOptions));
-    openmct.install(new ChannelTableSetPlugin());
+    openmct.install(new ChannelTableSetPlugin(config.tablePerformanceOptions));
     openmct.install(new ChannelLimitsPlugin());
     openmct.install(new FrameAccountabilityPlugin(config));
     openmct.install(EVRViewPlugin(config));
