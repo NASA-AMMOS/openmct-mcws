@@ -1,22 +1,22 @@
 import MCWSStreamProvider from './MCWSStreamProvider.js';
 
+function providerWith(subscriptions, updates) {
+  const provider = Object.create(MCWSStreamProvider.prototype);
+
+  provider.subscriptions = subscriptions;
+  provider.vistaTime = () => ({
+    update: (datum) => updates.push(datum)
+  });
+  provider.openmct = {
+    notifications: {
+      error: () => {}
+    }
+  };
+
+  return provider;
+}
+
 describe('MCWSStreamProvider onmessage', () => {
-  function providerWith(subscriptions, updates) {
-    const provider = Object.create(MCWSStreamProvider.prototype);
-
-    provider.subscriptions = subscriptions;
-    provider.vistaTime = () => ({
-      update: (datum) => updates.push(datum)
-    });
-    provider.openmct = {
-      notifications: {
-        error: () => {}
-      }
-    };
-
-    return provider;
-  }
-
   it('ticks the clock once per message, not once per subscription', () => {
     const updates = [];
     const seen = [];
