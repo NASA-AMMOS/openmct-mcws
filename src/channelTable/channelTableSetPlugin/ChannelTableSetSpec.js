@@ -69,7 +69,8 @@ describe('ChannelTableSet pause', () => {
     };
   }
 
-  function mountSet(testObject = { name: 'Test Set' }) {
+  function mountSet(testObject) {
+    const mountObject = testObject ?? { name: 'Test Set' };
     element = document.createElement('div');
     const { componentInstance, destroy } = mount(
       {
@@ -82,7 +83,7 @@ describe('ChannelTableSet pause', () => {
           ChannelTableSet
         },
         data: () => ({
-          testObject
+          testObject: mountObject
         }),
         template: '<ChannelTableSet ref="set" :domain-object="testObject" />'
       },

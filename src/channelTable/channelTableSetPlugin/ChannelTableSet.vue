@@ -210,8 +210,7 @@ export default {
       // apply once the user drags a column or unticks Auto-size, either of
       // which stores autosize: false.
       const configuration = this.domainObject.configuration || {};
-      this.columnWidths =
-        configuration.autosize === false ? { ...(configuration.columnWidths || {}) } : {};
+      this.columnWidths = configuration.autosize === false ? { ...configuration.columnWidths } : {};
       this.hideHeaders = configuration.hideHeaders === true;
     },
     handleConfigurationChange() {
@@ -287,7 +286,7 @@ export default {
     },
     resizeColumnMove(event) {
       const newWidth = this.resizeStartWidth + (event.clientX - this.resizeStartX);
-      const minWidth = parseInt(window.getComputedStyle(this.resizeHeaderEl).minWidth, 10);
+      const minWidth = Number.parseInt(window.getComputedStyle(this.resizeHeaderEl).minWidth, 10);
       if (newWidth > minWidth) {
         this.columnWidths[this.resizeKey] = newWidth;
       }
@@ -303,7 +302,7 @@ export default {
 
       // Persist like core TelemetryTableConfiguration: manual widths win.
       const configuration = {
-        ...(this.domainObject.configuration || {}),
+        ...this.domainObject.configuration,
         autosize: false,
         columnWidths: { ...this.columnWidths }
       };
