@@ -5,7 +5,7 @@ describe('vistaTime clock throttling', () => {
   let vistaTime;
 
   const format = {
-    parse: (value) => Number(value)
+    parse: Number
   };
 
   beforeEach(() => {
