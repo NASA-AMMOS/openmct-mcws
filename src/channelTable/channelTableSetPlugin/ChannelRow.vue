@@ -3,7 +3,10 @@
     class="js-lad-table__body__row"
     :class="{ 'is-selected': marked }"
     :aria-label="marked ? 'Selected Table Row' : 'Table Row'"
+    tabindex="0"
     @click="markRow"
+    @keydown.enter="markRow"
+    @keydown.space.prevent="markRow"
     @contextmenu.prevent="showContextMenu"
   >
     <td class="js-first-data" :style="columnStyle('id')">{{ id }}</td>

@@ -114,7 +114,7 @@ const viewActions = [
 
 viewActions.forEach((action) => {
   action.appliesTo = (objectPath, view = {}) => {
-    const viewContext = view.getViewContext && view.getViewContext();
+    const viewContext = view.getViewContext?.();
     if (!viewContext) {
       return false;
     }
