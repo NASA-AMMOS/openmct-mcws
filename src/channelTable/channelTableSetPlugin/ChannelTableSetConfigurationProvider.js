@@ -21,7 +21,7 @@ export default class ChannelTableSetConfigurationProvider {
 
   view(selection) {
     let _destroy = null;
-    const self = this;
+    const openmct = this.openmct;
 
     const domainObject = selection[0][0].context.item;
     const tableConfiguration = new TelemetryTableConfiguration(
@@ -34,7 +34,7 @@ export default class ChannelTableSetConfigurationProvider {
       show: function (element) {
         const componentDefinition = {
           provide: {
-            openmct: self.openmct,
+            openmct,
             tableConfiguration
           },
           components: {
@@ -55,7 +55,7 @@ export default class ChannelTableSetConfigurationProvider {
         return isEditing;
       },
       priority: function () {
-        return self.openmct.priority.HIGH + 1;
+        return openmct.priority.HIGH + 1;
       },
       destroy: function () {
         _destroy?.();

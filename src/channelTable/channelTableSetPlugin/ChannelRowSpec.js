@@ -158,6 +158,19 @@ describe('ChannelRow pause', () => {
     expect(rootInstance.emitted).toEqual([['mark', 'test-key', false]]);
   });
 
+  it('emits mark on Enter and Space keydown', () => {
+    mountRow(false);
+
+    row().$el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+
+    expect(rootInstance.emitted).toEqual([['mark', 'test-key', false]]);
+
+    rootInstance.emitted = [];
+    row().$el.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+
+    expect(rootInstance.emitted).toEqual([['mark', 'test-key', false]]);
+  });
+
   it('emits mark with modifier on ctrl-click', () => {
     mountRow(false);
 
