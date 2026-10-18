@@ -94,7 +94,8 @@ async function bootMcwsDemo() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', bootMcwsDemo, { once: true });
-} else {
-  bootMcwsDemo();
+  await new Promise((resolve) =>
+    document.addEventListener('DOMContentLoaded', resolve, { once: true })
+  );
 }
+await bootMcwsDemo();
