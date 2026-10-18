@@ -65,11 +65,12 @@ class MCWSStreamProvider {
 
     this.processGlobalStaleness(values ?? [], timestamp);
 
+    // ticks the clock for ert, scet, and sclk if they are present
+    this.vistaTime().update(values[0]);
+
     subscriptions.forEach(function (subscription) {
-      // ticks the clock for ert, scet, and sclk if they are present
-      this.vistaTime().update(values[0]);
       values.forEach(subscription.callback);
-    }, this);
+    });
 
     //Communicate websocket timeout and errors to users
     if (data.onclose && data.code === 1006) {
