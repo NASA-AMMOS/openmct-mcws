@@ -83,7 +83,10 @@ export default class UTCDayOfYearFormat {
 
   formatDate(value) {
     const m = moment.utc(value);
-    return m.format('YYYY-DDD');
+    // DDDD, not DDD: moment's DDD token is unpadded (2016-1), which core's
+    // DatePicker cannot parse (NaN calendar + deprecation warning). DDDD
+    // zero-pads (2016-001), matching FORMAT above.
+    return m.format('YYYY-DDDD');
   }
 
   endOfDay(value) {
