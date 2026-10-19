@@ -1,19 +1,19 @@
 import SessionSnapTimeConductor from './sessionSnapTimeConductor.vue';
 import mount from 'ommUtils/mountVueComponent.js';
 
+function mockTimeContext() {
+  return {
+    getBounds: () => ({ start: 0, end: 0 }),
+    on: () => {},
+    off: () => {}
+  };
+}
+
 describe('SessionSnapTimeConductor', () => {
   let openmct;
   let element;
   let wrapper;
   let snap;
-
-  function mockTimeContext() {
-    return {
-      getBounds: () => ({ start: 0, end: 0 }),
-      on: () => {},
-      off: () => {}
-    };
-  }
 
   beforeEach(() => {
     openmct = {
@@ -31,7 +31,8 @@ describe('SessionSnapTimeConductor', () => {
       },
       telemetry: {
         getFormatter: () => ({
-          parse: (value) => Number(value)
+          parse: Number,
+          format: String
         })
       }
     };
@@ -120,6 +121,23 @@ describe('SessionSnapTimeConductor', () => {
       snap.handleModeChanged();
 
       expect(snap.hoverText).toBe('Not available in realtime');
+    });
+  });
+
+  describe('readout keyboard access', () => {
+    it('opens the popup on Enter and Space keydowns', async () => {
+      snap.snapEnabled = true;
+      await snap.$nextTick();
+
+      const readout = snap.$el.querySelector('.c-snap-tc__readout');
+      const openPopupSpy = spyOn(snap, 'openPopup');
+
+      expect(readout.getAttribute('tabindex')).toBe('0');
+
+      readout.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+      readout.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+
+      expect(openPopupSpy).toHaveBeenCalledTimes(2);
     });
   });
 });
