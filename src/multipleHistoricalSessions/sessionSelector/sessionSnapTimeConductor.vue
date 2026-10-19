@@ -29,7 +29,10 @@
     <div
       v-if="snapEnabled"
       class="c-snap-tc__readout c-compact-tc__bounds--fixed"
+      tabindex="0"
       @click="openPopup"
+      @keydown.enter="openPopup"
+      @keydown.space.prevent="openPopup"
     >
       <ConductorInputsFixed :read-only="true" :compact="true" />
     </div>
