@@ -16,9 +16,10 @@ export default function MCWSPersistenceProviderPlugin(configNamespaces) {
 
     const namespaces = configNamespaces.map(createNamespace);
     // the namespace keys that will apply for this main persistence provider's namespace
-    const persistenceNamespaceKeys = configNamespaces
-      .filter((namespace) => !namespace.userNamespace)
-      .map((namespace) => namespace.key + '-');
+    // includes both shared and per-user namespace configs, since MCWSPersistenceProvider
+    // is also responsible for each user's leaf folder; the user container node itself is
+    // excluded via invalidNamespaceKeys' exact-match check below
+    const persistenceNamespaceKeys = configNamespaces.map((namespace) => namespace.key + '-');
     // the namespace keys that will apply for this user folder provider's namespace
     // will also be used to negative match for the main persistence provider's namespace
     const userFolderNamespaceKeys = configNamespaces

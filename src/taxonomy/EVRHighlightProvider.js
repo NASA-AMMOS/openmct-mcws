@@ -71,12 +71,12 @@ class EVRHighlightProvider {
    */
   makeLimitStateForLevel(level) {
     const classes = [];
-    if (this.definitions.evrBackgroundColorByLevel?.level) {
+    if (this.definitions.evrBackgroundColorByLevel?.[level]) {
       classes.push('vista-evr-level-bg-' + level.toLowerCase());
     } else if (this.definitions.evrDefaultBackgroundColor) {
       classes.push('vista-evr-default-bg');
     }
-    if (this.definitions.evrForegroundColorByLevel?.level) {
+    if (this.definitions.evrForegroundColorByLevel?.[level]) {
       classes.push('vista-evr-level-fg-' + level.toLowerCase());
     } else if (this.definitions.evrDefaultForegroundColor) {
       classes.push('vista-evr-default-fg');
