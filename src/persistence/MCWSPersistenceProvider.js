@@ -150,7 +150,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       return namespace.key === persistenceSpace;
     });
 
-    if (!persistenceNamespace) {
+    if (persistenceNamespace === undefined) {
       // The namespace may have been created by another user's session after
       // our cache was populated; refresh once before giving up.
       delete this.persistenceNamespaces;
