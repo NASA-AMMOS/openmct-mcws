@@ -133,6 +133,38 @@ describe('SessionService', () => {
     expect(callback).toHaveBeenCalledWith(model);
   });
 
+  describe('historical session filter time conductor snap (#347)', () => {
+    const filterModel = {
+      host: 'testbed1',
+      numbers: [1220],
+      start_time: '2016-01-01T12:14:33',
+      end_time: '2016-01-02T12:14:33'
+    };
+
+    it('applies explicit snap bounds to the conductor in fixed mode', () => {
+      sessionService.setHistoricalSessionFilter(filterModel, { start: 100, end: 200 });
+
+      expect(openmct.time.setBounds).toHaveBeenCalledTimes(1);
+      expect(openmct.time.setBounds).toHaveBeenCalledWith({ start: 100, end: 200 });
+    });
+
+    it('does not auto-snap from the model start/end times without explicit bounds', () => {
+      sessionService.setHistoricalSessionFilter(filterModel);
+
+      expect(openmct.time.setBounds).toHaveBeenCalledTimes(1);
+      expect(openmct.time.setBounds).toHaveBeenCalledWith({ start: 0, end: 1 });
+    });
+
+    it('ignores snap bounds outside fixed mode and still triggers a requery', () => {
+      openmct.time.isFixed.and.returnValue(false);
+
+      sessionService.setHistoricalSessionFilter(filterModel, { start: 100, end: 200 });
+
+      expect(openmct.time.setBounds).toHaveBeenCalledTimes(1);
+      expect(openmct.time.setBounds).toHaveBeenCalledWith({ start: 0, end: 1 });
+    });
+  });
+
   describe('with an active topic/session', () => {
     let activeModel;
     let callback;

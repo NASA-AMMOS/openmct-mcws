@@ -91,6 +91,21 @@ const config = {
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/components/TableConfiguration.vue'
       ),
+      'openmct.ui.ToggleSwitch': join(
+        __dirname,
+        '..',
+        'node_modules/openmct/src/ui/components/ToggleSwitch.vue'
+      ),
+      'openmct.timeConductor.ConductorModeIcon': join(
+        __dirname,
+        '..',
+        'node_modules/openmct/src/plugins/timeConductor/ConductorModeIcon.vue'
+      ),
+      'openmct.timeConductor.ConductorInputsFixed': join(
+        __dirname,
+        '..',
+        'node_modules/openmct/src/plugins/timeConductor/ConductorInputsFixed.vue'
+      ),
       /**
        * Globals
        **/
