@@ -398,7 +398,13 @@ class SessionService {
     return Boolean(this.historicalSessionFilter);
   }
 
-  setHistoricalSessionFilter(model) {
+  /**
+   * @param {Object} model the historical session filter ({host, numbers, ...})
+   * @param {Object} [snapBounds] explicit {start, end} conductor bounds from the
+   *     session snap time conductor (#347). Applied only in fixed mode; when absent
+   *     the conductor is left alone (besides the requery poke below).
+   */
+  setHistoricalSessionFilter(model, snapBounds) {
     if (this.historicalSessionFilterConfig.disable) {
       this.notificationService.alert('Historical Session Filtering has been disabled in config');
 
@@ -422,26 +428,10 @@ class SessionService {
 
     let boundsChanged = false;
 
-    // this is called in historicalSessionSelector
-    // must be in ERT because AMPCS returns start and end time in UTC Local only
-    if (
-      model?.start_time &&
-      model?.end_time &&
-      this.openmct.time.getTimeSystem().key === 'ert' &&
-      this.openmct.time.isFixed()
-    ) {
-      const format = this.openmct.telemetry.getFormatter('utc.day-of-year');
-      const start = format.parse(model.start_time);
-      let end = format.parse(model.end_time);
-
-      if (start === end) {
-        end = format.endOfDay(end);
-      }
-
-      this.openmct.time.setBounds({
-        start,
-        end
-      });
+    // Explicit snap only (#347): the session selector passes bounds from its snap
+    // time conductor. Without them the conductor keeps its current bounds.
+    if (snapBounds && this.openmct.time.isFixed()) {
+      this.openmct.time.setBounds(snapBounds);
 
       boundsChanged = true;
     }
