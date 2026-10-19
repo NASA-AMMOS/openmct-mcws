@@ -1,5 +1,6 @@
 import TelemetryTable from 'openmct.tables.TelemetryTable';
 import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
+import CommandDictionaryTableRow from './CommandDictionaryTableRow.js';
 import mcws from 'services/mcws/mcws.js';
 
 export default class DictionaryViewTable extends TelemetryTable {
@@ -42,9 +43,17 @@ export default class DictionaryViewTable extends TelemetryTable {
     });
   }
 
+  createRow(datum, columnMap, keyString, limitEvaluator) {
+    if (this.domainObject.url_property === 'commandDictionaryUrl') {
+      return new CommandDictionaryTableRow(datum, columnMap, keyString, limitEvaluator);
+    }
+
+    return new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
+  }
+
   processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator) {
     let telemetryRows = telemetryData.map((datum) => {
-      return new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
+      return this.createRow(datum, columnMap, keyString, limitEvaluator);
     });
 
     this.tableRows.addRows(telemetryRows);
@@ -130,7 +139,7 @@ export default class DictionaryViewTable extends TelemetryTable {
     let limitEvaluator = this.openmct.telemetry.limitEvaluator(this.domainObject);
 
     let rows = this.data.map((datum) => {
-      let row = new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
+      let row = this.createRow(datum, columnMap, keyString, limitEvaluator);
 
       if (datum.marked) {
         row.marked = true;
