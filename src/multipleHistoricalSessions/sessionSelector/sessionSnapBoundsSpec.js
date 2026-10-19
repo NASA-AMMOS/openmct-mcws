@@ -60,7 +60,9 @@ describe('sessionSnapBounds', () => {
       // Lexicographic compare would pick '9' as the max; numeric parse picks 10.
       const sessions = [{ start_time: '9', end_time: '10' }];
 
-      expect(computeSessionSnapRange(sessions, 'start_time', 'end_time', Number.parseFloat)).toEqual({
+      expect(
+        computeSessionSnapRange(sessions, 'start_time', 'end_time', Number.parseFloat)
+      ).toEqual({
         available: true,
         start: 9,
         end: 10
