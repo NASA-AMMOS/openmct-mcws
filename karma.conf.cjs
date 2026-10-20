@@ -64,7 +64,11 @@ module.exports = async function karmaConfig(config) {
     // Code coverage reporting.
     coverageReporter: {
       dir: 'target/coverage',
-      reports: ['html', 'text-summary']
+      reporters: [
+        { type: 'html', subdir: '.' },
+        { type: 'text-summary' },
+        { type: 'lcovonly', subdir: '.', file: 'lcov.info' }
+      ]
     },
 
     // HTML test reporting.
