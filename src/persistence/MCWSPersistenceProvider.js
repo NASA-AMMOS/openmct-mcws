@@ -1,5 +1,6 @@
 import BaseMCWSPersistenceProvider from './BaseMCWSPersistenceProvider.js';
 import mcws from '../services/mcws/mcws.js';
+import { createModelFromNamespaceDefinition, interpolateUsername } from './utils.js';
 
 export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider {
   /**
@@ -56,6 +57,14 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
         };
       }
 
+      // The current user's folder is virtual until first write; represent
+      // it without persisting anything.
+      const ownFolderModel = await this.#getOwnFolderModel(identifier);
+
+      if (ownFolderModel) {
+        return ownFolderModel;
+      }
+
       return;
     }
   }
@@ -70,6 +79,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
    */
   async create(domainObject) {
     const { key, namespace } = domainObject.identifier;
+    await this.#materializeOwnFolder(namespace, key);
     const persistenceNamespace = await this.#getNamespace(namespace);
     const model = this.#toPersistableModel(domainObject);
 
@@ -151,5 +161,89 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
     });
 
     return mcws.namespace(persistenceNamespace.url, options);
+  }
+
+  /**
+   * Resolve the namespace definition for the current user's folder,
+   * whether or not it has been created in MCWS yet.
+   * @private
+   * @returns {Promise<{definition: Object, userId: string}|undefined>}
+   */
+  async #getCurrentUserFolder() {
+    const containerDefinition = this.roots.find((root) => root.containsNamespaces);
+
+    if (!containerDefinition) {
+      return;
+    }
+
+    const user = await this.openmct.user.getCurrentUser();
+    const template = structuredClone(containerDefinition.childTemplate);
+    template.location = containerDefinition.id;
+
+    return {
+      definition: interpolateUsername(template, user.id, user.name),
+      userId: user.id
+    };
+  }
+
+  /**
+   * Build the in-memory representation of the current user's folder if
+   * the identifier refers to it; the model is deliberately left
+   * unpersisted so that saving it routes through create().
+   * @private
+   * @param {module:openmct.ObjectAPI~Identifier} identifier
+   * @returns {Promise<Object|undefined>} the folder model, or undefined
+   *          if the identifier is not the current user's folder root
+   */
+  async #getOwnFolderModel(identifier) {
+    if (identifier.key !== 'root') {
+      return;
+    }
+
+    const currentUserFolder = await this.#getCurrentUserFolder();
+
+    if (!currentUserFolder || currentUserFolder.definition.key !== identifier.namespace) {
+      return;
+    }
+
+    return createModelFromNamespaceDefinition(
+      currentUserFolder.userId,
+      currentUserFolder.definition
+    );
+  }
+
+  /**
+   * Create the current user's namespace (and empty root folder) in MCWS
+   * on first write into it. When the object being created is the folder
+   * root itself, only the namespace is created; the caller's create
+   * writes the folder file.
+   * @private
+   * @param {string} namespaceKey the namespace of the object being created
+   * @param {string} objectKey the key of the object being created
+   */
+  async #materializeOwnFolder(namespaceKey, objectKey) {
+    const currentUserFolder = await this.#getCurrentUserFolder();
+
+    if (!currentUserFolder || currentUserFolder.definition.key !== namespaceKey) {
+      return;
+    }
+
+    if (objectKey === 'root') {
+      const namespace = mcws.namespace(currentUserFolder.definition.url);
+
+      try {
+        await namespace.read();
+      } catch (readError) {
+        if (readError.status === 404) {
+          await namespace.create();
+        } else {
+          throw readError;
+        }
+      }
+
+      return;
+    }
+
+    await this.createIfMissing(currentUserFolder.definition, currentUserFolder.userId);
   }
 }

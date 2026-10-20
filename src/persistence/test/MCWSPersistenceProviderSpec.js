@@ -153,4 +153,126 @@ describe('The MCWS Persistence Provider', () => {
 
     expect(result).toBeUndefined();
   });
+
+  describe('lazy user folder creation', () => {
+    let namespaceMIOs;
+    let userNamespaceMIO;
+    let userOpaqueFile;
+    let otherUserOpaqueFile;
+
+    function makeOpaqueFile() {
+      return jasmine.createSpyObj('opaqueFile', ['read', 'create', 'replace']);
+    }
+
+    function makeNamespace(url, readImpl, opaqueFile) {
+      const namespace = jasmine.createSpyObj(`namespace:${url}`, ['read', 'create', 'opaqueFile']);
+      namespace.read.and.callFake(readImpl);
+      namespace.create.and.returnValue(Promise.resolve([]));
+      namespace.opaqueFile.and.returnValue(opaqueFile);
+      namespaceMIOs[url] = namespace;
+
+      return namespace;
+    }
+
+    beforeEach(() => {
+      namespaceMIOs = {};
+      mcws.namespace.and.callFake((url) => namespaceMIOs[url]);
+
+      userOpaqueFile = makeOpaqueFile();
+      otherUserOpaqueFile = makeOpaqueFile();
+      userOpaqueFile.read.and.callFake(() => Promise.reject({ status: 404 }));
+      otherUserOpaqueFile.read.and.callFake(() => Promise.reject({ status: 404 }));
+      userOpaqueFile.create.and.returnValue(Promise.resolve(true));
+
+      makeNamespace('/test/shared', () => Promise.resolve([]), makeOpaqueFile());
+      makeNamespace(
+        '/test/users',
+        () => Promise.resolve([{ object: 'namespace', subject: '/test/users/otherUser' }]),
+        makeOpaqueFile()
+      );
+      userNamespaceMIO = makeNamespace(
+        '/test/users/myUser',
+        () => Promise.reject({ status: 404 }),
+        userOpaqueFile
+      );
+      makeNamespace('/test/users/otherUser', () => Promise.resolve([]), otherUserOpaqueFile);
+
+      openmct = {
+        user: {
+          getCurrentUser: () => Promise.resolve({ id: 'myUser', name: 'My User' })
+        },
+        notifications: { error: jasmine.createSpy('notificationsError') },
+        objects: { makeKeyString: (id) => `${id.namespace}:${id.key}` }
+      };
+
+      mcwsPersistenceProvider = new MCWSPersistenceProvider(openmct, [
+        { id: 'test-shared:root', key: 'test-shared', name: 'Test Shared', url: '/test/shared' },
+        {
+          id: 'test-users:container',
+          key: 'test-users',
+          name: 'Test Users',
+          url: '/test/users',
+          containsNamespaces: true,
+          childTemplate: {
+            id: 'test-${USERID}:root',
+            key: 'test-${USERID}',
+            name: '${USERNAME}',
+            url: '/test/users/${USERID}'
+          }
+        }
+      ]);
+    });
+
+    it('represents the current user folder without creating it', async () => {
+      const folder = await mcwsPersistenceProvider.get({
+        key: 'root',
+        namespace: 'test-myUser'
+      });
+
+      expect(folder.identifier).toEqual({ key: 'root', namespace: 'test-myUser' });
+      expect(folder.type).toBe('folder');
+      expect(folder.name).toBe('My User');
+      expect(folder.composition).toEqual([]);
+      expect(folder.persisted).toBeUndefined();
+      expect(userNamespaceMIO.create).not.toHaveBeenCalled();
+    });
+
+    it('does not represent another user folder that is missing', async () => {
+      const folder = await mcwsPersistenceProvider.get({
+        key: 'root',
+        namespace: 'test-otherUser'
+      });
+
+      expect(folder).toBeUndefined();
+    });
+
+    it('creates the user folder when an object is first created in it', async () => {
+      const result = await mcwsPersistenceProvider.create({
+        identifier: { key: 'child1', namespace: 'test-myUser' },
+        type: 'folder',
+        name: 'Child',
+        composition: []
+      });
+
+      expect(result).toBe(true);
+      expect(userNamespaceMIO.create).toHaveBeenCalled();
+      // root folder file first, then the child object
+      expect(userOpaqueFile.create.calls.count()).toBe(2);
+      expect(userOpaqueFile.create.calls.argsFor(0)[0].name).toBe('My User');
+      expect(userOpaqueFile.create.calls.argsFor(1)[0].name).toBe('Child');
+    });
+
+    it('only creates the namespace when the folder root itself is created', async () => {
+      const result = await mcwsPersistenceProvider.create({
+        identifier: { key: 'root', namespace: 'test-myUser' },
+        type: 'folder',
+        name: 'My User',
+        composition: []
+      });
+
+      expect(result).toBe(true);
+      expect(userNamespaceMIO.create).toHaveBeenCalled();
+      expect(userOpaqueFile.create.calls.count()).toBe(1);
+    });
+  });
 });
