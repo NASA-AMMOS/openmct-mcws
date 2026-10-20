@@ -4,11 +4,19 @@ import {
   CHANNEL_TABLE_SET_NAME
 } from '../constants.js';
 import ChannelTableSetViewProvider from './ChannelTableSetViewProvider.js';
+import ChannelTableSetViewActions from './ChannelTableSetViewActions.js';
 import channelTableSetCompositionPolicy from './ChannelTableSetCompositionPolicy.js';
+import ChannelTableSetConfigurationProvider from './ChannelTableSetConfigurationProvider.js';
 
-export default function ChannelTableSetPlugin() {
+export default function ChannelTableSetPlugin(options) {
   return function install(openmct) {
     openmct.objectViews.addProvider(new ChannelTableSetViewProvider(openmct));
+
+    openmct.inspectorViews.addProvider(new ChannelTableSetConfigurationProvider(openmct, options));
+
+    ChannelTableSetViewActions.forEach((action) => {
+      openmct.actions.register(action);
+    });
 
     openmct.types.addType(CHANNEL_TABLE_SET_KEY, {
       name: CHANNEL_TABLE_SET_NAME,
@@ -18,6 +26,10 @@ export default function ChannelTableSetPlugin() {
       cssClass: CHANNEL_TABLE_SET_ICON,
       initialize(domainObject) {
         domainObject.composition = [];
+        domainObject.configuration = {
+          columnWidths: {},
+          hiddenColumns: {}
+        };
       }
     });
 
