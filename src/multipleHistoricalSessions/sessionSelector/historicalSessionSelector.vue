@@ -50,6 +50,11 @@
         </div>
       </div>
       <div class="c-overlay__button-bar">
+        <session-snap-time-conductor
+          ref="snapTimeConductor"
+          :key="timeSystemKey"
+          :sessions="selectedSessionData"
+        />
         <a
           class="c-button c-button--major"
           :class="{ disabled: !selectedSessions.length }"
@@ -73,11 +78,14 @@
 <script>
 import TelemetryTable from 'openmct.tables.components.Table';
 import SessionService from 'services/session/SessionService.js';
+import SessionSnapTimeConductor from './sessionSnapTimeConductor.vue';
+import { getHistoricalSessionValues } from '../HistoricalSessionMetadata.js';
 import { nextTick } from 'vue';
 
 export default {
   components: {
-    TelemetryTable
+    TelemetryTable,
+    SessionSnapTimeConductor
   },
   inject: ['openmct', 'table'],
   props: {
@@ -93,6 +101,7 @@ export default {
       selectedHost: '',
       sessionsFilteredByHost: [],
       selectedSessions: [],
+      timeSystemKey: '',
       markingProp: {
         enable: true,
         useAlternateControlBar: true,
@@ -102,8 +111,30 @@ export default {
       isLoading: true
     };
   },
+  computed: {
+    selectedSessionData() {
+      return this.selectedSessions.map((row) => row.datum);
+    }
+  },
+  created() {
+    // Columns build on table.initialize() during the table mount below, so point
+    // the shared table at this open's columns here. Stale columns from a previous
+    // open (possibly for another time system) are dropped first.
+    const keyString = this.openmct.objects.makeKeyString(this.table.domainObject.identifier);
+
+    delete this.table.configuration.columns[keyString];
+    this.table.metadata = {
+      values: getHistoricalSessionValues(this.openmct.time.getTimeSystem().key)
+    };
+
+    // The snap conductor provides system-specific formatters at setup, so it
+    // remounts (fresh, toggled off) whenever the time system changes.
+    this.timeSystemKey = this.openmct.time.getTimeSystem().key;
+    this.openmct.time.on('timeSystemChanged', this.handleTimeSystemChanged);
+  },
   beforeUnmount() {
     this.table.destroy();
+    this.openmct.time.off('timeSystemChanged', this.handleTimeSystemChanged);
   },
   mounted() {
     this.sessionService = SessionService();
@@ -164,6 +195,9 @@ export default {
     updateSelectedSessions(sessions) {
       this.selectedSessions = sessions;
     },
+    handleTimeSystemChanged() {
+      this.timeSystemKey = this.openmct.time.getTimeSystem().key;
+    },
     clearHistoricalSessionFilter() {
       this.sessionService.setHistoricalSessionFilter();
       this.closeOverlay();
@@ -196,7 +230,9 @@ export default {
         numbers: selectedSessions.map((s) => s.number)
       };
 
-      this.sessionService.setHistoricalSessionFilter(sessionObject);
+      const snapBounds = this.$refs.snapTimeConductor?.getSnapBounds();
+
+      this.sessionService.setHistoricalSessionFilter(sessionObject, snapBounds);
       this.closeOverlay();
     },
     closeOverlay() {
