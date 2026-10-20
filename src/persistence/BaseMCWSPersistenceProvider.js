@@ -101,8 +101,10 @@ export default class BaseMCWSPersistenceProvider {
 
   /**
    * Returns namespace definitions for all namespaces contained in a given
-   * namespace.  Additionally, creates a contained namespace for the current
-   * user if one does not already exist.
+   * namespace.  The current user's namespace is always included (first),
+   * even if it has not been created in MCWS yet; it is materialized lazily
+   * on first write so that users who never save anything leave no folder
+   * behind.
    *
    * @param {NamespaceDefinition} namespaceDefinition.
    * @returns {NamespaceDefinition[]} containedNamespaces.
@@ -129,9 +131,10 @@ export default class BaseMCWSPersistenceProvider {
       return containedNamespaces;
     }
 
+    // Deliberately not created here: the folder is materialized on first
+    // write (see MCWSPersistenceProvider) so read-only users leave no
+    // folder behind.
     containedNamespaces.unshift(userNamespace);
-
-    await this.createIfMissing(userNamespace, user.id);
 
     return containedNamespaces;
   }
