@@ -262,6 +262,30 @@ describe('The MCWS Persistence Provider', () => {
       expect(userOpaqueFile.create.calls.argsFor(1)[0].name).toBe('Child');
     });
 
+    it('does not represent a missing non-root object in the current user folder', async () => {
+      const object = await mcwsPersistenceProvider.get({
+        key: 'someChild',
+        namespace: 'test-myUser'
+      });
+
+      expect(object).toBeUndefined();
+      expect(userNamespaceMIO.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects folder creation when the namespace read fails', async () => {
+      userNamespaceMIO.read.and.callFake(() => Promise.reject({ status: 500 }));
+
+      await expectAsync(
+        mcwsPersistenceProvider.create({
+          identifier: { key: 'root', namespace: 'test-myUser' },
+          type: 'folder',
+          name: 'My User',
+          composition: []
+        })
+      ).toBeRejected();
+      expect(userOpaqueFile.create).not.toHaveBeenCalled();
+    });
+
     it('only creates the namespace when the folder root itself is created', async () => {
       const result = await mcwsPersistenceProvider.create({
         identifier: { key: 'root', namespace: 'test-myUser' },
