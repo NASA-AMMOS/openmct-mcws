@@ -143,10 +143,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '24'
-        cache: npm
 
+    # No lock file is committed (package-lock.json is gitignored), so
+    # neither setup-node's npm cache nor npm ci can be used here.
     - name: Install dependencies
-      run: npm ci
+      run: npm install
 
     - name: Run tests with coverage
       run: npm test -- --browsers ChromeHeadlessNoSandbox
