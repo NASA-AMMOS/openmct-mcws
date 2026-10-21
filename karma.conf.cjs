@@ -61,10 +61,23 @@ module.exports = async function karmaConfig(config) {
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
     browsers: ['ChromeHeadless'],
 
+    // Headless Chrome for CI runners, where Chrome runs as root in a
+    // sandbox-less container (used by the SonarCloud workflow).
+    customLaunchers: {
+      ChromeHeadlessNoSandbox: {
+        base: 'ChromeHeadless',
+        flags: ['--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage']
+      }
+    },
+
     // Code coverage reporting.
     coverageReporter: {
       dir: 'target/coverage',
-      reports: ['html', 'text-summary']
+      reporters: [
+        { type: 'html', subdir: '.' },
+        { type: 'text-summary' },
+        { type: 'lcovonly', subdir: '.', file: 'lcov.info' }
+      ]
     },
 
     // HTML test reporting.
