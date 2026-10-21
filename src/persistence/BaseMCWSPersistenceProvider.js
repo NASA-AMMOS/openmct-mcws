@@ -206,7 +206,7 @@ export default class BaseMCWSPersistenceProvider {
               namespaceDefinition,
               []
             );
-            await this.create(model);
+            await namespace.opaqueFile(model.identifier.key).create(model);
           }
 
           return namespaceDefinition;
