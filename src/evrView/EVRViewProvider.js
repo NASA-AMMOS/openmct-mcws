@@ -1,4 +1,5 @@
 import EVRTable from './EVRTable.js';
+import attachTableScrollRepaint from './attachTableScrollRepaint.js';
 import TableComponent from 'openmct.tables.components.Table';
 import mount from 'ommUtils/mountVueComponent.js';
 import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
@@ -84,7 +85,14 @@ export default class EVRViewProvider {
         const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
-        _destroy = destroy;
+        const cancelScrollRepaint = attachTableScrollRepaint({
+          getTableComponent: () => component && component.$refs.tableComponent
+        });
+
+        _destroy = () => {
+          cancelScrollRepaint();
+          destroy();
+        };
       },
       onEditModeChange(editMode) {
         component.isEditing = editMode;
