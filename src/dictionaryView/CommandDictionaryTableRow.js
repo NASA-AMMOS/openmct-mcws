@@ -2,6 +2,7 @@ import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
 import DatasetCache from 'services/dataset/DatasetCache';
 import Types from 'types/types';
 import { VIEW_COMMAND_ACTION_KEY } from './ViewCommandAction.js';
+import { COPY_SELECTED_ROWS_ACTION_KEY } from 'lib/copySelectedRows';
 
 /**
  * Key string of the vista.command object for a command-dictionary row,
@@ -27,6 +28,6 @@ export default class CommandDictionaryTableRow extends TelemetryTableRow {
   }
 
   getContextMenuActions() {
-    return [VIEW_COMMAND_ACTION_KEY];
+    return [VIEW_COMMAND_ACTION_KEY, COPY_SELECTED_ROWS_ACTION_KEY];
   }
 }

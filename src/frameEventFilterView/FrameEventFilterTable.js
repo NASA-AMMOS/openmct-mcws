@@ -1,6 +1,6 @@
-import TelemetryTable from 'openmct.tables.TelemetryTable';
+import CopyableTelemetryTable from 'lib/CopyableTelemetryTable';
 
-export default class FrameEventFilterTable extends TelemetryTable {
+export default class FrameEventFilterTable extends CopyableTelemetryTable {
   requestDataFor() {
     return Promise.resolve([]);
   }

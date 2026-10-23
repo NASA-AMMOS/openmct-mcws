@@ -1,6 +1,7 @@
 import CommandEventsTable from './CommandEventsTable.js';
 import TableComponent from 'openmct.tables.components.Table';
 import mount from 'ommUtils/mountVueComponent.js';
+import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
 
 export default class CommandEventsViewProvider {
   constructor(openmct, options) {
@@ -84,6 +85,13 @@ export default class CommandEventsViewProvider {
             type: 'telemetry-table'
           };
         }
+      },
+      getSelectedRowsText() {
+        if (component?.$refs.tableComponent) {
+          return selectedRowsTextFromTableComponent(component.$refs.tableComponent);
+        }
+
+        return '';
       },
       destroy: function () {
         _destroy?.();

@@ -66,6 +66,14 @@ describe('CommandDictionary', () => {
     expect(command.description).toBe('Turns the hardware power on.');
   });
 
+  it('returns the no-arg FSW_NO_OP command definition', async () => {
+    const command = await commandDictionary.getCommand('FSW_NO_OP');
+
+    expect(command.stem).toBe('FSW_NO_OP');
+    expect(command.type).toBe('fsw_command');
+    expect(command.arguments).toEqual([]);
+  });
+
   it('returns a missing placeholder for unknown stems', async () => {
     const command = await commandDictionary.getCommand('NO_SUCH_COMMAND');
 
@@ -79,7 +87,7 @@ describe('CommandDictionary', () => {
     expect(groups.map((group) => group.key)).toEqual(['fsw', 'hw']);
 
     const fswStems = await commandDictionary.getGroupCommandStems('fsw');
-    expect(fswStems).toEqual(['FSW_CONFIGURE', 'FSW_SET_MODE']);
+    expect(fswStems).toEqual(['FSW_CONFIGURE', 'FSW_NO_OP', 'FSW_SET_MODE']);
 
     const hwStems = await commandDictionary.getGroupCommandStems('hw');
     expect(hwStems).toEqual(['HDW_POWER_OFF', 'HDW_POWER_ON']);

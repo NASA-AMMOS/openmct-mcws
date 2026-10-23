@@ -1,6 +1,7 @@
 import FrameEventFilterTable from './FrameEventFilterTable.js';
 import TableComponent from 'openmct.tables.components.Table';
 import mount from 'ommUtils/mountVueComponent.js';
+import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
 
 export default class FrameEventFilterViewProvider {
   constructor(openmct, options) {
@@ -85,6 +86,13 @@ export default class FrameEventFilterViewProvider {
             type: 'telemetry-table'
           };
         }
+      },
+      getSelectedRowsText() {
+        if (component?.$refs.tableComponent) {
+          return selectedRowsTextFromTableComponent(component.$refs.tableComponent);
+        }
+
+        return '';
       },
       destroy: function () {
         _destroy?.();

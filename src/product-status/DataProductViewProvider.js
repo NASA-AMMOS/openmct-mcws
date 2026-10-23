@@ -4,6 +4,7 @@ import DATDownloadCell from './DATDownloadCell.js';
 import EMDDownloadCell from './EMDDownloadCell.js';
 import EMDPreviewCell from './EMDPreviewCell.js';
 import TXTDownloadCell from './TXTDownloadCell.js';
+import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
 
 import { createApp, defineComponent } from 'vue';
 export default class DataProductViewProvider {
@@ -110,6 +111,13 @@ export default class DataProductViewProvider {
             dataProductView: true
           };
         }
+      },
+      getSelectedRowsText() {
+        if (component?.$refs.tableComponent) {
+          return selectedRowsTextFromTableComponent(component.$refs.tableComponent);
+        }
+
+        return '';
       },
       destroy: function () {
         _destroy?.();

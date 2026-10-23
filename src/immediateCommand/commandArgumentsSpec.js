@@ -1,8 +1,11 @@
 import {
+  blankArgumentValues,
   buildCommandString,
+  commandHasDefaults,
   defaultArgumentValues,
   emptyRepeatSet,
   inputArguments,
+  parseCommandString,
   parseRepeatJson,
   validateArgument,
   validateCommandArguments
@@ -287,11 +290,7 @@ describe('commandArguments', () => {
 
     it('parses repeat JSON into sets with defaults filled', () => {
       expect(
-        parseRepeatJson(
-          channels,
-          '[{"id": 1, "state": "NOMINAL"}, {"id": "2"}]',
-          plandevEnums
-        )
+        parseRepeatJson(channels, '[{"id": 1, "state": "NOMINAL"}, {"id": "2"}]', plandevEnums)
       ).toEqual({
         sets: [
           { id: 1, state: 'NOMINAL' },
@@ -336,6 +335,121 @@ describe('commandArguments', () => {
       expect(
         parseRepeatJson(channels, '[{"id": "1"}, {"id": "2"}, {"id": "3"}]', plandevEnums)
       ).toEqual({ sets: null, error: 'Allows at most 2 repeat sets' });
+    });
+  });
+
+  describe('parseCommandString', () => {
+    it('round-trips a built command string', () => {
+      const text = buildCommandString(
+        'FSW_SET_MODE',
+        setModeCommand,
+        { mode: 'CLEAR_ALL', force: 'TRUE' },
+        enumMap
+      );
+
+      expect(parseCommandString(text, setModeCommand, enumMap)).toEqual({
+        values: { mode: 'CLEAR_ALL', force: 'TRUE' },
+        error: null
+      });
+    });
+
+    it('matches the stem, enum symbols, and boolean forms case-insensitively', () => {
+      expect(parseCommandString('fsw_set_mode,clear_all,true', setModeCommand, enumMap)).toEqual({
+        values: { mode: 'CLEAR_ALL', force: 'TRUE' },
+        error: null
+      });
+    });
+
+    it('accepts enum numeric values and normalizes to the symbol', () => {
+      expect(parseCommandString('FSW_SET_MODE,1,FALSE', setModeCommand, enumMap).values.mode).toBe(
+        'CLEAR_ALL'
+      );
+    });
+
+    it('keeps quoted string values with commas in one argument', () => {
+      const echo = { stem: 'ECHO', arguments: [{ name: 'text', arg_type: 'var_string' }] };
+
+      expect(parseCommandString('ECHO,"a,b"', echo)).toEqual({
+        values: { text: 'a,b' },
+        error: null
+      });
+    });
+
+    it('parses repeat arguments as a count followed by each set', () => {
+      const plandevEnums = {
+        Mode: {
+          values: [
+            { symbol: 'SAFE', numeric: 0 },
+            { symbol: 'NOMINAL', numeric: 1 }
+          ]
+        }
+      };
+      const channels = {
+        name: 'channels',
+        arg_type: 'repeat',
+        repeat: {
+          min: 1,
+          max: 2,
+          arguments: [
+            { name: 'id', arg_type: 'unsigned' },
+            { name: 'state', arg_type: 'enum', enum_name: 'Mode' }
+          ]
+        }
+      };
+      const cfg = { stem: 'CFG', arguments: [channels] };
+
+      expect(parseCommandString('CFG,2,1,NOMINAL,2,safe', cfg, plandevEnums)).toEqual({
+        values: {
+          channels: [
+            { id: '1', state: 'NOMINAL' },
+            { id: '2', state: 'SAFE' }
+          ]
+        },
+        error: null
+      });
+    });
+
+    it('rejects a mismatched stem, bad counts, and unterminated quotes', () => {
+      const mismatched = parseCommandString('OTHER,1,TRUE', setModeCommand, enumMap);
+
+      expect(mismatched.values).toBe(null);
+      expect(mismatched.error).toContain('not FSW_SET_MODE');
+      expect(parseCommandString('FSW_SET_MODE,CLEAR_A', setModeCommand, enumMap).values).toBe(null);
+      expect(
+        parseCommandString('FSW_SET_MODE,CLEAR_A,TRUE,EXTRA', setModeCommand, enumMap).values
+      ).toBe(null);
+      expect(parseCommandString('FSW_SET_MODE,"CLEAR_A', setModeCommand, enumMap)).toEqual({
+        values: null,
+        error: 'Unterminated double quote'
+      });
+    });
+  });
+
+  describe('blank values and strict defaults', () => {
+    it('seeds a blank form with every input argument', () => {
+      expect(
+        blankArgumentValues({ arguments: [modeArgument, forceArgument, retriesArgument] })
+      ).toEqual({ mode: '', force: '', retries: '' });
+    });
+
+    it('detects commands that declare defaults', () => {
+      expect(commandHasDefaults(setModeCommand)).toBe(true);
+      expect(commandHasDefaults({ arguments: [forceArgument, retriesArgument] })).toBe(false);
+    });
+
+    it('requires blanks for defaulted arguments when defaults are off', () => {
+      const strict = validateCommandArguments(
+        setModeCommand,
+        { mode: '', force: 'TRUE' },
+        enumMap,
+        { applyDefaults: false }
+      );
+
+      expect(strict.valid).toBe(false);
+      expect(strict.errors.mode).toBe('Value required');
+      expect(
+        validateCommandArguments(setModeCommand, { mode: '', force: 'TRUE' }, enumMap).valid
+      ).toBe(true);
     });
   });
 });

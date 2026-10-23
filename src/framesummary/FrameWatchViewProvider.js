@@ -79,6 +79,13 @@ export default class FrameWatchViewProvider {
           };
         }
       },
+      getSelectedRowsText() {
+        if (component?.$refs.frameWatchViewComponent) {
+          return component.$refs.frameWatchViewComponent.getSelectedRowsText();
+        }
+
+        return '';
+      },
       destroy: function () {
         _destroy?.();
       }
