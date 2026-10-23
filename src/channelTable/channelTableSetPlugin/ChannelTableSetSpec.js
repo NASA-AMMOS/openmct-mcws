@@ -234,6 +234,29 @@ describe('ChannelTableSet pause', () => {
     expect(set().isMarked('ch1')).toBe(true);
   });
 
+  it('copies marked rows as CSV with a header row', () => {
+    set().ladTableObjects = [{ key: 'table1', domainObject: {}, objectPath: [] }];
+    set().ladTelemetryObjects = { table1: [{ key: 'ch1', domainObject: {} }] };
+    set().rowRefs = {
+      ch1: {
+        id: 'CH1',
+        name: 'Bus Voltage',
+        value: '28.1',
+        formattedTimestamp: '2026-001T00:00:00.000'
+      }
+    };
+    set().timesystem = 'scet';
+    set().markedRows = [{ key: 'ch1' }];
+
+    expect(set().getSelectedRowsText()).toBe(
+      '"ID","Title","Value","scet"\r\n"CH1","Bus Voltage","28.1","2026-001T00:00:00.000"'
+    );
+
+    set().markedRows = [];
+
+    expect(set().getSelectedRowsText()).toBe('');
+  });
+
   it('keeps export actions out of the status bar', () => {
     const byKey = Object.fromEntries(
       ChannelTableSetViewActions.map((action) => [action.key, action])

@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="c-immediate-command"
-    :class="{ 'is-collapsed': collapsed, 'is-narrow': isNarrow }"
-  >
+  <div class="c-immediate-command" :class="{ 'is-collapsed': collapsed, 'is-narrow': isNarrow }">
     <div class="c-immediate-command__sidebar" :style="sidebarStyle">
       <div class="c-immediate-command__dataset">
         <label>
@@ -19,8 +16,9 @@
           v-model="searchText"
           class="c-immediate-command__search"
           type="text"
-          placeholder="Search stems"
-          aria-label="Search command stems"
+          placeholder="Search stems, or paste STEM,arg1,arg2…"
+          aria-label="Search command stems, or paste a command string"
+          @keydown.enter="onSearchEnter"
         />
         <div class="c-immediate-command__filters">
           <button
@@ -68,6 +66,10 @@
       <template v-else-if="selectedCommand">
         <h2>{{ selectedStem }}</h2>
         <p>{{ selectedCommand.description }}</p>
+        <label v-if="selectedCommandHasDefaults" class="c-immediate-command__defaults">
+          <input v-model="useDefaults" type="checkbox" @change="onUseDefaultsChange" />
+          Use dictionary defaults
+        </label>
         <div
           v-for="argument in formArguments"
           :key="argument.name"
@@ -186,11 +188,7 @@
                   Remove set
                 </button>
               </div>
-              <button
-                class="c-button"
-                :disabled="!canAddSet(argument)"
-                @click="addSet(argument)"
-              >
+              <button class="c-button" :disabled="!canAddSet(argument)" @click="addSet(argument)">
                 Add set
               </button>
             </template>
@@ -257,6 +255,15 @@
       <div v-if="sentCommands.length > 0" class="c-immediate-command__history">
         <h3>Sent commands</h3>
         <p>{{ statusSourceText }}</p>
+        <div class="c-immediate-command__history-actions">
+          <template v-if="markedKeys.length > 0">
+            <span>
+              {{ markedKeys.length }}
+              {{ markedKeys.length === 1 ? 'command' : 'commands' }} selected
+            </span>
+            <button class="c-button" @click="unmarkAllRows">Unmark All Rows</button>
+          </template>
+        </div>
         <div class="c-immediate-command__history-scroll">
           <table class="c-table c-immediate-command__history-table">
             <thead>
@@ -269,7 +276,17 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(entry, index) in sentCommands" :key="entry.commandId || index">
+              <tr
+                v-for="(entry, index) in sentCommands"
+                :key="entry.commandId || index"
+                :class="{ 'is-selected': isMarked(entry) }"
+                :aria-selected="isMarked(entry)"
+                tabindex="0"
+                @click="onHistoryRowClick(entry, index, $event)"
+                @contextmenu.prevent="onHistoryRowContextMenu(entry, index, $event)"
+                @keydown.enter.prevent="onHistoryRowClick(entry, index, $event)"
+                @keydown.space.prevent="onHistoryRowClick(entry, index, $event)"
+              >
                 <td>{{ entry.dispatchTime }}</td>
                 <td>{{ entry.sessionId }}</td>
                 <td>{{ entry.requested }}</td>
@@ -298,16 +315,21 @@ import datasetCache from 'services/dataset/DatasetCache.js';
 import mcws from 'services/mcws/mcws.js';
 import sessionServiceDefault from 'services/session/SessionService.js';
 import {
+  blankArgumentValues,
   buildCommandString,
+  commandHasDefaults,
+  commandStemToken,
   defaultArgumentValues,
   emptyRepeatSet,
   inputArguments,
   isRepeatArgument,
+  parseCommandString,
   parseRepeatJson,
   repeatBounds,
   validateCommandArguments
 } from '../commandArguments.js';
 import { stemListWidth } from '../stemListWidth.js';
+import { copyTextToClipboard, encodeRowsToCsv } from 'lib/copySelectedRows';
 import { openCommandEventStream } from '../../missionControl/commandEventStream.js';
 import { formatDayOfYear } from '../../missionControl/commandStatusTracker.js';
 
@@ -350,6 +372,9 @@ export default {
       repeatJsonText: {},
       repeatJsonErrors: {},
       simulatorText: '',
+      useDefaults: false,
+      markedKeys: [],
+      markAnchorIndex: null,
       result: null,
       sendError: null,
       sending: false,
@@ -366,6 +391,9 @@ export default {
     formArguments() {
       return inputArguments(this.selectedCommand);
     },
+    selectedCommandHasDefaults() {
+      return this.selectedCommand ? commandHasDefaults(this.selectedCommand) : false;
+    },
     sentCommands() {
       return this.missionControlService.commandStatus.entries;
     },
@@ -379,7 +407,9 @@ export default {
       return Boolean(this.currentDataset()?.options?.commandEventUrl);
     },
     visibleStems() {
-      const query = this.searchText.trim().toLowerCase();
+      // A pasted command string ("STEM,arg1,...") still searches by its
+      // stem token; the arguments apply when the command is selected.
+      const query = (this.searchText.split(',')[0] || '').trim().toLowerCase();
 
       return this.stemsForType(this.typeFilter).filter((stem) => {
         return stem.toLowerCase().includes(query);
@@ -719,8 +749,11 @@ export default {
         }
 
         this.selectedCommand = command;
-        this.argValues = defaultArgumentValues(command);
+        this.argValues = this.useDefaults
+          ? defaultArgumentValues(command)
+          : blankArgumentValues(command);
         this.argErrors = {};
+        this.applyPastedSearchArguments();
         this.collapsed = true;
       } catch (error) {
         this.selectedCommand = null;
@@ -732,7 +765,11 @@ export default {
         return false;
       }
 
-      return argument.default_value === undefined || argument.default_value === null;
+      // With dictionary defaults off, a defaulted argument must be
+      // entered explicitly, so it reads as required too.
+      return (
+        !this.useDefaults || argument.default_value === undefined || argument.default_value === null
+      );
     },
     isBooleanArgument(argument) {
       return (argument.arg_type || '').toLowerCase() === 'boolean';
@@ -796,6 +833,12 @@ export default {
 
       return units !== '' && units.toLowerCase() !== 'none';
     },
+    validationOptions() {
+      // Strict when defaults are off: the form must show exactly what
+      // will be sent, so a blank errors instead of silently picking up
+      // the dictionary default.
+      return { applyDefaults: this.useDefaults };
+    },
     validateForm() {
       if (this.typeFilter === 'sim' || this.selectedGroup === 'hw' || !this.selectedCommand) {
         return;
@@ -804,8 +847,294 @@ export default {
       this.argErrors = validateCommandArguments(
         this.selectedCommand,
         this.argValues,
-        this.enumMap
+        this.enumMap,
+        this.validationOptions()
       ).errors;
+    },
+    onUseDefaultsChange() {
+      if (this.useDefaults) {
+        this.fillDefaultValuesIntoBlanks();
+      }
+
+      this.validateForm();
+    },
+    fillDefaultValuesIntoBlanks() {
+      if (!this.selectedCommand) {
+        return;
+      }
+
+      inputArguments(this.selectedCommand).forEach((argument) => {
+        if (isRepeatArgument(argument)) {
+          (this.argValues[argument.name] || []).forEach((set) => {
+            this.repeatChildren(argument).forEach((child) => {
+              if (
+                !this.hasValue(set[child.name]) &&
+                child.default_value !== undefined &&
+                child.default_value !== null
+              ) {
+                set[child.name] = child.default_value;
+              }
+            });
+          });
+
+          return;
+        }
+
+        if (
+          !this.hasValue(this.argValues[argument.name]) &&
+          argument.default_value !== undefined &&
+          argument.default_value !== null
+        ) {
+          this.argValues[argument.name] = argument.default_value;
+        }
+      });
+    },
+    resolveStemToken(token) {
+      const wanted = String(token || '').toUpperCase();
+
+      return (
+        [...this.fswStems, ...this.hwStems].find((stem) => stem.toUpperCase() === wanted) || null
+      );
+    },
+    async loadParsedCommand(commandText, reportError) {
+      const token = commandStemToken(commandText);
+      const stem = token ? this.resolveStemToken(token) : null;
+
+      if (!stem) {
+        reportError(token ? `Unknown command: ${token}` : 'Enter a command string first.');
+
+        return false;
+      }
+
+      this.typeFilter = this.fswStems.includes(stem) ? 'fsw' : 'hw';
+      await this.selectStem(stem);
+
+      if (!this.selectedCommand) {
+        reportError(`Unknown command: ${token}`);
+
+        return false;
+      }
+
+      if (this.selectedGroup === 'hw') {
+        if (commandStemToken(commandText) !== commandText.trim()) {
+          reportError(`${stem} takes no argument values.`);
+
+          return false;
+        }
+
+        return true;
+      }
+
+      const { values, error } = parseCommandString(commandText, this.selectedCommand, this.enumMap);
+
+      if (error) {
+        reportError(error);
+
+        return false;
+      }
+
+      this.argValues = values;
+      this.validateForm();
+
+      return true;
+    },
+    onSearchEnter() {
+      // Single remaining match: Enter selects it (and applies any
+      // pasted arguments through the normal selection path).
+      if (this.visibleStems.length === 1) {
+        this.selectStem(this.visibleStems[0]);
+      }
+    },
+    applyPastedSearchArguments() {
+      const text = this.searchText;
+
+      if (!text || !text.includes(',') || !this.selectedCommand) {
+        return;
+      }
+
+      const token = commandStemToken(text);
+
+      if (!token || token.toUpperCase() !== String(this.selectedCommand.stem).toUpperCase()) {
+        return;
+      }
+
+      const { values, error } = parseCommandString(text, this.selectedCommand, this.enumMap);
+
+      if (error) {
+        this.sendError = `Could not apply pasted arguments: ${error}`;
+
+        return;
+      }
+
+      this.argValues = values;
+      this.validateForm();
+    },
+    historyKey(entry) {
+      return entry.commandId ?? `${entry.dispatchTime}|${entry.requested}`;
+    },
+    isMarked(entry) {
+      return this.markedKeys.includes(this.historyKey(entry));
+    },
+    onHistoryRowClick(entry, index, event) {
+      const key = this.historyKey(entry);
+
+      if (event?.shiftKey && this.markAnchorIndex !== null) {
+        // Range marking from the anchor row, like the telemetry tables.
+        const start = Math.min(this.markAnchorIndex, index);
+        const end = Math.max(this.markAnchorIndex, index);
+
+        this.markedKeys = this.sentCommands
+          .slice(start, end + 1)
+          .map((candidate) => this.historyKey(candidate));
+
+        return;
+      }
+
+      if (event?.ctrlKey || event?.metaKey) {
+        this.markedKeys = this.markedKeys.includes(key)
+          ? this.markedKeys.filter((candidate) => candidate !== key)
+          : [...this.markedKeys, key];
+      } else {
+        this.markedKeys = this.markedKeys.includes(key) ? [] : [key];
+      }
+
+      this.markAnchorIndex = index;
+    },
+    unmarkAllRows() {
+      this.markedKeys = [];
+      this.markAnchorIndex = null;
+    },
+    onHistoryRowContextMenu(entry, index, event) {
+      // Core tables mark the clicked row before offering row actions,
+      // but never unmark here: right-clicking the one marked row is how
+      // you act on it.
+      const key = this.historyKey(entry);
+
+      if (event?.ctrlKey || event?.metaKey) {
+        this.markedKeys = this.markedKeys.includes(key)
+          ? this.markedKeys.filter((candidate) => candidate !== key)
+          : [...this.markedKeys, key];
+        this.markAnchorIndex = index;
+      } else if (event?.shiftKey && this.markAnchorIndex !== null) {
+        const start = Math.min(this.markAnchorIndex, index);
+        const end = Math.max(this.markAnchorIndex, index);
+
+        this.markedKeys = this.sentCommands
+          .slice(start, end + 1)
+          .map((candidate) => this.historyKey(candidate));
+      } else if (!this.markedKeys.includes(key)) {
+        this.markedKeys = [key];
+        this.markAnchorIndex = index;
+      }
+
+      if (!this.markedKeys.length) {
+        return;
+      }
+
+      const menuItems = [
+        {
+          name: 'Copy Selected',
+          cssClass: 'icon-duplicate',
+          onItemClicked: () => this.copySelectedHistoryRows()
+        }
+      ];
+
+      // Only one command may be sent (or queued) at a time, so the
+      // re-queue and copy-command actions apply only to a single-row selection.
+      if (this.markedKeys.length === 1) {
+        const target = this.sentCommands.find(
+          (candidate) => this.historyKey(candidate) === this.markedKeys[0]
+        );
+
+        if (target) {
+          menuItems.unshift(
+            {
+              name: 'Re-queue',
+              cssClass: 'icon-command',
+              onItemClicked: () => this.requeue(target)
+            },
+            {
+              name: 'Copy Command',
+              cssClass: 'icon-duplicate',
+              onItemClicked: () => this.copyCommand(target)
+            }
+          );
+        }
+      }
+
+      if (this.openmct?.menus?.showMenu) {
+        this.openmct.menus.showMenu(event.x, event.y, menuItems);
+      }
+    },
+    async copyCommand(entry) {
+      const text = entry.requested || '';
+
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        // Fall back for contexts without async-clipboard permission.
+        const textarea = document.createElement('textarea');
+
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+          document.execCommand('copy');
+        } catch {
+          // Nothing more to try; the command text stays visible in the row.
+        }
+
+        textarea.remove();
+      }
+
+      if (this.openmct?.notifications?.info) {
+        this.openmct.notifications.info('Command copied to clipboard');
+      }
+    },
+    copySelectedHistoryRows() {
+      const headers = ['Dispatched', 'Session', 'Command', 'Radiation status', 'Detail'];
+      const rows = this.markedKeys
+        .map((key) => this.sentCommands.find((entry) => this.historyKey(entry) === key))
+        .filter(Boolean)
+        .map((entry) => ({
+          Dispatched: entry.dispatchTime,
+          Session: entry.sessionId,
+          Command: entry.requested,
+          'Radiation status': entry.final ? `${entry.status} (final)` : entry.status,
+          Detail: this.statusDetail(entry)
+        }));
+
+      if (!rows.length) {
+        return Promise.resolve(false);
+      }
+
+      return copyTextToClipboard(encodeRowsToCsv(rows, headers)).then((copied) => {
+        if (copied && this.openmct?.notifications?.info) {
+          this.openmct.notifications.info('Selected rows copied to clipboard');
+        }
+
+        return copied;
+      });
+    },
+    async requeue(entry) {
+      this.sendError = null;
+      this.result = null;
+
+      if (entry.kind === 'sim') {
+        this.typeFilter = 'sim';
+        this.simulatorText = entry.requested || '';
+
+        return;
+      }
+
+      // Hardware commands carry only a stem; loadParsedCommand selects
+      // the form and rejects stray values.
+      await this.loadParsedCommand(entry.requested || '', (message) => {
+        this.sendError = message;
+      });
     },
     hasValue(value) {
       return value !== undefined && value !== null && value !== '';
@@ -872,7 +1201,8 @@ export default {
           const { valid, errors } = validateCommandArguments(
             this.selectedCommand,
             this.argValues,
-            this.enumMap
+            this.enumMap,
+            this.validationOptions()
           );
 
           this.argErrors = errors;
@@ -986,11 +1316,18 @@ export default {
 .c-immediate-command__arg-description {
   opacity: 0.8;
 }
+/* White fields by design (they stay legible where a theme's select
+   face is transparent or body-colored); the ring + drop shadow gives
+   the edge core only draws via its themed face, so fields still stand
+   out on white backgrounds. */
 .c-immediate-command__detail input,
 .c-immediate-command__detail select,
 .c-immediate-command__detail textarea {
   background-color: #ffffff;
   color: #000000;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.28),
+    rgba(0, 0, 0, 0.5) 0 0.5px 3px;
   max-width: 100%;
   box-sizing: border-box;
 }
@@ -998,6 +1335,27 @@ export default {
 .c-immediate-command__detail select.is-invalid,
 .c-immediate-command__detail textarea.is-invalid {
   background-color: #f8d7da;
+}
+.c-immediate-command__defaults {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0;
+}
+.c-immediate-command__history-actions {
+  /* Always rendered at the populated bar height (button is 34px) so
+     marking rows never shifts the table, matching the reserved
+     control-bar space in core tables. */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+}
+.c-immediate-command__history-table tbody tr {
+  cursor: pointer;
+}
+.c-immediate-command__history-table tr.is-selected td {
+  background-color: rgba(100, 130, 170, 0.35);
 }
 .c-immediate-command__simulator {
   width: 100%;

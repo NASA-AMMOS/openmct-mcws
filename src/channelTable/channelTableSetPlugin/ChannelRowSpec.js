@@ -7,11 +7,14 @@ describe('ChannelRow pause', () => {
   let destroyFn = null;
   let rootInstance = null;
   let collectionHandlers;
+  let openmctMock = null;
 
   function mockOpenmct() {
     collectionHandlers = {};
 
-    return {
+    openmctMock = {
+      requestedActionKeys: [],
+      menuCalls: [],
       objects: {
         makeKeyString: () => 'test-key'
       },
@@ -43,17 +46,32 @@ describe('ChannelRow pause', () => {
         on() {},
         off() {},
         getTimeSystem: () => ({ key: 'scet' })
+      },
+      menus: {
+        actionsToMenuItems: (actions) => actions,
+        showMenu: (...args) => {
+          openmctMock.menuCalls.push(args);
+        }
+      },
+      actions: {
+        getAction: (key) => {
+          openmctMock.requestedActionKeys.push(key);
+
+          return { key };
+        }
       }
     };
+
+    return openmctMock;
   }
 
-  function mountRow(paused, marked = false, widths = {}) {
+  function mountRow(paused, marked = false, widths = {}, currentView = {}) {
     element = document.createElement('div');
     const { componentInstance, destroy } = mount(
       {
         provide: {
           openmct: mockOpenmct(),
-          currentView: {}
+          currentView
         },
         components: {
           ChannelRow
@@ -226,5 +244,23 @@ describe('ChannelRow pause', () => {
       expect(cells[0].style.width).toBe('');
       done();
     });
+  });
+
+  it('offers Copy Selected in the context menu when rows are selected', () => {
+    mountRow(true, true, {}, { getSelectedRowsText: () => 'ID,Title' });
+
+    row().showContextMenu(new MouseEvent('contextmenu', { bubbles: true }));
+
+    expect(openmctMock.requestedActionKeys).toContain('vista.copySelectedRows');
+    expect(openmctMock.menuCalls.length).toBe(1);
+  });
+
+  it('omits Copy Selected from the context menu when nothing is selected', () => {
+    mountRow(true, true, {}, { getSelectedRowsText: () => '' });
+
+    row().showContextMenu(new MouseEvent('contextmenu', { bubbles: true }));
+
+    expect(openmctMock.requestedActionKeys).not.toContain('vista.copySelectedRows');
+    expect(openmctMock.menuCalls.length).toBe(1);
   });
 });

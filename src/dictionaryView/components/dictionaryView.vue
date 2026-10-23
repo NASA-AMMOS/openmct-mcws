@@ -4,7 +4,7 @@
       v-if="rowsLength"
       class="l-preview-window__object-view l-preview-window__object-view-no-padding"
     >
-      <telemetry-table :marking="markingProp" :enable-legacy-toolbar="true">
+      <telemetry-table ref="tableComponent" :marking="markingProp" :enable-legacy-toolbar="true">
         <div class="c-table-and-summary__summary">
           <div class="c-table-and-summary__summary-item">
             Dictionary URL:
@@ -26,6 +26,7 @@
 
 <script>
 import TelemetryTable from 'openmct.tables.components.Table';
+import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
 
 export default {
   components: {
@@ -58,6 +59,13 @@ export default {
     });
   },
   methods: {
+    getSelectedRowsText() {
+      if (this.$refs.tableComponent) {
+        return selectedRowsTextFromTableComponent(this.$refs.tableComponent);
+      }
+
+      return '';
+    },
     processData(data) {
       this.populateTable(data);
     },

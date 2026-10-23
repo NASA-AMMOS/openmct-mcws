@@ -1,6 +1,7 @@
 import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
 import DatasetCache from 'services/dataset/DatasetCache';
 import Types from 'types/types';
+import { COPY_SELECTED_ROWS_ACTION_KEY } from 'lib/copySelectedRows';
 
 export default class AlarmsViewHistoricalContextTableRow extends TelemetryTableRow {
   getContextualDomainObject(openmct, objectKeyString) {
@@ -21,7 +22,7 @@ export default class AlarmsViewHistoricalContextTableRow extends TelemetryTableR
   }
 
   getContextMenuActions() {
-    return ['viewHistoricalData'];
+    return ['viewHistoricalData', COPY_SELECTED_ROWS_ACTION_KEY];
   }
 
   getRowId() {

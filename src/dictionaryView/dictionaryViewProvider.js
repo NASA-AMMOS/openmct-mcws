@@ -82,6 +82,13 @@ export default class DictionaryViewProvider {
       getViewContext() {
         return {};
       },
+      getSelectedRowsText() {
+        if (component?.$refs.dictionaryView) {
+          return component.$refs.dictionaryView.getSelectedRowsText();
+        }
+
+        return '';
+      },
       destroy: function () {
         _destroy?.();
       }

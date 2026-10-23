@@ -47,6 +47,14 @@ export default class ChannelTableSetView {
     return this.component.$refs.channelTableSet.getViewContext();
   }
 
+  getSelectedRowsText() {
+    if (this.component?.$refs.channelTableSet) {
+      return this.component.$refs.channelTableSet.getSelectedRowsText();
+    }
+
+    return '';
+  }
+
   destroy() {
     this._destroy?.();
   }

@@ -73,6 +73,7 @@
 <script>
 import ChannelRow from './ChannelRow.vue';
 import CSVExporter, { sanitizeCsvFormulaInjection } from '@/exporters/CSVExporter.js';
+import { encodeRowsToCsv } from 'lib/copySelectedRows';
 export default {
   components: {
     ChannelRow
@@ -521,6 +522,15 @@ export default {
     exportMarkedDataAsCSV() {
       const keys = this.markedRows.map((markedRow) => markedRow.key);
       this.exportAsCSV(this.getSetRowData(keys));
+    },
+    getSelectedRowsText() {
+      const keys = this.markedRows.map((markedRow) => markedRow.key);
+
+      if (!keys.length) {
+        return '';
+      }
+
+      return encodeRowsToCsv(this.getSetRowData(keys), ['ID', 'Title', 'Value', this.timesystem]);
     },
     getViewContext() {
       return {

@@ -78,6 +78,13 @@ export default class ProductSummaryViewProvider {
           };
         }
       },
+      getSelectedRowsText() {
+        if (component?.$refs.packetSummaryViewComponent) {
+          return component.$refs.packetSummaryViewComponent.getSelectedRowsText();
+        }
+
+        return '';
+      },
       destroy: function () {
         _destroy?.();
       }

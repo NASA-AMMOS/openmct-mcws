@@ -1,4 +1,5 @@
 import mount from 'ommUtils/mountVueComponent.js';
+import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
 import TableComponent from 'openmct.tables.components.Table';
 import AlarmsTable from './AlarmsTable.js';
 
@@ -89,6 +90,13 @@ export default class AlarmsViewProvider {
             'vista.alarmsView': true
           };
         }
+      },
+      getSelectedRowsText() {
+        if (component?.$refs.tableComponent) {
+          return selectedRowsTextFromTableComponent(component.$refs.tableComponent);
+        }
+
+        return '';
       },
       destroy: function () {
         _destroy?.();

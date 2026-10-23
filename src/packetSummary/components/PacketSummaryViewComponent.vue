@@ -19,6 +19,7 @@
 
 <script>
 import TableComponent from 'openmct.tables.components.Table';
+import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
 
 export default {
   components: {
@@ -63,6 +64,13 @@ export default {
       if (tableComponent) {
         return tableComponent.getViewContext();
       }
+    },
+    getSelectedRowsText() {
+      if (this.$refs.tableComponent) {
+        return selectedRowsTextFromTableComponent(this.$refs.tableComponent);
+      }
+
+      return '';
     },
     updateHeader() {
       this.fswValid = this.table.fswValid;

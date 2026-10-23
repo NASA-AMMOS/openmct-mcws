@@ -325,6 +325,13 @@
       "stem": "FSW_CONFIGURE",
       "type": "fsw_command"
     },
+    "FSW_NO_OP": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "No-op command for loopback testing; the dev test server answers with a NO Op Complete COMMAND EVR.",
+      "stem": "FSW_NO_OP",
+      "type": "fsw_command"
+    },
     "FSW_SET_MODE": {
       "argumentMap": {
         "mode": {
@@ -659,6 +666,13 @@
       ],
       "description": "Configures the flight software.",
       "stem": "FSW_CONFIGURE",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "No-op command for loopback testing; the dev test server answers with a NO Op Complete COMMAND EVR.",
+      "stem": "FSW_NO_OP",
       "type": "fsw_command"
     },
     {

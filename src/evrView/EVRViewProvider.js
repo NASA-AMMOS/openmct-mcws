@@ -1,6 +1,7 @@
 import EVRTable from './EVRTable.js';
 import TableComponent from 'openmct.tables.components.Table';
 import mount from 'ommUtils/mountVueComponent.js';
+import { selectedRowsTextFromTableComponent } from 'lib/copySelectedRows';
 
 const RESTRICTED_VIEWS = ['plot-single', 'table'];
 const EVR_SOURCES = ['evrHistoricalUrl', 'evrStreamUrl', 'evrLADUrl'];
@@ -99,6 +100,13 @@ export default class EVRViewProvider {
             type: 'telemetry-table'
           };
         }
+      },
+      getSelectedRowsText() {
+        if (component?.$refs.tableComponent) {
+          return selectedRowsTextFromTableComponent(component.$refs.tableComponent);
+        }
+
+        return '';
       },
       destroy: function () {
         _destroy?.();

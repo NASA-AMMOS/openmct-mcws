@@ -104,6 +104,50 @@ export function defaultArgumentValues(command) {
   return values;
 }
 
+function blankRepeatSet(argument) {
+  const set = {};
+
+  repeatChildren(argument).forEach((child) => {
+    set[child.name] = '';
+  });
+
+  return set;
+}
+
+/**
+ * Blank form values: every input argument present but empty, repeat
+ * arguments at their minimum set count with blank children. Used when
+ * the operator wants to enter every argument manually.
+ */
+export function blankArgumentValues(command) {
+  const values = {};
+
+  inputArguments(command).forEach((argument) => {
+    if (isRepeatArgument(argument)) {
+      const { min } = repeatBounds(argument);
+
+      values[argument.name] = Array.from({ length: min }, () => blankRepeatSet(argument));
+    } else {
+      values[argument.name] = '';
+    }
+  });
+
+  return values;
+}
+
+/**
+ * True when any input argument (or repeat child) declares a default.
+ */
+export function commandHasDefaults(command) {
+  return inputArguments(command).some((argument) => {
+    if (isRepeatArgument(argument)) {
+      return repeatChildren(argument).some((child) => hasDefault(child));
+    }
+
+    return hasDefault(argument);
+  });
+}
+
 function enumEntries(argument, enumMap) {
   return enumMap?.[argument.enum_name]?.values || [];
 }
@@ -207,7 +251,7 @@ function validateString(argument, rawValue) {
   return null;
 }
 
-function validateRepeat(argument, rawValue, enumMap) {
+function validateRepeat(argument, rawValue, enumMap, options = {}) {
   const sets = Array.isArray(rawValue) ? rawValue : [];
   const { min, max } = repeatBounds(argument);
 
@@ -221,7 +265,7 @@ function validateRepeat(argument, rawValue, enumMap) {
 
   for (let index = 0; index < sets.length; index++) {
     for (const child of repeatChildren(argument)) {
-      const error = validateArgument(child, sets[index]?.[child.name], enumMap);
+      const error = validateArgument(child, sets[index]?.[child.name], enumMap, options);
 
       if (error) {
         return `Set ${index + 1}, ${child.name}: ${error}`;
@@ -232,17 +276,24 @@ function validateRepeat(argument, rawValue, enumMap) {
   return null;
 }
 
-export function validateArgument(argument, rawValue, enumMap = {}) {
+/**
+ * @param {object} [options] `applyDefaults: false` treats a blank like a
+ * missing required value even when the dictionary declares a default
+ * (strict mode: the form must show exactly what will be sent).
+ */
+export function validateArgument(argument, rawValue, enumMap = {}, options = {}) {
+  const applyDefaults = options.applyDefaults !== false;
+
   if (isFillArgument(argument)) {
     return null;
   }
 
   if (isRepeatArgument(argument)) {
-    return validateRepeat(argument, rawValue, enumMap);
+    return validateRepeat(argument, rawValue, enumMap, options);
   }
 
   if (isMissing(rawValue)) {
-    return hasDefault(argument) ? null : 'Value required';
+    return applyDefaults && hasDefault(argument) ? null : 'Value required';
   }
 
   const type = typeOf(argument);
@@ -275,11 +326,11 @@ export function validateArgument(argument, rawValue, enumMap = {}) {
   return null;
 }
 
-export function validateCommandArguments(command, values = {}, enumMap = {}) {
+export function validateCommandArguments(command, values = {}, enumMap = {}, options = {}) {
   const errors = {};
 
   inputArguments(command).forEach((argument) => {
-    const error = validateArgument(argument, values[argument.name], enumMap);
+    const error = validateArgument(argument, values[argument.name], enumMap, options);
 
     if (error) {
       errors[argument.name] = error;
@@ -436,4 +487,185 @@ export function buildCommandString(stem, command, values = {}, enumMap = {}) {
   );
 
   return parts.length > 0 ? `${stem},${parts.join(',')}` : stem;
+}
+
+/**
+ * The stem token (first comma-separated value) of a command string,
+ * trimmed but not case-normalized, or '' when the text is blank.
+ */
+export function commandStemToken(commandText) {
+  const { tokens } = tokenizeCommandString(commandText);
+
+  return tokens && tokens.length > 0 ? tokens[0] : '';
+}
+
+function tokenizeCommandString(commandText) {
+  const tokens = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (const character of String(commandText ?? '')) {
+    if (character === '"') {
+      inQuotes = !inQuotes;
+    } else if (character === ',' && !inQuotes) {
+      tokens.push(current.trim());
+      current = '';
+    } else {
+      current += character;
+    }
+  }
+
+  if (inQuotes) {
+    return { tokens: null, error: 'Unterminated double quote' };
+  }
+
+  tokens.push(current.trim());
+
+  return { tokens, error: null };
+}
+
+function parseEnumToken(argument, token, enumMap) {
+  const entries = enumEntries(argument, enumMap);
+  const text = String(token);
+  const bySymbol = entries.find(
+    (entry) => String(entry.symbol).toLowerCase() === text.toLowerCase()
+  );
+
+  if (bySymbol) {
+    return bySymbol.symbol;
+  }
+
+  const byNumeric = entries.find((entry) => String(enumNumericOf(entry)) === text);
+
+  return byNumeric ? byNumeric.symbol : text;
+}
+
+function parseBooleanToken(argument, token) {
+  const format = argument.format || {};
+  const text = String(token).toLowerCase();
+  const trueForms = ['true'];
+  const falseForms = ['false'];
+
+  if (format.true_str !== undefined && format.true_str !== null) {
+    trueForms.push(String(format.true_str).toLowerCase());
+  }
+
+  if (format.false_str !== undefined && format.false_str !== null) {
+    falseForms.push(String(format.false_str).toLowerCase());
+  }
+
+  if (trueForms.includes(text)) {
+    return format.true_str !== undefined && format.true_str !== null ? format.true_str : 'TRUE';
+  }
+
+  if (falseForms.includes(text)) {
+    return format.false_str !== undefined && format.false_str !== null ? format.false_str : 'FALSE';
+  }
+
+  return token;
+}
+
+function parseTokenValue(argument, token, enumMap) {
+  const type = typeOf(argument);
+
+  if (type === 'enum') {
+    return parseEnumToken(argument, token, enumMap);
+  }
+
+  if (type === 'boolean') {
+    return parseBooleanToken(argument, token);
+  }
+
+  return token;
+}
+
+/**
+ * Parses a `STEM,value,...` command string (the `buildCommandString`
+ * format) back into form values for `command`. The stem must match
+ * `command.stem` case-insensitively; enum symbols and boolean forms also
+ * match case-insensitively and are normalized to the dictionary values
+ * the form controls bind. String values may be double-quoted to contain
+ * commas. Returns `{ values, error }`: structural problems (stem
+ * mismatch, wrong value count, bad repeat count) yield `values: null`;
+ * otherwise `values` holds every input argument (unchecked — run
+ * `validateCommandArguments` for per-argument errors).
+ */
+export function parseCommandString(commandText, command, enumMap = {}) {
+  const { tokens, error } = tokenizeCommandString(commandText);
+
+  if (error) {
+    return { values: null, error };
+  }
+
+  if (!command || !command.stem) {
+    return { values: null, error: 'Unknown command' };
+  }
+
+  const [stemToken, ...valueTokens] = tokens;
+
+  if (String(stemToken).toUpperCase() !== String(command.stem).toUpperCase()) {
+    return { values: null, error: `Command string is for ${stemToken}, not ${command.stem}` };
+  }
+
+  const values = {};
+  let cursor = 0;
+
+  for (const argument of inputArguments(command)) {
+    if (isRepeatArgument(argument)) {
+      const countToken = valueTokens[cursor];
+
+      if (countToken === undefined) {
+        return { values: null, error: `Missing repeat count for ${argument.name}` };
+      }
+
+      const count = Number(countToken);
+
+      if (!Number.isInteger(count) || count < 0) {
+        return { values: null, error: `Repeat count for ${argument.name} must be a whole number` };
+      }
+
+      cursor++;
+      const sets = [];
+
+      for (let setIndex = 0; setIndex < count; setIndex++) {
+        const set = {};
+
+        for (const child of repeatChildren(argument)) {
+          const token = valueTokens[cursor];
+
+          if (token === undefined) {
+            return {
+              values: null,
+              error: `Missing value for ${argument.name} set ${setIndex + 1}, ${child.name}`
+            };
+          }
+
+          set[child.name] = parseTokenValue(child, token, enumMap);
+          cursor++;
+        }
+
+        sets.push(set);
+      }
+
+      values[argument.name] = sets;
+    } else {
+      const token = valueTokens[cursor];
+
+      if (token === undefined) {
+        return { values: null, error: `Missing value for ${argument.name}` };
+      }
+
+      values[argument.name] = parseTokenValue(argument, token, enumMap);
+      cursor++;
+    }
+  }
+
+  if (cursor < valueTokens.length) {
+    return {
+      values: null,
+      error: `Expected ${cursor + 1} value(s) for ${command.stem}, got ${valueTokens.length + 1}`
+    };
+  }
+
+  return { values, error: null };
 }

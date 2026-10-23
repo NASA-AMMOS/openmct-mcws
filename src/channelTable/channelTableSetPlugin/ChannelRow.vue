@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import { COPY_SELECTED_ROWS_ACTION_KEY } from 'lib/copySelectedRows';
+
 const CONTEXT_MENU_ACTIONS = ['viewDatumAction', 'viewHistoricalData', 'remove'];
 const BLANK_VALUE = '---';
 export default {
@@ -184,7 +186,13 @@ export default {
     },
     showContextMenu(event) {
       this.updateViewContext();
-      const actions = CONTEXT_MENU_ACTIONS.map((key) => this.openmct.actions.getAction(key));
+      const actionKeys = [...CONTEXT_MENU_ACTIONS];
+
+      if (this.currentView?.getSelectedRowsText?.()) {
+        actionKeys.push(COPY_SELECTED_ROWS_ACTION_KEY);
+      }
+
+      const actions = actionKeys.map((key) => this.openmct.actions.getAction(key));
       const menuItems = this.openmct.menus.actionsToMenuItems(
         actions,
         this.objectPath,

@@ -1,5 +1,5 @@
 import TelemetryTable from 'openmct.tables.TelemetryTable';
-import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
+import CopyableTelemetryTableRow from 'lib/CopyableTelemetryTableRow';
 import CommandDictionaryTableRow from './CommandDictionaryTableRow.js';
 import mcws from 'services/mcws/mcws.js';
 
@@ -48,7 +48,7 @@ export default class DictionaryViewTable extends TelemetryTable {
       return new CommandDictionaryTableRow(datum, columnMap, keyString, limitEvaluator);
     }
 
-    return new TelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
+    return new CopyableTelemetryTableRow(datum, columnMap, keyString, limitEvaluator);
   }
 
   processHistoricalData(telemetryData, columnMap, keyString, limitEvaluator) {
