@@ -246,7 +246,7 @@ describe('The MCWS Persistence Provider', () => {
       expect(folder).toBeUndefined();
     });
 
-    it('creates the user folder when an object is first created in it', async () => {
+    it('creates the user namespace, but not the root file, when an object is first created in it', async () => {
       const result = await mcwsPersistenceProvider.create({
         identifier: { key: 'child1', namespace: 'test-myUser' },
         type: 'folder',
@@ -256,13 +256,11 @@ describe('The MCWS Persistence Provider', () => {
 
       expect(result).toBe(true);
       expect(userNamespaceMIO.create).toHaveBeenCalled();
-      // root folder file first, then the child object
-      expect(userOpaqueFile.create.calls.count()).toBe(2);
-      expect(userOpaqueFile.create.calls.argsFor(0)[0].identifier).toEqual({
-        key: 'root',
-        namespace: 'test-myUser'
-      });
-      expect(userOpaqueFile.create.calls.argsFor(1)[0].name).toBe('Child');
+      // Only the child object is written. The root folder file is created
+      // later, with its real composition, when the parent is saved; writing
+      // an empty root here would collide with that create (409 on MCWS).
+      expect(userOpaqueFile.create.calls.count()).toBe(1);
+      expect(userOpaqueFile.create.calls.argsFor(0)[0].name).toBe('Child');
     });
 
     it('does not represent a missing non-root object in the current user folder', async () => {
