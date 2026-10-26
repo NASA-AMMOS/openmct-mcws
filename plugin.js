@@ -47,6 +47,7 @@ import {
   installCopySelectedOnCoreRows,
   selectedRowsTextFromTableComponent
 } from './src/lib/copySelectedRows.js';
+import patchTableRowContextMenu from './src/lib/patchTableRowContextMenu.js';
 import MCWSIndicatorPlugin from './src/mcwsIndicator/plugin.js';
 import MultipleHistoricalSessions from './src/multipleHistoricalSessions/plugin.js';
 import MessageStreamProcessor from './src/messageStreamProcessor/MessageStreamProcessor.js';
@@ -379,6 +380,7 @@ export default function openmctMCWSPlugin(options) {
     openmct.install(CommandDetailPlugin());
 
     installCopySelectedOnCoreRows();
+    patchTableRowContextMenu();
 
     openmct.actions.register({
       key: COPY_SELECTED_ROWS_ACTION_KEY,
