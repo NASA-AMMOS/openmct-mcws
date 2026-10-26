@@ -79,7 +79,7 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
    */
   async create(domainObject) {
     const { key, namespace } = domainObject.identifier;
-    await this.#materializeOwnFolder(namespace, key);
+    await this.#materializeOwnFolder(namespace);
     const persistenceNamespace = await this.#getNamespace(namespace);
     const model = this.#toPersistableModel(domainObject);
 
@@ -213,37 +213,33 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
   }
 
   /**
-   * Create the current user's namespace (and empty root folder) in MCWS
-   * on first write into it. When the object being created is the folder
-   * root itself, only the namespace is created; the caller's create
-   * writes the folder file.
+   * Create the current user's namespace in MCWS on first write into it,
+   * if it does not exist yet. Only the namespace is created here, never
+   * the root folder file: when the object being created is a child, the
+   * folder file is written afterwards by the save of the parent, with
+   * its real composition, and pre-writing an empty root would collide
+   * with that create (409 on MCWS). When the object being created is
+   * the folder root itself, the caller's create writes the folder file.
    * @private
    * @param {string} namespaceKey the namespace of the object being created
-   * @param {string} objectKey the key of the object being created
    */
-  async #materializeOwnFolder(namespaceKey, objectKey) {
+  async #materializeOwnFolder(namespaceKey) {
     const currentUserFolder = await this.#getCurrentUserFolder();
 
     if (!currentUserFolder || currentUserFolder.definition.key !== namespaceKey) {
       return;
     }
 
-    if (objectKey === 'root') {
-      const namespace = mcws.namespace(currentUserFolder.definition.url);
+    const namespace = mcws.namespace(currentUserFolder.definition.url);
 
-      try {
-        await namespace.read();
-      } catch (readError) {
-        if (readError.status === 404) {
-          await namespace.create();
-        } else {
-          throw readError;
-        }
+    try {
+      await namespace.read();
+    } catch (readError) {
+      if (readError.status === 404) {
+        await namespace.create();
+      } else {
+        throw readError;
       }
-
-      return;
     }
-
-    await this.createIfMissing(currentUserFolder.definition, currentUserFolder.userId);
   }
 }
