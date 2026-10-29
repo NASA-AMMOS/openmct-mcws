@@ -1,5 +1,7 @@
 import EVRViewProvider from './EVRViewProvider.js';
 import EVRViewLevelsConfigurationViewProvider from './EVRViewLevelsConfigurationViewProvider.js';
+import EVRPauseCountdownAction from './EVRPauseCountdownAction.js';
+import EVRTableConfiguration from './EVRTableConfiguration.vue';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 import EVRHistoricalDataActions from './EVRHistoricalDataActions.js';
 
@@ -10,6 +12,7 @@ export default function EVRViewPlugin(options) {
     openmct.objectViews.addProvider(new EVRViewProvider(openmct, tablePerformanceOptions));
 
     EVRHistoricalDataActions(openmct).forEach((action) => openmct.actions.register(action));
+    openmct.actions.register(EVRPauseCountdownAction());
 
     openmct.types.addType('vista.evrView', {
       name: 'EVR View',
@@ -19,7 +22,8 @@ export default function EVRViewPlugin(options) {
       initialize(domainObject) {
         domainObject.composition = [];
         domainObject.configuration = {
-          filters: {}
+          filters: {},
+          pauseTimerSeconds: null
         };
       }
     });
@@ -34,7 +38,8 @@ export default function EVRViewPlugin(options) {
         'Config',
         'vista.evrView',
         openmct,
-        tablePerformanceOptions
+        tablePerformanceOptions,
+        EVRTableConfiguration
       )
     );
 
