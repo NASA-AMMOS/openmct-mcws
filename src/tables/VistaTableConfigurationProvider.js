@@ -3,8 +3,16 @@ import TableConfigurationComponent from 'openmct.tables.components.TableConfigur
 import mount from 'ommUtils/mountVueComponent.js';
 
 export default class VistaTableConfigurationProvider {
-  constructor(key, name, type, openmct, options) {
+  constructor(
+    key,
+    name,
+    type,
+    openmct,
+    options,
+    configurationComponent = TableConfigurationComponent
+  ) {
     this.options = options;
+    this.configurationComponent = configurationComponent;
 
     this.key = key;
     this.name = name;
@@ -37,7 +45,7 @@ export default class VistaTableConfigurationProvider {
             tableConfiguration
           },
           components: {
-            TableConfiguration: TableConfigurationComponent
+            TableConfiguration: self.configurationComponent
           },
           template: '<table-configuration></table-configuration>'
         };

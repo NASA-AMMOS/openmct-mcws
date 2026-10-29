@@ -312,3 +312,24 @@ mct-table {
 .c-about .l-splash.s-splash {
   height: 220px;
 }
+/************************************** EVR PAUSE COUNTDOWN */
+// Wide status-bar button showing the pause glyph plus the remaining time
+// (#506). Orange matches core's paused Play button ($colorPausedBg is
+// #ff9900 in every core theme); the pause glyph comes from icon-pause,
+// since core's .pause-play.is-paused forces the play glyph. Browse-bar
+// action buttons render no text content, so the countdown (the button's
+// aria-label, e.g. "0:47") is surfaced via ::after.
+button.evr-pause-countdown.c-button {
+  background: #ff9900;
+  color: #333;
+  min-width: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  &::after {
+    content: attr(aria-label);
+    font-weight: 600;
+  }
+}
