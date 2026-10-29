@@ -17,7 +17,7 @@ export default function EVRPauseCountdownAction() {
     group: 'view',
     isHidden: true,
     invoke: (objectPath, view) => {
-      view.getViewContext()?.dismissPauseCountdown?.();
+      view?.getViewContext()?.dismissPauseCountdown?.();
     },
     appliesTo: (objectPath, view) => {
       const domainObject = objectPath?.[0];

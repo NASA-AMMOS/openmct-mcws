@@ -321,7 +321,7 @@ mct-table {
 // action buttons render no text content, so the countdown (the button's
 // aria-label, e.g. "0:47") is surfaced via ::after.
 button.evr-pause-countdown.c-button {
-  background: #ff9900 !important;
+  background: #ff9900;
   color: #333;
   min-width: 58px;
   display: inline-flex;

@@ -24,7 +24,7 @@ describe('evrPauseCountdown', () => {
       expect(normalizePauseTimerSeconds(0)).toBeNull();
       expect(normalizePauseTimerSeconds(-5)).toBeNull();
       expect(normalizePauseTimerSeconds('abc')).toBeNull();
-      expect(normalizePauseTimerSeconds(NaN)).toBeNull();
+      expect(normalizePauseTimerSeconds(Number.NaN)).toBeNull();
     });
 
     it('accepts positive values as whole seconds', () => {

@@ -16,6 +16,36 @@ const EVR_SOURCES = ['evrHistoricalUrl', 'evrStreamUrl', 'evrLADUrl'];
 function providesEVRData(domainObject) {
   return EVR_SOURCES.some((evrSource) => Boolean(domainObject.telemetry?.[evrSource]));
 }
+
+// Status-bar actions render in collection order, which follows global
+// registration order (this plugin registers after core). Move the
+// countdown so it sits immediately after Play/Pause instead of after
+// the column actions.
+function orderCountdownAfterPlay(actionCollection) {
+  const actions = actionCollection.getActionsObject();
+  const countdown = actions[PAUSE_COUNTDOWN_ACTION_KEY];
+
+  if (!countdown) {
+    return;
+  }
+
+  const keys = Object.keys(actions).filter((key) => key !== PAUSE_COUNTDOWN_ACTION_KEY);
+  const playIndex = keys.indexOf('play-data');
+  const pauseIndex = keys.indexOf('pause-data');
+  const insertAfter = playIndex !== -1 ? playIndex : pauseIndex;
+
+  if (insertAfter === -1) {
+    return;
+  }
+
+  keys.splice(insertAfter + 1, 0, PAUSE_COUNTDOWN_ACTION_KEY);
+
+  const ordered = {};
+  keys.forEach((key) => {
+    ordered[key] = key === PAUSE_COUNTDOWN_ACTION_KEY ? countdown : actions[key];
+  });
+  actionCollection.applicableActions = ordered;
+}
 export default class EVRViewProvider {
   constructor(openmct, options) {
     this.key = 'vista.evrView';
@@ -88,36 +118,6 @@ export default class EVRViewProvider {
         orderCountdownAfterPlay(actionCollection);
         actionCollection.show([PAUSE_COUNTDOWN_ACTION_KEY]);
       }
-    }
-
-    // Status-bar actions render in collection order, which follows global
-    // registration order (this plugin registers after core). Move the
-    // countdown so it sits immediately after Play/Pause instead of after
-    // the column actions.
-    function orderCountdownAfterPlay(actionCollection) {
-      const actions = actionCollection.getActionsObject();
-      const countdown = actions[PAUSE_COUNTDOWN_ACTION_KEY];
-
-      if (!countdown) {
-        return;
-      }
-
-      const keys = Object.keys(actions).filter((key) => key !== PAUSE_COUNTDOWN_ACTION_KEY);
-      const playIndex = keys.indexOf('play-data');
-      const pauseIndex = keys.indexOf('pause-data');
-      const insertAfter = playIndex !== -1 ? playIndex : pauseIndex;
-
-      if (insertAfter === -1) {
-        return;
-      }
-
-      keys.splice(insertAfter + 1, 0, PAUSE_COUNTDOWN_ACTION_KEY);
-
-      const ordered = {};
-      keys.forEach((key) => {
-        ordered[key] = key === PAUSE_COUNTDOWN_ACTION_KEY ? countdown : actions[key];
-      });
-      actionCollection.applicableActions = ordered;
     }
 
     function dismissPauseCountdown() {
