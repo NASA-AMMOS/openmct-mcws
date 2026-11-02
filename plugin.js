@@ -40,13 +40,6 @@ import PacketQueryPlugin from './src/packetQuery/plugin.js';
 import SessionControlPlugin from './src/sessionControl/plugin.js';
 import ImmediateCommandPlugin from './src/immediateCommand/plugin.js';
 import CommandDetailPlugin from './src/commandDetail/plugin.js';
-import {
-  COPY_SELECTED_ROWS_ACTION_KEY,
-  COPY_SELECTED_ROWS_ACTION_NAME,
-  copyTextToClipboard,
-  installCopySelectedOnCoreRows,
-  selectedRowsTextFromTableComponent
-} from './src/lib/copySelectedRows.js';
 import patchTableRowContextMenu from './src/lib/patchTableRowContextMenu.js';
 import MCWSIndicatorPlugin from './src/mcwsIndicator/plugin.js';
 import MultipleHistoricalSessions from './src/multipleHistoricalSessions/plugin.js';
@@ -379,30 +372,9 @@ export default function openmctMCWSPlugin(options) {
     }
     openmct.install(CommandDetailPlugin());
 
-    installCopySelectedOnCoreRows();
+    // Copy Selected (Tab)/(CSV) row actions are provided by openmct core
+    // telemetry tables; vista rows list the core action keys directly.
     patchTableRowContextMenu();
-
-    openmct.actions.register({
-      key: COPY_SELECTED_ROWS_ACTION_KEY,
-      name: COPY_SELECTED_ROWS_ACTION_NAME,
-      description: 'Copy the selected table rows to the clipboard',
-      cssClass: 'icon-duplicate',
-      invoke: (objectPath, view) => {
-        // Vista table views expose getSelectedRowsText; core table views
-        // (raw TelemetryTableRow menus via installCopySelectedOnCoreRows)
-        // fall back to their mounted table component.
-        const text =
-          view?.getSelectedRowsText?.() ??
-          selectedRowsTextFromTableComponent(view?.component?.$refs.tableComponent);
-
-        if (text) {
-          copyTextToClipboard(text).catch(() => {
-            openmct.notifications.error('Copy Selected failed: clipboard unavailable.');
-          });
-        }
-      },
-      appliesTo: () => true
-    });
 
     if (config.globalFilters) {
       openmct.install(new GlobalFilters(config.globalFilters));

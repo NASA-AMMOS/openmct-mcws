@@ -1,34 +1,12 @@
 import CSV from 'comma-separated-values';
 import { sanitizeCsvFormulaInjection } from '@/exporters/CSVExporter.js';
-import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
 
-export const COPY_SELECTED_ROWS_ACTION_KEY = 'vista.copySelectedRows';
-export const COPY_SELECTED_ROWS_ACTION_NAME = 'Copy Selected';
-
-const CORE_ROW_PATCH_FLAG = '__vistaCopySelectedPatched';
-
-export function withCopySelected(actions) {
-  const list = Array.isArray(actions) ? [...actions] : [];
-
-  if (!list.includes(COPY_SELECTED_ROWS_ACTION_KEY)) {
-    list.push(COPY_SELECTED_ROWS_ACTION_KEY);
-  }
-
-  return list;
-}
-
-export function installCopySelectedOnCoreRows(RowClass = TelemetryTableRow) {
-  if (RowClass.prototype[CORE_ROW_PATCH_FLAG]) {
-    return;
-  }
-
-  const original = RowClass.prototype.getContextMenuActions;
-
-  RowClass.prototype.getContextMenuActions = function (...args) {
-    return withCopySelected(original.call(this, ...args));
-  };
-  RowClass.prototype[CORE_ROW_PATCH_FLAG] = true;
-}
+// Action keys for the Copy Selected menu items provided by openmct core
+// (src/plugins/telemetryTable/CopySelectedRowsAction.js). Vista rows list
+// these keys in their context menus; core telemetry table rows get them
+// from TelemetryTableRow.getContextMenuActions() directly.
+export const COPY_SELECTED_ROWS_TAB_ACTION_KEY = 'copySelectedRowsTab';
+export const COPY_SELECTED_ROWS_CSV_ACTION_KEY = 'copySelectedRowsCsv';
 
 function sanitizeCellValue(value) {
   if (value === null || value === undefined) {

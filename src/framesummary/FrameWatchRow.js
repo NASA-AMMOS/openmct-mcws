@@ -1,5 +1,4 @@
 import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
-import { withCopySelected } from 'lib/copySelectedRows';
 
 export default class FrameWatchRow extends TelemetryTableRow {
   constructor(datum, columns, objectKeyString, limitEvaluator, rowId) {
@@ -9,7 +8,7 @@ export default class FrameWatchRow extends TelemetryTableRow {
   }
 
   getContextMenuActions() {
-    return withCopySelected(super.getContextMenuActions());
+    return super.getContextMenuActions();
   }
 
   update(datum) {

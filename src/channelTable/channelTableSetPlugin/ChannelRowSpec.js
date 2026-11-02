@@ -251,7 +251,8 @@ describe('ChannelRow pause', () => {
 
     row().showContextMenu(new MouseEvent('contextmenu', { bubbles: true }));
 
-    expect(openmctMock.requestedActionKeys).toContain('vista.copySelectedRows');
+    expect(openmctMock.requestedActionKeys).toContain('copySelectedRowsTab');
+    expect(openmctMock.requestedActionKeys).toContain('copySelectedRowsCsv');
     expect(openmctMock.menuCalls.length).toBe(1);
   });
 
@@ -260,7 +261,8 @@ describe('ChannelRow pause', () => {
 
     row().showContextMenu(new MouseEvent('contextmenu', { bubbles: true }));
 
-    expect(openmctMock.requestedActionKeys).not.toContain('vista.copySelectedRows');
+    expect(openmctMock.requestedActionKeys).not.toContain('copySelectedRowsTab');
+    expect(openmctMock.requestedActionKeys).not.toContain('copySelectedRowsCsv');
     expect(openmctMock.menuCalls.length).toBe(1);
   });
 });

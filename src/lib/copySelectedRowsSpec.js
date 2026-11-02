@@ -1,12 +1,10 @@
 import {
-  COPY_SELECTED_ROWS_ACTION_KEY,
+  COPY_SELECTED_ROWS_CSV_ACTION_KEY,
+  COPY_SELECTED_ROWS_TAB_ACTION_KEY,
   copyTextToClipboard,
   encodeRowsToCsv,
-  installCopySelectedOnCoreRows,
-  selectedRowsTextFromTableComponent,
-  withCopySelected
+  selectedRowsTextFromTableComponent
 } from './copySelectedRows.js';
-import CopyableTelemetryTableRow from './CopyableTelemetryTableRow.js';
 import HistoricalContextTableRow from './HistoricalContextTableRow.js';
 import FrameWatchRow from '../framesummary/FrameWatchRow.js';
 import PacketSummaryRow from '../packetSummary/PacketSummaryRow.js';
@@ -142,58 +140,29 @@ describe('copySelectedRows', () => {
     });
   });
 
-  describe('withCopySelected', () => {
-    it('appends the key once and never duplicates it', () => {
-      expect(withCopySelected(['viewHistoricalData'])).toEqual([
-        'viewHistoricalData',
-        COPY_SELECTED_ROWS_ACTION_KEY
-      ]);
-      expect(withCopySelected(['viewHistoricalData', COPY_SELECTED_ROWS_ACTION_KEY])).toEqual([
-        'viewHistoricalData',
-        COPY_SELECTED_ROWS_ACTION_KEY
-      ]);
-      expect(withCopySelected(undefined)).toEqual([COPY_SELECTED_ROWS_ACTION_KEY]);
-    });
-  });
-
-  describe('installCopySelectedOnCoreRows', () => {
-    it('appends the key to a row class exactly once', () => {
-      class FakeRow {
-        getContextMenuActions() {
-          return ['viewHistoricalData'];
-        }
-      }
-
-      installCopySelectedOnCoreRows(FakeRow);
-      installCopySelectedOnCoreRows(FakeRow);
-
-      expect(new FakeRow().getContextMenuActions()).toEqual([
-        'viewHistoricalData',
-        COPY_SELECTED_ROWS_ACTION_KEY
-      ]);
-    });
-  });
-
   describe('menu wiring', () => {
-    it('exposes the action key', () => {
-      expect(COPY_SELECTED_ROWS_ACTION_KEY).toBe('vista.copySelectedRows');
+    it('exposes the core action keys', () => {
+      expect(COPY_SELECTED_ROWS_TAB_ACTION_KEY).toBe('copySelectedRowsTab');
+      expect(COPY_SELECTED_ROWS_CSV_ACTION_KEY).toBe('copySelectedRowsCsv');
     });
 
-    it('appends the key to the shared row bases', () => {
+    it('lists the core copy actions in the shared row bases', () => {
       expect(new HistoricalContextTableRow({}, {}, 'k', null).getContextMenuActions()).toEqual([
         'viewHistoricalData',
-        COPY_SELECTED_ROWS_ACTION_KEY
-      ]);
-      expect(new CopyableTelemetryTableRow({}, {}, 'k', null).getContextMenuActions()).toEqual([
-        'viewDatumAction',
-        'viewHistoricalData',
-        COPY_SELECTED_ROWS_ACTION_KEY
+        COPY_SELECTED_ROWS_TAB_ACTION_KEY,
+        COPY_SELECTED_ROWS_CSV_ACTION_KEY
       ]);
       expect(new FrameWatchRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
-        COPY_SELECTED_ROWS_ACTION_KEY
+        COPY_SELECTED_ROWS_TAB_ACTION_KEY
+      );
+      expect(new FrameWatchRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
+        COPY_SELECTED_ROWS_CSV_ACTION_KEY
       );
       expect(new PacketSummaryRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
-        COPY_SELECTED_ROWS_ACTION_KEY
+        COPY_SELECTED_ROWS_TAB_ACTION_KEY
+      );
+      expect(new PacketSummaryRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
+        COPY_SELECTED_ROWS_CSV_ACTION_KEY
       );
     });
   });
