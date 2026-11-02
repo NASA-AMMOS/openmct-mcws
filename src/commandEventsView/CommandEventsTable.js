@@ -1,5 +1,5 @@
-import CopyableTelemetryTable from 'lib/CopyableTelemetryTable';
-export default class CommandEventsTable extends CopyableTelemetryTable {
+import TelemetryTable from 'openmct.tables.TelemetryTable';
+export default class CommandEventsTable extends TelemetryTable {
   initialize() {
     this.filterObserver = this.openmct.objects.observe(
       this.domainObject,

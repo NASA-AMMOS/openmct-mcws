@@ -16,7 +16,8 @@ describe('CommandDictionaryTableRow', () => {
     expect(row).toBeInstanceOf(TelemetryTableRow);
     expect(row.getContextMenuActions()).toEqual([
       VIEW_COMMAND_ACTION_KEY,
-      'vista.copySelectedRows'
+      'copySelectedRowsTab',
+      'copySelectedRowsCsv'
     ]);
     expect(row.getContextMenuActions()).not.toContain('viewDatumAction');
     expect(row.getContextMenuActions()).not.toContain('viewHistoricalData');

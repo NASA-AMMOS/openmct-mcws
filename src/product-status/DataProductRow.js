@@ -1,5 +1,4 @@
 import TelemetryTableRow from 'openmct.tables.TelemetryTableRow';
-import { withCopySelected } from 'lib/copySelectedRows';
 
 const PARTS_RECEIVED_FIELD = 'parts_received';
 const CREATION_TIME_FIELD = 'creation_time';
@@ -67,7 +66,7 @@ class DataProductRow extends TelemetryTableRow {
     }
   }
   getContextMenuActions() {
-    return withCopySelected(super.getContextMenuActions());
+    return super.getContextMenuActions();
   }
   getRowClass() {
     let status = upper(this.datum[STATUS_CONSTANTS.FIELD] || '');

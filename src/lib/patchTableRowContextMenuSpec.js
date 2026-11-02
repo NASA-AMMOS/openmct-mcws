@@ -35,7 +35,7 @@ describe('patchTableRowContextMenu', () => {
         },
         row: {
           objectKeyString: 'test:evr1',
-          getContextMenuActions: () => ['vista.copySelectedRows']
+          getContextMenuActions: () => ['copySelectedRowsCsv']
         },
         markRow,
         updateViewContext: jasmine.createSpy('updateViewContext')
@@ -52,7 +52,7 @@ describe('patchTableRowContextMenu', () => {
 
     expect(markRow).not.toHaveBeenCalled();
     expect(context.updateViewContext).toHaveBeenCalled();
-    expect(showMenu).toHaveBeenCalledWith(10, 20, [{ name: 'vista.copySelectedRows' }]);
+    expect(showMenu).toHaveBeenCalledWith(10, 20, [{ name: 'copySelectedRowsCsv' }]);
     // the row keeps its own markRow once the menu has been shown
     expect(context.markRow).toBe(markRow);
   });
