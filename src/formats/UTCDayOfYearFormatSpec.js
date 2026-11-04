@@ -74,6 +74,12 @@ describe('UTCDayOfYearFormat', function () {
     expect(format.format(input)).toBe('2015-100T12:34:56.789');
   });
 
+  it('forces formatDate doy to be 3 digits', function () {
+    expect(format.formatDate(Date.UTC(2015, 0, 1))).toBe('2015-001');
+    expect(format.formatDate(Date.UTC(2015, 0, 31))).toBe('2015-031');
+    expect(format.formatDate(Date.UTC(2015, 3, 10))).toBe('2015-100');
+  });
+
   TEST_CASES.forEach(function (testCase) {
     it('considers ' + testCase.input + ' valid', function () {
       expect(format.validate(testCase.input)).toBe(true);
