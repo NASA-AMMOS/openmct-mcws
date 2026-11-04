@@ -137,6 +137,23 @@ jobs:
       with:
         name: codeql-artifacts
         path: ${{ env.RESULTS_DIR }}
+    # Run the Karma suite so the Sonar scan below can ingest coverage
+    # (sonar.javascript.lcov.reportPaths in sonar-project.properties).
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+
+    # No lock file is committed (package-lock.json is gitignored), so
+    # neither setup-node's npm cache nor npm ci can be used here.
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests with coverage
+      run: npm test -- --browsers ChromeHeadlessNoSandbox
+      env:
+        CHROME_BIN: /usr/bin/google-chrome
+
     - name: SonarCloud Scan
       uses: SonarSource/sonarqube-scan-action@v6
       env:
