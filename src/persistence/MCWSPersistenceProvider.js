@@ -35,6 +35,13 @@ export default class MCWSPersistenceProvider extends BaseMCWSPersistenceProvider
       const persistenceNamespace = await this.#getNamespace(namespace, options);
       let result = await persistenceNamespace.opaqueFile(key).read();
 
+      // read() resolves to undefined on an aborted request (MIO.request
+      // suppresses AbortError); treat that as not-found rather than
+      // crashing on result.json() below.
+      if (result === undefined) {
+        return;
+      }
+
       result = await this.#fromPersistableModel(result, identifier);
 
       return result;
