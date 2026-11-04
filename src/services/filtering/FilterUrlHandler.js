@@ -37,16 +37,20 @@ export default class FilterURLHandler {
       return;
     }
 
-    const filters = this.paramsToFilters(params);
-
-    this.filterService.updateFilters(filters);
+    // A URL that specifies any global filter is authoritative for the whole
+    // global filter set: filters absent from the URL are cleared. A URL with
+    // no global filter params (e.g. in-app navigation, which drops them)
+    // leaves the active filters alone; updateAfterNavigation re-adds them.
+    if (Object.keys(params).length) {
+      this.filterService.updateFilters(this.paramsToFilters(params));
+    }
 
     this.params = params;
     this.updateAfterNavigation();
   }
 
   paramsToFilters(params) {
-    const filters = {};
+    const filters = this.filterService.getAvailableFilters();
 
     Object.entries(params).forEach(([key, value]) => {
       filters[key] = { equals: value };
@@ -65,7 +69,7 @@ export default class FilterURLHandler {
 
     const isDifferent = Object.entries(params).some(([paramKey, paramValue]) => {
       // shortcut for comparator
-      const filterValue = activeFilters[paramKey]['equals'];
+      const filterValue = activeFilters[paramKey]?.['equals'];
 
       return paramValue !== filterValue;
     });

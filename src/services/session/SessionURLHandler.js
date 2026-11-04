@@ -36,32 +36,61 @@ export default class SessionURLHandler {
     }
 
     if (params.historical.numbers && params.historical.host) {
-      const historicalSessionFilter = this.sessionService.getHistoricalSessionFilter();
+      if (this.isHistoricalSessionFilterDisabled()) {
+        this.openmct.router.deleteSearchParam('v_hsi');
+        this.openmct.router.deleteSearchParam('v_hsh');
+      } else {
+        const historicalSessionFilter = this.sessionService.getHistoricalSessionFilter();
+        const numbers = params.historical.numbers.split(',').map(parseSessionNumber);
 
-      if (
-        !historicalSessionFilter ||
-        historicalSessionFilter.numbers.join(',') !== params.historical.numbers ||
-        historicalSessionFilter.host !== params.historical.host
-      ) {
-        params.historical.numbers = params.historical.numbers.split(',');
-        this.sessionService.setHistoricalSessionFilter(params.historical);
+        if (
+          !historicalSessionFilter ||
+          historicalSessionFilter.numbers.map(String).join(',') !== numbers.map(String).join(',') ||
+          historicalSessionFilter.host !== params.historical.host
+        ) {
+          this.sessionService.setHistoricalSessionFilter({
+            numbers,
+            host: params.historical.host
+          });
+        }
       }
     }
 
     if (params.realtime.topic) {
-      var realtimeSession = this.sessionService.getActiveTopicOrSession();
+      if (this.isRealtimeSessionDisabled()) {
+        this.openmct.router.deleteSearchParam('v_rt');
+        this.openmct.router.deleteSearchParam('v_rsi');
+        this.openmct.router.deleteSearchParam('v_rfsw');
+      } else {
+        const realtimeSession = this.sessionService.getActiveTopicOrSession();
+        const linkSession = {
+          topic: params.realtime.topic,
+          number:
+            params.realtime.number === null ? null : parseSessionNumber(params.realtime.number),
+          fsw_version: params.realtime.fsw_version
+        };
 
-      if (
-        !realtimeSession ||
-        realtimeSession.topic !== params.realtime.topic ||
-        (realtimeSession.number && realtimeSession.number !== params.realtime.number)
-      ) {
-        this.sessionService.setActiveTopicOrSession(params.realtime);
+        if (
+          !realtimeSession ||
+          realtimeSession.topic !== linkSession.topic ||
+          sessionNumberKey(realtimeSession.number) !== sessionNumberKey(linkSession.number) ||
+          (realtimeSession.fsw_version || null) !== (linkSession.fsw_version || null)
+        ) {
+          this.sessionService.setActiveTopicOrSession(linkSession);
+        }
       }
     }
 
     this.params = params;
     this.updateAfterNavigation();
+  }
+
+  isHistoricalSessionFilterDisabled() {
+    return Boolean(this.sessionService.historicalSessionFilterConfig?.disable);
+  }
+
+  isRealtimeSessionDisabled() {
+    return Boolean(this.sessionService.realtimeSessionConfig?.disable);
   }
 
   updateAfterNavigation() {
@@ -71,7 +100,7 @@ export default class SessionURLHandler {
 
     if (
       historicalSessionFilter &&
-      (historicalSessionFilter.numbers.join(',') !== params.historical.numbers ||
+      (historicalSessionFilter.numbers.map(String).join(',') !== params.historical.numbers ||
         historicalSessionFilter.host !== params.historical.host)
     ) {
       this.updateURLFromHistoricalSessionFilter(historicalSessionFilter);
@@ -79,8 +108,8 @@ export default class SessionURLHandler {
     if (
       realtimeSession &&
       (realtimeSession.topic !== params.realtime.topic ||
-        realtimeSession.number !== params.realtime.number ||
-        realtimeSession.fsw_version !== params.realtime.fsw_version)
+        sessionNumberKey(realtimeSession.number) !== sessionNumberKey(params.realtime.number) ||
+        (realtimeSession.fsw_version || null) !== (params.realtime.fsw_version || null))
     ) {
       this.updateURLFromRealtimeSession(realtimeSession);
     }
@@ -116,4 +145,19 @@ export default class SessionURLHandler {
       this.openmct.router.deleteSearchParam('v_hsh');
     }
   }
+}
+
+function parseSessionNumber(value) {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const trimmed = value.trim();
+  const number = Number(trimmed);
+
+  return trimmed !== '' && Number.isInteger(number) ? number : value;
+}
+
+function sessionNumberKey(number) {
+  return number === undefined || number === null ? '' : String(number);
 }
