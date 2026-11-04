@@ -26,28 +26,39 @@ export default {
     }
   },
   mounted() {
-    this.lastTimestamp = new Date();
+    this.lastPaint = 0;
+    this.ticksSincePaint = 0;
 
     if (this.vistaTime.ladClocks.ert) {
-      this.vistaTime.ladClocks.ert.on('tick', this.setTick.bind(this));
+      this.tickHandler = this.setTick.bind(this);
+      this.vistaTime.ladClocks.ert.on('tick', this.tickHandler);
     }
   },
   beforeUnmount() {
-    if (this.vistaTime.ladClocks.ert) {
-      this.vistaTime.ladClocks.ert.off('tick', this.setTick.bind(this));
+    if (this.vistaTime.ladClocks.ert && this.tickHandler) {
+      this.vistaTime.ladClocks.ert.off('tick', this.tickHandler);
     }
   },
   methods: {
-    isRefreshRateNominal(newTimestamp, lastTimestamp) {
-      if (newTimestamp - lastTimestamp <= 100) {
-        return true;
-      }
-      return false;
-    },
     setTick() {
       try {
-        let timestamp = new Date();
-        if (this.isRefreshRateNominal(timestamp, this.lastTimestamp)) {
+        const now = Date.now();
+
+        this.ticksSincePaint += 1;
+
+        // Ticks can arrive hundreds of times per second; repaint at most
+        // once per second and report the arrival rate instead of each tick.
+        if (now - this.lastPaint < 1000) {
+          return;
+        }
+
+        const elapsedSeconds = (now - this.lastPaint) / 1000;
+        const ticksPerSecond = this.ticksSincePaint / elapsedSeconds;
+
+        this.ticksSincePaint = 0;
+        this.lastPaint = now;
+
+        if (ticksPerSecond > 10) {
           this.currentValue = {
             text: 'Data Rate is higher than 10hz, display may update less than once per second',
             cssClass: 's-status-caution'
@@ -60,7 +71,6 @@ export default {
             cssClass: 's-status-on'
           };
         }
-        this.lastTimestamp = timestamp;
       } catch (e) {
         console.warn('Error setting tick', e);
       }
