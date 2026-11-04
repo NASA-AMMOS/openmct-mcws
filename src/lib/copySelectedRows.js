@@ -1,12 +1,11 @@
 import CSV from 'comma-separated-values';
 import { sanitizeCsvFormulaInjection } from '@/exporters/CSVExporter.js';
 
-// Action keys for the Copy Selected menu items provided by openmct core
+// Action key for the Copy Selected menu item provided by openmct core
 // (src/plugins/telemetryTable/CopySelectedRowsAction.js). Vista rows list
-// these keys in their context menus; core telemetry table rows get them
+// this key in their context menus; core telemetry table rows get it
 // from TelemetryTableRow.getContextMenuActions() directly.
-export const COPY_SELECTED_ROWS_TAB_ACTION_KEY = 'copySelectedRowsTab';
-export const COPY_SELECTED_ROWS_CSV_ACTION_KEY = 'copySelectedRowsCsv';
+export const COPY_SELECTED_ROWS_ACTION_KEY = 'copySelectedRows';
 
 function sanitizeCellValue(value) {
   if (value === null || value === undefined) {

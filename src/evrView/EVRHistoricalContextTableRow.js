@@ -1,8 +1,5 @@
 import EVRLevelIndicatorTableRow from './EVRLevelIndicatorTableRow.js';
-import {
-  COPY_SELECTED_ROWS_CSV_ACTION_KEY,
-  COPY_SELECTED_ROWS_TAB_ACTION_KEY
-} from 'lib/copySelectedRows';
+import { COPY_SELECTED_ROWS_ACTION_KEY } from 'lib/copySelectedRows';
 
 export default class EVRHistoricalContextTableRow extends EVRLevelIndicatorTableRow {
   getContextMenuActions() {
@@ -11,8 +8,7 @@ export default class EVRHistoricalContextTableRow extends EVRLevelIndicatorTable
       'vista.evr.view-historical-level',
       'vista.evr.view-historical-module',
       'vista.evr.view-historical-evr',
-      COPY_SELECTED_ROWS_TAB_ACTION_KEY,
-      COPY_SELECTED_ROWS_CSV_ACTION_KEY
+      COPY_SELECTED_ROWS_ACTION_KEY
     ];
   }
 }

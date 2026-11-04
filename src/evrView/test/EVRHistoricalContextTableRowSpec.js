@@ -9,8 +9,7 @@ describe('EVRHistoricalContextTableRow', () => {
       'vista.evr.view-historical-level',
       'vista.evr.view-historical-module',
       'vista.evr.view-historical-evr',
-      'copySelectedRowsTab',
-      'copySelectedRowsCsv'
+      'copySelectedRows'
     ]);
   });
 });

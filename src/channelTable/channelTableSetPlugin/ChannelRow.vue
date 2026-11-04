@@ -17,10 +17,7 @@
 </template>
 
 <script>
-import {
-  COPY_SELECTED_ROWS_CSV_ACTION_KEY,
-  COPY_SELECTED_ROWS_TAB_ACTION_KEY
-} from 'lib/copySelectedRows';
+import { COPY_SELECTED_ROWS_ACTION_KEY } from 'lib/copySelectedRows';
 
 const CONTEXT_MENU_ACTIONS = ['viewDatumAction', 'viewHistoricalData', 'remove'];
 const BLANK_VALUE = '---';
@@ -192,7 +189,7 @@ export default {
       const actionKeys = [...CONTEXT_MENU_ACTIONS];
 
       if (this.currentView?.getSelectedRowsText?.()) {
-        actionKeys.push(COPY_SELECTED_ROWS_TAB_ACTION_KEY, COPY_SELECTED_ROWS_CSV_ACTION_KEY);
+        actionKeys.push(COPY_SELECTED_ROWS_ACTION_KEY);
       }
 
       const actions = actionKeys.map((key) => this.openmct.actions.getAction(key));

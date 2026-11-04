@@ -35,10 +35,12 @@ describe('patchTableRowContextMenu', () => {
         },
         row: {
           objectKeyString: 'test:evr1',
-          getContextMenuActions: () => ['copySelectedRowsCsv']
+          getContextMenuActions: () => ['copySelectedRows']
         },
         markRow,
-        updateViewContext: jasmine.createSpy('updateViewContext')
+        updateViewContext: jasmine
+          .createSpy('updateViewContext')
+          .and.callFake(() => ({ copySelectedRows: true }))
       }
     };
   }
@@ -52,7 +54,7 @@ describe('patchTableRowContextMenu', () => {
 
     expect(markRow).not.toHaveBeenCalled();
     expect(context.updateViewContext).toHaveBeenCalled();
-    expect(showMenu).toHaveBeenCalledWith(10, 20, [{ name: 'copySelectedRowsCsv' }]);
+    expect(showMenu).toHaveBeenCalledWith(10, 20, [{ name: 'copySelectedRows' }]);
     // the row keeps its own markRow once the menu has been shown
     expect(context.markRow).toBe(markRow);
   });
