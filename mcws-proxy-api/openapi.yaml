@@ -486,6 +486,20 @@ paths:
         `sort=-number:numeric`, `max_records` (default 100), and filters
         where `number` matches exactly and all other keys match as
         `*value*` wildcards. Results are deduped on `number + host`.
+
+        Rows have the shape AMPCS `chill_get_sessions` (and a tsdb session
+        cache) returns: `number` as a string, day-of-year times such as
+        `2026-307T18:08:22.339`, and `end_time` of `Not applicable` while a
+        session is still open.
+
+        AMPCS mapping (proxy on the AMPCS host): every command and downlink
+        session the proxy has opened or attached, open or stopped, kept in
+        the proxy's state so a proxy restart keeps them. `user` is the
+        requester's identity (the `X-Proxy-User` header from the front-end
+        proxy), or the user running the stack when there is none, and
+        `type` says whether it is a command or downlink session. Sessions
+        opened outside the proxy are not listed. A new stack starts with an
+        empty history.
       parameters:
         - $ref: '#/components/parameters/Filter'
         - $ref: '#/components/parameters/Sort'
@@ -2429,19 +2443,41 @@ components:
       additionalProperties: true
       properties:
         number:
-          type: integer
+          oneOf:
+            - type: integer
+            - type: string
+          description: Session id. `chill_get_sessions` and tsdb rows give it as a string, LAD rows as an integer
         topic:
           type: string
         host:
           type: string
         jms_subtopic:
           type: string
+        name:
+          type: string
+          description: AMPCS session name
+        description:
+          type: string
+          description: AMPCS session description
+        user:
+          type: string
+          description: User who opened the session
+        type:
+          type: string
+          enum: [command, downlink]
+          description: Proxy session kind, on rows from the proxy's own history
+        record_type:
+          type: string
+          description: Always `session`
+        downlink_stream_id:
+          type: string
+          description: Downlink stream id, or `Not applicable`
         start_time:
           type: string
           description: Session start time in ERT (UTC)
         end_time:
           type: string
-          description: Session end time in ERT (UTC)
+          description: Session end time in ERT (UTC); `Not applicable` while the session is open
         start_time_scet:
           type: string
           description: Session start time in SCET, when available
