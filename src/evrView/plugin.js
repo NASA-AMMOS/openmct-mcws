@@ -1,5 +1,7 @@
 import EVRViewProvider from './EVRViewProvider.js';
 import EVRViewLevelsConfigurationViewProvider from './EVRViewLevelsConfigurationViewProvider.js';
+import EVRPauseCountdownAction from './EVRPauseCountdownAction.js';
+import EVRTableConfiguration from './EVRTableConfiguration.vue';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
 
 export default function EVRViewPlugin(options) {
@@ -8,6 +10,7 @@ export default function EVRViewPlugin(options) {
   return function install(openmct) {
     openmct.objectViews.addProvider(new EVRViewProvider(openmct, tablePerformanceOptions));
 
+    openmct.actions.register(EVRPauseCountdownAction());
     openmct.types.addType('vista.evrView', {
       name: 'EVR View',
       description: 'Drag and drop EVR node(s) and/or EVR module(s) to show Event Records.',
@@ -16,7 +19,8 @@ export default function EVRViewPlugin(options) {
       initialize(domainObject) {
         domainObject.composition = [];
         domainObject.configuration = {
-          filters: {}
+          filters: {},
+          pauseTimerSeconds: null
         };
       }
     });
@@ -31,7 +35,8 @@ export default function EVRViewPlugin(options) {
         'Config',
         'vista.evrView',
         openmct,
-        tablePerformanceOptions
+        tablePerformanceOptions,
+        EVRTableConfiguration
       )
     );
 

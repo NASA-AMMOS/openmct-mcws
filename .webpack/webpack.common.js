@@ -66,6 +66,11 @@ const config = {
         '..',
         'node_modules/openmct/src/plugins/telemetryTable/TelemetryTableColumn.js'
       ),
+      'openmct.tables.TelemetryTableUnitColumn': join(
+        __dirname,
+        '..',
+        'node_modules/openmct/src/plugins/telemetryTable/TelemetryTableUnitColumn.js'
+      ),
       'openmct.tables.TelemetryTableRow': join(
         __dirname,
         '..',
