@@ -144,6 +144,13 @@ export default class ChannelTable extends TelemetryTable {
   }
 
   destroy() {
+    // Teardown must be idempotent: composition.off() throws when the
+    // listener is already gone, and any throw here aborts view switching.
+    if (this.hasTornDown) {
+      return;
+    }
+
+    this.hasTornDown = true;
     super.destroy();
     this.configuration.off('change', this.updateConfiguration);
     this.tableComposition.off('reorder', this.reorder);

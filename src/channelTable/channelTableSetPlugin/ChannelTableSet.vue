@@ -44,12 +44,14 @@ export default {
     return {
       ladTableObjects: [],
       ladTelemetryObjects: {},
-      compositions: [],
       viewContext: {},
       timesystem: '---'
     };
   },
   mounted() {
+    // Non-reactive on purpose: CompositionCollections use private fields,
+    // which throw when accessed through Vue's reactive proxies.
+    this.compositions = [];
     this.composition = this.openmct.composition.get(this.domainObject);
     this.composition.on('add', this.addLadTable);
     this.composition.on('remove', this.removeLadTable);
@@ -59,6 +61,13 @@ export default {
     this.composition.load();
   },
   beforeUnmount() {
+    // Teardown must be idempotent: a second pass would remove listeners
+    // that no longer exist, and any throw here aborts the whole unmount.
+    if (this.hasTornDown) {
+      return;
+    }
+
+    this.hasTornDown = true;
     this.composition.off('add', this.addLadTable);
     this.composition.off('remove', this.removeLadTable);
     this.composition.off('reorder', this.reorderLadTables);
