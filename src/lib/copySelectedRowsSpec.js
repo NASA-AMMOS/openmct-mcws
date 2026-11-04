@@ -1,6 +1,5 @@
 import {
-  COPY_SELECTED_ROWS_CSV_ACTION_KEY,
-  COPY_SELECTED_ROWS_TAB_ACTION_KEY,
+  COPY_SELECTED_ROWS_ACTION_KEY,
   copyTextToClipboard,
   encodeRowsToCsv,
   selectedRowsTextFromTableComponent
@@ -141,28 +140,20 @@ describe('copySelectedRows', () => {
   });
 
   describe('menu wiring', () => {
-    it('exposes the core action keys', () => {
-      expect(COPY_SELECTED_ROWS_TAB_ACTION_KEY).toBe('copySelectedRowsTab');
-      expect(COPY_SELECTED_ROWS_CSV_ACTION_KEY).toBe('copySelectedRowsCsv');
+    it('exposes the core action key', () => {
+      expect(COPY_SELECTED_ROWS_ACTION_KEY).toBe('copySelectedRows');
     });
 
-    it('lists the core copy actions in the shared row bases', () => {
+    it('lists the core copy action in the shared row bases', () => {
       expect(new HistoricalContextTableRow({}, {}, 'k', null).getContextMenuActions()).toEqual([
         'viewHistoricalData',
-        COPY_SELECTED_ROWS_TAB_ACTION_KEY,
-        COPY_SELECTED_ROWS_CSV_ACTION_KEY
+        COPY_SELECTED_ROWS_ACTION_KEY
       ]);
       expect(new FrameWatchRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
-        COPY_SELECTED_ROWS_TAB_ACTION_KEY
-      );
-      expect(new FrameWatchRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
-        COPY_SELECTED_ROWS_CSV_ACTION_KEY
+        COPY_SELECTED_ROWS_ACTION_KEY
       );
       expect(new PacketSummaryRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
-        COPY_SELECTED_ROWS_TAB_ACTION_KEY
-      );
-      expect(new PacketSummaryRow({}, {}, 'k', null, 'r').getContextMenuActions()).toContain(
-        COPY_SELECTED_ROWS_CSV_ACTION_KEY
+        COPY_SELECTED_ROWS_ACTION_KEY
       );
     });
   });

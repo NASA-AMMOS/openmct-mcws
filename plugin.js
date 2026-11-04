@@ -372,8 +372,8 @@ export default function openmctMCWSPlugin(options) {
     }
     openmct.install(CommandDetailPlugin());
 
-    // Copy Selected (Tab)/(CSV) row actions are provided by openmct core
-    // telemetry tables; vista rows list the core action keys directly.
+    // The Copy Selected row action is provided by openmct core
+    // telemetry tables; vista rows list the core action key directly.
     patchTableRowContextMenu();
 
     if (config.globalFilters) {

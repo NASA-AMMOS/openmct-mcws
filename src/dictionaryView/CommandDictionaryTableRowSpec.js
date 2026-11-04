@@ -14,11 +14,7 @@ describe('CommandDictionaryTableRow', () => {
     );
 
     expect(row).toBeInstanceOf(TelemetryTableRow);
-    expect(row.getContextMenuActions()).toEqual([
-      VIEW_COMMAND_ACTION_KEY,
-      'copySelectedRowsTab',
-      'copySelectedRowsCsv'
-    ]);
+    expect(row.getContextMenuActions()).toEqual([VIEW_COMMAND_ACTION_KEY, 'copySelectedRows']);
     expect(row.getContextMenuActions()).not.toContain('viewDatumAction');
     expect(row.getContextMenuActions()).not.toContain('viewHistoricalData');
   });
