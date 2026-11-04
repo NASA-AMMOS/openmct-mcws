@@ -1,6 +1,7 @@
 import ChannelTable from './ChannelTable.js';
 import TableComponent from 'openmct.tables.components.Table';
 import mount from 'ommUtils/mountVueComponent.js';
+import flushInitialTableRows from './flushInitialTableRows.js';
 
 export default class ChannelTableViewProvider {
   constructor(openmct, options) {
@@ -56,15 +57,16 @@ export default class ChannelTableViewProvider {
             renderWhenVisible
           },
           template: `
-                    <table-component
-                        :class="'js-channel-list-view'"
-                        ref="tableComponent"
-                        :isEditing="isEditing"
-                        :marking="markingProp"
-                        :allowFiltering="false"
-                        :allowSorting="true"
-                        :view="view"
-                    ></table-component>`
+                    <div class="js-channel-list-view">
+                      <table-component
+                          ref="tableComponent"
+                          :isEditing="isEditing"
+                          :marking="markingProp"
+                          :allowFiltering="false"
+                          :allowSorting="true"
+                          :view="view"
+                      ></table-component>
+                    </div>`
         };
         const componentOptions = {
           element
@@ -73,7 +75,15 @@ export default class ChannelTableViewProvider {
         const { componentInstance, destroy } = mount(componentDefinition, componentOptions);
 
         component = componentInstance;
-        _destroy = destroy;
+        const cancelInitialFlush = flushInitialTableRows({
+          table,
+          getTableComponent: () => component && component.$refs.tableComponent
+        });
+
+        _destroy = () => {
+          cancelInitialFlush();
+          destroy();
+        };
       },
       onEditModeChange(isEditing) {
         component.isEditing = isEditing;
