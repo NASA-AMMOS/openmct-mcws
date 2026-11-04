@@ -254,15 +254,15 @@ describe('MCWSNamespaceService', () => {
       expectOtherUserDefinition(contents[1]);
     });
 
-    it('creates user if missing', async () => {
+    it('represents the current user without creating their folder if missing', async () => {
       userRootNamespaceMIO.read.and.returnValue(Promise.resolve([]));
-      userNamespaceMIO.read.and.returnValue(Promise.reject({ status: 404 }));
+      userNamespaceMIO.read.and.callFake(() => Promise.reject({ status: 404 }));
       userNamespaceMIO.create.and.returnValue(Promise.resolve([]));
 
       const contents =
         await mcwsUserContainerProvider.getContainedNamespaces(containerRootDefinition);
       expect(contents.length).toBe(1);
-      expect(userNamespaceMIO.create).toHaveBeenCalled();
+      expect(userNamespaceMIO.create).not.toHaveBeenCalled();
       expectCurrentUserDefinition(contents[0]);
     });
   });
