@@ -404,6 +404,356 @@
       "description": "Sets the flight software mode.",
       "stem": "FSW_SET_MODE",
       "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_01": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 01 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_01",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_02": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 02 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_02",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_03": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 03 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_03",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_04": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 04 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_04",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_05": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 05 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_05",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_06": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 06 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_06",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_07": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 07 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_07",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_08": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 08 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_08",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_09": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 09 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_09",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_10": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 10 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_10",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_11": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 11 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_11",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_12": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 12 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_12",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_13": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 13 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_13",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_14": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 14 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_14",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_15": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 15 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_15",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_16": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 16 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_16",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_17": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 17 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_17",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_18": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 18 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_18",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_19": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 19 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_19",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_20": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 20 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_20",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_21": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 21 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_21",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_22": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 22 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_22",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_23": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 23 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_23",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_24": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 24 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_24",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_25": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 25 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_25",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_26": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 26 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_26",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_27": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 27 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_27",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_28": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 28 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_28",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_29": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 29 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_29",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_30": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 30 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_30",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_31": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 31 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_31",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_32": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 32 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_32",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_33": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 33 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_33",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_34": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 34 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_34",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_35": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 35 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_35",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_36": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 36 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_36",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_37": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 37 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_37",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_38": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 38 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_38",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_39": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 39 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_39",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_40": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 40 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_40",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_41": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 41 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_41",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_42": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 42 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_42",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_43": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 43 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_43",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_44": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 44 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_44",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_45": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 45 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_45",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_46": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 46 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_46",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_47": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 47 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_47",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_48": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 48 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_48",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_49": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 49 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_49",
+      "type": "fsw_command"
+    },
+    "FSW_TEST_CMD_50": {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 50 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_50",
+      "type": "fsw_command"
     }
   },
   "fswCommands": [
@@ -746,6 +1096,356 @@
       ],
       "description": "Sets the flight software mode.",
       "stem": "FSW_SET_MODE",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 01 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_01",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 02 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_02",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 03 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_03",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 04 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_04",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 05 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_05",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 06 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_06",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 07 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_07",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 08 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_08",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 09 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_09",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 10 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_10",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 11 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_11",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 12 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_12",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 13 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_13",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 14 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_14",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 15 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_15",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 16 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_16",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 17 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_17",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 18 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_18",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 19 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_19",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 20 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_20",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 21 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_21",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 22 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_22",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 23 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_23",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 24 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_24",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 25 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_25",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 26 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_26",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 27 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_27",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 28 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_28",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 29 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_29",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 30 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_30",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 31 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_31",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 32 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_32",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 33 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_33",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 34 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_34",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 35 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_35",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 36 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_36",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 37 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_37",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 38 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_38",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 39 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_39",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 40 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_40",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 41 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_41",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 42 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_42",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 43 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_43",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 44 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_44",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 45 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_45",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 46 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_46",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 47 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_47",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 48 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_48",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 49 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_49",
+      "type": "fsw_command"
+    },
+    {
+      "argumentMap": {},
+      "arguments": [],
+      "description": "Scroll-test command 50 (added to exercise Immediate Command list scrolling).",
+      "stem": "FSW_TEST_CMD_50",
       "type": "fsw_command"
     }
   ],

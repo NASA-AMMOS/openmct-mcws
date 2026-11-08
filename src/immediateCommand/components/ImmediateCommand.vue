@@ -1248,7 +1248,23 @@ export default {
   flex-direction: column;
   gap: 8px;
   padding: 12px;
-  overflow-y: auto;
+  overflow: hidden;
+  min-height: 0;
+}
+.c-immediate-command__dataset,
+.c-immediate-command__collapse {
+  flex-shrink: 0;
+}
+.c-immediate-command__browser {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 8px;
+}
+.c-immediate-command__search,
+.c-immediate-command__filters {
+  flex-shrink: 0;
 }
 .c-immediate-command__dataset select {
   max-width: 100%;
@@ -1278,9 +1294,11 @@ export default {
 }
 .c-immediate-command__list {
   list-style: none;
-  margin: 8px 0;
+  margin: 0;
   padding: 0;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 .c-immediate-command__stem {
   width: 100%;
