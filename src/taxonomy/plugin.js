@@ -26,7 +26,7 @@ const TIMESYSTEM_DOMAIN_MAP = {
   },
   sclk: {
     key: 'sclk',
-    name: 'SCLK as Float 64',
+    name: 'sclk',
     format: 'sclk.float64'
   }
 };
