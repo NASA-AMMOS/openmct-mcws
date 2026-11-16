@@ -22,9 +22,7 @@ const ChannelAlarmsType = new VISTAType({
     });
   },
   makeId: function (datasetIdentifier) {
-    return (
-      'vista-channel-alarms:' + [datasetIdentifier.namespace, datasetIdentifier.key].join(':')
-    );
+    return 'vista-channel-alarms:' + [datasetIdentifier.namespace, datasetIdentifier.key].join(':');
   }
 });
 

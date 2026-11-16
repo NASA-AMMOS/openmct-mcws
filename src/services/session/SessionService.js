@@ -263,7 +263,7 @@ class SessionService {
         // no datasets
         if (result.length === 0) {
           // maxed out iterations, give up and resolve with empty array
-          if (currentIteration > maxIterations) {
+          if (currentIteration >= maxIterations) {
             resolve([]);
 
             return;
@@ -271,18 +271,22 @@ class SessionService {
 
           currentIteration++;
           setTimeout(checkDatasets, pollInterval);
-        } else { // we have datasets
-          // first time we have datasets
-          if (currentLength === 0) {
+        } else {
+          // we have datasets
+          // check if we've exceeded max iterations
+          if (currentIteration >= maxIterations) {
+            resolve(result); // resolve with whatever we have
+            return;
+          }
+
+          if (result.length === currentLength) {
+            // we have stability, resolve
+            resolve(result);
+          } else {
+            // first time we have datasets OR datasets still loading, wait for stability
             currentLength = result.length;
+            currentIteration++;
             setTimeout(checkDatasets, pollInterval);
-          } else { // we've already seen some datasets, check for stability
-            if (result.length === currentLength) { // we have stability, resolve
-              resolve(result);
-            } else { // datasets still loading, wait for stability
-              currentLength = result.length;
-              setTimeout(checkDatasets, pollInterval);
-            } 
           }
         }
       };
@@ -296,9 +300,7 @@ class SessionService {
       datasets = Object.values(this.getDatasets());
     }
 
-    const validUrls = datasets
-      .map((dataset) => dataset.options.sessionLADUrl)
-      .filter(Boolean);
+    const validUrls = datasets.map((dataset) => dataset.options.sessionLADUrl).filter(Boolean);
     const sessionLADUrls = validUrls.reduce((uniqueUrls, url) => {
       return uniqueUrls.includes(url) ? uniqueUrls : [...uniqueUrls, url];
     }, []);
