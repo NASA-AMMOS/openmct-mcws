@@ -1,6 +1,6 @@
 {
   "name": "openmct-mcws-plugin",
-  "version": "6.0.2",
+  "version": "6.1.0-next",
   "description": "Open MCT for MCWS",
   "main": "dist/openmct-mcws-plugin.js",
   "type": "module",
