@@ -44,7 +44,7 @@ class MCWSEVRStreamProvider extends MCWSStreamProvider {
     // only uppercase works for all mcws apis (lowercase will not work)
     // see https://github.com/NASA-AMMOS/openmct-mcws/pull/412/changes
     if (!module?.length) {
-        module = domainObject?.telemetry?.module?.toUpperCase();
+      module = domainObject?.telemetry?.module?.toUpperCase();
     }
 
     // legacy inference of module by evr_name
@@ -54,7 +54,7 @@ class MCWSEVRStreamProvider extends MCWSStreamProvider {
       // only uppercase works for all mcws apis (lowercase will not work)
       // see https://github.com/NASA-AMMOS/openmct-mcws/pull/412/changes
       module = domainObject.telemetry.evr_name.split('_')[0].toUpperCase();
-  }
+    }
 
     return module;
   }

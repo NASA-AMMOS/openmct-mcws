@@ -1,6 +1,5 @@
 import UTCDayOfYearFormat from './UTCDayOfYearFormat.js';
 
-
 describe('UTCDayOfYearFormat', function () {
   var format,
     TEST_CASES = [

@@ -180,8 +180,7 @@ export default {
               '\t' + event.event_time + ': ' + event.message_type + ' : Frame Event' + '\n';
             textOutput += '\t\t' + event.summary + '\n';
           } else if (event.type === 'commandEvent') {
-            textOutput +=
-              '\t' + event.event_time + ': ' + event.status + ' : Command Event' + '\n';
+            textOutput += '\t' + event.event_time + ': ' + event.status + ' : Command Event' + '\n';
             textOutput += '\t\t' + event.status + '\n';
           }
 
