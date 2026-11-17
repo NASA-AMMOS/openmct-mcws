@@ -15,7 +15,7 @@ module.exports = async function karmaConfig(config) {
     use: {
       loader: 'babel-loader',
       options: {
-        configFile: path.resolve(process.cwd(), 'babel.coverage.js')
+        configFile: path.resolve(process.cwd(), 'babel.coverage.cjs')
       }
     }
   });
