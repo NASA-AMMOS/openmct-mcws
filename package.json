@@ -18,7 +18,7 @@
     "babel-plugin-istanbul": "6.1.1",
     "bower": "^1.7.7",
     "comma-separated-values": "3.6.4",
-    "copy-webpack-plugin": "12.0.2",
+    "copy-webpack-plugin": "14.0.0",
     "cspell": "8.17.5",
     "css-loader": "6.10.0",
     "eslint": "9.19.0",
