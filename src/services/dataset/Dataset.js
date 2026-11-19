@@ -230,7 +230,7 @@ class Dataset {
   }
 
   omitsDictionaryVersion(url) {
-    return /\/.*Dictionary\/?$/.test(url);
+    return /\/[^/]*Dictionary\/?$/.test(url);
   }
 
   /**
