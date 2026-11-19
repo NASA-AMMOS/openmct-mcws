@@ -1,12 +1,15 @@
 import EVRViewProvider from './EVRViewProvider.js';
 import EVRViewLevelsConfigurationViewProvider from './EVRViewLevelsConfigurationViewProvider.js';
 import VistaTableConfigurationProvider from '../tables/VistaTableConfigurationProvider.js';
+import EVRHistoricalDataActions from './EVRHistoricalDataActions.js';
 
 export default function EVRViewPlugin(options) {
   const { taxonomy, tablePerformanceOptions } = options;
 
   return function install(openmct) {
     openmct.objectViews.addProvider(new EVRViewProvider(openmct, tablePerformanceOptions));
+
+    EVRHistoricalDataActions(openmct).forEach((action) => openmct.actions.register(action));
 
     openmct.types.addType('vista.evrView', {
       name: 'EVR View',

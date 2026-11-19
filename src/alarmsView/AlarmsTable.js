@@ -47,6 +47,26 @@ export default class AlarmsTable extends TelemetryTable {
     );
   }
 
+  // Overridden to preserve AlarmsViewHistoricalContextTableRow (and its channel-aware
+  // context menu resolution) when the row collection rebuilds all rows from scratch,
+  // e.g. on a non-subset column filter change. The base implementation rebuilds rows
+  // as plain TelemetryTableRow, which loses that context.
+  resetRowsFromAllData() {
+    let allRows = [];
+
+    Object.keys(this.telemetryCollections).forEach((keyString) => {
+      let { columnMap, limitEvaluator } = this.telemetryObjects[keyString];
+
+      this.telemetryCollections[keyString].getAll().forEach((datum) => {
+        allRows.push(
+          new AlarmsViewHistoricalContextTableRow(datum, columnMap, keyString, limitEvaluator)
+        );
+      });
+    });
+
+    this.tableRows.clearRowsFromTableAndFilter(allRows);
+  }
+
   createTableRowCollections() {
     this.tableRows = new AlarmsViewRowCollection();
 

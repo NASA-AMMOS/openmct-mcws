@@ -22,7 +22,7 @@ const EVRType = new VISTAType({
     // FIXME: this works solely because the dataset must have loaded for
     // the EVRType to load.
     return EVRModuleType.makeIdentifier(
-      dataset.evrs.byName[data.name].module,
+      dataset.evrs.getEVRByName(data.name).module,
       data.datasetIdentifier
     );
   },
@@ -39,7 +39,7 @@ const EVRType = new VISTAType({
             values: constants.EVR_RANGES.slice(),
             evr_name: data.name.toUpperCase(),
             mcwsVersion: dataset.version,
-            definition: dataset.evrs.byName[data.name]
+            definition: dataset.evrs.getEVRByName(data.name)
           },
           location: this.getLocation(dataset, data)
         };
