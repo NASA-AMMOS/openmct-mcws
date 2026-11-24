@@ -165,6 +165,53 @@ describe('MissionControlService', () => {
     expect(service.state.downlinkSessions).toEqual([{ sessionId: 23, parameters }]);
   });
 
+  it('replaces tags on a running uplink session and updates state', async () => {
+    fetchSpy.and.resolveTo(jsonResponse([{ sessionId: 7, tags: [] }]));
+    await service.refreshUplinkSessions();
+    fetchSpy.and.resolveTo(jsonResponse({ sessionId: 7, tags: ['sol-42', 'drive-test'] }));
+    const updated = await service.setUplinkSessionTags(7, ['sol-42', 'drive-test']);
+
+    expect(lastFetch().url).toBe(`${API_BASE}/command-sessions/7`);
+    expect(lastFetch().options.method).toBe('PATCH');
+    expect(lastFetch().body).toEqual({ tags: ['sol-42', 'drive-test'] });
+    expect(updated.tags).toEqual(['sol-42', 'drive-test']);
+    expect(service.getUplinkSession(7).tags).toEqual(['sol-42', 'drive-test']);
+  });
+
+  it('replaces tags on a running downlink session and updates state', async () => {
+    fetchSpy.and.resolveTo(jsonResponse([{ sessionId: 3, tags: [] }]));
+    await service.refreshDownlinkSessions();
+    fetchSpy.and.resolveTo(jsonResponse({ sessionId: 3, tags: ['cal'] }));
+    await service.setDownlinkSessionTags(3, ['cal']);
+
+    expect(lastFetch().url).toBe(`${API_BASE}/downlink-sessions/3`);
+    expect(lastFetch().options.method).toBe('PATCH');
+    expect(lastFetch().body).toEqual({ tags: ['cal'] });
+    expect(service.state.downlinkSessions).toEqual([{ sessionId: 3, tags: ['cal'] }]);
+  });
+
+  it('replaces tags on a tracking session by number and host', async () => {
+    fetchSpy.and.resolveTo(jsonResponse([{ number: 7, host: 'h1', tags: [] }]));
+    await service.refreshTrackingSessions();
+    fetchSpy.and.resolveTo(jsonResponse({ number: 7, host: 'h1', tags: ['ops'] }));
+    await service.setTrackingSessionTags(7, ['ops'], 'h1');
+
+    expect(lastFetch().url).toBe(`${API_BASE}/sessions/7?host=h1`);
+    expect(lastFetch().options.method).toBe('PATCH');
+    expect(lastFetch().body).toEqual({ tags: ['ops'] });
+    expect(service.state.trackingSessions).toEqual([{ number: 7, host: 'h1', tags: ['ops'] }]);
+  });
+
+  it('clears tracking session tags with an empty list', async () => {
+    fetchSpy.and.resolveTo(jsonResponse([{ number: '7', host: 'h1', tags: ['ops'] }]));
+    await service.refreshTrackingSessions();
+    fetchSpy.and.resolveTo(jsonResponse({ number: '7', host: 'h1', tags: [] }));
+    await service.setTrackingSessionTags('7', [], 'h1');
+
+    expect(lastFetch().body).toEqual({ tags: [] });
+    expect(service.state.trackingSessions[0].tags).toEqual([]);
+  });
+
   it('tracks sent commands for radiation status', async () => {
     fetchSpy.and.resolveTo(
       jsonResponse({ commandId: 'c9', requested: 'SYNC_CLOCKS', dispatchTime: 't' })

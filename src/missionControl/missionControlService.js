@@ -117,6 +117,28 @@ export class MissionControlService {
     });
   }
 
+  /**
+   * Replaces the tags on a running uplink session (`tags: []` clears).
+   * Tags come back on every later session list refresh.
+   */
+  async setUplinkSessionTags(sessionId, tags) {
+    return this.#guarded(async () => {
+      const updated = await this.#request(sessionPath('command-sessions', sessionId), {
+        method: 'PATCH',
+        body: JSON.stringify({ tags })
+      });
+      const index = this.state.uplinkSessions.findIndex(
+        (session) => session.sessionId === sessionId
+      );
+
+      if (index >= 0 && updated) {
+        this.state.uplinkSessions[index] = updated;
+      }
+
+      return updated;
+    });
+  }
+
   async stopUplinkSession(sessionId) {
     return this.#guarded(async () => {
       await this.#request(sessionPath('command-sessions', sessionId), { method: 'DELETE' });
@@ -165,6 +187,54 @@ export class MissionControlService {
       await this.refreshDownlinkSessions();
 
       return started;
+    });
+  }
+
+  /**
+   * Replaces the tags on a running downlink session (`tags: []` clears).
+   * Tags come back on every later session list refresh.
+   */
+  async setDownlinkSessionTags(sessionId, tags) {
+    return this.#guarded(async () => {
+      const updated = await this.#request(sessionPath('downlink-sessions', sessionId), {
+        method: 'PATCH',
+        body: JSON.stringify({ tags })
+      });
+      const index = this.state.downlinkSessions.findIndex(
+        (session) => session.sessionId === sessionId
+      );
+
+      if (index >= 0 && updated) {
+        this.state.downlinkSessions[index] = updated;
+      }
+
+      return updated;
+    });
+  }
+
+  /**
+   * Replaces the tags on a tracking session (`tags: []` clears). Pass the
+   * session `host` when several sessions share a number; tags come back
+   * merged onto later `/sessions/active` and `/sessions/history` rows.
+   */
+  async setTrackingSessionTags(sessionNumber, tags, host) {
+    return this.#guarded(async () => {
+      const query = host ? `?host=${encodeURIComponent(host)}` : '';
+      const updated = await this.#request(
+        `/sessions/${encodeURIComponent(String(sessionNumber))}${query}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ tags })
+        }
+      );
+
+      this.state.trackingSessions.forEach((session) => {
+        if (String(session.number) === String(sessionNumber) && (!host || session.host === host)) {
+          session.tags = updated?.tags ?? tags;
+        }
+      });
+
+      return updated;
     });
   }
 

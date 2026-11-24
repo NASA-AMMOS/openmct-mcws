@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Operations JSON Proxy API
-  version: 0.12.0
+  version: 0.13.0
   description: |
     Design-first contract for a JSON proxy covering the telemetry surface
     consumed by the `openmct-mcws` plugin plus generic authentication,
@@ -62,6 +62,17 @@ info:
     deployment configuration shared with the frontend, which builds its
     session start forms from the same key list. The proxy allowlists the
     keys it accepts and rejects unknown keys with 400.
+
+    Any running session can be tagged after it starts. A session carries
+    `tags`, a list of short free-text strings (see `SessionTags`), set at
+    session start or replaced afterwards with `PATCH
+    /command-sessions/{sessionId}`, `PATCH /downlink-sessions/{sessionId}`,
+    or `PATCH /sessions/{sessionId}` (tracking sessions). Every later
+    `GET` that describes the session returns its current tags:
+    `GET /command-sessions`, `GET /downlink-sessions`, `GET
+    /sessions/active`, and `GET /sessions/history`. Tags are proxy-owned
+    annotation only: they never reach AMPCS/MCWS, have no effect on
+    queries, streams, or commanding, and the last writer wins.
 
     Radiation status for a dispatched command is the `status` of its
     command events (`/command-events`, `/streams/command-events`),
@@ -457,7 +468,9 @@ paths:
         `SessionService.getActiveSessions` / `getTopicsWithSessions`.
         No query params are sent. The plugin groups rows by `topic`;
         each group becomes a topic object (first row minus `number`)
-        with a `sessions` array of rows that carry `number`.
+        with a `sessions` array of rows that carry `number`. The proxy
+        merges each row's current `tags` (see `PATCH /sessions/{sessionId}`)
+        onto the row; untagged rows carry `tags: []`.
       parameters:
         - $ref: '#/components/parameters/OutputJson'
       responses:
@@ -499,7 +512,10 @@ paths:
         proxy), or the user running the stack when there is none, and
         `type` says whether it is a command or downlink session. Sessions
         opened outside the proxy are not listed. A new stack starts with an
-        empty history.
+        empty history. Each row carries its current `tags`: for proxy-owned
+        sessions the tags stored on the session, for sessions opened
+        outside the proxy the tracking-session overlay (see `PATCH
+        /sessions/{sessionId}`); untagged rows carry `tags: []`.
       parameters:
         - $ref: '#/components/parameters/Filter'
         - $ref: '#/components/parameters/Sort'
@@ -516,6 +532,60 @@ paths:
                   $ref: '#/components/schemas/Session'
         '400':
           $ref: '#/components/responses/BadRequest'
+  /sessions/{sessionId}:
+    patch:
+      tags: [Sessions]
+      summary: Replace the tags on a tracking session
+      description: |
+        Replaces the whole `tags` list on a tracking session — one seen
+        on `GET /sessions/active` or `GET /sessions/history` — after the
+        session has started. Send `tags: []` to clear it. The new list is
+        returned on every later `GET /sessions/active` and `GET
+        /sessions/history` row for the session, and in this response.
+
+        Tracking sessions are owned by MCWS/AMPCS, not the proxy, so the
+        proxy keeps the tags in its own overlay store keyed by session
+        `number` + `host` (the same pair `/sessions/history` dedupes on).
+        The optional `host` query parameter names that pair; it may be
+        omitted only when exactly one known session has that number —
+        when several do and no `host` is given, the proxy responds 400.
+        The overlay survives a proxy restart and is kept after the
+        session ends, so history rows retain their tags. Tagging never
+        mutates the underlying MCWS/AMPCS session. Sessions the proxy
+        itself opened are tagged through `/command-sessions/{sessionId}`
+        or `/downlink-sessions/{sessionId}` instead; a proxy-owned id
+        patched here updates the same stored tags, so both routes agree.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/TrackingSessionId'
+        - name: host
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Session host, disambiguating sessions that share a number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionTagUpdate'
+      responses:
+        '200':
+          description: Tracking session row with its updated tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /dictionaries/channels:
     get:
       tags: [Dictionaries]
@@ -1174,6 +1244,41 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
   /command-sessions/{sessionId}:
+    patch:
+      tags: [Command Sessions]
+      summary: Replace the tags on an open command session
+      description: |
+        Replaces the whole `tags` list on a running command session,
+        after it has started. Send `tags: []` to clear it. The updated
+        session is returned here, and its tags are returned by every
+        later `GET /command-sessions` and `GET /sessions/history` call.
+        Tags are stored with the session in proxy state (kept across a
+        proxy restart, alongside session history) and never reach AMPCS.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionTagUpdate'
+      responses:
+        '200':
+          description: Command session with its updated tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveCommandSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
     delete:
       tags: [Command Sessions]
       summary: Stop one command session
@@ -1264,6 +1369,41 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
   /downlink-sessions/{sessionId}:
+    patch:
+      tags: [Downlink Sessions]
+      summary: Replace the tags on an open downlink session
+      description: |
+        Replaces the whole `tags` list on a running downlink session,
+        after it has started. Send `tags: []` to clear it. The updated
+        session is returned here, and its tags are returned by every
+        later `GET /downlink-sessions` and `GET /sessions/history` call.
+        Tags are stored with the session in proxy state (kept across a
+        proxy restart, alongside session history) and never reach AMPCS.
+      security:
+        - oidc: [sessions:manage]
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionTagUpdate'
+      responses:
+        '200':
+          description: Downlink session with its updated tags
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveDownlinkSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
     delete:
       tags: [Downlink Sessions]
       summary: Stop one downlink session
@@ -2197,6 +2337,16 @@ components:
       schema:
         type: integer
       description: Command or downlink session id (`Session.number`)
+    TrackingSessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: |
+        Tracking session id (`Session.number`). LAD rows give it as an
+        integer and `chill_get_sessions` rows as a string, so it is
+        matched as a string either way.
     TransferId:
       name: transferId
       in: path
@@ -2490,6 +2640,8 @@ components:
         end_time_sclk:
           type: string
           description: Session end time as SCLK, when available
+        tags:
+          $ref: '#/components/schemas/SessionTags'
     ChannelDictionaryEntry:
       type: object
       additionalProperties: true
@@ -2701,6 +2853,34 @@ components:
         Redundant-side selector. `DEFAULT` uses the command session's
         `defaultTarget`; otherwise selects flight computer side A, B,
         or both.
+    SessionTags:
+      type: array
+      description: |
+        Short free-text tags annotating a session, e.g.
+        `["sol-42", "drive-test"]`. Proxy-owned annotation: set at
+        session start or replaced afterwards with the `PATCH`
+        session-tag endpoints, and returned by every `GET` that
+        describes the session. Never sent to AMPCS/MCWS. An empty
+        array means untagged.
+      maxItems: 20
+      uniqueItems: true
+      items:
+        type: string
+        minLength: 1
+        maxLength: 64
+      example: [sol-42, drive-test]
+    SessionTagUpdate:
+      type: object
+      additionalProperties: false
+      required: [tags]
+      description: |
+        Whole-list replacement for a session's tags. The proxy trims
+        each tag; a tag that is empty after trimming, longer than 64
+        characters, or duplicated in the list is rejected with 400.
+        Send `tags: []` to clear all tags.
+      properties:
+        tags:
+          $ref: '#/components/schemas/SessionTags'
     SessionParameters:
       type: object
       description: |
@@ -2743,6 +2923,8 @@ components:
           minimum: 25
           default: 30
           description: Startup wait bound in seconds
+        tags:
+          $ref: '#/components/schemas/SessionTags'
     CommandSession:
       type: object
       required: [sessionIds, startTime]
@@ -2773,6 +2955,8 @@ components:
         host:
           type: string
           description: Session host
+        tags:
+          $ref: '#/components/schemas/SessionTags'
     DownlinkSessionStart:
       type: object
       description: Give `parameters` to open a new session, or `sessionIds` to attach
@@ -2787,6 +2971,8 @@ components:
           items:
             type: integer
           description: Existing tracking session ids to start downlink processing for
+        tags:
+          $ref: '#/components/schemas/SessionTags'
     ActiveDownlinkSession:
       type: object
       required: [sessionId, startTime]
@@ -2808,6 +2994,8 @@ components:
         host:
           type: string
           description: Session host
+        tags:
+          $ref: '#/components/schemas/SessionTags'
     QueueState:
       type: string
       enum: [loaded, running, paused, aborted, completed, failed]
