@@ -1,0 +1,8 @@
+# Source spec for scrub-requirements.txt, the hash-locked lockfile used by
+# .github/workflows/codeql_scrub.yml to install nasa-scrub.
+#
+# To bump the nasa-scrub version: edit the pin below, then regenerate the
+# lockfile with:
+#   pip-compile --no-strip-extras --generate-hashes --allow-unsafe \
+#     -o .github/codeql/scrub-requirements.txt .github/codeql/scrub-requirements.in
+nasa-scrub==3.0.2

@@ -92,7 +92,12 @@ jobs:
 
     - name: Post-Process Output
       run: |
-        python3 -m pip install nasa-scrub
+        # nasa-scrub is installed from a hash-locked lockfile (dependency locking / supply-chain
+        # requirement). To bump the nasa-scrub version, edit .github/codeql/scrub-requirements.in
+        # and regenerate the lockfile with:
+        #   pip-compile --no-strip-extras --generate-hashes --allow-unsafe \
+        #     -o .github/codeql/scrub-requirements.txt .github/codeql/scrub-requirements.in
+        python3 -m pip install --require-hashes -r ${{ github.workspace }}/.github/codeql/scrub-requirements.txt
  
         results_dir=`realpath ${{ github.workspace }}/../results`
         sarif_files=`find $results_dir -name '*.sarif'`
