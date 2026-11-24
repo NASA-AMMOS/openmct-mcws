@@ -54,13 +54,13 @@ jobs:
         # your codebase is analyzed, see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/codeql-code-scanning-for-compiled-languages
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       with:
         fetch-depth: 0
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
+      uses: github/codeql-action/init@945b7d9e1ef2ede408e4a42d45f0579c33fc53ec # v3
       with:
         languages: ${{ matrix.language }}
         build-mode: ${{ matrix.build-mode }}
@@ -88,32 +88,18 @@ jobs:
         exit 1
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
+      uses: github/codeql-action/analyze@945b7d9e1ef2ede408e4a42d45f0579c33fc53ec # v3
       with:
         category: "/language:${{matrix.language}}"
 
-    # - name: Post-Process Output
-    #   run: |
-    #     ls -alt /home/runner/work/openmct-mcws/results
-    #     pip instal nasa-scrub
- 
-    #     results_dir=`realpath ${{ github.workspace }}/../results`
-    #     sarif_files=`find $results_dir -name '*.sarif'`
- 
-    #     for sarif_file in $sarif_files
-    #     do
-    #       output_file="$results_dir/$(basename $sarif_file .sarif)_stripped.sarif"
- 
-    #       python3 -m scrub.tools.parsers.translate_results $sarif_file $output_file ${{ github.workspace }} sarif
-    #     done
- 
-    #     python3 -m scrub.tools.parsers.csv_parser $results_dir
- 
-    #     echo "RESULTS_DIR=$results_dir" >> $GITHUB_ENV
-
     - name: Post-Process Output
       run: |
-        python3 -m pip install nasa-scrub
+        # nasa-scrub is installed from a hash-locked lockfile (dependency locking / supply-chain
+        # requirement). To bump the nasa-scrub version, edit .github/codeql/scrub-requirements.in
+        # and regenerate the lockfile with:
+        #   pip-compile --no-strip-extras --generate-hashes --allow-unsafe \
+        #     -o .github/codeql/scrub-requirements.txt .github/codeql/scrub-requirements.in
+        python3 -m pip install --require-hashes -r ${{ github.workspace }}/.github/codeql/scrub-requirements.txt
  
         results_dir=`realpath ${{ github.workspace }}/../results`
         sarif_files=`find $results_dir -name '*.sarif'`
@@ -133,14 +119,14 @@ jobs:
        
       
     - name: Upload Artifacts
-      uses: actions/upload-artifact@v4.3.1
+      uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
       with:
         name: codeql-artifacts
         path: ${{ env.RESULTS_DIR }}
     # Run the Karma suite so the Sonar scan below can ingest coverage
     # (sonar.javascript.lcov.reportPaths in sonar-project.properties).
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version: '24'
         cache: 'npm'
@@ -154,6 +140,6 @@ jobs:
         CHROME_BIN: /usr/bin/google-chrome
 
     - name: SonarCloud Scan
-      uses: SonarSource/sonarqube-scan-action@v6
+      uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6.0.0
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
