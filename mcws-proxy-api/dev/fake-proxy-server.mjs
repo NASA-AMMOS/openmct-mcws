@@ -33,25 +33,63 @@ const types = {
   '.woff2': 'font/woff2',
   '.ttf': 'font/ttf'
 };
-const state = { nextId: 30, commandSessions: [], downlinkSessions: [] };
+const state = { nextId: 30, commandSessions: [], downlinkSessions: [], trackingTags: new Map() };
 const log = [];
+
+function trackingTagKey(number, host) {
+  return `${String(number)}|${host || ''}`;
+}
+
+// Whole-list tag replacement per SessionTagUpdate: trim each tag, reject
+// non-arrays, empty/overlong/duplicate tags, and more than 20 tags.
+function normalizeTags(body) {
+  if (!body || !Array.isArray(body.tags)) return { error: 'tags must be an array' };
+  if (body.tags.length > 20) return { error: 'at most 20 tags' };
+  const tags = body.tags.map((tag) => (typeof tag === 'string' ? tag.trim() : tag));
+  if (tags.some((tag) => typeof tag !== 'string' || tag.length === 0 || tag.length > 64))
+    return { error: 'each tag must be a string of 1-64 characters' };
+  if (new Set(tags).size !== tags.length) return { error: 'tags must be unique' };
+  return { tags };
+}
 
 function send(res, status, body) {
   res.writeHead(status, { 'Content-Type': 'application/json' });
   res.end(body === undefined ? '' : JSON.stringify(body));
 }
 
-function api(req, res, route, body) {
+function api(req, res, route, body, query = new URLSearchParams()) {
   const now = new Date().toISOString();
   let match;
 
   if (req.method === 'GET' && route === '/sessions/active') return send(res, 200, []);
+  if (req.method === 'PATCH' && (match = route.match(/^\/sessions\/([^/]+)$/))) {
+    const { tags, error } = normalizeTags(body);
+    if (error) return send(res, 400, { message: error });
+    const number = decodeURIComponent(match[1]);
+    const host = query.get('host') || '';
+    // Proxy-owned sessions share the same stored tags, so both routes agree.
+    const owned = [...state.commandSessions, ...state.downlinkSessions].find(
+      (s) => String(s.sessionId) === number && (!host || s.host === host)
+    );
+    if (owned) {
+      owned.tags = tags;
+      return send(res, 200, { number: owned.sessionId, host: owned.host || host, tags });
+    }
+    // The fake has no tracking-session source (GET /sessions/active is
+    // empty), so it records the overlay for any number instead of 404ing
+    // on unknown sessions as the spec requires of the real proxy.
+    state.trackingTags.set(trackingTagKey(number, host), tags);
+    return send(res, 200, { number, host, tags });
+  }
   if (req.method === 'GET' && route === '/command-sessions')
     return send(res, 200, state.commandSessions);
   if (req.method === 'POST' && route === '/command-sessions') {
+    if (body.tags !== undefined && normalizeTags(body).error)
+      return send(res, 400, { message: normalizeTags(body).error });
+    const startTags = body.tags ? normalizeTags(body).tags : [];
     if (Array.isArray(body.sessionIds) && body.sessionIds.length > 0) {
       body.sessionIds.forEach((sessionId) =>
-        state.commandSessions.push({ sessionId, startTime: now, parameters: {} })
+        state.commandSessions.push({ sessionId, startTime: now, parameters: {}, tags: startTags })
       );
       return send(res, 200, { sessionIds: body.sessionIds, startTime: now });
     }
@@ -60,9 +98,18 @@ function api(req, res, route, body) {
       sessionId,
       startTime: now,
       parameters: body.parameters || {},
-      topic: 'mpcs.dev.fake'
+      topic: 'mpcs.dev.fake',
+      tags: startTags
     });
     return send(res, 200, { sessionIds: [sessionId], startTime: now });
+  }
+  if (req.method === 'PATCH' && (match = route.match(/^\/command-sessions\/(\d+)$/))) {
+    const session = state.commandSessions.find((s) => s.sessionId === Number(match[1]));
+    if (!session) return send(res, 404, { message: `no command session ${match[1]}` });
+    const { tags, error } = normalizeTags(body);
+    if (error) return send(res, 400, { message: error });
+    session.tags = tags;
+    return send(res, 200, session);
   }
   if (req.method === 'DELETE' && (match = route.match(/^\/command-sessions\/(\d+)$/))) {
     state.commandSessions = state.commandSessions.filter((s) => s.sessionId !== Number(match[1]));
@@ -78,9 +125,25 @@ function api(req, res, route, body) {
         s.parameters.fswDownlinkPort === parameters.fswDownlinkPort
     );
     if (clash) return send(res, 409, { message: `port in use by session ${clash.sessionId}` });
-    const session = { sessionId: state.nextId++, startTime: now, parameters, state: 'ACTIVE' };
+    if (body.tags !== undefined && normalizeTags(body).error)
+      return send(res, 400, { message: normalizeTags(body).error });
+    const session = {
+      sessionId: state.nextId++,
+      startTime: now,
+      parameters,
+      state: 'ACTIVE',
+      tags: body.tags ? normalizeTags(body).tags : []
+    };
     state.downlinkSessions.push(session);
     return send(res, 200, [session]);
+  }
+  if (req.method === 'PATCH' && (match = route.match(/^\/downlink-sessions\/(\d+)$/))) {
+    const session = state.downlinkSessions.find((s) => s.sessionId === Number(match[1]));
+    if (!session) return send(res, 404, { message: `no downlink session ${match[1]}` });
+    const { tags, error } = normalizeTags(body);
+    if (error) return send(res, 400, { message: error });
+    session.tags = tags;
+    return send(res, 200, session);
   }
   if (req.method === 'DELETE' && (match = route.match(/^\/downlink-sessions\/(\d+)$/))) {
     state.downlinkSessions = state.downlinkSessions.filter((s) => s.sessionId !== Number(match[1]));
@@ -113,7 +176,7 @@ http
         }
         if (route !== '/__log')
           log.push({ method: req.method, route, body: raw ? body : undefined });
-        api(req, res, route, body);
+        api(req, res, route, body, url.searchParams);
       });
       return;
     }
